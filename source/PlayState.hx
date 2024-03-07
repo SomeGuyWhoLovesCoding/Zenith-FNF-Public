@@ -255,7 +255,20 @@ class PlayState extends MusicBeatState
 		}
 
 		for (grp in [notes, sustains])
-			grp.forEach(noteFunc);
+			grp.forEach(function(daNote:Note) {
+				daNote.followStrum(strums.members[daNote.noteData + (daNote.mustPress ? 4 : 0)]);
+				daNote.onNoteHit = onNoteHit;
+				/*daNote.onNoteHit = function(noteData:Int, mustPress:Bool) {
+					// Testing...
+					//trace(noteData, mustPress);
+				}*/
+
+				if (Conductor.songPosition >= daNote.strumTime)
+					daNote.hit();
+
+				if (Conductor.songPosition >= daNote.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
+					grp.remove(daNote, true);
+			});
 
 		//trace(inst.time,voices.time);
 
@@ -934,22 +947,6 @@ class PlayState extends MusicBeatState
 
 		if (!hideHUD && !note.isSustainNote && note.mustPress)
 			score += 350;
-	}
-
-	public function noteFunc(daNote:Note):Void
-	{
-		daNote.followStrum(strums.members[daNote.noteData + (daNote.mustPress ? 4 : 0)]);
-		daNote.onNoteHit = onNoteHit;
-		/*daNote.onNoteHit = function(noteData:Int, mustPress:Bool) {
-			// Testing...
-			//trace(noteData, mustPress);
-		}*/
-
-		if (Conductor.songPosition >= daNote.strumTime)
-			daNote.hit();
-
-		if (Conductor.songPosition >= daNote.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
-			(daNote.isSustainNote ? sustains : notes).remove(daNote);
 	}
 
 	// Camera functions
