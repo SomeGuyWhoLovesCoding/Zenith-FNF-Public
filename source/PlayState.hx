@@ -30,7 +30,6 @@ class PlayState extends MusicBeatState
 	public var score:Float = 0;
 
 	// Preference stuff
-	public static var wrongNoteSorting:Bool = false;
 	public static var downScroll:Bool = false;
 	public static var optimizeNotes:Bool = true;
 	public static var hideHUD:Bool = false;
@@ -221,9 +220,7 @@ class PlayState extends MusicBeatState
 			dunceNote.prevNote = n.members[n.members.length-1];
 
 			n.add(dunceNote);
-
-			if (wrongNoteSorting)
-				n.sort(flixel.util.FlxSort.byY, 1);
+			n.members.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
 
 			//n.sortNotes();
 
