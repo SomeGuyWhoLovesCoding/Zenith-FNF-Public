@@ -70,24 +70,23 @@ class Note extends FlxSprite
 			makeGraphic(112, 112, 0xFFFF0000);
 
 		antialiasing = true;
+
+		scale.set(0.7, 0.7);
 	}
 
 	public function followStrum(strum:StrumNote):Void
 	{
 		distance = 0.45 * (Conductor.songPosition - strumTime) * (PlayState.instance.songSpeed * multSpeed);
 		x = strum.x + offsetX;
-		y = (strum.y + offsetY) + (1 * (strum.downScroll ? distance : -distance));
+		y = (strum.y + offsetY) + (1 * (strum.downScroll ? distance : -distance)) - (strum.downScroll ? (frameHeight * scale.y) - strum.height : 0);
 
 		// Sustain scaling for song speed (even if it's changed)
 		if (isSustainNote)
 		{
 			offsetX = SUSTAIN_NOTE_OFFSET_THRESHOLD;
+			flipX = flipY = strum.downScroll;
 			scale.set(0.7, animation.curAnim.name.endsWith('end') ? 1 : Conductor.stepCrochet * 0.0105 * (PlayState.instance.songSpeed * multSpeed));
 			updateHitbox();
-			if (strum.downScroll)
-			{
-				flipX = flipY = strum.downScroll;
-			}
 		}
 	}
 
@@ -139,7 +138,6 @@ class Note extends FlxSprite
 		{
 			animation.addByPrefix(animArray[noteData] + 'Scroll', animArray[noteData] + '0');
 			animation.play(animArray[noteData] + 'Scroll');
-			setGraphicSize(Std.int(width * 0.7));
 		}
 
 		updateHitbox();

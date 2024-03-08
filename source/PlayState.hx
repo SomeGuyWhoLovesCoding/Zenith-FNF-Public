@@ -111,16 +111,11 @@ class PlayState extends MusicBeatState
 
 	override public function create():Void
 	{
-		instance = this;
+		cpp.vm.Gc.enable(true);
 
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
 
-		cpp.vm.Gc.enable(true);
-
-		// Clear character maps
-		bfMap.clear();
-		dadMap.clear();
-		gfMap.clear();
+		instance = this;
 
 		// Preferences stuff
 		// Soon...
