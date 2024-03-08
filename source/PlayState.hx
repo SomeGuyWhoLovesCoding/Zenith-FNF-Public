@@ -220,7 +220,7 @@ class PlayState extends MusicBeatState
 			dunceNote.prevNote = n.members[n.members.length-1];
 
 			n.add(dunceNote);
-			n.members.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
+			n.sort(flixel.util.FlxSort.byY, 1);
 
 			//n.sortNotes();
 
