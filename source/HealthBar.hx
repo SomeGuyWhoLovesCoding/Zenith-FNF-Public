@@ -17,12 +17,12 @@ class HealthBar extends FlxSpriteGroup
 	{
 		super(x, y);
 
+		this.maxValue = maxValue;
+
 		__width = width;
 		__height = height;
 
 		reloadBar(left, right);
-
-		this.maxValue = maxValue;
 
 		antialiasing = true;
 		moves = false;
@@ -68,7 +68,7 @@ class HealthBar extends FlxSpriteGroup
 		{
 			__right.scale.x = v;
 			__right.updateHitbox();
-			__right.x = __left.width + 338.8888888888889 /* Crazy math I got there :trollface: */;
+			__right.x = __left.width + 340 /* Crazy math I got there :trollface: */;
 		}
 	}
 }
