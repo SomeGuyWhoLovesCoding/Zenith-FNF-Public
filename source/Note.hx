@@ -130,9 +130,9 @@ class Note extends FlxSprite
 		isSustainNote = chartNoteData.isSustainNote;
 		sustainLength = chartNoteData.sustainLength;
 
-		animation.play(animArray[noteData] + (isSustainNote ? (chartNoteData.isSustainEnd ? 'holdend' : 'hold') : 'Scroll'));
-
 		y = -2000;
+
+		animation.play(animArray[noteData] + (isSustainNote ? (chartNoteData.isSustainEnd ? 'holdend' : 'hold') : 'Scroll'));
 
 		return this;
 	}
