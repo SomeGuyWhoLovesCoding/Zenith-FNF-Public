@@ -54,16 +54,9 @@ class Note extends FlxSprite
 	// Default: Perfectly centered within the receptor.
 	public static final SUSTAIN_NOTE_OFFSET_THRESHOLD:Float = 35;
 
-	public function new(data:Int, sustainNote:Bool = false)
+	public function new()
 	{
 		super();
-
-		y = -2000;
-
-		frames = @:privateAccess Paths.noteFrames;
-
-		noteData = data;
-		isSustainNote = sustainNote;
 
 		if (prototypeNoteskin)
 			makeGraphic(112, 112, 0xFFFF0000);
@@ -75,6 +68,7 @@ class Note extends FlxSprite
 		scale.set(0.7, 0.7);
 		updateHitbox();
 
+		frames = @:privateAccess Paths.noteFrames;
 		animation.copyFrom(@:privateAccess Paths.noteAnimation);
 
 		//trace('Yes');
