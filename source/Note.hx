@@ -65,11 +65,11 @@ class Note extends FlxSprite
 
 		// Set the note's scale to 0.7 initially and update the hitbox, don't reuse that same process each time a note, and add the animation prefixes in the constructor.
 
-		scale.set(0.7, 0.7);
-		updateHitbox();
-
 		frames = @:privateAccess Paths.noteFrames;
 		animation.copyFrom(@:privateAccess Paths.noteAnimation);
+
+		scale.set(0.7, 0.7);
+		updateHitbox();
 
 		//trace('Yes');
 	}
