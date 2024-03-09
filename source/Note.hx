@@ -100,19 +100,13 @@ class Note extends FlxSprite
 		}
 	}
 
-	public function hit(remove:Bool = false):Void
+	public function hit():Void
 	{
 		if (wasHit)
 			return;
 
 		if (!isSustainNote)
 			visible = false;
-
-		if (remove)
-		{
-			wasHit = true;
-			return;
-		}
 
 		if (onNoteHit != null)
 			onNoteHit(this);
