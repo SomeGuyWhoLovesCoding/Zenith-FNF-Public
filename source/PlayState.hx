@@ -254,7 +254,7 @@ class PlayState extends MusicBeatState
 				if (Conductor.songPosition >= daNote.strumTime && (!daNote.mustPress || cpuControlled))
 					daNote.hit();
 
-				if (daNote.mustPress && Conductor.songPosition >= daNote.strumTime + (Conductor.stepCrochet * 2) && !cpuControlled)
+				if (Conductor.songPosition >= daNote.strumTime + (Conductor.stepCrochet * 2) && (daNote.mustPress && !cpuControlled))
 					daNote.miss();
 
 				if (Conductor.songPosition >= daNote.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
@@ -1057,7 +1057,7 @@ class PlayState extends MusicBeatState
 
 			var hittable:Array<Note> = notes.members.filter(n ->
 				(n != null && n.mustPress && Math.abs(Conductor.songPosition - n.strumTime) < 200 &&
-				!n.wasHit && !n.tooLate)
+				!n.wasHit && !n.tooLate && n.noteData == key)
 			);
 
 			hittable.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
