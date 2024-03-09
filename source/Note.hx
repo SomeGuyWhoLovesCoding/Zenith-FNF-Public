@@ -82,6 +82,8 @@ class Note extends FlxSprite
 			animation.addByPrefix(animArray[d] + 'hold', animArray[d] + ' hold piece0');
 			animation.addByPrefix(animArray[d] + 'Scroll', animArray[d] + '0');
 		}
+
+		trace('Yes');
 	}
 
 	public function followStrum(strum:StrumNote):Void
@@ -105,9 +107,6 @@ class Note extends FlxSprite
 		if (wasHit)
 			return;
 
-		if (!isSustainNote)
-			visible = false;
-
 		if (onNoteHit != null)
 			onNoteHit(this);
 
@@ -125,6 +124,8 @@ class Note extends FlxSprite
 	// Used for recycling
 	private function setupNoteData(chartNoteData:ChartNoteData):Note
 	{
+		wasHit = false;
+
 		active = pixelPerfectPosition = false; // Don't make an update call of this for the note group
 
 		strumTime = chartNoteData.strumTime;
