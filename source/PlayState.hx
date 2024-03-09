@@ -253,7 +253,7 @@ class PlayState extends MusicBeatState
 					daNote.hit();
 
 				if (Conductor.songPosition >= daNote.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
-					grp.remove(daNote);
+					daNote.kill();
 			});
 		}
 

@@ -1,5 +1,6 @@
 package;
 
+import flixel.animation.FlxAnimationController;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.media.Sound;
@@ -13,10 +14,25 @@ class Paths
 	inline public static var SOUND_EXT = "ogg";
 
 	private static var noteFrames:FlxFramesCollection; // Don't reuse the same note spritesheet data, leave it there
+	private static var noteAnimation:FlxAnimationController;
 
-	public static function initNoteShit()
+	public static function initNoteShit(keys:Int = 4)
 	{
 		noteFrames = Paths.getSparrowAtlas('noteskins/NOTE_assets');
+
+		// Do this to be able to just copy over the note animations and not reallocate it
+
+		var spr:FlxSprite = new FlxSprite();
+		spr.frames = noteFrames;
+		noteAnimation = new FlxAnimationController(spr);
+
+		// Use a for loop for adding all of the animations in the note spritesheet, otherwise it won't find the animations for the next recycle
+		for (d in 0...keys)
+		{
+			noteAnimation.addByPrefix(Note.animArray[d] + 'holdend', Note.animArray[d] + ' hold end0');
+			noteAnimation.addByPrefix(Note.animArray[d] + 'hold', Note.animArray[d] + ' hold piece0');
+			noteAnimation.addByPrefix(Note.animArray[d] + 'Scroll', Note.animArray[d] + '0');
+		}
 	}
 
 	inline static public function sound(key:String):Sound

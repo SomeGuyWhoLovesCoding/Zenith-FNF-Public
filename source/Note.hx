@@ -76,14 +76,9 @@ class Note extends FlxSprite
 		scale.set(0.7, 0.7);
 		updateHitbox();
 
-		for (d in 0...4)
-		{
-			animation.addByPrefix(animArray[d] + 'holdend', animArray[d] + ' hold end0');
-			animation.addByPrefix(animArray[d] + 'hold', animArray[d] + ' hold piece0');
-			animation.addByPrefix(animArray[d] + 'Scroll', animArray[d] + '0');
-		}
+		animation.copyFrom(@:privateAccess Paths.noteAnimation);
 
-		trace('Yes');
+		//trace('Yes');
 	}
 
 	public function followStrum(strum:StrumNote):Void
@@ -115,6 +110,9 @@ class Note extends FlxSprite
 
 	public function miss():Void
 	{
+		if (tooLate)
+			return;
+
 		if (onNoteMiss != null)
 			onNoteMiss(this);
 
@@ -124,9 +122,7 @@ class Note extends FlxSprite
 	// Used for recycling
 	private function setupNoteData(chartNoteData:ChartNoteData):Note
 	{
-		wasHit = false;
-
-		active = pixelPerfectPosition = false; // Don't make an update call of this for the note group
+		wasHit = active = pixelPerfectPosition = false; // Don't make an update call of this for the note group
 
 		strumTime = chartNoteData.strumTime;
 		noteData = Std.int(chartNoteData.noteData % 4);
@@ -135,12 +131,9 @@ class Note extends FlxSprite
 		isSustainNote = chartNoteData.isSustainNote;
 		sustainLength = chartNoteData.sustainLength;
 
-		y = -2000;
-
-		if (isSustainNote)
-			alpha = 0.6;
-
 		animation.play(animArray[noteData] + (isSustainNote ? (chartNoteData.isSustainEnd ? 'holdend' : 'hold') : 'Scroll'));
+
+		y = -2000;
 
 		return this;
 	}
