@@ -71,7 +71,17 @@ class Note extends FlxSprite
 
 		antialiasing = true;
 
+		// Set the note's scale to 0.7 initially and update the hitbox, don't reuse that same process each time a note, and add the animation prefixes in the constructor.
+
 		scale.set(0.7, 0.7);
+		updateHitbox();
+
+		for (d in 0...4)
+		{
+			animation.addByPrefix(animArray[d] + 'holdend', animArray[d] + ' hold end0');
+			animation.addByPrefix(animArray[d] + 'hold', animArray[d] + ' hold piece0');
+			animation.addByPrefix(animArray[d] + 'Scroll', animArray[d] + '0');
+		}
 	}
 
 	public function followStrum(strum:StrumNote):Void
@@ -127,20 +137,9 @@ class Note extends FlxSprite
 		y = -2000;
 
 		if (isSustainNote)
-		{
-			offsetX = SUSTAIN_NOTE_OFFSET_THRESHOLD;
-			animation.addByPrefix(animArray[noteData] + 'holdend', animArray[noteData] + ' hold end0');
-			animation.addByPrefix(animArray[noteData] + 'hold', animArray[noteData] + ' hold piece0');
-			animation.play(animArray[noteData] + (chartNoteData.isSustainEnd ? 'holdend' : 'hold'));
 			alpha = 0.6;
-		}
-		else
-		{
-			animation.addByPrefix(animArray[noteData] + 'Scroll', animArray[noteData] + '0');
-			animation.play(animArray[noteData] + 'Scroll');
-		}
 
-		updateHitbox();
+		animation.play(animArray[noteData] + (isSustainNote ? (chartNoteData.isSustainEnd ? 'holdend' : 'hold') : 'Scroll'));
 
 		return this;
 	}
