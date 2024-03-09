@@ -9,6 +9,9 @@ import flixel.ui.FlxBar;
 import flixel.text.FlxText;
 import flixel.util.FlxSort;
 
+import lime.app.Application;
+import lime.ui.*;
+
 import Note; // Don't remove this.
 
 using StringTools;
@@ -30,6 +33,7 @@ class PlayState extends MusicBeatState
 	public var score:Float = 0;
 
 	// Preference stuff
+	public static var cpuControlled:Bool = false;
 	public static var downScroll:Bool = false;
 	public static var sortNotes:Bool = false; // Turning this on might degrade in performance
 	public static var hideHUD:Bool = false;
@@ -105,6 +109,9 @@ class PlayState extends MusicBeatState
 	override public function create():Void
 	{
 		cpp.vm.Gc.enable(true);
+
+		Application.current.window.onKeyDown.add(onKeyDown);
+		Application.current.window.onKeyUp.add(onKeyUp);
 
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
 
@@ -191,6 +198,8 @@ class PlayState extends MusicBeatState
 	{
 		super.update(elapsed);
 
+		health = FlxMath.bound(health, 0, 2);
+
 		Conductor.songPosition += FlxG.elapsed * 1000;
 
 		while (unspawnNotes.length != 0 && Conductor.songPosition >= unspawnNotes[unspawnNotes.length-1].strumTime - 1850 / (songSpeed / hudCamera.zoom))
@@ -235,14 +244,18 @@ class PlayState extends MusicBeatState
 			{
 				daNote.followStrum(strums.members[daNote.noteData + (daNote.mustPress ? 4 : 0)]);
 				daNote.onNoteHit = onNoteHit;
+				daNote.onNoteMiss = onNoteMiss;
 
 				/*daNote.onNoteHit = function(noteData:Int, mustPress:Bool) {
 					// Testing...
 					//trace(noteData, mustPress);
 				}*/
 
-				if (Conductor.songPosition >= daNote.strumTime)
+				if (Conductor.songPosition >= daNote.strumTime && (!daNote.mustPress || cpuControlled))
 					daNote.hit();
+
+				if (daNote.mustPress && Conductor.songPosition >= daNote.strumTime + (Conductor.stepCrochet * 2) && !cpuControlled)
+					daNote.miss();
 
 				if (Conductor.songPosition >= daNote.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
 					daNote.kill();
@@ -549,7 +562,7 @@ class PlayState extends MusicBeatState
 				stageFront.setGraphicSize(Std.int(stageFront.width * 1.1));
 				stageFront.updateHitbox();
 				add(stageFront);
-				
+
 				var stageLight:BGSprite = new BGSprite('stage_light', -125, -100, 0.9, 0.9);
 				stageLight.setGraphicSize(Std.int(stageLight.width * 1.1));
 				stageLight.updateHitbox();
@@ -900,18 +913,27 @@ class PlayState extends MusicBeatState
 	{
 		note.kill();
 
-		var char = (note.mustPress ? bf : (note.gfNote ? gf : dad));
-
 		strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
+
+		var char = (note.mustPress ? bf : (note.gfNote ? gf : dad));
 
 		char.playAnim(singAnimations[note.noteData], true);
 		char.holdTimer = 0;
 
 		health += (0.045 * (note.isSustainNote ? 0.5 : 1)) * (note.mustPress ? 1 : -1);
-		health = FlxMath.bound(health, 0, 2);
 
-		if (!hideHUD && !note.isSustainNote && note.mustPress)
+		if (!note.isSustainNote && note.mustPress)
 			score += 350;
+	}
+
+	public function onNoteMiss(note:Note):Void
+	{
+		bf.playAnim(singAnimations[note.noteData] + 'miss', true);
+		bf.holdTimer = 0;
+
+		health -= 0.045 * (note.isSustainNote ? 0.5 : 1);
+
+		score -= 100;
 	}
 
 	// Camera functions
@@ -1006,5 +1028,67 @@ class PlayState extends MusicBeatState
 					newGf.alpha = 0.001;
 				}
 		}
+	}
+
+	// Real input system!!
+
+	var inputKeybinds:Array<Int> = [
+		KeyCode.A,
+		KeyCode.S,
+		KeyCode.UP,
+		KeyCode.RIGHT
+	];
+
+	var holdArray:Array<Bool> = [false, false, false, false];
+
+	function onKeyDown(keyCode:Int, keyMod:Int):Void
+	{
+		var key:Int = inputKeybinds.indexOf(keyCode);
+
+		if (key == -1 || cpuControlled || renderMode)
+			return;
+
+		trace(key);
+
+		if (!holdArray[key])
+		{
+			if (strums.members[key + 4].animation.curAnim.name != 'confirm')
+				strums.members[key + 4].playAnim('pressed');
+
+			var hittable:Array<Note> = notes.members.filter(n ->
+				(n != null && n.mustPress && Math.abs(Conductor.songPosition - n.strumTime) < 200 &&
+				!n.wasHit && !n.tooLate)
+			);
+
+			hittable.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
+			if (hittable[0] != null)
+				onNoteHit(hittable[0]);
+
+			holdArray[key] = true;
+		}
+	}
+
+	function onKeyUp(keyCode:Int, keyMod:Int):Void
+	{
+		var key:Int = inputKeybinds.indexOf(keyCode);
+
+		if (key == -1 || cpuControlled || renderMode)
+			return;
+
+		if (holdArray[key])
+		{
+			if (strums.members[key + 4].animation.curAnim.name != 'static')
+				strums.members[key + 4].playAnim('static');
+
+			holdArray[key] = false;
+		}
+	}
+
+	override function destroy():Void
+	{
+		super.destroy();
+
+		Application.current.window.onKeyDown.remove(onKeyDown);
+		Application.current.window.onKeyUp.remove(onKeyUp);
 	}
 }
