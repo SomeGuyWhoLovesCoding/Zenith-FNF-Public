@@ -51,7 +51,6 @@ class PlayState extends MusicBeatState
 
 	// For optimization stuff
 	private var strumAnimsPlayedDuringCurrentFrame(default, null):Int = 0;
-	private var characterAnimsPlayedDuringCurrentFrame(default, null):Int = 0;
 
 	public var BF_X:Float = 770;
 	public var BF_Y:Float = 100;
@@ -151,11 +150,18 @@ class PlayState extends MusicBeatState
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 
 		var songName:String = Sys.args()[0];
-		//if (songName == null) songName = 'test';
-		var songDifficulty:String = '-' + Sys.args()[1];
-		if (Sys.args()[1] == '.') songDifficulty = '';
 
-		try {
+		/*if (songName == null)
+			songName = 'test';*/
+
+		var songDifficulty:String = '-' + Sys.args()[1];
+		trace(songDifficulty);
+
+		if (songDifficulty == '-null') // What?
+			songDifficulty = '';
+
+		try
+		{
 			generateSong(songName, songDifficulty);
 
 			sustains = new FlxTypedGroup<Note>();
@@ -180,23 +186,17 @@ class PlayState extends MusicBeatState
 			}
 
 			sustains.cameras = strums.cameras = notes.cameras = [hudCamera];
-		} catch (e:Dynamic) {
-			FlxG.switchState(new WelcomeState());
 		}
+		catch (e:Dynamic)
+			FlxG.switchState(new WelcomeState());
 
 		//trace(Sys.args());
 	}
 
 	override public function update(elapsed:Float):Void
 	{
-		if (optimizeNotes)
-		{
-			if (strumAnimsPlayedDuringCurrentFrame != 0)
-				strumAnimsPlayedDuringCurrentFrame = 0;
-
-			if (characterAnimsPlayedDuringCurrentFrame != 0)
-				characterAnimsPlayedDuringCurrentFrame = 0;
-		}
+		if (optimizeNotes && strumAnimsPlayedDuringCurrentFrame != 0)
+			strumAnimsPlayedDuringCurrentFrame = 0;
 
 		super.update(elapsed);
 
@@ -215,7 +215,7 @@ class PlayState extends MusicBeatState
 			dunceNote.prevNote = n.members[n.members.length-1];
 
 			n.add(dunceNote);
-			n.sort(flixel.util.FlxSort.byY, 1);
+			n.members.sort((b, a) -> Std.int((a != null ? a.strumTime : 0) - (b != null ? b.strumTime : 0)));
 
 			//n.sortNotes();
 
@@ -262,7 +262,7 @@ class PlayState extends MusicBeatState
 					daNote.hit();
 
 				if (Conductor.songPosition >= daNote.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
-					grp.remove(daNote, true);
+					grp.remove(daNote);
 			});
 
 		//trace(inst.time,voices.time);
@@ -923,19 +923,12 @@ class PlayState extends MusicBeatState
 				strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
 				strumAnimsPlayedDuringCurrentFrame++;
 			}
-			if (characterAnimsPlayedDuringCurrentFrame < strums.length)
-			{
-				char.playAnim(singAnimations[note.noteData], true);
-				char.holdTimer = 0;
-				characterAnimsPlayedDuringCurrentFrame++;
-			}
 		}
 		else
-		{
 			strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
-			char.playAnim(singAnimations[note.noteData], true);
-			char.holdTimer = 0;
-		}
+
+		char.playAnim(singAnimations[note.noteData], true);
+		char.holdTimer = 0;
 
 		health += (0.045 * (note.isSustainNote ? 0.5 : 1)) * (note.mustPress ? 1 : -1);
 		health = FlxMath.bound(health, 0, 2);

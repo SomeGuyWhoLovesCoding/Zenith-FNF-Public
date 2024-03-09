@@ -4,7 +4,7 @@ echo What song would you like to play?
 set /p "s="
 
 echo.
-echo What song difficulty? ("." for none)
+echo What song difficulty? (blank for none)
 set /p "d="
 
 echo.
