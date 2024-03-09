@@ -205,10 +205,12 @@ class PlayState extends MusicBeatState
 
 			dunceNote.prevNote = n.members[n.members.length-1];
 
-			n.add(unspawnNotes.pop());
+			n.add(dunceNote);
 
 			if (sortNotes)
 				n.members.sort((b, a) -> Std.int((a != null ? a.strumTime : 0) - (b != null ? b.strumTime : 0)));
+
+			unspawnNotes.pop();
 		}
 
 		// This used to be a function
