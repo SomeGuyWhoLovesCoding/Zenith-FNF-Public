@@ -241,6 +241,12 @@ class PlayState extends MusicBeatState
 
 		for (grp in [notes, sustains])
 			grp.forEach(function(daNote:Note) {
+				if (Conductor.songPosition >= daNote.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
+				{
+					daNote.hit(true);
+					grp.remove(daNote, true);
+				}
+
 				daNote.followStrum(strums.members[daNote.noteData + (daNote.mustPress ? 4 : 0)]);
 				daNote.onNoteHit = onNoteHit;
 				/*daNote.onNoteHit = function(noteData:Int, mustPress:Bool) {
@@ -250,9 +256,6 @@ class PlayState extends MusicBeatState
 
 				if (Conductor.songPosition >= daNote.strumTime)
 					daNote.hit();
-
-				if (Conductor.songPosition >= daNote.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
-					grp.remove(daNote);
 			});
 
 		//trace(inst.time,voices.time);
