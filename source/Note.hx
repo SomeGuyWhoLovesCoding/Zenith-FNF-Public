@@ -54,7 +54,7 @@ class Note extends FlxSprite
 	// Default: Perfectly centered within the receptor.
 	public static final SUSTAIN_NOTE_OFFSET_THRESHOLD:Float = 35;
 
-	public function new(time:Float, data:Int, sustainNote:Bool = false)
+	public function new(data:Int, sustainNote:Bool = false)
 	{
 		super();
 
@@ -62,7 +62,6 @@ class Note extends FlxSprite
 
 		frames = @:privateAccess Paths.noteFrames;
 
-		strumTime = time;
 		noteData = data;
 		isSustainNote = sustainNote;
 
