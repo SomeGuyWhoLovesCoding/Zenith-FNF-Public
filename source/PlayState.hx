@@ -193,11 +193,8 @@ class PlayState extends MusicBeatState
 
 		Conductor.songPosition += FlxG.elapsed * 1000;
 
-		while (unspawnNotes.length != 0)
+		while (unspawnNotes.length != 0 && Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - 1850 / (songSpeed / hudCamera.zoom))
 		{
-			if(Conductor.songPosition < unspawnNotes[unspawnNotes.length-1].strumTime - 1850 / (songSpeed / hudCamera.zoom))
-				break;
-
 			var dunceNote:Note = @:privateAccess (unspawnNotes[unspawnNotes.length-1].isSustainNote ? sustains : notes)
 				.recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-1]);
 
@@ -214,13 +211,8 @@ class PlayState extends MusicBeatState
 		}
 
 		// This used to be a function
-		while(eventNotes.length != 0)
+		while(eventNotes.length != 0 && Conductor.songPosition > eventNotes[eventNotes.length-1].strumTime)
 		{
-			if(Conductor.songPosition < eventNotes[eventNotes.length-1].strumTime)
-				break;
-
-			//trace(eventNotes[eventNotes.length-1].event);
-
 			var value1:String = '';
 			if(eventNotes[eventNotes.length-1].value1 != null)
 				value1 = eventNotes[eventNotes.length-1].value1;
