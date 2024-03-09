@@ -35,9 +35,6 @@ class PlayState extends MusicBeatState
 	public static var hideHUD:Bool = false;
 	public static var renderMode:Bool = false;
 
-	private var notesAdded(default, null):Int = 0;
-	private var eventsAdded(default, null):Int = 0;
-
 	private var framesCaptured(default, null):Int = 0;
 
 	// Song stuff
@@ -196,66 +193,64 @@ class PlayState extends MusicBeatState
 
 		Conductor.songPosition += FlxG.elapsed * 1000;
 
-		while (unspawnNotes.length != 0 && unspawnNotes[unspawnNotes.length-(notesAdded + 1)] != null)
+		while (unspawnNotes.length != 0 && unspawnNotes[unspawnNotes.length-1] != null)
 		{
-			if(Conductor.songPosition < unspawnNotes[unspawnNotes.length-(notesAdded + 1)].strumTime - 1850 / (songSpeed / hudCamera.zoom))
+			if(Conductor.songPosition < unspawnNotes[unspawnNotes.length-1].strumTime - 1850 / (songSpeed / hudCamera.zoom))
 				break;
 
-			var dunceNote:Note = @:privateAccess (unspawnNotes[unspawnNotes.length-(notesAdded + 1)].isSustainNote ? sustains : notes)
-				.recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-(notesAdded + 1)]);
+			var dunceNote:Note = @:privateAccess (unspawnNotes[unspawnNotes.length-1].isSustainNote ? sustains : notes)
+				.recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-1]);
 
 			var n:FlxTypedGroup<Note> = (dunceNote.isSustainNote ? sustains : notes);
 
 			dunceNote.prevNote = n.members[n.members.length-1];
 
-			n.add(dunceNote);
+			n.add(unspawnNotes.pop());
 
 			if (sortNotes)
 				n.members.sort((b, a) -> Std.int((a != null ? a.strumTime : 0) - (b != null ? b.strumTime : 0)));
-
-			//n.sortNotes();
-
-			notesAdded++;
 		}
 
 		// This used to be a function
-		while(eventNotes.length != 0 && eventNotes[eventNotes.length-(eventsAdded + 1)] != null)
+		while(eventNotes.length != 0 && eventNotes[eventNotes.length-1] != null)
 		{
-			if(Conductor.songPosition < eventNotes[eventNotes.length-(eventsAdded + 1)].strumTime)
+			if(Conductor.songPosition < eventNotes[eventNotes.length-1].strumTime)
 				break;
 
 			//trace(eventNotes[eventNotes.length-1].event);
 
 			var value1:String = '';
-			if(eventNotes[eventNotes.length-(eventsAdded + 1)].value1 != null)
-				value1 = eventNotes[eventNotes.length-(eventsAdded + 1)].value1;
+			if(eventNotes[eventNotes.length-1].value1 != null)
+				value1 = eventNotes[eventNotes.length-1].value1;
 
 			var value2:String = '';
-			if(eventNotes[eventNotes.length-(eventsAdded + 1)].value2 != null)
-				value2 = eventNotes[eventNotes.length-(eventsAdded + 1)].value2;
+			if(eventNotes[eventNotes.length-1].value2 != null)
+				value2 = eventNotes[eventNotes.length-1].value2;
 
-			triggerEventNote(eventNotes[eventNotes.length-(eventsAdded + 1)].event, value1, value2);
+			triggerEventNote(eventNotes[eventNotes.length-1].event, value1, value2);
 
-			eventsAdded++;
+			eventNotes.pop();
 		}
 
 		for (grp in [notes, sustains])
-			grp.forEach(function(daNote:Note) {
+		{
+			grp.forEach(function(daNote:Note)
+			{
 				if (Conductor.songPosition >= daNote.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
-				{
 					grp.remove(daNote);
-				}
+
+				if (Conductor.songPosition >= daNote.strumTime)
+					daNote.hit();
 
 				daNote.followStrum(strums.members[daNote.noteData + (daNote.mustPress ? 4 : 0)]);
 				daNote.onNoteHit = onNoteHit;
+
 				/*daNote.onNoteHit = function(noteData:Int, mustPress:Bool) {
 					// Testing...
 					//trace(noteData, mustPress);
 				}*/
-
-				if (Conductor.songPosition >= daNote.strumTime)
-					daNote.hit();
 			});
+		}
 
 		//trace(inst.time,voices.time);
 
