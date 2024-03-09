@@ -60,11 +60,8 @@ class HUDGroup extends FlxSpriteGroup
 		}
 	}
 
-	var time:Float = 0;
 	override public function update(elapsed:Float):Void
 	{
-		time += elapsed;
-
 		super.update(elapsed);
 
 		if (PlayState.hideHUD)
@@ -78,7 +75,7 @@ class HUDGroup extends FlxSpriteGroup
 		scoreTxt.text = 'Score: ' + PlayState.instance.score + ' | Misses: 0 | Rating: ?';
 		scoreTxt.screenCenter(X);
 
-		if (PlayState.instance.startedCountdown && time % 1 == 0)
+		if (PlayState.instance.startedCountdown)
 		{
 			if (timeTxt.alpha != 1)
 				timeTxt.alpha += elapsed * 6;

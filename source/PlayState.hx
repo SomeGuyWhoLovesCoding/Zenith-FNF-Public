@@ -31,7 +31,7 @@ class PlayState extends MusicBeatState
 
 	// Preference stuff
 	public static var downScroll:Bool = false;
-	public static var sortNotes:Bool = true;
+	public static var sortNotes:Bool = false; // Turning this on might degrade in performance
 	public static var hideHUD:Bool = false;
 	public static var renderMode:Bool = false;
 
@@ -48,9 +48,6 @@ class PlayState extends MusicBeatState
 	// For events
 	public var curSong:String = 'test';
 	public var curStage:String = 'stage';
-
-	// For optimization stuff
-	private var strumAnimsPlayedDuringCurrentFrame(default, null):Int = 0;
 
 	public var BF_X:Float = 770;
 	public var BF_Y:Float = 100;
@@ -707,7 +704,7 @@ class PlayState extends MusicBeatState
 			}
 		}
 
-		trace('Loaded $notesLength notes... Now time to finish up events...');
+		trace('Loaded $notesLength notes... Now time to finish up events and sort all of the notes...');
 
 		for (event in SONG.events) // Event Notes
 		{
