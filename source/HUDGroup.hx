@@ -82,5 +82,8 @@ class HUDGroup extends FlxSpriteGroup
 			timeTxt.text = flixel.util.FlxStringUtil.formatTime(PlayState.instance.songLength - Conductor.songPosition, true, false);
 			timeTxt.screenCenter(X);
 		}
+
+		plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;
+		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
 	}
 }
