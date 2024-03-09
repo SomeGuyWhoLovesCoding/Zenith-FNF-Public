@@ -31,7 +31,7 @@ class PlayState extends MusicBeatState
 
 	// Preference stuff
 	public static var downScroll:Bool = false;
-	public static var optimizeNotes:Bool = true;
+	public static var sortNotes:Bool = true;
 	public static var hideHUD:Bool = false;
 	public static var renderMode:Bool = false;
 
@@ -195,58 +195,51 @@ class PlayState extends MusicBeatState
 
 	override public function update(elapsed:Float):Void
 	{
-		if (optimizeNotes && strumAnimsPlayedDuringCurrentFrame != 0)
-			strumAnimsPlayedDuringCurrentFrame = 0;
-
 		super.update(elapsed);
 
 		Conductor.songPosition += FlxG.elapsed * 1000;
 
-		while (unspawnNotes.length != 0 && unspawnNotes[unspawnNotes.length-(optimizeNotes ? 1 : notesAdded + 1)] != null)
+		while (unspawnNotes.length != 0 && unspawnNotes[unspawnNotes.length-(notesAdded + 1)] != null)
 		{
-			if(Conductor.songPosition < unspawnNotes[unspawnNotes.length-(optimizeNotes ? 1 : notesAdded + 1)].strumTime - 1850 / (songSpeed / hudCamera.zoom))
+			if(Conductor.songPosition < unspawnNotes[unspawnNotes.length-(notesAdded + 1)].strumTime - 1850 / (songSpeed / hudCamera.zoom))
 				break;
 
-			var dunceNote:Note = @:privateAccess (unspawnNotes[unspawnNotes.length-(optimizeNotes ? 1 : notesAdded + 1)].isSustainNote ? sustains : notes)
-				.recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-(optimizeNotes ? 1 : notesAdded + 1)]);
+			var dunceNote:Note = @:privateAccess (unspawnNotes[unspawnNotes.length-(notesAdded + 1)].isSustainNote ? sustains : notes)
+				.recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-(notesAdded + 1)]);
 
 			var n:FlxTypedGroup<Note> = (dunceNote.isSustainNote ? sustains : notes);
 
 			dunceNote.prevNote = n.members[n.members.length-1];
 
 			n.add(dunceNote);
-			n.members.sort((b, a) -> Std.int((a != null ? a.strumTime : 0) - (b != null ? b.strumTime : 0)));
+
+			if (sortNotes)
+				n.members.sort((b, a) -> Std.int((a != null ? a.strumTime : 0) - (b != null ? b.strumTime : 0)));
 
 			//n.sortNotes();
 
-			if (optimizeNotes)
-				unspawnNotes.pop();
-			else
-				notesAdded++;
+			notesAdded++;
 		}
 
 		// This used to be a function
-		while(eventNotes.length != 0 && eventNotes[eventNotes.length-(optimizeNotes ? 1 : eventsAdded + 1)] != null)
+		while(eventNotes.length != 0 && eventNotes[eventNotes.length-(eventsAdded + 1)] != null)
 		{
-			if(Conductor.songPosition < eventNotes[eventNotes.length-(optimizeNotes ? 1 : eventsAdded + 1)].strumTime)
+			if(Conductor.songPosition < eventNotes[eventNotes.length-(eventsAdded + 1)].strumTime)
 				break;
 
 			//trace(eventNotes[eventNotes.length-1].event);
 
 			var value1:String = '';
-			if(eventNotes[eventNotes.length-(optimizeNotes ? 1 : eventsAdded + 1)].value1 != null)
-				value1 = eventNotes[eventNotes.length-(optimizeNotes ? 1 : eventsAdded + 1)].value1;
+			if(eventNotes[eventNotes.length-(eventsAdded + 1)].value1 != null)
+				value1 = eventNotes[eventNotes.length-(eventsAdded + 1)].value1;
 
 			var value2:String = '';
-			if(eventNotes[eventNotes.length-(optimizeNotes ? 1 : eventsAdded + 1)].value2 != null)
-				value2 = eventNotes[eventNotes.length-(optimizeNotes ? 1 : eventsAdded + 1)].value2;
+			if(eventNotes[eventNotes.length-(eventsAdded + 1)].value2 != null)
+				value2 = eventNotes[eventNotes.length-(eventsAdded + 1)].value2;
 
-			triggerEventNote(eventNotes[eventNotes.length-(optimizeNotes ? 1 : eventsAdded + 1)].event, value1, value2);
+			triggerEventNote(eventNotes[eventNotes.length-(eventsAdded + 1)].event, value1, value2);
 
-			if (optimizeNotes)
-				eventNotes.pop();
-			else
-				eventsAdded++;
+			eventsAdded++;
 		}
 
 		for (grp in [notes, sustains])
@@ -916,16 +909,7 @@ class PlayState extends MusicBeatState
 	{
 		var char = (note.mustPress ? bf : (note.gfNote ? gf : dad));
 
-		if (optimizeNotes)
-		{
-			if (strumAnimsPlayedDuringCurrentFrame < strums.length)
-			{
-				strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
-				strumAnimsPlayedDuringCurrentFrame++;
-			}
-		}
-		else
-			strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
+		strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
 
 		char.playAnim(singAnimations[note.noteData], true);
 		char.holdTimer = 0;
