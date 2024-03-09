@@ -193,7 +193,7 @@ class PlayState extends MusicBeatState
 
 		Conductor.songPosition += FlxG.elapsed * 1000;
 
-		while (unspawnNotes.length != 0 && unspawnNotes[unspawnNotes.length-1] != null)
+		while (unspawnNotes.length != 0)
 		{
 			if(Conductor.songPosition < unspawnNotes[unspawnNotes.length-1].strumTime - 1850 / (songSpeed / hudCamera.zoom))
 				break;
@@ -214,7 +214,7 @@ class PlayState extends MusicBeatState
 		}
 
 		// This used to be a function
-		while(eventNotes.length != 0 && eventNotes[eventNotes.length-1] != null)
+		while(eventNotes.length != 0)
 		{
 			if(Conductor.songPosition < eventNotes[eventNotes.length-1].strumTime)
 				break;
@@ -236,13 +236,13 @@ class PlayState extends MusicBeatState
 
 		for (grp in [notes, sustains])
 		{
+			if (grp.members.length == 0)
+				return;
+
 			grp.forEach(function(daNote:Note)
 			{
 				if (Conductor.songPosition >= daNote.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
 					grp.remove(daNote);
-
-				if (Conductor.songPosition >= daNote.strumTime)
-					daNote.hit();
 
 				daNote.followStrum(strums.members[daNote.noteData + (daNote.mustPress ? 4 : 0)]);
 				daNote.onNoteHit = onNoteHit;
@@ -251,6 +251,9 @@ class PlayState extends MusicBeatState
 					// Testing...
 					//trace(noteData, mustPress);
 				}*/
+
+				if (Conductor.songPosition >= daNote.strumTime)
+					daNote.hit();
 			});
 		}
 
