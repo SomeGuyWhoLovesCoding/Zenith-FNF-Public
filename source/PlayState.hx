@@ -155,7 +155,7 @@ class PlayState extends MusicBeatState
 			songName = 'test';*/
 
 		var songDifficulty:String = '-' + Sys.args()[1];
-		trace(songDifficulty);
+		trace(songDifficulty); // This is intentional, teehee
 
 		if (songDifficulty == '-null') // What?
 			songDifficulty = '';
