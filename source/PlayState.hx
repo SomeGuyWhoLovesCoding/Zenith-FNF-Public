@@ -1080,7 +1080,7 @@ class PlayState extends MusicBeatState
 			var hittable:Array<Note> = notes.members.filter(n ->
 				n != null && n.mustPress &&
 				!n.wasHit && !n.tooLate && n.noteData == key &&
-				Math.abs(Conductor.songPosition - n.strumTime) < 200
+				Math.abs(Conductor.songPosition - n.strumTime) < 166.666666666667
 			);
 
 			hittable.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
