@@ -191,7 +191,9 @@ class PlayState extends MusicBeatState
 		}
 		catch (e:Dynamic)
 		{
-			trace('Error: ' + e);
+			if (songName != '-livereload') // Debug
+				trace('Error: ' + e);
+
 			FlxG.switchState(new WelcomeState());
 		}
 
