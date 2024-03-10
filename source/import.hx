@@ -1,4 +1,4 @@
 import flixel.*;
-import flixel.system.*;
+import flixel.sound.FlxSound;
 
 using GlobalShit;

@@ -696,7 +696,7 @@ class FlxStringUtil
 
 class LabelValuePair implements IFlxDestroyable
 {
-	static var _pool = new FlxPool<LabelValuePair>(LabelValuePair);
+	static var _pool = new FlxPool(LabelValuePair.new);
 
 	public static inline function weak(label:String, value:Dynamic):LabelValuePair
 	{
