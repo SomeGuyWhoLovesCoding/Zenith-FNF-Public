@@ -246,7 +246,7 @@ class PlayState extends MusicBeatState
 			if (grp.members.length == 0)
 				return;
 
-			grp.forEach(function(daNote:Note)
+			for (daNote in grp.members)
 			{
 				daNote.followStrum(strums.members[daNote.noteData + (daNote.mustPress ? 4 : 0)]);
 				daNote.onNoteHit = onNoteHit;
@@ -274,7 +274,7 @@ class PlayState extends MusicBeatState
 
 				if (Conductor.songPosition >= daNote.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
 					daNote.exists = false;
-			});
+			}
 		}
 
 		//trace(inst.time,voices.time);
@@ -1077,17 +1077,15 @@ class PlayState extends MusicBeatState
 			if (strums.members[key + 4].animation.curAnim.name != 'confirm')
 				strums.members[key + 4].playAnim('pressed');
 
-			var hittable:Array<Note> = notes.members.filter(n ->
-				n.mustPress && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && n.noteData == key &&
-				!n.wasHit && !n.tooLate
-			);
+			var hittable:Note = null;
 
-			hittable.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
+			for (n in notes.members)
+				if (n.mustPress && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 &&
+					n.noteData == key && !n.wasHit && !n.tooLate)
+					hittable = n;
 
-			var h:Note = hittable[0];
-
-			if (h != null)
-				h.hit();
+			if (hittable != null)
+				onNoteHit(hittable);
 
 			holdArray[key] = true;
 		}
