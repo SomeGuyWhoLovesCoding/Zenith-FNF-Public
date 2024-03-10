@@ -58,6 +58,8 @@ class Note extends FlxSprite
 	{
 		super();
 
+		y = -2000;
+
 		if (prototypeNoteskin)
 			makeGraphic(112, 112, 0xFFFF0000);
 
@@ -70,6 +72,8 @@ class Note extends FlxSprite
 
 		scale.set(0.7, 0.7);
 		updateHitbox();
+
+		pixelPerfectPosition = false;
 
 		//trace('Yes');
 	}
@@ -115,7 +119,7 @@ class Note extends FlxSprite
 	// Used for recycling
 	private function setupNoteData(chartNoteData:ChartNoteData):Note
 	{
-		wasHit = tooLate = active = pixelPerfectPosition = false; // Don't make an update call of this for the note group
+		wasHit = tooLate = active = false; // Don't make an update call of this for the note group
 
 		strumTime = chartNoteData.strumTime;
 		noteData = Std.int(chartNoteData.noteData % 4);
@@ -123,8 +127,6 @@ class Note extends FlxSprite
 		gfNote = chartNoteData.gfNote;
 		isSustainNote = chartNoteData.isSustainNote;
 		sustainLength = chartNoteData.sustainLength;
-
-		y = -2000;
 
 		animation.play(animArray[noteData] + (isSustainNote ? (chartNoteData.isSustainEnd ? 'holdend' : 'hold') : 'Scroll'));
 

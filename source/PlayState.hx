@@ -110,8 +110,11 @@ class PlayState extends MusicBeatState
 	{
 		cpp.vm.Gc.enable(true);
 
-		Application.current.window.onKeyDown.add(onKeyDown);
-		Application.current.window.onKeyUp.add(onKeyUp);
+		if (!cpuControlled)
+		{
+			Application.current.window.onKeyDown.add(onKeyDown);
+			Application.current.window.onKeyUp.add(onKeyUp);
+		}
 
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
 
@@ -121,10 +124,8 @@ class PlayState extends MusicBeatState
 		// Soon...
 
 		// Reset gameplay stuff
-		startedCountdown = false;
-		songEnded = false;
-		songSpeed = 1;
-		noteMult = 1;
+		startedCountdown = songEnded = false;
+		songSpeed = noteMult = 1;
 
 		super.create();
 
@@ -189,7 +190,10 @@ class PlayState extends MusicBeatState
 			sustains.cameras = strums.cameras = notes.cameras = [hudCamera];
 		}
 		catch (e:Dynamic)
+		{
+			trace('Error: ' + e);
 			FlxG.switchState(new WelcomeState());
+		}
 
 		//trace(Sys.args());
 	}
@@ -251,14 +255,22 @@ class PlayState extends MusicBeatState
 					//trace(noteData, mustPress);
 				}*/
 
-				if (Conductor.songPosition >= daNote.strumTime && (!daNote.mustPress || cpuControlled))
-					daNote.hit();
+				if (Conductor.songPosition >= daNote.strumTime)
+				{
+					// Opponent note hits
+					if (!daNote.mustPress || cpuControlled)
+						daNote.hit();
 
-				if (Conductor.songPosition >= daNote.strumTime + (Conductor.stepCrochet * 2) && (daNote.mustPress && !cpuControlled))
+					// Sustain note input
+					if (daNote.mustPress && daNote.isSustainNote && holdArray[daNote.noteData] && !cpuControlled)
+						daNote.hit();
+				}
+
+				if (Conductor.songPosition >= daNote.strumTime + (Conductor.stepCrochet * 2) && (daNote.mustPress && !daNote.wasHit) && !cpuControlled)
 					daNote.miss();
 
 				if (Conductor.songPosition >= daNote.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
-					daNote.kill();
+					daNote.exists = false;
 			});
 		}
 
@@ -911,29 +923,35 @@ class PlayState extends MusicBeatState
 
 	public function onNoteHit(note:Note):Void
 	{
-		note.kill();
-
-		strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
+		note.exists = false;
 
 		var char = (note.mustPress ? bf : (note.gfNote ? gf : dad));
 
 		char.playAnim(singAnimations[note.noteData], true);
 		char.holdTimer = 0;
 
+		/*// For some reason the strum confirm anim is still played when you stop holding the sustain note at the very tail, so here's a solution to it.
+		if (holdArray[note.noteData] || (!note.isSustainNote || !note.mustPress)) // Dumbass if check*/
+
+		strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
+
 		health += (0.045 * (note.isSustainNote ? 0.5 : 1)) * (note.mustPress ? 1 : -1);
 
 		if (!note.isSustainNote && note.mustPress)
-			score += 350;
+			score += 350 * noteMult;
 	}
 
 	public function onNoteMiss(note:Note):Void
 	{
-		bf.playAnim(singAnimations[note.noteData] + 'miss', true);
-		bf.holdTimer = 0;
+		if (!note.isSustainNote && note.mustPress)
+		{
+			bf.playAnim(singAnimations[note.noteData] + 'miss', true);
+			bf.holdTimer = 0;
 
-		health -= 0.045 * (note.isSustainNote ? 0.5 : 1);
+			health -= 0.045 * (note.isSustainNote ? 0.5 : 1);
 
-		score -= 100;
+			score -= 100;
+		}
 	}
 
 	// Camera functions
@@ -1033,10 +1051,10 @@ class PlayState extends MusicBeatState
 	// Real input system!!
 
 	var inputKeybinds:Array<Int> = [
-		KeyCode.A,
-		KeyCode.S,
-		KeyCode.UP,
-		KeyCode.RIGHT
+		Std.int(KeyCode.A),
+		Std.int(KeyCode.S),
+		Std.int(KeyCode.UP),
+		Std.int(KeyCode.RIGHT)
 	];
 
 	var holdArray:Array<Bool> = [false, false, false, false];
@@ -1048,21 +1066,24 @@ class PlayState extends MusicBeatState
 		if (key == -1 || cpuControlled || renderMode)
 			return;
 
-		trace(key);
+		//trace(key); Testing...
 
 		if (!holdArray[key])
 		{
+			// For some reason the strum note still plays the press animation even when a note is hit sometimes, so here's a solution to it.
 			if (strums.members[key + 4].animation.curAnim.name != 'confirm')
 				strums.members[key + 4].playAnim('pressed');
 
 			var hittable:Array<Note> = notes.members.filter(n ->
-				(n != null && n.mustPress && Math.abs(Conductor.songPosition - n.strumTime) < 200 &&
-				!n.wasHit && !n.tooLate && n.noteData == key)
+				n != null && n.mustPress &&
+				!n.wasHit && !n.tooLate && n.noteData == key &&
+				Math.abs(Conductor.songPosition - n.strumTime) < 200
 			);
 
 			hittable.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
+
 			if (hittable[0] != null)
-				onNoteHit(hittable[0]);
+				hittable[0].hit();
 
 			holdArray[key] = true;
 		}
@@ -1072,16 +1093,14 @@ class PlayState extends MusicBeatState
 	{
 		var key:Int = inputKeybinds.indexOf(keyCode);
 
+		//trace(key); Testing...
+
 		if (key == -1 || cpuControlled || renderMode)
 			return;
 
-		if (holdArray[key])
-		{
-			if (strums.members[key + 4].animation.curAnim.name != 'static')
-				strums.members[key + 4].playAnim('static');
+		strums.members[key + 4].playAnim('static');
 
-			holdArray[key] = false;
-		}
+		holdArray[key] = false;
 	}
 
 	override function destroy():Void
