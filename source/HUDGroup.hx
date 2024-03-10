@@ -4,6 +4,8 @@ import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.math.FlxMath;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
 
 class HUDGroup extends FlxSpriteGroup
 {
@@ -33,7 +35,7 @@ class HUDGroup extends FlxSpriteGroup
 		add(oppIcon);
 		add(plrIcon);
 
-		scoreTxt = new FlxText(0, healthBar.y + (healthBar.height + 2), 0, 'Score: ' + PlayState.instance.score + ' | Misses: 0 | Rating: ?', 20);
+		scoreTxt = new FlxText(0, healthBar.y + (healthBar.height + 2), 0, 'Score: ' + PlayState.instance.score + ' | Misses: ' + PlayState.instance.misses + ' | Rating: ?', 20);
 		scoreTxt.setBorderStyle(OUTLINE, 0xFF000000);
 		scoreTxt.screenCenter(X);
 		add(scoreTxt);
@@ -73,7 +75,7 @@ class HUDGroup extends FlxSpriteGroup
 		oppIcon.x = healthBar.width * (1 - (healthBar.value / healthBar.maxValue) + 0.5) - 75;
 		plrIcon.x = oppIcon.x + 105;
 
-		scoreTxt.text = 'Score: ' + PlayState.instance.score + ' | Misses: 0 | Rating: ?';
+		scoreTxt.text = 'Score: ' + PlayState.instance.score + ' | Misses: ' + PlayState.instance.misses + ' | Rating: ?';
 		scoreTxt.screenCenter(X);
 
 		if (PlayState.instance.startedCountdown)

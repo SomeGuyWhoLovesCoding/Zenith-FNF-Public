@@ -7,7 +7,7 @@ class StrumNote extends FlxSprite
 	public var noteData:Int = 0;
 	public var player:Int = 0;
 	//public var resetAnim:Float = 0;
-	public var downScroll:Bool = false;
+	public var scrollMult:Float = 1;
 
 	public static final animArray:Array<String> = ['left', 'down', 'up', 'right'];
 

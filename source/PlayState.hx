@@ -31,11 +31,12 @@ class PlayState extends MusicBeatState
 
 	// Score text stuff
 	public var score:Float = 0;
+	public var misses:Float = 0;
 
 	// Preference stuff
 	public static var cpuControlled:Bool = false;
-	public static var downScroll:Bool = false;
-	public static var sortNotes:Bool = false; // Turning this on might degrade in performance
+	public static var downScroll:Bool = true;
+	private static var strumDownScroll(default, null):Bool = true;
 	public static var hideHUD:Bool = false;
 	public static var renderMode:Bool = false;
 
@@ -69,8 +70,8 @@ class PlayState extends MusicBeatState
 	public var opponentCameraOffset:Array<Float> = [0, 0];
 	public var girlfriendCameraOffset:Array<Float> = [0, 0];
 
-	public var songSpeedTween:FlxTween;
-	public var songLengthTween:FlxTween;
+	public var songSpeedTween(default, null):FlxTween;
+	public var songLengthTween(default, null):FlxTween;
 
 	public var songSpeed:Float = 1;
 	public var songLength:Float = 0;
@@ -92,13 +93,13 @@ class PlayState extends MusicBeatState
 	public var gameCamera:FlxCamera;
 	public var hudCamera:FlxCamera;
 
-	public var gameCameraZoomTween:FlxTween;
-	public var hudCameraZoomTween:FlxTween;
+	public var gameCameraZoomTween(default, null):FlxTween;
+	public var hudCameraZoomTween(default, null):FlxTween;
 
 	public var defaultCamZoom(default, set):Float;
 
 	public var camFollowPos:FlxObject;
-	public var camFollowPosTween:FlxTween;
+	public var camFollowPosTween(default, null):FlxTween;
 
 	private var keybinds(default, null):Array<flixel.input.keyboard.FlxKey> = [A, S, UP, RIGHT];
 
@@ -108,7 +109,7 @@ class PlayState extends MusicBeatState
 
 	override public function create():Void
 	{
-		cpp.vm.Gc.enable(true);
+		cpp.vm.Gc.enable(false);
 
 		if (!cpuControlled)
 		{
@@ -202,13 +203,21 @@ class PlayState extends MusicBeatState
 
 	override public function update(elapsed:Float):Void
 	{
+		// Testing...
+		if (FlxG.keys.justPressed.LBRACKET)
+			changeDownScroll(0, true, 0.5);
+		if (FlxG.keys.justPressed.RBRACKET)
+			changeDownScroll(1, true, 0.5);
+
 		super.update(elapsed);
 
 		health = FlxMath.bound(health, 0, hudGroup.healthBar.maxValue);
 
 		Conductor.songPosition += FlxG.elapsed * 1000;
 
-		while (unspawnNotes.length != 0 && Conductor.songPosition >= unspawnNotes[unspawnNotes.length-1].strumTime - 1850 / (songSpeed / hudCamera.zoom))
+		var spawnTime:Float = 1850 / songSpeed; // Don't use the value on before spawning a note
+
+		while (unspawnNotes.length != 0 && Conductor.songPosition >= unspawnNotes[unspawnNotes.length-1].strumTime - spawnTime)
 		{
 			var dunceNote:Note = @:privateAccess (unspawnNotes[unspawnNotes.length-1].isSustainNote ? sustains : notes)
 				.recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-1]);
@@ -217,10 +226,8 @@ class PlayState extends MusicBeatState
 
 			dunceNote.prevNote = n.members[n.members.length-1];
 
-			n.add(dunceNote);
-
-			if (sortNotes)
-				n.members.sort((b, a) -> Std.int((a != null ? a.strumTime : 0) - (b != null ? b.strumTime : 0)));
+			if (n.members[n.members.length-1] == null)
+				n.members[n.members.length] = dunceNote;
 
 			unspawnNotes.pop();
 		}
@@ -243,9 +250,6 @@ class PlayState extends MusicBeatState
 
 		for (grp in [notes, sustains])
 		{
-			if (grp.members.length == 0)
-				return;
-
 			for (daNote in grp.members)
 			{
 				daNote.followStrum(strums.members[daNote.noteData + (daNote.mustPress ? 4 : 0)]);
@@ -482,7 +486,7 @@ class PlayState extends MusicBeatState
 				if (val2 <= 0)
 					songSpeed = newValue;
 				else
-					songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, val2, {ease: FlxEase.linear});
+					songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, val2, {ease: FlxEase.quintOut});
 
 			case 'Fake Song Length':
 				if (songLengthTween != null)
@@ -780,10 +784,10 @@ class PlayState extends MusicBeatState
 		for (i in 0...4)
 		{
 			var strum = new StrumNote(i, player);
-			strum.downScroll = downScroll;
-			strums.add(strum);
+			strum.scrollMult = downScroll ? -1 : 1;
 			strum.x = 60 + (112 * strum.noteData) + ((FlxG.width * 0.5587511111112) * strum.player);
-			strum.y = strum.downScroll ? FlxG.height - 160 : 60;
+			strum.y = downScroll ? FlxG.height - 160 : 60;
+			strums.add(strum);
 		}
 	}
 
@@ -952,8 +956,8 @@ class PlayState extends MusicBeatState
 			bf.holdTimer = 0;
 
 			health -= 0.045 * (note.isSustainNote ? 0.5 : 1);
-
 			score -= 100;
+			misses++;
 		}
 	}
 
@@ -1054,10 +1058,10 @@ class PlayState extends MusicBeatState
 	// Real input system!!
 
 	var inputKeybinds:Array<Int> = [
-		Std.int(KeyCode.A),
-		Std.int(KeyCode.S),
-		Std.int(KeyCode.UP),
-		Std.int(KeyCode.RIGHT)
+		KeyCode.A,
+		KeyCode.S,
+		KeyCode.UP,
+		KeyCode.RIGHT
 	];
 
 	var holdArray:Array<Bool> = [false, false, false, false];
@@ -1073,19 +1077,14 @@ class PlayState extends MusicBeatState
 
 		if (!holdArray[key])
 		{
+			var hittable:Note = notes.members.filter(n -> (n.mustPress && !n.isSustainNote) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && n.noteData == key && !n.wasHit && !n.tooLate)[0];
+
+			if (hittable != null)
+				hittable.hit();
+
 			// For some reason the strum note still plays the press animation even when a note is hit sometimes, so here's a solution to it.
 			if (strums.members[key + 4].animation.curAnim.name != 'confirm')
 				strums.members[key + 4].playAnim('pressed');
-
-			var hittable:Note = null;
-
-			for (n in notes.members)
-				if (n.mustPress && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 &&
-					n.noteData == key && !n.wasHit && !n.tooLate)
-					hittable = n;
-
-			if (hittable != null)
-				onNoteHit(hittable);
 
 			holdArray[key] = true;
 		}
@@ -1111,5 +1110,42 @@ class PlayState extends MusicBeatState
 
 		Application.current.window.onKeyDown.remove(onKeyDown);
 		Application.current.window.onKeyUp.remove(onKeyUp);
+	}
+
+	// Preferences stuff (Also for lua)
+
+	var strumYTweens(default, null):Array<FlxTween> = [];
+	var strumScrollMultTweens(default, null):Array<FlxTween> = [];
+	public function changeDownScroll(whichStrum:Int = -1, tween:Bool = false, tweenLength:Float = 1):Void
+	{
+		// Strumline
+		for (strum in strums.members)
+		{
+			if (strum.player == whichStrum || whichStrum == -1)
+			{
+				if (tween && tweenLength != 0)
+				{
+					var actualScrollMult:Float = strum.scrollMult;
+					actualScrollMult = -actualScrollMult;
+
+					if (strumScrollMultTweens[strums.members.indexOf(strum)] != null)
+						strumScrollMultTweens[strums.members.indexOf(strum)].cancel();
+
+					strumScrollMultTweens[strums.members.indexOf(strum)] = FlxTween.tween(strum, {scrollMult: -strum.scrollMult}, Math.abs(tweenLength), {ease: FlxEase.quintOut});
+
+					if (strumYTweens[strums.members.indexOf(strum)] != null)
+						strumYTweens[strums.members.indexOf(strum)].cancel();
+	
+					strumYTweens[strums.members.indexOf(strum)] = FlxTween.tween(strum, {y: actualScrollMult < 0 ? FlxG.height - 160 : 60}, Math.abs(tweenLength), {ease: FlxEase.quintOut});
+				}
+				else
+				{
+					strum.scrollMult = -strum.scrollMult;
+					strum.y = strum.scrollMult < 0 ? FlxG.height - 160 : 60;
+				}
+			}
+		}
+
+		//downScroll = strums.members.filter(s -> s.scrollMult > 0).length == 0 || strums.members.filter(s -> s.scrollMult < 0).length != 0; That's a preference LMAO
 	}
 }
