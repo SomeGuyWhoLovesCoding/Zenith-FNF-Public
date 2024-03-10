@@ -68,7 +68,7 @@ class HUDGroup extends FlxSpriteGroup
 		if (PlayState.hideHUD)
 			return;
 
-		healthBar.value = FlxMath.lerp(healthBar.value, PlayState.instance.health, 0.08);
+		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(PlayState.instance.health, 0, healthBar.maxValue), 0.08);
 
 		oppIcon.x = healthBar.width * (1 - (healthBar.value / healthBar.maxValue) + 0.5) - 75;
 		plrIcon.x = oppIcon.x + 105;

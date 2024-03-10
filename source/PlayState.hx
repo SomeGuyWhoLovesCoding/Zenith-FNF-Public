@@ -204,7 +204,7 @@ class PlayState extends MusicBeatState
 	{
 		super.update(elapsed);
 
-		health = FlxMath.bound(health, 0, 2);
+		health = FlxMath.bound(health, 0, hudGroup.healthBar.maxValue);
 
 		Conductor.songPosition += FlxG.elapsed * 1000;
 
