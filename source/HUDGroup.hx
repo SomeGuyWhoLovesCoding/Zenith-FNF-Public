@@ -20,8 +20,8 @@ class HUDGroup extends FlxSpriteGroup
 		if (PlayState.hideHUD)
 			return;
 
-		oppIcon = new HealthIcon(PlayState.instance.dad.curCharacter);
-		plrIcon = new HealthIcon(PlayState.instance.bf.curCharacter, true);
+		oppIcon = new HealthIcon(PlayState.instance.dad.healthIcon);
+		plrIcon = new HealthIcon(PlayState.instance.bf.healthIcon, true);
 
 		healthBar = new HealthBar(0, PlayState.downScroll ? 60 : FlxG.height - 86, [0xFFFF0000], [0xFF00FF00], 600, 24);
 		//healthBar.alpha = 0.5; // Testing stuff
