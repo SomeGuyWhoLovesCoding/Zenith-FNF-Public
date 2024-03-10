@@ -1078,15 +1078,16 @@ class PlayState extends MusicBeatState
 				strums.members[key + 4].playAnim('pressed');
 
 			var hittable:Array<Note> = notes.members.filter(n ->
-				n != null && n.mustPress &&
-				!n.wasHit && !n.tooLate && n.noteData == key &&
-				Math.abs(Conductor.songPosition - n.strumTime) < 166.666666666667
+				n.mustPress && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && n.noteData == key &&
+				!n.wasHit && !n.tooLate
 			);
 
 			hittable.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
 
-			if (hittable[0] != null)
-				hittable[0].hit();
+			var h:Note = hittable[0];
+
+			if (h != null)
+				h.hit();
 
 			holdArray[key] = true;
 		}
