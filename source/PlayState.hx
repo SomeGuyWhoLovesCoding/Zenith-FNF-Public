@@ -264,7 +264,8 @@ class PlayState extends MusicBeatState
 						daNote.hit();
 
 					// Sustain note input
-					if (daNote.mustPress && daNote.isSustainNote && holdArray[daNote.noteData] && !cpuControlled)
+					if (daNote.mustPress && daNote.isSustainNote && (!daNote.wasHit && !daNote.tooLate /* Fix for hold notes not hitting correctly */) &&
+						holdArray[daNote.noteData] && !cpuControlled)
 						daNote.hit();
 				}
 
