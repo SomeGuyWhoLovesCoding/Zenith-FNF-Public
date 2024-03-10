@@ -226,8 +226,7 @@ class PlayState extends MusicBeatState
 
 			dunceNote.prevNote = n.members[n.members.length-1];
 
-			if (n.members[n.members.length-1] == null)
-				n.members[n.members.length] = dunceNote;
+			n.add(dunceNote);
 
 			unspawnNotes.pop();
 		}
@@ -807,6 +806,9 @@ class PlayState extends MusicBeatState
 			}
 		}
 
+		notes.members.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
+		sustains.members.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
+
 		super.stepHit();
 	}
 
@@ -1131,7 +1133,7 @@ class PlayState extends MusicBeatState
 					if (strumScrollMultTweens[strums.members.indexOf(strum)] != null)
 						strumScrollMultTweens[strums.members.indexOf(strum)].cancel();
 
-					strumScrollMultTweens[strums.members.indexOf(strum)] = FlxTween.tween(strum, {scrollMult: -strum.scrollMult}, Math.abs(tweenLength), {ease: FlxEase.quintOut});
+					strumScrollMultTweens[strums.members.indexOf(strum)] = FlxTween.tween(strum, {scrollMult: strum.scrollMult < 0 ? -1 : 1}, Math.abs(tweenLength), {ease: FlxEase.quintOut});
 
 					if (strumYTweens[strums.members.indexOf(strum)] != null)
 						strumYTweens[strums.members.indexOf(strum)].cancel();
