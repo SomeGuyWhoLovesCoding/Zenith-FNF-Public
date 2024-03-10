@@ -1133,7 +1133,7 @@ class PlayState extends MusicBeatState
 					if (strumScrollMultTweens[strums.members.indexOf(strum)] != null)
 						strumScrollMultTweens[strums.members.indexOf(strum)].cancel();
 
-					strumScrollMultTweens[strums.members.indexOf(strum)] = FlxTween.tween(strum, {scrollMult: strum.scrollMult < 0 ? -1 : 1}, Math.abs(tweenLength), {ease: FlxEase.quintOut});
+					strumScrollMultTweens[strums.members.indexOf(strum)] = FlxTween.tween(strum, {scrollMult: strum.scrollMult > 0 ? -1 : 1}, Math.abs(tweenLength), {ease: FlxEase.quintOut});
 
 					if (strumYTweens[strums.members.indexOf(strum)] != null)
 						strumYTweens[strums.members.indexOf(strum)].cancel();
