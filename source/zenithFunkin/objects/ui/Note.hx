@@ -1,4 +1,4 @@
-package;
+package zenithFunkin.objects.ui;
 
 using StringTools;
 
@@ -83,11 +83,11 @@ class Note extends FlxSprite
 		{
 			offsetX = SUSTAIN_NOTE_OFFSET_THRESHOLD;
 			flipX = flipY = strum.scrollMult <= 0;
-			scale.set(0.7, animation.curAnim.name.endsWith('end') ? 1 : Conductor.stepCrochet * 0.0105 * (PlayState.instance.songSpeed * multSpeed) * Math.abs(strum.scrollMult));
+			scale.set(0.7, animation.curAnim.name.endsWith('end') ? 1 : Conductor.stepCrochet * 0.0105 * (Gameplay.instance.songSpeed * multSpeed) * Math.abs(strum.scrollMult));
 			updateHitbox();
 		}
 
-		distance = 0.45 * (Conductor.songPosition - strumTime) * (PlayState.instance.songSpeed * multSpeed);
+		distance = 0.45 * (Conductor.songPosition - strumTime) * (Gameplay.instance.songSpeed * multSpeed);
 		x = strum.x + offsetX;
 		y = (strum.y + offsetY) + (-strum.scrollMult * distance) - (flipY ? (frameHeight * scale.y) - strum.height : 0);
 	}

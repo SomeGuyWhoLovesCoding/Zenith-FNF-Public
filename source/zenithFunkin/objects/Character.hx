@@ -1,11 +1,9 @@
-package;
+package zenithFunkin.objects;
 
 import flixel.addons.effects.FlxTrail;
-import flixel.animation.FlxBaseAnimation;
 import flixel.graphics.frames.FlxAtlasFrames;
 import flixel.tweens.FlxTween;
 import flixel.util.FlxSort;
-import Section.SwagSection;
 import sys.io.File;
 import sys.FileSystem;
 import haxe.Json;
@@ -91,7 +89,7 @@ class Character extends FlxSprite
 			path = Paths.ASSET_PATH + '/characters/' + DEFAULT_CHARACTER + '.json'; //If a character couldn't be found, change him to BF just to prevent a crash
 		}
 
-		var json:CharacterFile = cast Json.parse(sys.io.File.getContent(path));
+		var json:CharacterFile = Json.parse(File.getContent(path));
 
 		frames = Paths.getSparrowAtlas(json.image);
 		imageFile = json.image;

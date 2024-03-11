@@ -1,4 +1,4 @@
-package;
+package zenithFunkin.system;
 
 class Screenshot
 {

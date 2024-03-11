@@ -1,4 +1,4 @@
-package;
+package zenithFunkin.gameplay;
 
 import flixel.group.FlxGroup;
 import flixel.group.FlxSpriteGroup;
@@ -12,11 +12,11 @@ import flixel.util.FlxSort;
 import lime.app.Application;
 import lime.ui.*;
 
-import Note; // Don't remove this.
+import zenithFunkin.objects.ui.Note; // Don't remove this.
 
 using StringTools;
 
-class PlayState extends MusicBeatState
+class Gameplay extends MusicBeatState
 {
 	private var unspawnNotes(default, null):Array<ChartNoteData> = [];
 	private var eventNotes(default, null):Array<EventNote> = [];
@@ -105,7 +105,7 @@ class PlayState extends MusicBeatState
 
 	private var singAnimations(default, null):Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
 
-	public static var instance:PlayState;
+	public static var instance:Gameplay;
 
 	override public function create():Void
 	{

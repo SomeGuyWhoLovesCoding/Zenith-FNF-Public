@@ -1,6 +1,6 @@
-package;
+package zenithFunkin.data;
 
-import Section.SwagSection;
+import zenithFunkin.data.Section;
 import haxe.format.JsonParser;
 
 using StringTools;

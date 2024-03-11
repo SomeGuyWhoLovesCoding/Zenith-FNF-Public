@@ -1,4 +1,4 @@
-package;
+package zenithFunkin.data;
 
 #if MODS_ALLOWED
 import sys.io.File;
@@ -8,7 +8,7 @@ import openfl.utils.Assets;
 #end
 import haxe.Json;
 import haxe.format.JsonParser;
-import Song;
+import zenithFunkin.data.Song;
 
 using StringTools;
 

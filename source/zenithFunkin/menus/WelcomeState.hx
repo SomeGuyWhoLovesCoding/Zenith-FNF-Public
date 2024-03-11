@@ -1,12 +1,14 @@
-package;
+package zenithFunkin.menus;
 
 import flixel.addons.display.FlxBackdrop;
 import flixel.text.FlxText;
 
-class WelcomeState extends FlxState
+class WelcomeState extends MusicBeatState
 {
 	override public function create():Void
 	{
+		super.create();
+
 		FlxG.sound.playMusic(Paths.music('breakfast'), 0.15);
 
 		var bkdr:FlxBackdrop = new FlxBackdrop(Paths.ASSET_PATH + '/images/other/welcome-grid.png');
@@ -34,5 +36,17 @@ class WelcomeState extends FlxState
 
 		bkdr.antialiasing = txt.antialiasing = txt2.antialiasing = true;
 		txt.moves = txt2.moves = false;
+	}
+
+	override function update(elapsed:Float):Void
+	{
+		super.update(elapsed);
+
+		if (FlxG.keys.justPressed.SPACE)
+		{
+			Main.skipTransIn = true;
+			MusicBeatState.resetState();
+			//trace('a');
+		}
 	}
 }

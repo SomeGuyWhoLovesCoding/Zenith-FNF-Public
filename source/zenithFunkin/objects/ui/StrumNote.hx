@@ -1,4 +1,4 @@
-package;
+package zenithFunkin.objects.ui;
 
 import sys.FileSystem;
 
@@ -52,7 +52,7 @@ class StrumNote extends FlxSprite
 			if (animation.curAnim.name == 'confirm')
 			{
 				centerOrigin();
-				if (animation.curAnim.finished && (player != 1 || PlayState.cpuControlled))
+				if (animation.curAnim.finished && (player != 1 || Gameplay.cpuControlled))
 					playAnim('static');
 			}
 		}

@@ -1,4 +1,4 @@
-package;
+package zenithFunkin.objects;
 
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;
@@ -7,7 +7,7 @@ class BGSprite extends FlxSprite
 {
 	private var idleAnim:String;
 
-	public function new(image:String, x:Float = 0, y:Float = 0, ?scrollX:Float = 1, ?scrollY:Float = 1, ?animArray:Array<String> = null, ?loop:Bool = false)
+	public function new(image:String, x:Float = 0, y:Float = 0, scrollX:Float = 1, scrollY:Float = 1, animArray:Array<String> = null, loop:Bool = false)
 	{
 		super(x, y);
 
@@ -28,9 +28,8 @@ class BGSprite extends FlxSprite
 		else
 		{
 			if (image != null)
-			{
 				loadGraphic(Paths.ASSET_PATH + '/images/stage/$image.png');
-			}
+
 			active = moves = false;
 		}
 		scrollFactor.set(scrollX, scrollY);

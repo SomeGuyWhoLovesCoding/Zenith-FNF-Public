@@ -1,4 +1,4 @@
-package;
+package zenithFunkin.objects.ui;
 
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;

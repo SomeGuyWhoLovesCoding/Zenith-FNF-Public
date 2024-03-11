@@ -1,4 +1,4 @@
-package;
+package zenithFunkin.system;
 
 class MusicBeatState extends FlxState
 {
@@ -11,7 +11,14 @@ class MusicBeatState extends FlxState
 	private var curDecStep:Float = 0;
 	private var curDecBeat:Float = 0;
 
-	override function update(elapsed:Float)
+	override function create():Void
+	{
+		Main.startTransition(false);
+
+		super.create();
+	}
+
+	override function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
@@ -25,7 +32,7 @@ class MusicBeatState extends FlxState
 			if (curStep > 0)
 				stepHit();
 
-			if (PlayState.SONG != null)
+			if (Gameplay.SONG != null)
 			{
 				if (oldStep < curStep)
 					updateSection();
@@ -33,10 +40,27 @@ class MusicBeatState extends FlxState
 					rollbackSection();
 			}
 		}
-
-		if (FlxG.save.data != null)
-			FlxG.save.data.fullscreen = FlxG.fullscreen;
 	}
+
+	// State stuff
+
+	public static function switchState(nextState:MusicBeatState)
+	{
+		Main.startTransition(true, function()
+		{
+			FlxG.switchState(cast nextState);
+		});
+	}
+
+	public static function resetState()
+	{
+		Main.startTransition(true, function()
+		{
+			FlxG.resetState();
+		});
+	}
+
+	// Beat stuff
 
 	private function updateSection():Void
 	{
@@ -59,9 +83,9 @@ class MusicBeatState extends FlxState
 		var lastSection:Int = curSection;
 		curSection = 0;
 		stepsToDo = 0;
-		for (i in 0...PlayState.SONG.notes.length)
+		for (i in 0...Gameplay.SONG.notes.length)
 		{
-			if (PlayState.SONG.notes[i] != null)
+			if (Gameplay.SONG.notes[i] != null)
 			{
 				stepsToDo += Math.round(getBeatsOnSection() * 4);
 				if (stepsToDo > curStep)
@@ -90,23 +114,6 @@ class MusicBeatState extends FlxState
 		curStep = lastChange.stepTime + Std.int(shit);
 	}
 
-	public static function switchState(nextState:FlxState)
-	{
-		FlxG.switchState(nextState);
-	}
-
-	public static function resetState()
-	{
-		MusicBeatState.switchState(FlxG.state);
-	}
-
-	public static function getState():MusicBeatState
-	{
-		var curState:Dynamic = FlxG.state;
-		var leState:MusicBeatState = curState;
-		return leState;
-	}
-
 	public function stepHit():Void
 	{
 		if (curStep % 4 == 0)
@@ -126,8 +133,8 @@ class MusicBeatState extends FlxState
 	function getBeatsOnSection()
 	{
 		var val:Null<Float> = 4;
-		if (PlayState.SONG != null && PlayState.SONG.notes[curSection] != null)
-			val = PlayState.SONG.notes[curSection].sectionBeats;
+		if (Gameplay.SONG != null && Gameplay.SONG.notes[curSection] != null)
+			val = Gameplay.SONG.notes[curSection].sectionBeats;
 		return val == null ? 4 : val;
 	}
 }

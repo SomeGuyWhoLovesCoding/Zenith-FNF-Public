@@ -1,4 +1,4 @@
-package;
+package zenithFunkin.system;
 
 import flixel.animation.FlxAnimationController;
 import flixel.graphics.frames.FlxFramesCollection;
