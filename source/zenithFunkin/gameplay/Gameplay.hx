@@ -204,10 +204,10 @@ class Gameplay extends MusicBeatState
 	override public function update(elapsed:Float):Void
 	{
 		// Testing...
-		if (FlxG.keys.justPressed.LBRACKET)
+		/*if (FlxG.keys.justPressed.LBRACKET)
 			changeDownScroll(0, true, 0.5);
 		if (FlxG.keys.justPressed.RBRACKET)
-			changeDownScroll(1, true, 0.5);
+			changeDownScroll(1, true, 0.5);*/
 
 		super.update(elapsed);
 
@@ -641,15 +641,16 @@ class Gameplay extends MusicBeatState
 
 		inst = new FlxSound().loadEmbedded(Paths.inst(SONG.song));
 		if (!renderMode)
-			inst.onComplete = endSong.bind();
+			inst.onComplete = endSong;
 		FlxG.sound.list.add(inst);
 
 		voices = new FlxSound();
 		if (SONG.needsVoices)
 			voices.loadEmbedded(Paths.voices(SONG.song));
-		if (!renderMode)
-			voices.onComplete = endSong.bind();
 		FlxG.sound.list.add(voices);
+
+		// Do this
+		inst.looped = voices.looped = false;
 
 		trace('Done!');
 
@@ -806,8 +807,8 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		notes.members.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
-		sustains.members.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
+		notes.members.sort((a, b) -> (renderMode ? Std.int(b.y - a.y) : Std.int(a.strumTime - b.strumTime)));
+		sustains.members.sort((a, b) -> (renderMode ? Std.int(b.y - a.y) : Std.int(a.strumTime - b.strumTime)));
 
 		super.stepHit();
 	}

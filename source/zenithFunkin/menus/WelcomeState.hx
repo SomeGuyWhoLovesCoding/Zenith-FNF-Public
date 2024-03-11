@@ -11,7 +11,7 @@ class WelcomeState extends MusicBeatState
 
 		FlxG.sound.playMusic(Paths.music('breakfast'), 0.15);
 
-		var bkdr:FlxBackdrop = new FlxBackdrop(Paths.ASSET_PATH + '/images/other/welcome-grid.png');
+		var bkdr:FlxBackdrop = new FlxBackdrop(Paths.image('other/welcome-grid'));
 		bkdr.velocity.set(-20, -20);
 		add(bkdr);
 
@@ -44,7 +44,7 @@ class WelcomeState extends MusicBeatState
 
 		if (FlxG.keys.justPressed.SPACE)
 		{
-			Main.skipTransIn = true;
+			//Main.skipTransIn = true;
 			MusicBeatState.resetState();
 			//trace('a');
 		}

@@ -3,8 +3,9 @@ package zenithFunkin.system;
 import flixel.animation.FlxAnimationController;
 import flixel.graphics.frames.FlxFramesCollection;
 import flixel.graphics.frames.FlxAtlasFrames;
+
+import openfl.display.BitmapData;
 import openfl.media.Sound;
-import openfl.utils.Assets;
 
 using StringTools;
 
@@ -16,9 +17,11 @@ class Paths
 	private static var noteFrames:FlxFramesCollection; // Don't reuse the same note spritesheet data, leave it there
 	private static var noteAnimation:FlxAnimationController;
 
+	//public static var soundChannel:SoundChannel;
+
 	public static function initNoteShit(keys:Int = 4)
 	{
-		noteFrames = Paths.getSparrowAtlas('noteskins/NOTE_assets');
+		noteFrames = getSparrowAtlas('noteskins/NOTE_assets');
 
 		// Do this to be able to just copy over the note animations and not reallocate it
 
@@ -35,42 +38,88 @@ class Paths
 		}
 	}
 
-	inline static public function sound(key:String):Sound
+	public static var bitmapDataCache:Map<String, BitmapData> = new Map<String, BitmapData>();
+	public static function image(key:String):BitmapData
 	{
-		return Assets.getSound('$ASSET_PATH/sounds/$key.ogg', true);
+		var imagePath:String = '$ASSET_PATH/images/$key.png';
+
+		if (sys.FileSystem.exists(imagePath))
+		{
+			if (bitmapDataCache.exists(imagePath))
+				return bitmapDataCache.get(imagePath);
+			else
+			{
+				// Create a new FlxGraphic and add its bitmap data to the cache
+				var graphic:flixel.graphics.FlxGraphic = FlxG.bitmap.add(BitmapData.fromFile(imagePath), true, imagePath);
+				graphic.persist = true;
+				graphic.destroyOnNoUse = false;
+				bitmapDataCache.set(imagePath, graphic.bitmap);
+				return bitmapDataCache.get(imagePath);
+			}
+		}
+
+		trace('Image file "$imagePath" doesn\'t exist.');
+
+		return null;
 	}
 
-	inline static public function soundRandom(key:String, min:Int = 0, max:Int = flixel.math.FlxMath.MAX_VALUE_INT):Sound
+	public static var soundCache:Map<String, Sound> = new Map<String, Sound>();
+	public static function __soundHelper(key:String):Sound
+	{
+		var soundPath:String = '$ASSET_PATH/$key.$SOUND_EXT';
+
+		if (sys.FileSystem.exists(soundPath))
+		{
+			if (soundCache.exists(soundPath))
+				return soundCache.get(soundPath);
+			else
+			{
+				soundCache.set(soundPath, Sound.fromFile(soundPath));
+				return soundCache.get(soundPath);
+			}
+		}
+
+		trace('Sound file "$soundPath" doesn\'t exist.');
+
+		return null;
+	}
+
+	public static function sound(key:String):Sound
+	{
+		return __soundHelper('sounds/$key');
+	}
+
+	public static function soundRandom(key:String, min:Int = 0, max:Int = flixel.math.FlxMath.MAX_VALUE_INT):Sound
 	{
 		return sound(key + FlxG.random.int(min, max));
 	}
 
-	inline static public function music(key:String):Sound
+	public static function music(key:String):Sound
 	{
-		return Assets.getSound('$ASSET_PATH/music/$key.ogg', true);
+		return __soundHelper('music/$key');
 	}
 
-	inline static public function voices(song:String):Sound
+	public static function voices(song:String):Sound
 	{
-		return Assets.getSound('$ASSET_PATH/songs/${formatToSongPath(song)}/Voices.ogg', true);
+		return __soundHelper('songs/${formatToSongPath(song)}/Voices');
 	}
 
-	inline static public function inst(song:String):Sound
+	public static function inst(song:String):Sound
 	{
-		return Sound.fromFile('$ASSET_PATH/songs/${formatToSongPath(song)}/Inst.ogg');
+		return __soundHelper('songs/${formatToSongPath(song)}/Inst');
 	}
 
-	inline static public function font(key:String, ext:String = 'ttf')
+	public static function font(key:String, ext:String = 'ttf')
 	{
 		return '$ASSET_PATH/fonts/$key.$ext';
 	}
 
-	inline static public function getSparrowAtlas(key:String):FlxAtlasFrames
+	public static function getSparrowAtlas(key:String):FlxAtlasFrames
 	{
-		return FlxAtlasFrames.fromSparrow('$ASSET_PATH/images/$key.png', '$ASSET_PATH/images/$key.xml');
+		return FlxAtlasFrames.fromSparrow(image(key), ASSET_PATH + '/images/$key.xml');
 	}
 
-	inline static public function formatToSongPath(path:String) {
+	public static function formatToSongPath(path:String) {
 		var invalidChars = ~/[~&\\;:<>#]/;
 		var hideChars = ~/[.,'"%?!]/;
 

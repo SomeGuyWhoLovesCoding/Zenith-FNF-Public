@@ -28,6 +28,8 @@ class Main extends Sprite
 	{
 		super();
 
+		flixel.graphics.FlxGraphic.defaultPersist = true;
+
 		// Before adding ``game``, create the transition
 
 		var transitionMatrix:Matrix = new Matrix();
@@ -73,7 +75,7 @@ class Main extends Sprite
 				return;
 			}
 
-			transitionY = -transition.height * 0.65;
+			transitionY = -transition.height * 0.6;
 
 			if (transitioning._out == null)
 				transitioning._out = {callback: _callback};
@@ -89,11 +91,11 @@ class Main extends Sprite
 		transition.y = transitionY;
 
 		if (transitionY < 720 * transition.scaleY)
-			transitionY += 30 * transition.scaleY;
+			transitionY += 45 * transition.scaleY;
 
 		if (transitioning._in != null)
 		{
-			if (transitionY > -transition.height * 0.65)
+			if (transitionY > -transition.height * 0.6)
 			{
 				if (transitioning._in.callback != null)
 					transitioning._in.callback();

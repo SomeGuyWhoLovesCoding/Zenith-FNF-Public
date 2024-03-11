@@ -66,6 +66,7 @@ class MusicBeatState extends FlxState
 	{
 		if (stepsToDo < 1)
 			stepsToDo = Math.round(getBeatsOnSection() * 4);
+
 		while (curStep >= stepsToDo)
 		{
 			var beats:Float = getBeatsOnSection();
