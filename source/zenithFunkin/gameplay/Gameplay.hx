@@ -24,6 +24,7 @@ class Gameplay extends MusicBeatState
 	public var sustains:FlxTypedGroup<Note>;
 	public var strums:FlxTypedGroup<StrumNote>;
 	public var notes:FlxTypedGroup<Note>;
+	private var _noteCanHit:Note;
 
 	// Health stuff
 	private var hudGroup(default, null):HUDGroup;
@@ -1076,10 +1077,10 @@ class Gameplay extends MusicBeatState
 		if (strums.members[key + 4].animation.curAnim.name != 'confirm')
 			inline strums.members[key + 4].playAnim('pressed');
 
-		var hittable:Note = (inline notes.members.filter(n -> (n.mustPress && !n.isSustainNote) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && n.noteData == key && !n.wasHit && !n.tooLate))[0];
+		_noteCanHit = (inline notes.members.filter(n -> (n.mustPress && !n.isSustainNote) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && n.noteData == key && !n.wasHit && !n.tooLate))[0];
 
-		if (null != hittable)
-			hittable.hit();
+		if (null != _noteCanHit)
+			_noteCanHit.hit();
 
 		holdArray[key] = true;
 	}
