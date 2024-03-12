@@ -187,6 +187,10 @@ class Gameplay extends MusicBeatState
 			}
 
 			sustains.cameras = strums.cameras = notes.cameras = [hudCamera];
+
+			// Prevent making new note instances for a dave and bambi spam chart
+			for (i in 0...250)
+				(inline notes.add(new Note())).kill();
 		}
 		catch (e:Dynamic)
 		{
@@ -707,10 +711,6 @@ class Gameplay extends MusicBeatState
 				//Sys.sleep(0.0001);
 			}
 		}
-
-		// Prevent making new note instances for a dave and bambi spam chart
-		for (i in 0...250)
-			(inline notes.add(new Note())).kill();
 
 		//trace('Loaded $notesLength notes... Now time to finish up events and sort all of the notes...');
 
