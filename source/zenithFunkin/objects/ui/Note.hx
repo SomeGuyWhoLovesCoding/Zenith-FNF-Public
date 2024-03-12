@@ -52,7 +52,7 @@ class Note extends FlxSprite
 	// Default: Perfectly centered within the receptor.
 	public static final SUSTAIN_NOTE_OFFSET_THRESHOLD:Float = 36.5;
 
-	public inline function new()
+	public function new()
 	{
 		super();
 

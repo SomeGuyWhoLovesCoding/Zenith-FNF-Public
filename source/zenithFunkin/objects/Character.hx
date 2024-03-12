@@ -160,7 +160,7 @@ class Character extends FlxSprite
 			if (animation.curAnim.name.startsWith('sing'))
 				holdTimer += elapsed;
 
-			if (holdTimer >= Conductor.stepCrochet * (0.0011 / (FlxG.sound.music != null ? FlxG.sound.music.pitch : 1)) * singDuration)
+			if (holdTimer >= Conductor.stepCrochet * 0.00105 * singDuration)
 			{
 				dance();
 				holdTimer = 0;
@@ -178,7 +178,7 @@ class Character extends FlxSprite
 			}
 
 			if(animation.curAnim.finished && null != animation.getByName(animation.curAnim.name + '-loop'))
-				playAnim(animation.curAnim.name + '-loop');
+				inline playAnim(animation.curAnim.name + '-loop');
 		}
 		super.update(elapsed);
 	}
@@ -197,12 +197,12 @@ class Character extends FlxSprite
 				danced = !danced;
 
 				if (danced)
-					playAnim('danceRight' + idleSuffix);
+					inline playAnim('danceRight' + idleSuffix);
 				else
-					playAnim('danceLeft' + idleSuffix);
+					inline playAnim('danceLeft' + idleSuffix);
 			}
 			else if(animation.getByName('idle' + idleSuffix) != null) {
-				playAnim('idle' + idleSuffix);
+				inline playAnim('idle' + idleSuffix);
 			}
 		}
 	}
@@ -242,18 +242,17 @@ class Character extends FlxSprite
 		danceIdle = (animation.getByName('danceLeft' + idleSuffix) != null && animation.getByName('danceRight' + idleSuffix) != null);
 
 		if(settingCharacterUp)
-		{
 			danceEveryNumBeats = (danceIdle ? 1 : 2);
-		}
 		else if(lastDanceIdle != danceIdle)
 		{
 			var calc:Float = danceEveryNumBeats;
+
 			if(danceIdle)
 				calc *= 0.5;
 			else
 				calc *= 2;
 
-			danceEveryNumBeats = Math.round(Math.max(calc, 1));
+			danceEveryNumBeats = Std.int(Math.max(calc, 1));
 		}
 		settingCharacterUp = false;
 	}

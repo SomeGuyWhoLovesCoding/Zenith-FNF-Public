@@ -110,7 +110,7 @@ class Gameplay extends MusicBeatState
 
 	override public function create():Void
 	{
-		cpp.vm.Gc.enable(false);
+		inline cpp.vm.Gc.enable(false);
 
 		if (!cpuControlled)
 		{
@@ -215,20 +215,19 @@ class Gameplay extends MusicBeatState
 
 		var spawnTime:Float = 1850 / songSpeed; // Don't use the value on before spawning a note
 
-		while (unspawnNotes.length != 0 && Conductor.songPosition >= unspawnNotes[unspawnNotes.length-1].strumTime - spawnTime)
+		while (unspawnNotes.length != 0 && Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - spawnTime)
 		{
 			var dunceNote:Note = @:privateAccess (unspawnNotes[unspawnNotes.length-1].isSustainNote ? sustains : notes)
 				.recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-1]);
 
 			var n:FlxTypedGroup<Note> = (dunceNote.isSustainNote ? sustains : notes);
 
-			n.add(dunceNote);
-
-			unspawnNotes.pop();
+			inline n.add(dunceNote);
+			inline unspawnNotes.pop();
 		}
 
 		// This used to be a function
-		while(eventNotes.length != 0 && Conductor.songPosition >= eventNotes[eventNotes.length-1].strumTime)
+		while(eventNotes.length != 0 && Conductor.songPosition > eventNotes[eventNotes.length-1].strumTime)
 		{
 			var value1:String = '';
 			if(null != eventNotes[eventNotes.length-1].value1)
@@ -240,14 +239,14 @@ class Gameplay extends MusicBeatState
 
 			triggerEventNote(eventNotes[eventNotes.length-1].event, value1, value2);
 
-			eventNotes.pop();
+			inline eventNotes.pop();
 		}
 
 		for (grp in [notes, sustains])
 		{
 			for (daNote in grp.members)
 			{
-				daNote.followStrum(strums.members[daNote.noteData + (daNote.mustPress ? 4 : 0)]);
+				inline daNote.followStrum(strums.members[daNote.noteData + (daNote.mustPress ? 4 : 0)]);
 				daNote.onNoteHit = onNoteHit;
 				daNote.onNoteMiss = onNoteMiss;
 
@@ -272,31 +271,17 @@ class Gameplay extends MusicBeatState
 					daNote.miss();
 
 				if (Conductor.songPosition >= daNote.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
-					daNote.exists = false;
+					daNote.kill();
 			}
 		}
 
-		//trace(inst.time,voices.time);
+		if (!renderMode)
+			return;
+		
+		if (!sys.FileSystem.exists(Paths.ASSET_PATH + '/gameRenders/' + Paths.formatToSongPath(SONG.song)))
+			sys.FileSystem.createDirectory(Paths.ASSET_PATH + '/gameRenders/' + Paths.formatToSongPath(SONG.song));
 
-		// This is just to test the strum anims!
-		/*for (i in 0...keybinds.length) {
-			if (FlxG.keys.anyJustPressed([keybinds[i]])) {
-				if (FlxG.keys.pressed.SPACE)
-					strums.members[i+4].playAnim('confirm');
-				else
-					strums.members[i+4].playAnim('pressed');
-			}
-			if (FlxG.keys.anyJustReleased([keybinds[i]])) {
-				strums.members[i+4].playAnim('static');
-			}
-		}*/
-
-		if (renderMode)
-		{
-			if (!sys.FileSystem.exists(Paths.ASSET_PATH + '/gameRenders/' + Paths.formatToSongPath(SONG.song)))
-				sys.FileSystem.createDirectory(Paths.ASSET_PATH + '/gameRenders/' + Paths.formatToSongPath(SONG.song));
-			Screenshot.capture(FlxG.game, null, Paths.ASSET_PATH + '/gameRenders/' + Paths.formatToSongPath(SONG.song) + '/' + zeroFill(7, Std.string(framesCaptured++)));
-		}
+		Screenshot.capture(FlxG.game, null, Paths.ASSET_PATH + '/gameRenders/' + Paths.formatToSongPath(SONG.song) + '/' + zeroFill(7, Std.string(framesCaptured++)));
 	}
 
 	function zeroFill(num:Int, a:String):String
@@ -328,13 +313,13 @@ class Gameplay extends MusicBeatState
 				{
 					if (null != gf)
 					{
-						gf.playAnim('cheer', true);
+						inline gf.playAnim('cheer', true);
 						gf.specialAnim = true;
 						gf.heyTimer = time;
 					}
 					if (null != dad && dad.curCharacter == gf.curCharacter)
 					{
-						dad.playAnim('cheer', true);
+						inline dad.playAnim('cheer', true);
 						dad.specialAnim = true;
 						dad.heyTimer = time;
 					}
@@ -342,7 +327,7 @@ class Gameplay extends MusicBeatState
 				else
 				{
 					if (null != bf) {
-						bf.playAnim('hey', true);
+						inline bf.playAnim('hey', true);
 						bf.specialAnim = true;
 						bf.heyTimer = time;
 					}
@@ -398,7 +383,7 @@ class Gameplay extends MusicBeatState
 
 				if (null != char)
 				{
-					char.playAnim(value1, true);
+					inline char.playAnim(value1, true);
 					char.specialAnim = true;
 				}
 
@@ -668,7 +653,7 @@ class Gameplay extends MusicBeatState
 						value1: event[1][i][1],
 						value2: event[1][i][2]
 					};
-					eventNotes.push(subEvent);
+					inline eventNotes.push(subEvent);
 					eventPushed(subEvent);
 				}
 			}
@@ -687,7 +672,7 @@ class Gameplay extends MusicBeatState
 				if (songNotes[1] > 3)
 					gottaHitNote = !section.mustHitSection;
 
-				unspawnNotes.push({
+				inline unspawnNotes.push({
 					strumTime: daStrumTime,
 					noteData: daNoteData,
 					mustPress: gottaHitNote,
@@ -705,7 +690,7 @@ class Gameplay extends MusicBeatState
 				{
 					for (susNote in 0...floorSus)
 					{
-						unspawnNotes.push({
+						inline unspawnNotes.push({
 							strumTime: daStrumTime + (Conductor.stepCrochet * susNote) + (Conductor.stepCrochet / FlxMath.roundDecimal(songSpeed, 2)),
 							noteData: daNoteData,
 							mustPress: gottaHitNote,
@@ -723,6 +708,10 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
+		// Prevent making new note instances for a dave and bambi spam chart
+		for (i in 0...250)
+			(inline notes.add(new Note())).kill();
+
 		//trace('Loaded $notesLength notes... Now time to finish up events and sort all of the notes...');
 
 		for (event in SONG.events) // Event Notes
@@ -735,7 +724,7 @@ class Gameplay extends MusicBeatState
 					value1: event[1][i][1],
 					value2: event[1][i][2]
 				};
-				eventNotes.push(subEvent);
+				inline eventNotes.push(subEvent);
 				eventPushed(subEvent);
 			}
 		}
@@ -745,7 +734,7 @@ class Gameplay extends MusicBeatState
 		inline unspawnNotes.sort((b, a) -> Std.int(a.strumTime - b.strumTime));
 		inline eventNotes.sort((b, a) -> Std.int(a.strumTime - b.strumTime));
 
-		openfl.system.System.gc();
+		inline openfl.system.System.gc();
 
 		//trace('Done!');
 
@@ -782,7 +771,7 @@ class Gameplay extends MusicBeatState
 			strum.scrollMult = downScroll ? -1 : 1;
 			strum.x = 60 + (112 * strum.noteData) + ((FlxG.width * 0.5587511111112) * strum.player);
 			strum.y = downScroll ? FlxG.height - 160 : 60;
-			strums.add(strum);
+			inline strums.add(strum);
 		}
 	}
 
@@ -802,8 +791,8 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		notes.members.sort((a, b) -> (renderMode ? Std.int(b.y - a.y) : Std.int(a.strumTime - b.strumTime)));
-		sustains.members.sort((a, b) -> (renderMode ? Std.int(b.y - a.y) : Std.int(a.strumTime - b.strumTime)));
+		inline notes.members.sort((a, b) -> (renderMode ? Std.int(b.y - a.y) : Std.int(a.strumTime - b.strumTime)));
+		inline sustains.members.sort((a, b) -> (renderMode ? Std.int(b.y - a.y) : Std.int(a.strumTime - b.strumTime)));
 
 		super.stepHit();
 	}
@@ -868,13 +857,13 @@ class Gameplay extends MusicBeatState
 			switch (swagCounter)
 			{
 				case 3:
-					FlxG.sound.play(Paths.sound('introGo'), 0.6);
+					inline FlxG.sound.play(Paths.sound('introGo'), 0.6);
 
 				case 4:
 					startSong();
 
 				default:
-					FlxG.sound.play(Paths.sound('intro' + (3 - swagCounter)), 0.6);
+					inline FlxG.sound.play(Paths.sound('intro' + (3 - swagCounter)), 0.6);
 			}
 			// trace(swagCounter);
 
@@ -928,17 +917,17 @@ class Gameplay extends MusicBeatState
 
 	public function onNoteHit(note:Note):Void
 	{
-		note.exists = false;
+		note.kill();
 
 		var char = (note.mustPress ? bf : (note.gfNote ? gf : dad));
 
-		char.playAnim(singAnimations[note.noteData], true);
+		inline char.playAnim(singAnimations[note.noteData], true);
 		char.holdTimer = 0;
 
 		/*// For some reason the strum confirm anim is still played when you stop holding the sustain note at the very tail, so here's a solution to it.
 		if (holdArray[note.noteData] || (!note.isSustainNote || !note.mustPress)) // Dumbass if check*/
 
-		strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
+		inline strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
 
 		health += (0.045 * (note.isSustainNote ? 0.5 : 1)) * (note.mustPress ? 1 : -1);
 
@@ -950,7 +939,7 @@ class Gameplay extends MusicBeatState
 	{
 		if (!note.isSustainNote && note.mustPress)
 		{
-			bf.playAnim(singAnimations[note.noteData] + 'miss', true);
+			inline bf.playAnim(singAnimations[note.noteData] + 'miss', true);
 			bf.holdTimer = 0;
 
 			health -= 0.045 * (note.isSustainNote ? 0.5 : 1);
