@@ -190,7 +190,17 @@ class Gameplay extends MusicBeatState
 
 			// Prevent making new note instances for a dave and bambi spam chart
 			for (i in 0...250)
-				(inline notes.add(new Note())).kill();
+				(inline notes.add(@:privateAccess new Note().setupNoteData({
+					strumTime: Math.POSITIVE_INFINITY,
+					noteData: 0,
+					mustPress: false,
+					noteType: '',
+					gfNote: false,
+					isSustainNote: false,
+					isSustainEnd: false,
+					sustainLength: 0,
+					noAnimation: false
+				}))).kill();
 		}
 		catch (e:Dynamic)
 		{
@@ -791,8 +801,11 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		inline notes.members.sort((a, b) -> (renderMode ? Std.int(b.y - a.y) : Std.int(a.strumTime - b.strumTime)));
-		inline sustains.members.sort((a, b) -> (renderMode ? Std.int(b.y - a.y) : Std.int(a.strumTime - b.strumTime)));
+		if (curStep % 2 == 0)
+		{
+			inline notes.members.sort((a, b) -> (renderMode ? Std.int(b.y - a.y) : Std.int(a.strumTime - b.strumTime)));
+			inline sustains.members.sort((a, b) -> (renderMode ? Std.int(b.y - a.y) : Std.int(a.strumTime - b.strumTime)));
+		}
 
 		super.stepHit();
 	}
