@@ -498,11 +498,11 @@ class Gameplay extends MusicBeatState
 
 	private function generateSong(name:String, diff:String):Void
 	{
-		trace('Loading song json...');
+		//trace('Loading song json...');
 
 		SONG = Song.loadFromJson(name + '/' + name + diff);
 
-		trace('Done!');
+		//trace('Done!');
 
 		if (null == SONG.offset) // Fix offset
 			SONG.offset = 0;
@@ -559,7 +559,7 @@ class Gameplay extends MusicBeatState
 		if (null != stageData.camera_girlfriend)
 			girlfriendCameraOffset = stageData.camera_girlfriend;
 
-		trace('Loading characters from chart...');
+		//trace('Loading characters from chart...');
 
 		bfGroup = new FlxSpriteGroup(BF_X, BF_Y);
 		dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
@@ -630,9 +630,9 @@ class Gameplay extends MusicBeatState
 
 		FlxG.camera.zoom = defaultCamZoom;
 
-		trace('Done!');
+		//trace('Done!');
 
-		trace('Loading song file...');
+		//trace('Loading song file...');
 
 		inst = new FlxSound().loadEmbedded(Paths.inst(SONG.song));
 		if (!renderMode)
@@ -647,9 +647,9 @@ class Gameplay extends MusicBeatState
 		// Do this
 		inst.looped = voices.looped = false;
 
-		trace('Done!');
+		//trace('Done!');
 
-		trace('Loading chart...');
+		//trace('Loading chart...');
 
 		Conductor.changeBPM(SONG.bpm);
 
@@ -722,7 +722,7 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		trace('Loaded $notesLength notes... Now time to finish up events and sort all of the notes...');
+		//trace('Loaded $notesLength notes... Now time to finish up events and sort all of the notes...');
 
 		for (event in SONG.events) // Event Notes
 		{
@@ -746,7 +746,7 @@ class Gameplay extends MusicBeatState
 
 		openfl.system.System.gc();
 
-		trace('Done!');
+		//trace('Done!');
 
 		startCountdown();
 	}
