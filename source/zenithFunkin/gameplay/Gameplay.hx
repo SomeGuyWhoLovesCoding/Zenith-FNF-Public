@@ -507,17 +507,15 @@ class Gameplay extends MusicBeatState
 		if (null == SONG.offset) // Fix offset
 			SONG.offset = 0;
 
+		if (null == SONG.stage || SONG.stage == '') // Fix stage (For vanilla charts)
+			SONG.stage = 'stage';
+
 		curSong = SONG.song;
 		songSpeed = SONG.speed;
 
 		curStage = SONG.stage;
 
-		SONG.stage = curStage;
-
 		// Setup stage
-
-		if (null == SONG.stage || SONG.stage == '') // Fix stage (For vanilla charts)
-			SONG.stage = 'stage';
 
 		var stageData:StageData.StageFile = StageData.getStageFile(curStage);
 		if (null == stageData) // Stage doesn't exist, create a dummy stage to prevent crashing
