@@ -18,7 +18,7 @@ class BGSprite extends FlxSprite
 			{
 				var anim:String = animArray[i];
 				animation.addByPrefix(anim, anim, 24, loop);
-				if (idleAnim == null)
+				if (null == idleAnim)
 				{
 					idleAnim = anim;
 					animation.play(anim);
@@ -27,7 +27,7 @@ class BGSprite extends FlxSprite
 		}
 		else
 		{
-			if (image != null)
+			if (null != image)
 				loadGraphic(Paths.ASSET_PATH + '/images/stage/$image.png');
 
 			active = moves = false;
@@ -38,7 +38,7 @@ class BGSprite extends FlxSprite
 
 	public function dance(?forceplay:Bool = false)
 	{
-		if (idleAnim != null)
+		if (null != idleAnim)
 		{
 			animation.play(idleAnim, forceplay);
 		}

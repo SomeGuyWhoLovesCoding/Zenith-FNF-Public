@@ -55,7 +55,7 @@ class Main extends Sprite
 			{
 				transitionY = 720;
 
-				if (_callback != null)
+				if (null != _callback)
 					_callback();
 
 				return;
@@ -63,7 +63,7 @@ class Main extends Sprite
 
 			transitionY = -transition.height;
 
-			if (transitioning._in == null)
+			if (null == transitioning._in)
 				transitioning._in = {callback: _callback};
 		}
 		else
@@ -77,7 +77,7 @@ class Main extends Sprite
 
 			transitionY = -transition.height * 0.6;
 
-			if (transitioning._out == null)
+			if (null == transitioning._out)
 				transitioning._out = {callback: _callback};
 		}
 	}
@@ -93,17 +93,17 @@ class Main extends Sprite
 		if (transitionY < 720 * transition.scaleY)
 			transitionY += 45 * transition.scaleY;
 
-		if (transitioning._in != null)
+		if (null != transitioning._in)
 		{
 			if (transitionY > -transition.height * 0.6)
 			{
-				if (transitioning._in.callback != null)
+				if (null != transitioning._in.callback)
 					transitioning._in.callback();
 				transitioning._in = null;
 			}
 		}
 
-		if (transitioning._out != null)
+		if (null != transitioning._out)
 		{
 			if (transitionY > 720 * transition.scaleY)
 				transitioning._out = null;

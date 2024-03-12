@@ -30,7 +30,7 @@ class HealthBar extends FlxSpriteGroup
 
 	public function reloadBar(left:Array<Int>, right:Array<Int>):Void
 	{
-		if (__left != null)
+		if (null != __left)
 			remove(__left);
 
 		if (left.length > 1)
@@ -41,7 +41,7 @@ class HealthBar extends FlxSpriteGroup
 		__left.antialiasing = true;
 		__left.pixelPerfectPosition = false;
 
-		if (__right != null)
+		if (null != __right)
 			remove(__right);
 
 		if (right.length > 1)
@@ -59,12 +59,12 @@ class HealthBar extends FlxSpriteGroup
 
 		var v = FlxMath.bound(value / maxValue, 0, 1);
 
-		if (__left != null)
+		if (null != __left)
 		{
 			__left.scale.x = 1 - v;
 			__left.updateHitbox();
 		}
-		if (__right != null)
+		if (null != __right)
 		{
 			__right.scale.x = v;
 			__right.updateHitbox();

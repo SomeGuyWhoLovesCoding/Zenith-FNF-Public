@@ -11,8 +11,8 @@ using StringTools;
 
 class Paths
 {
-	inline public static var ASSET_PATH = "assets";
-	inline public static var SOUND_EXT = "ogg";
+	inline public static var ASSET_PATH:String = "assets";
+	inline public static var SOUND_EXT:String = "ogg";
 
 	private static var noteFrames:FlxFramesCollection; // Don't reuse the same note spritesheet data, leave it there
 	private static var noteAnimation:FlxAnimationController;
@@ -50,10 +50,7 @@ class Paths
 			else
 			{
 				// Create a new FlxGraphic and add its bitmap data to the cache
-				var graphic:flixel.graphics.FlxGraphic = FlxG.bitmap.add(BitmapData.fromFile(imagePath), true, imagePath);
-				graphic.persist = true;
-				graphic.destroyOnNoUse = false;
-				bitmapDataCache.set(imagePath, graphic.bitmap);
+				bitmapDataCache.set(imagePath, FlxG.bitmap.add(BitmapData.fromFile(imagePath), true, imagePath).bitmap);
 				return bitmapDataCache.get(imagePath);
 			}
 		}
@@ -116,14 +113,14 @@ class Paths
 
 	public static function getSparrowAtlas(key:String):FlxAtlasFrames
 	{
-		return FlxAtlasFrames.fromSparrow(image(key), ASSET_PATH + '/images/$key.xml');
+		return FlxAtlasFrames.fromSparrow(image(key), '$ASSET_PATH/images/$key.xml');
 	}
 
 	public static function formatToSongPath(path:String) {
 		var invalidChars = ~/[~&\\;:<>#]/;
 		var hideChars = ~/[.,'"%?!]/;
 
-		var path = invalidChars.split(path.replace(' ', '-')).join("-");
-		return hideChars.split(path).join("").toLowerCase();
+		var path = invalidChars.split(path.replace(' ', '-')).join('-');
+		return hideChars.split(path).join('').toLowerCase();
 	}
 }

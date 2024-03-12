@@ -12,7 +12,6 @@ typedef ChartNoteData =
 	isSustainNote:Bool,
 	isSustainEnd:Bool,
 	sustainLength:Float,
-	prevNote:ChartNoteData,
 	noAnimation:Bool
 }
 
@@ -38,7 +37,6 @@ class Note extends FlxSprite
 	public var noteType(default, null):String = '';
 	public var noAnimation:Bool = false;
 	public var multSpeed:Float = 1;
-	public var prevNote:Note;
 
 	public var offsetX:Float = 0;
 	public var offsetY:Float = 0;
@@ -54,7 +52,7 @@ class Note extends FlxSprite
 	// Default: Perfectly centered within the receptor.
 	public static final SUSTAIN_NOTE_OFFSET_THRESHOLD:Float = 36.5;
 
-	public function new()
+	public inline function new()
 	{
 		super();
 
@@ -97,7 +95,7 @@ class Note extends FlxSprite
 		if (wasHit)
 			return;
 
-		if (onNoteHit != null)
+		if (null != onNoteHit)
 			onNoteHit(this);
 
 		wasHit = true;
@@ -108,7 +106,7 @@ class Note extends FlxSprite
 		if (tooLate)
 			return;
 
-		if (onNoteMiss != null)
+		if (null != onNoteMiss)
 			onNoteMiss(this);
 
 		tooLate = true;

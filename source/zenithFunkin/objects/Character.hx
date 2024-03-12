@@ -117,20 +117,20 @@ class Character extends FlxSprite
 		antialiasing = !noAntialiasing;
 
 		animationsArray = json.animations;
-		if(animationsArray != null && animationsArray.length > 0) {
+		if(null != animationsArray && animationsArray.length > 0) {
 			for (anim in animationsArray) {
 				var animAnim:String = '' + anim.anim;
 				var animName:String = '' + anim.name;
 				var animFps:Int = anim.fps;
 				var animLoop:Bool = !!anim.loop; //Bruh
 				var animIndices:Array<Int> = anim.indices;
-				if(animIndices != null && animIndices.length > 0) {
+				if(null != animIndices && animIndices.length > 0) {
 					animation.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop);
 				} else {
 					animation.addByPrefix(animAnim, animName, animFps, animLoop);
 				}
 
-				if(anim.offsets != null && anim.offsets.length > 1) {
+				if(null != anim.offsets && anim.offsets.length > 1) {
 					addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
 				}
 			}
@@ -177,7 +177,7 @@ class Character extends FlxSprite
 				}
 			}
 
-			if(animation.curAnim.finished && animation.getByName(animation.curAnim.name + '-loop') != null)
+			if(animation.curAnim.finished && null != animation.getByName(animation.curAnim.name + '-loop'))
 				playAnim(animation.curAnim.name + '-loop');
 		}
 		super.update(elapsed);

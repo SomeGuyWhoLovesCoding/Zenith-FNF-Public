@@ -19,8 +19,7 @@ typedef SwagSong =
 	var gfVersion:String;
 	var stage:String;
 
-	var arrowSkin:String;
-	var validScore:Bool;
+	var offset:Null<Float>; // For the "Sync notes to beat" option
 }
 
 class Song
@@ -28,15 +27,16 @@ class Song
 	public var song:String;
 	public var notes:Array<SwagSection>;
 	public var events:Array<Dynamic>;
-	public var bpm:Float;
+	public var bpm:Float = 100;
 	public var needsVoices:Bool = true;
-	public var arrowSkin:String;
 	public var speed:Float = 1;
-	public var stage:String;
-	public var validScore:Bool = true;
+
 	public var player1:String = 'bf';
 	public var player2:String = 'dad';
 	public var gfVersion:String = 'gf';
+	public var stage:String = 'stage';
+
+	public var offset:Null<Float> = 0;
 
 	private static function onLoadJson(songJson:Dynamic) // Convert old charts to newest format
 	{

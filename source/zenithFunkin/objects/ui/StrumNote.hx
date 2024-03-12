@@ -37,7 +37,7 @@ class StrumNote extends FlxSprite
 
 	public function playAnim(anim:String):Void
 	{
-		if (animation != null)
+		if (null != animation)
 		{
 			animation.play(anim, true);
 			centerOffsets();
@@ -47,7 +47,7 @@ class StrumNote extends FlxSprite
 
 	override function update(elapsed:Float)
 	{
-		if (animation.curAnim != null)
+		if (null != animation.curAnim)
 		{
 			if (animation.curAnim.name == 'confirm')
 			{

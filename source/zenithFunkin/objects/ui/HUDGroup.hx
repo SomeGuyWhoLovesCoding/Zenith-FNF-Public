@@ -15,7 +15,7 @@ class HUDGroup extends FlxSpriteGroup
 	public var scoreTxt:FlxText;
 	public var timeTxt:FlxText;
 
-	public function new():Void
+	public inline function new():Void
 	{
 		super();
 
