@@ -1,4 +1,4 @@
-package zenithFunkin.gameplay;
+package zenith.gameplay;
 
 import flixel.group.FlxGroup;
 import flixel.group.FlxSpriteGroup;
@@ -12,7 +12,7 @@ import flixel.util.FlxSort;
 import lime.app.Application;
 import lime.ui.*;
 
-import zenithFunkin.objects.ui.Note; // Don't remove this.
+import zenith.objects.ui.Note; // Don't remove this.
 
 using StringTools;
 
@@ -79,6 +79,7 @@ class Gameplay extends MusicBeatState
 	public var noteMult:Float = 1;
 	public var cameraSpeed:Float = 1;
 
+	public var generatedMusic:Bool = false;
 	public var startedCountdown:Bool = false;
 	public var songEnded:Bool = false;
 
@@ -93,6 +94,7 @@ class Gameplay extends MusicBeatState
 
 	public var gameCamera:FlxCamera;
 	public var hudCamera:FlxCamera;
+	public var loadingScreenCamera:FlxCamera;
 
 	public var gameCameraZoomTween(default, null):FlxTween;
 	public var hudCameraZoomTween(default, null):FlxTween;
@@ -139,11 +141,13 @@ class Gameplay extends MusicBeatState
 
 		gameCamera = new FlxCamera();
 		hudCamera = new FlxCamera();
+		loadingScreenCamera = new FlxCamera();
 
-		hudCamera.bgColor.alpha = hudCamera.bgColor.alpha = 0;
+		gameCamera.bgColor.alpha = hudCamera.bgColor.alpha = loadingScreenCamera.bgColor.alpha = 0;
 
 		FlxG.cameras.reset(gameCamera);
 		FlxG.cameras.add(hudCamera, false);
+		FlxG.cameras.add(loadingScreenCamera, false);
 
 		camFollowPos = new FlxObject(0, 0, 1, 1);
 		camFollowPos.pixelPerfectPosition = false;
@@ -161,40 +165,72 @@ class Gameplay extends MusicBeatState
 		if (songDifficulty == '-null') // What?
 			songDifficulty = '';
 
-		try
+		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.ASSET_PATH + '/images/loading.png');
+		bg.setGraphicSize(Std.int(FlxG.width), Std.int(FlxG.height));
+		bg.updateHitbox();
+		add(bg);
+		bg.cameras = [loadingScreenCamera];
+
+		var timeStamp:Float = haxe.Timer.stamp();
+
+		ThreadHandler.run(function()
 		{
-			generateSong(songName, songDifficulty);
-
-			sustains = new FlxTypedGroup<Note>();
-			add(sustains);
-
-			strums = new FlxTypedGroup<StrumNote>();
-			add(strums);
-
-			generateStrums(0);
-			generateStrums(1);
-
-			notes = new FlxTypedGroup<Note>();
-			add(notes);
-
-			if (!hideHUD)
+			try
 			{
-				hudGroup = new HUDGroup();
-				add(hudGroup);
+				generateSong(songName, songDifficulty);
 
-				@:privateAccess hudGroup.reloadHealthBar();
-				hudGroup.cameras = [hudCamera];
+				sustains = new FlxTypedGroup<Note>();
+				add(sustains);
+
+				strums = new FlxTypedGroup<StrumNote>();
+				add(strums);
+
+				generateStrums(0);
+				generateStrums(1);
+
+				notes = new FlxTypedGroup<Note>();
+				add(notes);
+
+				if (!hideHUD)
+				{
+					hudGroup = new HUDGroup();
+					add(hudGroup);
+
+					@:privateAccess hudGroup.reloadHealthBar();
+					hudGroup.cameras = [hudCamera];
+				}
+
+				sustains.cameras = strums.cameras = notes.cameras = [hudCamera];
+
+				trace('Done! Redirecting you shortly...');
+
+				var finishTime:Float = (haxe.Timer.stamp() - timeStamp) * 1000;
+
+				new flixel.util.FlxTimer().start(0.5, (?timer) -> {
+					trace('Loading finished! Took ${flixel.util.FlxStringUtil.formatTime(finishTime, true, true)} to load.');
+
+					moveCameraSection();
+
+					camFollowPos.setPosition(
+						gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0],
+						gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1]
+					);
+
+					generatedMusic = true;
+					startCountdown();
+
+					remove(bg);
+				});
+
 			}
+			catch (e)
+			{
+				if (songName != '-livereload') // Debug
+					trace('Error: ' + e + '\n' + e.stack);
 
-			sustains.cameras = strums.cameras = notes.cameras = [hudCamera];
-		}
-		catch (e:Dynamic)
-		{
-			if (songName != '-livereload') // Debug
-				trace('Error: ' + e);
-
-			FlxG.switchState(new WelcomeState());
-		}
+				FlxG.switchState(new WelcomeState());
+			}
+		});
 
 		//trace(Sys.args());
 	}
@@ -207,6 +243,9 @@ class Gameplay extends MusicBeatState
 		if (FlxG.keys.justPressed.RBRACKET)
 			changeDownScroll(1, true, 0.5);*/
 
+		if (!generatedMusic)
+			return;
+
 		super.update(elapsed);
 
 		health = FlxMath.bound(health, 0, hudGroup.healthBar.maxValue);
@@ -218,9 +257,7 @@ class Gameplay extends MusicBeatState
 			var dunceNote:Note = @:privateAccess (unspawnNotes[unspawnNotes.length-1].isSustainNote ? sustains : notes)
 				.recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-1]);
 
-			var n:FlxTypedGroup<Note> = (dunceNote.isSustainNote ? sustains : notes);
-
-			inline n.add(dunceNote);
+			inline (dunceNote.isSustainNote ? sustains : notes).add(dunceNote);
 			inline unspawnNotes.pop();
 		}
 
@@ -269,7 +306,7 @@ class Gameplay extends MusicBeatState
 					daNote.miss();
 
 				if (Conductor.songPosition >= daNote.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
-					daNote.kill();
+					daNote.exists = false;
 			}
 		}
 
@@ -482,17 +519,14 @@ class Gameplay extends MusicBeatState
 
 	private function generateSong(name:String, diff:String):Void
 	{
-		//trace('Loading song json...');
+		trace('Parsing chart data from song json...');
 
 		SONG = Song.loadFromJson(name + '/' + name + diff);
 
-		//trace('Done!');
+		trace('Loading stage...');
 
 		if (null == SONG.offset) // Fix offset
 			SONG.offset = 0;
-
-		if (null == SONG.stage || SONG.stage == '') // Fix stage (For vanilla charts)
-			SONG.stage = 'stage';
 
 		curSong = SONG.song;
 		songSpeed = SONG.speed;
@@ -543,39 +577,13 @@ class Gameplay extends MusicBeatState
 		if (null != stageData.camera_girlfriend)
 			girlfriendCameraOffset = stageData.camera_girlfriend;
 
-		//trace('Loading characters from chart...');
+		DisplayStage.loadStage(curStage);
+
+		trace('Loading characters...');
 
 		bfGroup = new FlxSpriteGroup(BF_X, BF_Y);
 		dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
 		gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
-
-		switch (curStage)
-		{
-			case 'stage': // Week 1
-				var bg:BGSprite = new BGSprite('stageback', -600, -200, 0.9, 0.9);
-				add(bg);
-
-				var stageFront:BGSprite = new BGSprite('stagefront', -650, 600, 0.9, 0.9);
-				stageFront.setGraphicSize(Std.int(stageFront.width * 1.1));
-				stageFront.updateHitbox();
-				add(stageFront);
-
-				var stageLight:BGSprite = new BGSprite('stage_light', -125, -100, 0.9, 0.9);
-				stageLight.setGraphicSize(Std.int(stageLight.width * 1.1));
-				stageLight.updateHitbox();
-				add(stageLight);
-				var stageLight:BGSprite = new BGSprite('stage_light', 1225, -100, 0.9, 0.9);
-				stageLight.setGraphicSize(Std.int(stageLight.width * 1.1));
-				stageLight.updateHitbox();
-				stageLight.flipX = true;
-				add(stageLight);
-
-				var stageCurtains:BGSprite = new BGSprite('stagecurtains', -500, -300, 1.3, 1.3);
-				stageCurtains.setGraphicSize(Std.int(stageCurtains.width * 0.9));
-				stageCurtains.updateHitbox();
-				add(stageCurtains);
-
-		}
 
 		add(gfGroup);
 		add(dadGroup);
@@ -598,11 +606,6 @@ class Gameplay extends MusicBeatState
 		dadGroup.add(dad);
 		bfGroup.add(bf);
 
-		camFollowPos.setPosition(
-			gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0],
-			gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1]
-		);
-
 		if (dad.curCharacter.startsWith('gf'))
 		{
 			dad.setPosition(GF_X, GF_Y);
@@ -610,18 +613,16 @@ class Gameplay extends MusicBeatState
 				gf.active = gf.visible = false;
 		}
 
-		moveCameraSection();
-
 		FlxG.camera.zoom = defaultCamZoom;
 
-		//trace('Done!');
-
-		//trace('Loading song file...');
+		trace('Loading instrumental audio file...');
 
 		inst = new FlxSound().loadEmbedded(Paths.inst(SONG.song));
 		if (!renderMode)
 			inst.onComplete = endSong;
 		FlxG.sound.list.add(inst);
+
+		trace('Loading voices audio file...');
 
 		voices = new FlxSound();
 		if (SONG.needsVoices)
@@ -631,11 +632,9 @@ class Gameplay extends MusicBeatState
 		// Do this
 		inst.looped = voices.looped = false;
 
-		//trace('Done!');
-
-		//trace('Loading chart...');
-
 		Conductor.changeBPM(SONG.bpm);
+
+		trace('Loading event data from event json...');
 
 		var songName:String = Paths.formatToSongPath(SONG.song);
 		if (sys.FileSystem.exists(Paths.ASSET_PATH + '/data/' + songName + '/events.json'))
@@ -656,6 +655,8 @@ class Gameplay extends MusicBeatState
 				}
 			}
 		}
+
+		trace('Loading chart data...');
 
 		var notesLength:Int = 0;
 
@@ -706,7 +707,7 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		//trace('Loaded $notesLength notes... Now time to finish up events and sort all of the notes...');
+		trace('Loaded $notesLength notes! Now loading event data from chart...');
 
 		for (event in SONG.events) // Event Notes
 		{
@@ -723,16 +724,14 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		//trace(unspawnNotes);
+		trace('Let\'s finish up chart and events loading...');
 
 		inline unspawnNotes.sort((b, a) -> Std.int(a.strumTime - b.strumTime));
 		inline eventNotes.sort((b, a) -> Std.int(a.strumTime - b.strumTime));
 
 		inline openfl.system.System.gc();
 
-		//trace('Done!');
-
-		startCountdown();
+		trace('Done! Now time to load HUD objects...');
 	}
 
 	function eventPushed(event:EventNote)
@@ -1051,7 +1050,7 @@ class Gameplay extends MusicBeatState
 	{
 		var key:Int = inline inputKeybinds.indexOf(keyCode);
 
-		if (key == -1 || cpuControlled || renderMode || holdArray[key])
+		if (key == -1 || cpuControlled || !generatedMusic || renderMode || holdArray[key])
 			return;
 
 		//trace(key); Testing...
@@ -1074,7 +1073,7 @@ class Gameplay extends MusicBeatState
 
 		//trace(key); Testing...
 
-		if (key == -1 || cpuControlled || renderMode || !holdArray[key])
+		if (key == -1 || cpuControlled || !generatedMusic || renderMode || !holdArray[key])
 			return;
 
 		inline strums.members[key + 4].playAnim('static');

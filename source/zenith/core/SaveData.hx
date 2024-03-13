@@ -1,4 +1,4 @@
-package zenithFunkin.data;
+package zenith.core;
 
 typedef SaveDataFolder =
 {
@@ -8,7 +8,7 @@ typedef SaveDataFolder =
 
 class SaveData extends FlxSave
 {
-	public inline function new()
+	public function new()
 	{
 		super();
 

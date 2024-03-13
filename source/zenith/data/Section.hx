@@ -1,4 +1,4 @@
-package zenithFunkin.data;
+package zenith.data;
 
 typedef SwagSection =
 {

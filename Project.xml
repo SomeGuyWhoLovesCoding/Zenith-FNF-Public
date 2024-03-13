@@ -80,7 +80,12 @@
 	<haxedef name="FLX_NO_DEBUG" unless="debug" />
 
 	<!--Enable this for Nape release builds for a serious peformance improvement-->
-	<haxedef name="NAPE_RELEASE_BUILD" />
+	<!--<haxedef name="NAPE_RELEASE_BUILD" />-->
+
+	<!--Allow working memory greater than 1 Gig-->
+	<haxedef name="HXCPP_GC_BIG_BLOCKS" />
+
+	<haxedef name="HXCPP_GC_MOVING" />
 
 	<!-- _________________________________ Custom _______________________________ -->
 

@@ -1,4 +1,4 @@
-package zenithFunkin.objects.ui;
+package zenith.objects.ui;
 
 import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxText;
@@ -27,7 +27,6 @@ class HUDGroup extends FlxSpriteGroup
 
 		healthBar = new HealthBar(0, Gameplay.downScroll ? 60 : FlxG.height - 86, [0xFFFF0000], [0xFF00FF00], 600, 24);
 		//healthBar.alpha = 0.5; // Testing stuff
-		healthBar.screenCenter(X);
 		add(healthBar);
 
 		oppIcon.y = plrIcon.y = healthBar.y - 60;
@@ -37,12 +36,10 @@ class HUDGroup extends FlxSpriteGroup
 
 		scoreTxt = new FlxText(0, healthBar.y + (healthBar.height + 2), 0, 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Rating: ?', 20);
 		scoreTxt.setBorderStyle(OUTLINE, 0xFF000000);
-		scoreTxt.screenCenter(X);
 		add(scoreTxt);
 
 		timeTxt = new FlxText(0, Gameplay.downScroll ? FlxG.height - 42 : 8, 0, '???', 30);
 		timeTxt.setBorderStyle(OUTLINE, 0xFF000000);
-		timeTxt.screenCenter(X);
 		timeTxt.alpha = 0;
 		add(timeTxt);
 
@@ -65,28 +62,30 @@ class HUDGroup extends FlxSpriteGroup
 
 	override public function update(elapsed:Float):Void
 	{
-		super.update(elapsed);
-
 		if (Gameplay.hideHUD)
 			return;
 
-		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0, healthBar.maxValue), 0.08);
+		healthBar.screenCenter(X);
+		scoreTxt.screenCenter(X);
+		timeTxt.screenCenter(X);
 
 		oppIcon.x = healthBar.width * (1 - (healthBar.value / healthBar.maxValue) + 0.5) - 75;
 		plrIcon.x = oppIcon.x + 105;
 
+		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0, healthBar.maxValue), 0.08);
+
 		scoreTxt.text = 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Rating: ?';
-		scoreTxt.screenCenter(X);
 
 		if (Gameplay.instance.startedCountdown)
 		{
 			if (timeTxt.alpha != 1)
 				timeTxt.alpha += elapsed * 6;
 			timeTxt.text = flixel.util.FlxStringUtil.formatTime(Gameplay.instance.songLength - Conductor.songPosition, true, false);
-			timeTxt.screenCenter(X);
 		}
 
 		plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;
 		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
+
+		super.update(elapsed);
 	}
 }

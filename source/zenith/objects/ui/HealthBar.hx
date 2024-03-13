@@ -1,4 +1,4 @@
-package zenithFunkin.objects.ui;
+package zenith.objects.ui;
 
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
@@ -59,16 +59,11 @@ class HealthBar extends FlxSpriteGroup
 
 		var v = FlxMath.bound(value / maxValue, 0, 1);
 
-		if (null != __left)
-		{
-			__left.scale.x = 1 - v;
-			__left.updateHitbox();
-		}
-		if (null != __right)
-		{
-			__right.scale.x = v;
-			__right.updateHitbox();
-			__right.x = __left.width + 340 /* Crazy math I got there :trollface: */;
-		}
+		__left.scale.x = 1 - v;
+		__left.updateHitbox();
+		
+		__right.scale.x = v;
+		__right.updateHitbox();
+		__right.x = __left.width + 340 /* Crazy math I got there :trollface: */;
 	}
 }

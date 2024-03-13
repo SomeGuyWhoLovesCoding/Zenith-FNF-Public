@@ -1,6 +1,6 @@
-package zenithFunkin.data;
+package zenith.data;
 
-import zenithFunkin.data.Section;
+import zenith.data.Section;
 import haxe.format.JsonParser;
 
 using StringTools;

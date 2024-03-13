@@ -1,6 +1,4 @@
-package zenithFunkin.objects.ui;
-
-import sys.FileSystem;
+package zenith.objects.ui;
 
 class StrumNote extends FlxSprite
 {
@@ -37,26 +35,18 @@ class StrumNote extends FlxSprite
 
 	public function playAnim(anim:String):Void
 	{
-		if (null != animation)
-		{
-			animation.play(anim, true);
-			centerOffsets();
-			centerOrigin();
-		}
+		animation.play(anim, true);
+		centerOffsets();
+		centerOrigin();
 	}
 
 	override function update(elapsed:Float)
 	{
-		if (null != animation.curAnim)
-		{
-			if (animation.curAnim.name == 'confirm')
-			{
-				centerOrigin();
-				if (animation.curAnim.finished && (player != 1 || Gameplay.cpuControlled))
-					playAnim('static');
-			}
-		}
-
 		super.update(elapsed);
+
+		if (animation.curAnim.name == 'confirm')
+			centerOrigin();
+			if (animation.curAnim.finished && (player != 1 || Gameplay.cpuControlled))
+				playAnim('static');
 	}
 }

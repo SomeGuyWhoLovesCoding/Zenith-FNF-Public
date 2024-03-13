@@ -1,4 +1,4 @@
-package zenithFunkin;
+package zenith;
 
 import openfl.display.Sprite;
 import lime.app.Application; // Wow

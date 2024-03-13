@@ -1,6 +1,6 @@
-package zenithFunkin.system;
+package zenith.system;
 
-import zenithFunkin.data.Song;
+import zenith.data.Song;
 
 /**
  * ...

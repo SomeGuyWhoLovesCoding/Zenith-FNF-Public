@@ -1,4 +1,4 @@
-package zenithFunkin.menus;
+package zenith.menus;
 
 import flixel.addons.display.FlxBackdrop;
 import flixel.text.FlxText;

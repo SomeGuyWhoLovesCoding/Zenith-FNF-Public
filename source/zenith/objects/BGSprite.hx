@@ -1,4 +1,4 @@
-package zenithFunkin.objects;
+package zenith.objects;
 
 import flixel.FlxSprite;
 import flixel.graphics.frames.FlxAtlasFrames;

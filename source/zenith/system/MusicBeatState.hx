@@ -1,4 +1,4 @@
-package zenithFunkin.system;
+package zenith.system;
 
 class MusicBeatState extends FlxState
 {

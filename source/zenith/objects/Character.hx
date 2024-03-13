@@ -1,9 +1,5 @@
-package zenithFunkin.objects;
+package zenith.objects;
 
-import flixel.addons.effects.FlxTrail;
-import flixel.graphics.frames.FlxAtlasFrames;
-import flixel.tweens.FlxTween;
-import flixel.util.FlxSort;
 import sys.io.File;
 import sys.FileSystem;
 import haxe.Json;
@@ -42,7 +38,6 @@ class Character extends FlxSprite
 	public var isPlayer:Bool = false;
 	public var curCharacter:String = DEFAULT_CHARACTER;
 
-	public var colorTween:FlxTween;
 	public var holdTimer:Float = 0;
 	public var heyTimer:Float = 0;
 	public var specialAnim:Bool = false;
@@ -180,6 +175,7 @@ class Character extends FlxSprite
 			if(animation.curAnim.finished && null != animation.getByName(animation.curAnim.name + '-loop'))
 				inline playAnim(animation.curAnim.name + '-loop');
 		}
+
 		super.update(elapsed);
 	}
 
@@ -218,21 +214,16 @@ class Character extends FlxSprite
 		else
 			offset.set(0, 0);
 
-		if (curCharacter.startsWith('gf'))
-		{
-			if (AnimName == 'singLEFT')
-				danced = true;
-			else if (AnimName == 'singRIGHT')
-				danced = false;
+		if (!curCharacter.startsWith('gf'))
+			return;
 
-			if (AnimName == 'singUP' || AnimName == 'singDOWN')
-				danced = !danced;
-		}
-	}
+		if (AnimName == 'singLEFT')
+			danced = true;
+		else if (AnimName == 'singRIGHT')
+			danced = false;
 
-	function sortAnims(Obj1:Array<Dynamic>, Obj2:Array<Dynamic>):Int
-	{
-		return FlxSort.byValues(FlxSort.ASCENDING, Obj1[0], Obj2[0]);
+		if (AnimName == 'singUP' || AnimName == 'singDOWN')
+			danced = !danced;
 	}
 
 	public var danceEveryNumBeats:Int = 2;

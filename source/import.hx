@@ -1,12 +1,13 @@
 // Engine
-import zenithFunkin.Game;
-import zenithFunkin.data.*;
-import zenithFunkin.gameplay.*;
-import zenithFunkin.menus.*;
-import zenithFunkin.gameplay.*;
-import zenithFunkin.objects.*;
-import zenithFunkin.objects.ui.*;
-import zenithFunkin.system.*;
+import zenith.Game;
+import zenith.core.*;
+import zenith.data.*;
+import zenith.gameplay.*;
+import zenith.gameplay.data.*;
+import zenith.menus.*;
+import zenith.objects.*;
+import zenith.objects.ui.*;
+import zenith.system.*;
 
 // Flixel
 import flixel.*;

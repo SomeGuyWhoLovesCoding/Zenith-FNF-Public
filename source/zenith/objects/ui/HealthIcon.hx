@@ -1,4 +1,4 @@
-package zenithFunkin.objects.ui;
+package zenith.objects.ui;
 
 class HealthIcon extends FlxSprite
 {
