@@ -1,13 +1,17 @@
 package zenith.system;
 
-import sys.thread.ElasticThreadPool;
+import sys.thread.FixedThreadPool;
+import sys.thread.Mutex;
 
 class ThreadHandler
 {
-	private static var thread(default, null):ElasticThreadPool = new ElasticThreadPool(2);
+	private static var thread(default, null):FixedThreadPool = new FixedThreadPool(1);
 
 	public static function run(task:Void->Void, onFinish:Void->Void = null):Void
 	{
+		var mutex:Mutex = new Mutex();
+		mutex.acquire();
+
 		thread.run(function()
 		{
 			try
@@ -22,5 +26,7 @@ class ThreadHandler
 			if (onFinish != null)
 				onFinish();
 		});
+
+		mutex.release();
 	}
 }

@@ -74,6 +74,10 @@ class Note extends FlxSprite
 		//trace('Yes');
 	}
 
+	override public function update(elapsed:Float)
+	{
+	}
+
 	public function followStrum(strum:StrumNote):Void
 	{
 		// Sustain scaling for song speed (even if it's changed)

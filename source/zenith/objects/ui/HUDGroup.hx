@@ -19,7 +19,7 @@ class HUDGroup extends FlxSpriteGroup
 	{
 		super();
 
-		if (Gameplay.hideHUD)
+		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
 
 		oppIcon = new HealthIcon(Gameplay.instance.dad.healthIcon);
@@ -54,6 +54,9 @@ class HUDGroup extends FlxSpriteGroup
 
 	private function reloadHealthBar():Void
 	{
+		if (Gameplay.hideHUD || Gameplay.noCharacters)
+			return;
+
 		@:privateAccess {
 			healthBar.__left.makeGraphic(healthBar.__width, healthBar.__height, FlxColor.fromRGB(Gameplay.instance.dad.healthColorArray[0], Gameplay.instance.dad.healthColorArray[1], Gameplay.instance.dad.healthColorArray[2]));
 			healthBar.__right.makeGraphic(healthBar.__width, healthBar.__height, FlxColor.fromRGB(Gameplay.instance.bf.healthColorArray[0], Gameplay.instance.bf.healthColorArray[1], Gameplay.instance.bf.healthColorArray[2]));
@@ -62,7 +65,7 @@ class HUDGroup extends FlxSpriteGroup
 
 	override public function update(elapsed:Float):Void
 	{
-		if (Gameplay.hideHUD)
+		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
 
 		healthBar.screenCenter(X);
