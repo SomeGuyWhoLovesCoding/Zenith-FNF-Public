@@ -39,7 +39,7 @@ class Gameplay extends MusicBeatState
 	private static var strumDownScroll(default, null):Bool = true;
 	public static var hideHUD:Bool = false;
 	public static var renderMode:Bool = false;
-	public static var noCharacters:Bool = true;
+	public static var noCharacters:Bool = false;
 
 	private var framesCaptured(default, null):Int = 0;
 

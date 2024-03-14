@@ -6,7 +6,7 @@ import flixel.tweens.FlxTween;
 
 class Game extends FlxGame
 {
-	var initState(default, null):Class<FlxState> = Gameplay;
+	var initState(default, null):Class<FlxState> = TitleScreen;
 
 	public function new():Void
 	{
