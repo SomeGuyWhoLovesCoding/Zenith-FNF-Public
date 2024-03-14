@@ -37,8 +37,6 @@ class TitleScreen extends MusicBeatState
 			return;
 		}
 
-		FlxG.mouse.visible = false;
-
 		// Initialize the title configurations before starting the intro
 		titleConfig = haxe.Json.parse(sys.io.File.getContent(Paths.ASSET_PATH + '/music/menus/titleConfig.json'));
 
@@ -60,9 +58,9 @@ class TitleScreen extends MusicBeatState
 		{
 			FlxG.sound.playMusic(Paths.music('menus/title'), 0);
 			FlxG.sound.music.fadeIn(4, 0, 0.7);
-		}
 
-		Conductor.changeBPM(titleConfig.bpm);
+			Conductor.changeBPM(titleConfig.bpm);
+		}
 
 		titleBG = new FlxSprite().loadGraphic(Paths.image(titleConfig.titleBG));
 		titleBG.setGraphicSize(Std.int(FlxG.width), Std.int(FlxG.height));
