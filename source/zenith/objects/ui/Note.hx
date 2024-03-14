@@ -117,7 +117,7 @@ class Note extends FlxSprite
 	}
 
 	// Used for recycling
-	private function setupNoteData(chartNoteData:ChartNoteData):Note
+	public function setupNoteData(chartNoteData:ChartNoteData):Note
 	{
 		wasHit = tooLate = active = pixelPerfectPosition = false; // Don't make an update call of this for the note group
 

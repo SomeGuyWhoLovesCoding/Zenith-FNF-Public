@@ -261,9 +261,7 @@ class Gameplay extends MusicBeatState
 
 		while (unspawnNotes.length != 0 && Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - (1950 / songSpeed))
 		{
-			@:privateAccess (unspawnNotes[unspawnNotes.length-1].isSustainNote ? sustains : notes)
-				.recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-1]);
-
+			(unspawnNotes[unspawnNotes.length-1].isSustainNote ? sustains : notes).recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-1]);
 			inline unspawnNotes.pop();
 		}
 
@@ -310,8 +308,8 @@ class Gameplay extends MusicBeatState
 				if (Conductor.songPosition >= daNote.strumTime + (Conductor.stepCrochet * 2))
 					daNote.miss();
 
-				if (null == noteToHit[daNote.noteData] && (daNote.mustPress && (!daNote.wasHit && !daNote.tooLate) && !daNote.isSustainNote) &&
-					(Math.abs(Conductor.songPosition - daNote.strumTime) <= 166.7))
+				if (daNote.exists && !daNote.isSustainNote && Math.abs(Conductor.songPosition - daNote.strumTime) <= 166.7 &&
+					(!daNote.wasHit && !daNote.tooLate) && (null == noteToHit[daNote.noteData] && daNote.mustPress))
 					noteToHit[daNote.noteData] = daNote;
 			}
 		}
@@ -948,6 +946,9 @@ class Gameplay extends MusicBeatState
 	{
 		note.exists = false;
 
+		if (noteToHit[note.noteData] == note)
+			noteToHit[note.noteData] = null;
+
 		if (!noCharacters)
 		{
 			var char = (note.mustPress ? bf : (note.gfNote ? gf : dad));
@@ -1108,10 +1109,7 @@ class Gameplay extends MusicBeatState
 		var hittable:Note = noteToHit[key];
 
 		if (null != hittable)
-		{
 			hittable.hit();
-			hittable = null;
-		}
 
 		holdArray[key] = true;
 	}
