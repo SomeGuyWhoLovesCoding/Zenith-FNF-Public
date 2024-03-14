@@ -25,8 +25,6 @@ class Gameplay extends MusicBeatState
 	public var strums:FlxTypedGroup<StrumNote>;
 	public var notes:FlxTypedGroup<Note>;
 
-	private var noteToHit:Array<Note> = [null, null, null, null];
-
 	// Health stuff
 	private var hudGroup(default, null):HUDGroup;
 	public var health:Float = 1;
@@ -307,10 +305,6 @@ class Gameplay extends MusicBeatState
 
 				if (Conductor.songPosition >= daNote.strumTime + (Conductor.stepCrochet * 2))
 					daNote.miss();
-
-				if (daNote.exists && !daNote.isSustainNote && Math.abs(Conductor.songPosition - daNote.strumTime) <= 166.7 &&
-					(!daNote.wasHit && !daNote.tooLate) && (null == noteToHit[daNote.noteData] && daNote.mustPress))
-					noteToHit[daNote.noteData] = daNote;
 			}
 		}
 
@@ -946,9 +940,6 @@ class Gameplay extends MusicBeatState
 	{
 		note.exists = false;
 
-		if (noteToHit[note.noteData] == note)
-			noteToHit[note.noteData] = null;
-
 		if (!noCharacters)
 		{
 			var char = (note.mustPress ? bf : (note.gfNote ? gf : dad));
@@ -1105,8 +1096,8 @@ class Gameplay extends MusicBeatState
 		// For some reason the strum note still plays the press animation even when a note is hit sometimes, so here's a solution to it.
 		if (strums.members[key + 4].animation.curAnim.name != 'confirm')
 			inline strums.members[key + 4].playAnim('pressed');
-
-		var hittable:Note = noteToHit[key];
+		
+		var hittable:Note = (inline notes.members.filter(n -> (n.mustPress && !n.isSustainNote) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && n.noteData == key && !n.wasHit && !n.tooLate))[0];
 
 		if (null != hittable)
 			hittable.hit();
