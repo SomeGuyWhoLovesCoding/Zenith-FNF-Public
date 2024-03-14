@@ -303,15 +303,16 @@ class Gameplay extends MusicBeatState
 
 				if (Conductor.songPosition >= daNote.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
 					daNote.exists = false;
+
+				if (cpuControlled)
+					continue;
+
 				if (Conductor.songPosition >= daNote.strumTime + (Conductor.stepCrochet * 2))
 					daNote.miss();
 
-				if (noteToHit[daNote.noteData] != null || (!daNote.mustPress || (daNote.wasHit || daNote.tooLate) || daNote.isSustainNote) || cpuControlled)
-					continue;
-
-				if (!daNote.isSustainNote)
-					if (Math.abs(Conductor.songPosition - daNote.strumTime) < 166.7)
-						noteToHit[daNote.noteData] = daNote;
+				if (null == noteToHit[daNote.noteData] && (daNote.mustPress && (!daNote.wasHit && !daNote.tooLate) && !daNote.isSustainNote) &&
+					(Math.abs(Conductor.songPosition - daNote.strumTime) <= 166.7))
+					noteToHit[daNote.noteData] = daNote;
 			}
 		}
 
@@ -1104,10 +1105,12 @@ class Gameplay extends MusicBeatState
 		if (strums.members[key + 4].animation.curAnim.name != 'confirm')
 			inline strums.members[key + 4].playAnim('pressed');
 
-		if (null != noteToHit[key])
+		var hittable:Note = noteToHit[key];
+
+		if (null != hittable)
 		{
-			noteToHit[key].hit();
-			noteToHit[key] = null;
+			hittable.hit();
+			hittable = null;
 		}
 
 		holdArray[key] = true;
