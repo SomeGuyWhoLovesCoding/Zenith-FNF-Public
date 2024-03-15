@@ -35,8 +35,7 @@ class Gameplay extends MusicBeatState
 
 	// Preference stuff
 	public static var cpuControlled:Bool = false;
-	public static var downScroll:Bool = true;
-	private static var strumDownScroll(default, null):Bool = true;
+	public static var downScroll:Bool = false;
 	public static var hideHUD:Bool = false;
 	public static var renderMode:Bool = false;
 	public static var noCharacters:Bool = false;
@@ -112,26 +111,23 @@ class Gameplay extends MusicBeatState
 
 	override public function create():Void
 	{
-		inline cpp.vm.Gc.enable(true);
+		super.create();
 
-		if (!cpuControlled)
-		{
-			Application.current.window.onKeyDown.add(onKeyDown);
-			Application.current.window.onKeyUp.add(onKeyUp);
-		}
+		inline cpp.vm.Gc.enable(true);
 
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
 
 		instance = this;
 
 		// Preferences stuff
-		// Soon...
+		
+		downScroll = SaveData.preferences.get("DownScroll");
+		hideHUD = SaveData.preferences.get("HideHUD");
+		noCharacters = SaveData.preferences.get("NoCharacters");
 
 		// Reset gameplay stuff
 		startedCountdown = songEnded = false;
 		songSpeed = noteMult = 1;
-
-		super.create();
 
 		//FlxG.cameras.bgColor = 0xFF333333;
 
@@ -281,9 +277,14 @@ class Gameplay extends MusicBeatState
 
 		for (grp in [notes, sustains])
 		{
-			for (daNote in grp.members)
+			// For performance reasons
+
+			var i:Int = 0;
+			while (i < grp.members.length)
 			{
-				inline daNote.followStrum(strums.members[daNote.noteData + (daNote.mustPress ? 4 : 0)]);
+				var daNote:Note = grp.members[i++];
+
+				daNote.followStrum(strums.members[daNote.noteData + (daNote.mustPress ? 4 : 0)]);
 				daNote.onNoteHit = onNoteHit;
 				daNote.onNoteMiss = onNoteMiss;
 
@@ -300,7 +301,7 @@ class Gameplay extends MusicBeatState
 				if (Conductor.songPosition >= daNote.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
 					daNote.exists = false;
 
-				if (cpuControlled)
+				if ((daNote.wasHit || daNote.tooLate) || cpuControlled)
 					continue;
 
 				if (Conductor.songPosition >= daNote.strumTime + (Conductor.stepCrochet * 2))
@@ -590,7 +591,7 @@ class Gameplay extends MusicBeatState
 		if (!noCharacters)
 		{
 			DisplayStage.loadStage(curStage);
-	
+
 			trace('Loading characters...');
 
 			bfGroup = new FlxSpriteGroup(BF_X, BF_Y);
@@ -868,6 +869,13 @@ class Gameplay extends MusicBeatState
 		var swagCounter:Int = 0;
 		Conductor.songPosition = (-Conductor.crochet * 5) - SONG.offset;
 
+		inputKeybinds = [
+			SaveData.controls.get("Note_Left"),
+			SaveData.controls.get("Note_Down"),
+			SaveData.controls.get("Note_Up"),
+			SaveData.controls.get("Note_Right")
+		];
+
 		//trace(swagCounter);
 
 		new flixel.util.FlxTimer().start(Conductor.crochet * 0.001, (?timer) ->
@@ -1075,16 +1083,11 @@ class Gameplay extends MusicBeatState
 
 	// Real input system!!
 
-	var inputKeybinds:Array<Int> = [
-		KeyCode.A,
-		KeyCode.S,
-		KeyCode.UP,
-		KeyCode.RIGHT
-	];
+	public var inputKeybinds:Array<Int> = [];
 
-	var holdArray:Array<Bool> = [false, false, false, false];
+	private var holdArray(default, null):Array<Bool> = [false, false, false, false];
 
-	function onKeyDown(keyCode:Int, keyMod:Int):Void
+	override public function onKeyDown(keyCode:Int, keyMod:Int):Void
 	{
 		var key:Int = inline inputKeybinds.indexOf(keyCode);
 
@@ -1096,7 +1099,7 @@ class Gameplay extends MusicBeatState
 		// For some reason the strum note still plays the press animation even when a note is hit sometimes, so here's a solution to it.
 		if (strums.members[key + 4].animation.curAnim.name != 'confirm')
 			inline strums.members[key + 4].playAnim('pressed');
-		
+
 		var hittable:Note = (inline notes.members.filter(n -> (n.mustPress && !n.isSustainNote) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && n.noteData == key && !n.wasHit && !n.tooLate))[0];
 
 		if (null != hittable)
@@ -1105,7 +1108,7 @@ class Gameplay extends MusicBeatState
 		holdArray[key] = true;
 	}
 
-	function onKeyUp(keyCode:Int, keyMod:Int):Void
+	override public function onKeyUp(keyCode:Int, keyMod:Int):Void
 	{
 		var key:Int = inline inputKeybinds.indexOf(keyCode);
 
@@ -1117,14 +1120,6 @@ class Gameplay extends MusicBeatState
 		inline strums.members[key + 4].playAnim('static');
 
 		holdArray[key] = false;
-	}
-
-	override function destroy():Void
-	{
-		super.destroy();
-
-		Application.current.window.onKeyDown.remove(onKeyDown);
-		Application.current.window.onKeyUp.remove(onKeyUp);
 	}
 
 	// Preferences stuff (Also for lua)

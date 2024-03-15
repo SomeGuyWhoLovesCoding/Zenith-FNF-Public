@@ -1,5 +1,7 @@
 package zenith.system;
 
+import lime.app.Application;
+
 class MusicBeatState extends FlxState
 {
 	private var curSection:Int = 0;
@@ -15,7 +17,18 @@ class MusicBeatState extends FlxState
 	{
 		Main.startTransition(false);
 
+		Application.current.window.onKeyDown.add(onKeyDown);
+		Application.current.window.onKeyUp.add(onKeyUp);
+
 		super.create();
+	}
+
+	override function destroy():Void
+	{
+		Application.current.window.onKeyDown.remove(onKeyDown);
+		Application.current.window.onKeyUp.remove(onKeyUp);
+
+		super.destroy();
 	}
 
 	override function update(elapsed:Float):Void
@@ -41,6 +54,11 @@ class MusicBeatState extends FlxState
 			}
 		}
 	}
+
+	// Keyboard event stuff
+
+	public function onKeyDown(keyCode:Int, keyMod:Int):Void {}
+	public function onKeyUp(keyCode:Int, keyMod:Int):Void {}
 
 	// State stuff
 

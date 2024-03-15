@@ -1,51 +1,98 @@
 package zenith.core;
 
-typedef SaveDataFolder =
+import flixel.util.FlxSave;
+import lime.ui.KeyCode;
+
+enum abstract SaveContentType(Int) from Int to Int
 {
-	var name:String,
-	var contents:Map<String, Dynamic>
+	var PREFERENCES:Int = 0;
+	var CONTROLS:Int = 1;
 }
 
-class SaveData extends FlxSave
+typedef GlobalSaveContents =
 {
-	public function new()
+	var controls:Map<String, Int>;
+	var preferences:Map<String, Bool>;
+}
+
+typedef CustomSave =
+{
+	var name:String;
+	var contents:Map<String, Dynamic>;
+}
+
+class SaveData
+{
+	// Global bullshit //
+
+	public static final defaultControls:Map<String, Int> = [
+		"Note_Left" => KeyCode.A, "Note_Down" => KeyCode.S, "Note_Up" => KeyCode.UP, "Note_Right" => KeyCode.RIGHT,
+		"UI_Left" => KeyCode.A, "UI_Down" => KeyCode.S, "UI_Up" => KeyCode.W, "UI_Right" => KeyCode.D,
+		"Accept" => KeyCode.RETURN, "Backspace" => KeyCode.BACKSPACE, "Reset" => KeyCode.R, "Control" => KeyCode.LEFT_CTRL
+	];
+
+	public static final defaultPreferences:Map<String, Bool> = [
+		"DownScroll" => false, "HideHUD" => false, "NoCharacters" => false, "ExtendCameraBounds" => true
+	];
+
+	// These are just shortcuts, don't recommend changing the function code for them
+
+	public static var controls(get, default):Map<String, Int>;
+	static function get_controls():Map<String, Int>
 	{
-		super();
-
-		bind("Zenith-FNF");
-
-		if (null == data.folders)
-			data.folders = [];
-
-		if (null == data.globalFolder)
-			data.globalFolder = {name: "Zenith-FNF", contents: []};
+		return FlxG.save.data.zenithFunkinData.globalSave.controls;
 	}
 
-	public inline function addFolder(folder:String):SaveDataFolder
+	public static var preferences(get, default):Map<String, Bool>;
+	static function get_preferences():Map<String, Bool>
 	{
-		data.folders.push({name: folder, contents: []});
+		return FlxG.save.data.zenithFunkinData.globalSave.preferences;
 	}
 
-	public inline function getFolder(folder:String):SaveDataFolder
+	/////////////////////
+
+	public static function addCustomSaveData(saveData:String):Void
 	{
-		return data.folders.filter(f -> folder == f.name)[0];
+		FlxG.save.data.zenithFunkinData.customSaves.push({name: saveData, contents: []});
 	}
 
-	public inline function setFolderContent(content:String, newContents:Dynamic, folder:String = "")
+	public static function getCustomSaveData(saveData:String):CustomSave
 	{
-		var folderDestination:String = "";
+		for (customSave in (FlxG.save.data.zenithFunkinData.customSaves : Array<CustomSave>) /* Don't make the game think the variable is a dynamic */)
+			if (customSave.name == saveData)
+				return customSave;
+		return null;
+	}
 
-		if (folder != "")
-			folderDestination = folder;
+	public static function setGlobalSaveContent(saveContentType:SaveContentType, content:String, newContent:Dynamic)
+	{
+		(saveContentType == PREFERENCES ? FlxG.save.data.zenithFunkinData.globalSave.preferences : FlxG.save.data.zenithFunkinData.globalSave.controls).set(content, newContent);
 
-		var saveFolderDestination:SaveDataFolder = getFolder(folderDestination);
+		if (newContent != content)
+			trace((saveContentType == PREFERENCES ? "Preference" : "Keybind") + ' "$content" set to $newContent');
+
+		//data.flush(); This gives a null function pointer, don't uncomment that line
+	}
+
+	public static function setSaveContent(content:String, newContent:Dynamic, saveName:String = "")
+	{
+		var saveFolderDestination:CustomSave = getCustomSaveData(saveName);
 
 		if (null == saveFolderDestination)
-			saveFolderDestination = data.globalFolder;
+			throw 'Save data with name "$saveName" not found!\nMake sure to add it.';
 
 		saveFolderDestination.contents.set(content, newContent);
 
-		data.flush();
+		//data.flush();
+	}
+
+	public static function reloadSave():Void
+	{
+		FlxG.save.bind("Zenith-FNF", "Zenith-FNF");
+
+		// The global save is a ``GlobalSaveContents``, don't recommend modifying it yourself.
+		if (null == FlxG.save.data.zenithFunkinData)
+			FlxG.save.data.zenithFunkinData = {globalSave: {controls: defaultControls, preferences: defaultPreferences}, customSaves: []};
 	}
 }
 

@@ -1,5 +1,6 @@
 package zenith.menus;
 
+import flixel.addons.display.FlxBackdrop;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 import flixel.text.FlxText;
@@ -20,7 +21,7 @@ class TitleScreen extends MusicBeatState
 		['What da dog doin?', '', '']
 	];
 
-	public var titleBG:FlxSprite;
+	public var titleBG:FlxBackdrop;
 	public var titleImage:FlxSprite;
 
 	public static var titleConfig:TitleConfigurations;
@@ -31,20 +32,25 @@ class TitleScreen extends MusicBeatState
 	{
 		super.create();
 
+		alreadyPressedEnter = false;
+
 		if (initialized)
 		{
-			startIntro(null);
+			loadTitleScreenShit();
 			return;
 		}
 
 		// Initialize the title configurations before starting the intro
 		titleConfig = haxe.Json.parse(sys.io.File.getContent(Paths.ASSET_PATH + '/music/menus/titleConfig.json'));
 
-		new flixel.util.FlxTimer().start(2, startIntro);
+		new flixel.util.FlxTimer().start(2, function(_)
+		{
+			loadTitleScreenShit();	
+			titleBG.visible = titleImage.visible = false;
+		});
 	}
 
-	var titleBGFadeTween:FlxTween;
-	private function startIntro(_):Void
+	private function loadTitleScreenShit():Void
 	{
 		var titleScreenFile:String = Paths.ASSET_PATH + '/music/menus/title.ogg'; // Avoid usage of string interpolation twice
 
@@ -62,24 +68,11 @@ class TitleScreen extends MusicBeatState
 			Conductor.changeBPM(titleConfig.bpm);
 		}
 
-		titleBG = new FlxSprite().loadGraphic(Paths.image(titleConfig.titleBG));
+		titleBG = new FlxBackdrop(Paths.image(titleConfig.titleBG));
 		titleBG.setGraphicSize(Std.int(FlxG.width), Std.int(FlxG.height));
 		titleBG.updateHitbox();
-		titleBG.alpha = 0;
+		titleBG.velocity.set(-32, 0);
 		add(titleBG);
-
-		titleBGFadeTween = FlxTween.tween(titleBG, {alpha: 1}, 1, {ease: FlxEase.quintOut});
-
-		// This intro text will still be in the title screen as it's intentional
-		tempIntroText = introTexts[FlxG.random.int(0, introTexts.length - 1)];
-		titleText = new FlxText(0, 0, 0, '', 36);
-		titleText.font = Paths.font('vcr');
-		titleText.alignment = "center";
-		titleText.screenCenter();
-		add(titleText);
-
-		if (!initialized)
-			return;
 
 		titleImage = new FlxSprite().loadGraphic(Paths.image(titleConfig.titleImage));
 		titleImage.setGraphicSize(Std.int(FlxG.width * 0.5), Std.int(FlxG.height * 0.5));
@@ -87,11 +80,24 @@ class TitleScreen extends MusicBeatState
 		titleImage.screenCenter();
 		add(titleImage);
 
-		if (cameraZoomTween != null)
+		if (null != cameraZoomTween)
 			cameraZoomTween.cancel();
 
-		FlxG.camera.zoom = 1.025;
+		FlxG.camera.zoom = 1.0085;
 		cameraZoomTween = FlxTween.tween(FlxG.camera, {zoom: 1}, Conductor.crochet * 0.00175, {ease: FlxEase.quintOut});
+
+		titleBG.antialiasing = titleImage.antialiasing = true;
+
+		if (initialized)
+			return;
+
+		tempIntroText = introTexts[FlxG.random.int(0, introTexts.length - 1)];
+
+		titleText = new FlxText(0, 0, 0, '', 36);
+		titleText.font = Paths.font('vcr');
+		titleText.alignment = "center";
+		titleText.screenCenter();
+		add(titleText);
 	}
 
 	override public function update(elapsed:Float):Void
@@ -100,6 +106,10 @@ class TitleScreen extends MusicBeatState
 			Conductor.songPosition = FlxG.sound.music.time;
 
 		super.update(elapsed);
+
+		// This was for testing save data changes
+		/*if (FlxG.keys.justPressed.T)
+			SaveData.setGlobalSaveContent(CONTROLS, 'Accept', lime.ui.KeyCode.SPACE);*/
 	}
 
 	var cameraZoomTween:FlxTween;
@@ -108,10 +118,10 @@ class TitleScreen extends MusicBeatState
 	{
 		super.beatHit();
 
-		if (cameraZoomTween != null)
+		if (null != cameraZoomTween)
 			cameraZoomTween.cancel();
 
-		FlxG.camera.zoom = 1.025;
+		FlxG.camera.zoom = 1.0085;
 		cameraZoomTween = FlxTween.tween(FlxG.camera, {zoom: 1}, Conductor.crochet * 0.00175, {ease: FlxEase.quintOut});
 
 		if (!initialized)
@@ -136,27 +146,12 @@ class TitleScreen extends MusicBeatState
 				case 16:
 					deleteTitleText();
 					remove(titleText);
-					initialized = true;
-
-					titleImage = new FlxSprite().loadGraphic(Paths.image(titleConfig.titleImage));
-					titleImage.setGraphicSize(Std.int(FlxG.width * 0.5), Std.int(FlxG.height * 0.5));
-					titleImage.updateHitbox();
-					titleImage.screenCenter();
-					add(titleImage);
-
-					FlxG.camera.flash(0x66FFFFFF, 0.75, null, true);
-					FlxG.camera.zoom = 1.075;
-
-					if (cameraZoomTween != null)
-						cameraZoomTween.cancel();
-
-					cameraZoomTween = FlxTween.tween(FlxG.camera, {zoom: 1}, Conductor.crochet * 0.00135, {ease: FlxEase.expoOut});
+					skipIntro();
 			}
 		}
 	}
 
 	var titleText:FlxText;
-
 	private inline function makeTitleText(text:String):Void
 	{
 		if (null != titleText)
@@ -168,7 +163,7 @@ class TitleScreen extends MusicBeatState
 
 	private inline function addTitleText(text:String):Void
 	{
-		if (null != titleText && text != '') // For intro text 4
+		if (null != titleText && text != '' /* For intro text 4 */)
 		{
 			titleText.text += '\n' + text;
 			titleText.screenCenter();
@@ -181,6 +176,52 @@ class TitleScreen extends MusicBeatState
 		{
 			titleText.text = '';
 			titleText.screenCenter();
+		}
+	}
+
+	private function skipIntro(skipIntroMusicInstantly:Bool = false):Void
+	{
+		if (initialized)
+			return;
+
+		if (skipIntroMusicInstantly)
+		{
+			if (null != FlxG.sound.music.fadeTween)
+				FlxG.sound.music.fadeTween.cancel();
+	
+			FlxG.sound.music.volume = 1;
+			FlxG.sound.music.time = Conductor.crochet * 16;
+		}
+
+		deleteTitleText();
+		remove(titleText);
+		initialized = true;
+
+		titleBG.visible = titleImage.visible = true;
+
+		FlxG.camera.flash(0xFFFFFFFF, 0.75, null, true);
+		FlxG.camera.zoom = 1.0085;
+
+		if (null != cameraZoomTween)
+			cameraZoomTween.cancel();
+
+		cameraZoomTween = FlxTween.tween(FlxG.camera, {zoom: 1}, Conductor.crochet * 0.001, {ease: FlxEase.quintOut});
+	}
+
+	public static var alreadyPressedEnter:Bool = false;
+	override public function onKeyDown(keyCode:Int, keyMod:Int):Void
+	{
+		if (SaveData.controls.get("Accept") == keyCode && !alreadyPressedEnter)
+		{
+			trace('Test');
+
+			if (!initialized)
+			{
+				skipIntro(true);
+				return;
+			}
+
+			alreadyPressedEnter = true;
 		}
 	}
 }
