@@ -32,22 +32,14 @@ class TitleScreen extends MusicBeatState
 	{
 		super.create();
 
+		// Initialize the title configurations before starting the intro
+		if (titleConfig == null)
+			titleConfig = haxe.Json.parse(sys.io.File.getContent(Paths.ASSET_PATH + '/music/menus/titleConfig.json'));
+
 		alreadyPressedEnter = false;
 
-		if (initialized)
-		{
-			loadTitleScreenShit();
-			return;
-		}
-
-		// Initialize the title configurations before starting the intro
-		titleConfig = haxe.Json.parse(sys.io.File.getContent(Paths.ASSET_PATH + '/music/menus/titleConfig.json'));
-
-		new flixel.util.FlxTimer().start(2, function(_)
-		{
-			loadTitleScreenShit();	
-			titleBG.visible = titleImage.visible = false;
-		});
+		loadTitleScreenShit();
+		titleBG.visible = titleImage.visible = initialized;
 	}
 
 	private function loadTitleScreenShit():Void

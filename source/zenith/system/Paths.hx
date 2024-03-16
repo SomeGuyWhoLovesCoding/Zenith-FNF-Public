@@ -17,6 +17,8 @@ class Paths
 	private static var noteFrames:FlxFramesCollection; // Don't reuse the same note spritesheet data, leave it there
 	private static var noteAnimation:FlxAnimationController;
 
+	public static var LowMemoryMode(default, null):Bool = true;
+
 	//public static var soundChannel:SoundChannel;
 
 	public static function initNoteShit(keys:Int = 4)
@@ -46,12 +48,23 @@ class Paths
 		if (sys.FileSystem.exists(imagePath))
 		{
 			if (bitmapDataCache.exists(imagePath))
-				return bitmapDataCache.get(imagePath);
+			{
+				var bitmapData:BitmapData = bitmapDataCache.get(imagePath);
+				if (LowMemoryMode)
+					bitmapData = BitmapDataUtils.toTexture(bitmapData);
+
+				return bitmapData;
+			}
 			else
 			{
 				// Create a new FlxGraphic and add its bitmap data to the cache
 				bitmapDataCache.set(imagePath, FlxG.bitmap.add(BitmapData.fromFile(imagePath), true, imagePath).bitmap);
-				return bitmapDataCache.get(imagePath);
+
+				var bitmapData:BitmapData = bitmapDataCache.get(imagePath);
+				if (LowMemoryMode)
+					bitmapData = BitmapDataUtils.toTexture(bitmapData);
+
+				return bitmapData;
 			}
 		}
 
