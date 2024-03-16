@@ -6,7 +6,7 @@ import openfl.display3D.textures.Texture;
 
 class Game extends FlxGame
 {
-	var initState(default, null):Class<FlxState> = TitleScreen;
+	var initState(default, null):Class<FlxState> = Gameplay;
 
 	public function new():Void
 	{

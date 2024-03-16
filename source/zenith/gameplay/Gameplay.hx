@@ -284,6 +284,7 @@ class Gameplay extends MusicBeatState
 			{
 				var daNote:Note = grp.members[i++];
 
+				//daNote.active = daNote.visible = (downScroll && daNote.y > -daNote.height + 1) || (!downScroll && daNote.y < FlxG.height + (daNote.height + 1)); // Optimized version, taken from dek engine's source LOL
 				daNote.followStrum(strums.members[daNote.noteData + (daNote.mustPress ? 4 : 0)]);
 				daNote.onNoteHit = onNoteHit;
 				daNote.onNoteMiss = onNoteMiss;
