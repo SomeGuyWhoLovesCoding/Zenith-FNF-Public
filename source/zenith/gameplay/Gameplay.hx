@@ -958,7 +958,8 @@ class Gameplay extends MusicBeatState
 		/*// For some reason the strum confirm anim is still played when you stop holding the sustain note at the very tail, so here's a solution to it.
 		if (holdArray[note.noteData] || (!note.isSustainNote || !note.mustPress)) // Dumbass if check*/
 
-		inline strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
+		if ((!note.mustPress || note.isSustainNote) || cpuControlled)
+			inline strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
 
 		health += (0.045 * (note.isSustainNote ? 0.5 : 1)) * (note.mustPress ? 1 : -1);
 
@@ -1096,14 +1097,19 @@ class Gameplay extends MusicBeatState
 
 		//trace(key); Testing...
 
+		var strum:StrumNote = strums.members[key + 4];
+
 		// For some reason the strum note still plays the press animation even when a note is hit sometimes, so here's a solution to it.
-		if (strums.members[key + 4].animation.curAnim.name != 'confirm')
-			inline strums.members[key + 4].playAnim('pressed');
+		if (strum.animation.curAnim.name != 'confirm')
+			inline strum.playAnim('pressed');
 
 		var hittable:Note = (inline notes.members.filter(n -> (n.mustPress && !n.isSustainNote) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && n.noteData == key && !n.wasHit && !n.tooLate))[0];
 
 		if (null != hittable)
+		{
+			inline strum.playAnim('confirm');
 			hittable.hit();
+		}
 
 		holdArray[key] = true;
 	}
@@ -1117,9 +1123,13 @@ class Gameplay extends MusicBeatState
 		if (key == -1 || cpuControlled || !generatedMusic || !holdArray[key])
 			return;
 
-		inline strums.members[key + 4].playAnim('static');
-
 		holdArray[key] = false;
+
+		var strum:StrumNote = strums.members[key + 4];
+
+		if (strum.animation.curAnim.name == 'confirm' ||
+			strum.animation.curAnim.name == 'pressed')
+			inline strum.playAnim('static');
 	}
 
 	// Preferences stuff (Also for lua)
@@ -1155,7 +1165,5 @@ class Gameplay extends MusicBeatState
 				}
 			}
 		}
-
-		//downScroll = strums.members.filter(s -> s.scrollMult > 0).length == 0 || strums.members.filter(s -> s.scrollMult < 0).length != 0; That's a preference LMAO
 	}
 }

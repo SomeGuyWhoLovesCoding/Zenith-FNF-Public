@@ -87,8 +87,6 @@
 
 	<haxedef name="HXCPP_GC_MOVING" />
 
-	<haxedef name="skip_measurement_cache"/>
-
 	<!-- _________________________________ Custom _______________________________ -->
 
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->

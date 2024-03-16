@@ -116,6 +116,34 @@ class Note extends FlxSprite
 		tooLate = true;
 	}
 
+	override public function draw():Void
+	{
+		checkEmptyFrame();
+
+		if (alpha == 0 || _frame.type == flixel.graphics.frames.FlxFrame.FlxFrameType.EMPTY)
+			return;
+
+		if (dirty) // rarely
+			calcFrame(useFramePixels);
+
+		for (camera in cameras)
+		{
+			if (!camera.visible || !camera.exists || !isOnScreen(camera))
+				continue;
+
+			drawComplex(camera);
+
+			#if FLX_DEBUG
+			FlxBasic.visibleCount++;
+			#end
+		}
+
+		#if FLX_DEBUG
+		if (FlxG.debugger.drawDebug)
+			drawDebug();
+		#end
+	}
+
 	// Used for recycling
 	public function setupNoteData(chartNoteData:ChartNoteData):Note
 	{

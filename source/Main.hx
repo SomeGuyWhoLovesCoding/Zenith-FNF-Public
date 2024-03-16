@@ -1,6 +1,8 @@
 package;
 
 import openfl.display.Sprite;
+import openfl.text.TextField;
+import openfl.text.TextFormat;
 import openfl.geom.Matrix;
 
 typedef Transitioning =
@@ -21,12 +23,21 @@ class Main extends Sprite
 	public static var game:Game;
 	public static var transition:Sprite;
 
+	public static var memTxt:TextField;
+
 	public static var skipTransIn:Bool = false;
 	public static var skipTransOut:Bool = false;
 
 	public function new()
 	{
 		super();
+
+		#if windows //DPI AWARENESS BABY
+		@:functionCode('
+			#include <Windows.h>
+			SetProcessDPIAware()
+		')
+		#end
 
 		flixel.graphics.FlxGraphic.defaultPersist = true;
 
@@ -44,7 +55,13 @@ class Main extends Sprite
 		addChild(game = new Game());
 		addChild(transition);
 
-		addEventListener("enterFrame", onTransitionUpdate);
+		memTxt = new TextField();
+		memTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFFFFFF, true);
+		memTxt.width = FlxG.width;
+		addChild(memTxt);
+
+		var evt:Sprite = new Sprite();
+		evt.addEventListener("enterFrame", onTransitionUpdate);
 	}
 
 	public static function startTransition(_transIn:Bool = false, _callback:Void->Void = null):Void
@@ -87,6 +104,8 @@ class Main extends Sprite
 	{
 		if (@:privateAccess FlxG.game._lostFocus)
 			return;
+
+		memTxt.text = flixel.util.FlxStringUtil.formatBytes(openfl.system.System.totalMemory);
 
 		transition.y = transitionY;
 

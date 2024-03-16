@@ -89,6 +89,7 @@ class TitleScreen extends MusicBeatState
 		titleText.font = Paths.font('vcr');
 		titleText.alignment = "center";
 		titleText.screenCenter();
+		titleText.antialiasing = true;
 		add(titleText);
 	}
 

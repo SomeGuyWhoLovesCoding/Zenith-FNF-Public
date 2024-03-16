@@ -17,7 +17,7 @@ class Paths
 	private static var noteFrames:FlxFramesCollection; // Don't reuse the same note spritesheet data, leave it there
 	private static var noteAnimation:FlxAnimationController;
 
-	public static var LowMemoryMode(default, null):Bool = true;
+	public static var LowMemoryMode(default, null):Bool = false;
 
 	//public static var soundChannel:SoundChannel;
 
@@ -51,7 +51,7 @@ class Paths
 			{
 				var bitmapData:BitmapData = bitmapDataCache.get(imagePath);
 				if (LowMemoryMode)
-					bitmapData = BitmapDataUtils.toTexture(bitmapData);
+					Utils.toTexture(bitmapData);
 
 				return bitmapData;
 			}
@@ -62,7 +62,7 @@ class Paths
 
 				var bitmapData:BitmapData = bitmapDataCache.get(imagePath);
 				if (LowMemoryMode)
-					bitmapData = BitmapDataUtils.toTexture(bitmapData);
+					Utils.toTexture(bitmapData);
 
 				return bitmapData;
 			}

@@ -1,12 +1,12 @@
 package zenith.core;
 
 import openfl.Lib;
-import openfl.display.BitmapData;
 import lime.graphics.opengl.GL;
+import openfl.display.BitmapData;
 import openfl.display3D.Context3D;
 import openfl.display3D.textures.TextureBase;
 
-class BitmapDataUtils
+class Utils
 {
 	public static function toTexture(source:BitmapData):BitmapData
 	{
@@ -14,8 +14,7 @@ class BitmapDataUtils
 		{
 			var context:Context3D = Lib.current.stage.context3D;
 			var texture:TextureBase = source.getTexture(context);
-			@:privateAccess texture.__optimizeForRenderToTexture = true;
-			return BitmapData.fromTexture(texture);
+			return source = BitmapData.fromTexture(texture);
 		}
 
 		return source;
