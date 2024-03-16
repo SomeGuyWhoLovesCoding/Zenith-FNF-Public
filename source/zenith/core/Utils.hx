@@ -14,7 +14,7 @@ class Utils
 		{
 			var context:Context3D = Lib.current.stage.context3D;
 			var texture:TextureBase = source.getTexture(context);
-			return source = BitmapData.fromTexture(texture);
+			return BitmapData.fromTexture(texture);
 		}
 
 		return source;

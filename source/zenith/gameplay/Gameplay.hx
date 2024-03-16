@@ -316,6 +316,8 @@ class Gameplay extends MusicBeatState
 			sys.FileSystem.createDirectory(Paths.ASSET_PATH + '/gameRenders/' + Paths.formatToSongPath(SONG.song));
 
 		Screenshot.capture(FlxG.game, null, Paths.ASSET_PATH + '/gameRenders/' + Paths.formatToSongPath(SONG.song) + '/' + zeroFill(7, Std.string(framesCaptured++)));
+
+		notes.members.sort((a, b) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
 	}
 
 	function zeroFill(num:Int, a:String):String
@@ -801,9 +803,6 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		// Please learn this when making an efficient input system: SORTING IS IMPORTANT!
-		notes.members.sort((a, b) -> (renderMode ? Std.int(a.y - b.y) : Std.int(a.strumTime - b.strumTime)));
-
 		super.stepHit();
 	}
 
@@ -835,6 +834,10 @@ class Gameplay extends MusicBeatState
 			&& !bf.stunned)
 			bf.dance();
 
+		// Please learn this when making an efficient input system: SORTING IS IMPORTANT!
+		if (!renderMode)
+			inline notes.members.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
+
 		super.beatHit();
 	}
 
@@ -846,6 +849,8 @@ class Gameplay extends MusicBeatState
 		if (SONG.notes[Std.int(curSection)].changeBPM)
 			Conductor.changeBPM(SONG.notes[curSection].bpm);
 
+		moveCameraSection();
+
 		if (null != gameCameraZoomTween)
 			gameCameraZoomTween.cancel();
 		if (null != hudCameraZoomTween)
@@ -856,8 +861,6 @@ class Gameplay extends MusicBeatState
 		hudCamera.zoom += 0.03;
 		hudCameraZoomTween = zoomTweenFunction(hudCamera, 1);
 
-		moveCameraSection();
-
 		super.sectionHit();
 	}
 
@@ -866,15 +869,15 @@ class Gameplay extends MusicBeatState
 		if (songEnded)
 			return;
 
-		var swagCounter:Int = 0;
-		Conductor.songPosition = (-Conductor.crochet * 5) - SONG.offset;
-
 		inputKeybinds = [
 			SaveData.controls.get("Note_Left"),
 			SaveData.controls.get("Note_Down"),
 			SaveData.controls.get("Note_Up"),
 			SaveData.controls.get("Note_Right")
 		];
+
+		var swagCounter:Int = 0;
+		Conductor.songPosition = (-Conductor.crochet * 5) - SONG.offset;
 
 		//trace(swagCounter);
 
@@ -946,43 +949,38 @@ class Gameplay extends MusicBeatState
 
 	public function onNoteHit(note:Note):Void
 	{
-		note.exists = false;
-
-		if (!noCharacters)
-		{
-			var char = (note.mustPress ? bf : (note.gfNote ? gf : dad));
-			inline char.playAnim(singAnimations[note.noteData], true);
-			char.holdTimer = 0;
-		}
-
-		/*// For some reason the strum confirm anim is still played when you stop holding the sustain note at the very tail, so here's a solution to it.
-		if (holdArray[note.noteData] || (!note.isSustainNote || !note.mustPress)) // Dumbass if check*/
-
-		if ((!note.mustPress || note.isSustainNote) || cpuControlled)
+		if (!note.mustPress || note.isSustainNote)
 			inline strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
+
+		note.exists = false;
 
 		health += (0.045 * (note.isSustainNote ? 0.5 : 1)) * (note.mustPress ? 1 : -1);
 
-		if (!note.isSustainNote && note.mustPress)
+		if (note.mustPress && !note.isSustainNote)
 			score += 350 * noteMult;
+
+		var char = (note.mustPress ? bf : (note.gfNote ? gf : dad));
+		if (char != null)
+		{
+			inline char.playAnim(singAnimations[note.noteData], true);
+			char.holdTimer = 0;
+		}
 	}
 
 	public function onNoteMiss(note:Note):Void
 	{
-		if (!note.isSustainNote && note.mustPress)
-		{
-			note.exists = false;
+		if (!note.mustPress || (note.wasHit || note.tooLate))
+			return;
 
-			if (!noCharacters)
-			{
-				inline bf.playAnim(singAnimations[note.noteData] + 'miss', true);
-				bf.holdTimer = 0;
-			}
+		health -= 0.045 * (note.isSustainNote ? 0.5 : 1);
+		score -= 100;
+		misses++;
 
-			health -= 0.045 * (note.isSustainNote ? 0.5 : 1);
-			score -= 100;
-			misses++;
-		}
+		if (noCharacters)
+			return;
+
+		inline bf.playAnim(singAnimations[note.noteData] + 'miss', true);
+		bf.holdTimer = 0;
 	}
 
 	// Camera functions
