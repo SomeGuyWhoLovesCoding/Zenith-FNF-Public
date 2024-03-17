@@ -17,7 +17,7 @@ class Paths
 	private static var noteFrames:FlxFramesCollection; // Don't reuse the same note spritesheet data, leave it there
 	private static var noteAnimation:FlxAnimationController;
 
-	public static var LowMemoryMode(default, null):Bool = true;
+	public static var GPUCaching(default, null):Bool = true;
 
 	//public static var soundChannel:SoundChannel;
 
@@ -49,13 +49,13 @@ class Paths
 		{
 			if (bitmapDataCache.exists(imagePath))
 			{
-				return (LowMemoryMode ? Utils.toTexture(bitmapDataCache.get(imagePath)) : bitmapDataCache.get(imagePath));
+				return (GPUCaching ? Utils.toTexture(bitmapDataCache.get(imagePath)) : bitmapDataCache.get(imagePath));
 			}
 			else
 			{
 				// Create a new FlxGraphic and add its bitmap data to the cache
 				bitmapDataCache.set(imagePath, FlxG.bitmap.add(BitmapData.fromFile(imagePath), true, imagePath).bitmap);
-				return (LowMemoryMode ? Utils.toTexture(bitmapDataCache.get(imagePath)) : bitmapDataCache.get(imagePath));
+				return (GPUCaching ? Utils.toTexture(bitmapDataCache.get(imagePath)) : bitmapDataCache.get(imagePath));
 			}
 		}
 

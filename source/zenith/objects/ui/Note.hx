@@ -72,6 +72,8 @@ class Note extends FlxSprite
 		updateHitbox();
 
 		//trace('Yes');
+
+		active = pixelPerfectPosition = false;
 	}
 
 	override public function update(elapsed:Float)
@@ -147,7 +149,7 @@ class Note extends FlxSprite
 	// Used for recycling
 	public function setupNoteData(chartNoteData:ChartNoteData):Note
 	{
-		wasHit = tooLate = active = pixelPerfectPosition = false; // Don't make an update call of this for the note group
+		wasHit = tooLate = false; // Don't make an update call of this for the note group
 
 		strumTime = chartNoteData.strumTime;
 		noteData = Std.int(chartNoteData.noteData % 4);

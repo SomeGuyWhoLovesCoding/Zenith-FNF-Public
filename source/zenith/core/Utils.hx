@@ -8,6 +8,8 @@ import openfl.display3D.textures.TextureBase;
 
 class Utils
 {
+	// Useful if you have a GPU
+
 	public static function toTexture(source:BitmapData):BitmapData
 	{
 		if (source.readable && !GL.isContextLost())

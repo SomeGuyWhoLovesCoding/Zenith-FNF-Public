@@ -57,8 +57,8 @@ class Main extends Sprite
 
 		memTxt = new TextField();
 		memTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFFFFFF, true);
-		memTxt.width = FlxG.width;
 		memTxt.selectable = false;
+		memTxt.width = FlxG.width;
 		addChild(memTxt);
 
 		var evt:Sprite = new Sprite();

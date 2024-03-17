@@ -179,6 +179,7 @@ class Gameplay extends MusicBeatState
 				generateSong(songName, songDifficulty);
 
 				sustains = new FlxTypedGroup<Note>();
+				sustains.active = false;
 				add(sustains);
 
 				strums = new FlxTypedGroup<StrumNote>();
@@ -188,6 +189,7 @@ class Gameplay extends MusicBeatState
 				generateStrums(1);
 
 				notes = new FlxTypedGroup<Note>();
+				notes.active = false;
 				add(notes);
 
 				if (!hideHUD)
@@ -950,6 +952,9 @@ class Gameplay extends MusicBeatState
 
 	public function onNoteHit(note:Note):Void
 	{
+		if (!note.wasHit && note.tooLate)
+			return;
+
 		if (!note.mustPress || note.isSustainNote)
 			inline strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
 
