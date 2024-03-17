@@ -9,8 +9,8 @@ class ThreadHandler
 
 	public static function run(task:Void->Void, onFinish:Void->Void = null):Void
 	{
-		// Threading is not supported with low memory mode, it just silent crashes the game when you try to load an image. Hopefully that issue gets fixed.
-		if (Paths.LowMemoryMode)
+		// Threading is not supported with gpu caching enabled, it just silent crashes the game when you try to load an image because the function has no overload and executes it instantly. Hopefully that issue gets fixed.
+		if (Paths.GPUCaching)
 		{
 			task();
 			return;

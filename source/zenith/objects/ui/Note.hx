@@ -87,7 +87,8 @@ class Note extends FlxSprite
 		{
 			offsetX = SUSTAIN_NOTE_OFFSET_THRESHOLD;
 			flipX = flipY = strum.scrollMult <= 0;
-			scale.set(0.7, animation.curAnim.name.endsWith('end') ? 1 : Conductor.stepCrochet * 0.0105 * (Gameplay.instance.songSpeed * multSpeed) * Math.abs(strum.scrollMult));
+			// Psych engine sustain calculation moment
+			scale.set(0.7, animation.curAnim.name.endsWith('end') ? 1 : (153.75 / Gameplay.SONG.bpm) * (Gameplay.instance.songSpeed * multSpeed) * Math.abs(strum.scrollMult));
 			updateHitbox();
 		}
 

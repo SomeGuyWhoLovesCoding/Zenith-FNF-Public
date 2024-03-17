@@ -651,6 +651,7 @@ class Gameplay extends MusicBeatState
 		// Do this
 		inst.looped = voices.looped = false;
 
+		Conductor.mapBPMChanges(SONG);
 		Conductor.changeBPM(SONG.bpm);
 
 		trace('Loading event data from event json...');
@@ -790,8 +791,11 @@ class Gameplay extends MusicBeatState
 		}
 	}
 
+	var lastStepHit:Int = -1;
 	override function stepHit():Void
 	{
+		super.stepHit();
+
 		// Don't resync vocals at the first 2 steps, otherwise it may cause issues with the sound timing
 		if (curStep < 2)
 			return;
@@ -806,11 +810,21 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		super.stepHit();
+		if(curStep == lastStepHit) {
+			return;
+		}
+
+		lastStepHit = curStep;
 	}
 
+	var lastBeatHit:Int = -1;
 	override function beatHit():Void
 	{
+		super.beatHit();
+
+		if(lastBeatHit >= curBeat)
+			return;
+
 		if (noCharacters)
 			return;
 
@@ -818,7 +832,6 @@ class Gameplay extends MusicBeatState
 			&& curBeat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
 			&& gf.animation.curAnim != null
 			&& !gf.animation.curAnim.name.startsWith("sing")
-			&& gf.animation.curAnim.name.endsWith(curBeat % 2 == 0 ? "Right" : "Left")
 			&& !gf.stunned)
 			gf.dance();
 
@@ -826,7 +839,6 @@ class Gameplay extends MusicBeatState
 			&& curBeat % dad.danceEveryNumBeats == 0
 			&& dad.animation.curAnim != null
 			&& !dad.animation.curAnim.name.startsWith('sing')
-			|| dad.animation.curAnim.name.endsWith(curBeat % 2 == 0 ? "Right" : "Left")
 			&& !dad.stunned)
 			dad.dance();
 
@@ -837,15 +849,20 @@ class Gameplay extends MusicBeatState
 			&& !bf.stunned)
 			bf.dance();
 
-		// Please learn this when making an efficient input system: SORTING IS IMPORTANT!
-		if (!renderMode)
-			inline notes.members.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
+		lastBeatHit = curBeat;
 
-		super.beatHit();
+		// Please learn this when making an efficient input system: SORTING IS IMPORTANT!
+
+		if (renderMode)
+			return;
+
+		inline notes.members.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
 	}
 
 	override function sectionHit()
 	{
+		super.sectionHit();
+
 		if (null == SONG.notes[curSection])
 			return;
 
@@ -864,7 +881,6 @@ class Gameplay extends MusicBeatState
 		hudCamera.zoom += 0.03;
 		hudCameraZoomTween = zoomTweenFunction(hudCamera, 1);
 
-		super.sectionHit();
 	}
 
 	private function startCountdown():Void
