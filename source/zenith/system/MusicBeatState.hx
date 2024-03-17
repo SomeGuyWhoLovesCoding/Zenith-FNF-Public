@@ -62,15 +62,19 @@ class MusicBeatState extends FlxState
 
 	// State stuff
 
-	public static function switchState(nextState:MusicBeatState)
+	public function switchState(nextState:FlxState)
 	{
+		// Remove the events when switching state, that's obvious
+		Application.current.window.onKeyDown.remove(onKeyDown);
+		Application.current.window.onKeyUp.remove(onKeyUp);
+
 		Main.startTransition(true, function()
 		{
-			FlxG.switchState(cast nextState);
+			FlxG.switchState(nextState);
 		});
 	}
 
-	public static function resetState()
+	public function resetState()
 	{
 		Main.startTransition(true, function()
 		{

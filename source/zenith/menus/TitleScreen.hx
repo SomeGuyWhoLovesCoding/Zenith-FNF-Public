@@ -32,6 +32,8 @@ class TitleScreen extends MusicBeatState
 	{
 		super.create();
 
+		persistentUpdate = true;
+
 		// Initialize the title configurations before starting the intro
 		if (titleConfig == null)
 			titleConfig = haxe.Json.parse(sys.io.File.getContent(Paths.ASSET_PATH + '/music/menus/titleConfig.json'));
@@ -204,17 +206,30 @@ class TitleScreen extends MusicBeatState
 	public static var alreadyPressedEnter:Bool = false;
 	override public function onKeyDown(keyCode:Int, keyMod:Int):Void
 	{
-		if (SaveData.controls.get("Accept") == keyCode && !alreadyPressedEnter)
-		{
-			trace('Test');
+		//trace('Test');
 
+		if (SaveData.controls.get("Accept") == keyCode)
+		{
 			if (!initialized)
 			{
 				skipIntro(true);
 				return;
 			}
 
+			openSubState(new TitleScreenSubState());
 			alreadyPressedEnter = true;
 		}
+
+		if (!alreadyPressedEnter)
+			return;
+
+		if (SaveData.controls.get("UI_Left") == keyCode)
+			TitleScreenSubState.instance.sendSignalLeft();
+
+		if (SaveData.controls.get("UI_Right") == keyCode)
+			TitleScreenSubState.instance.sendSignalRight();
+
+		if (SaveData.controls.get("Backspace") == keyCode)
+			closeSubState();
 	}
 }

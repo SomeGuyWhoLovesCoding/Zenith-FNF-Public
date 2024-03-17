@@ -961,7 +961,7 @@ class Gameplay extends MusicBeatState
 	public function endSong():Void
 	{
 		songEnded = true;
-		MusicBeatState.switchState(new WelcomeState());
+		switchState(new WelcomeState());
 	}
 
 	// Note hit functions

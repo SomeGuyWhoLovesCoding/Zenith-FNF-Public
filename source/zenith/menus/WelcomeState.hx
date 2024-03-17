@@ -45,7 +45,7 @@ class WelcomeState extends MusicBeatState
 		if (FlxG.keys.justPressed.SPACE)
 		{
 			//Main.skipTransIn = true;
-			MusicBeatState.resetState();
+			resetState();
 			//trace('a');
 		}
 	}
