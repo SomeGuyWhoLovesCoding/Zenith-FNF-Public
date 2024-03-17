@@ -399,7 +399,7 @@ class Gameplay extends MusicBeatState
 					FlxG.camera.zoom += camZoom;
 					gameCameraZoomTween = zoomTweenFunction(FlxG.camera, defaultCamZoom);
 					hudCamera.zoom += hudZoom;
-					gameCameraZoomTween = zoomTweenFunction(hudCamera, 1);
+					hudCameraZoomTween = zoomTweenFunction(hudCamera, 1);
 				}
 
 			case 'Play Animation':
