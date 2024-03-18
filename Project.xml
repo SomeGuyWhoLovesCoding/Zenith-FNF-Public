@@ -4,7 +4,7 @@
 
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin: Zenith" file="Zenith-FNF" main="Main" version="1.0" company="Very-Excited" />
+	<app title="Friday Night Funkin: Zenith" file="Zenith-FNF" main="Main" version="1.0" company="VeryExcited" />
 
 	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
 		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
@@ -80,12 +80,10 @@
 	<haxedef name="FLX_NO_DEBUG" unless="debug" />
 
 	<!--Enable this for Nape release builds for a serious peformance improvement-->
-	<!--<haxedef name="NAPE_RELEASE_BUILD" />-->
+	<haxedef name="NAPE_RELEASE_BUILD" />
 
 	<!--Allow working memory greater than 1 Gig-->
 	<haxedef name="HXCPP_GC_BIG_BLOCKS" />
-
-	<haxedef name="HXCPP_GC_MOVING" />
 
 	<!-- _________________________________ Custom _______________________________ -->
 

@@ -17,16 +17,16 @@ class MusicBeatState extends FlxState
 	{
 		Main.startTransition(false);
 
-		Application.current.window.onKeyDown.add(onKeyDown);
-		Application.current.window.onKeyUp.add(onKeyUp);
+		FlxG.stage.addEventListener("keyDown", onKeyDown);
+		FlxG.stage.addEventListener("keyUp", onKeyUp);
 
 		super.create();
 	}
 
 	override function destroy():Void
 	{
-		Application.current.window.onKeyDown.remove(onKeyDown);
-		Application.current.window.onKeyUp.remove(onKeyUp);
+		FlxG.stage.removeEventListener("keyDown", onKeyDown);
+		FlxG.stage.removeEventListener("keyUp", onKeyUp);
 
 		super.destroy();
 	}
@@ -57,16 +57,16 @@ class MusicBeatState extends FlxState
 
 	// Keyboard event stuff
 
-	public function onKeyDown(keyCode:Int, keyMod:Int):Void {}
-	public function onKeyUp(keyCode:Int, keyMod:Int):Void {}
+	public function onKeyDown(_):Void {}
+	public function onKeyUp(_):Void {}
 
 	// State stuff
 
 	public function switchState(nextState:FlxState)
 	{
 		// Remove the events when switching state, that's obvious
-		Application.current.window.onKeyDown.remove(onKeyDown);
-		Application.current.window.onKeyUp.remove(onKeyUp);
+		FlxG.stage.removeEventListener("keyDown", onKeyDown);
+		FlxG.stage.removeEventListener("keyUp", onKeyUp);
 
 		Main.startTransition(true, function()
 		{

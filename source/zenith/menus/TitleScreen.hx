@@ -204,11 +204,11 @@ class TitleScreen extends MusicBeatState
 	}
 
 	public static var alreadyPressedEnter:Bool = false;
-	override public function onKeyDown(keyCode:Int, keyMod:Int):Void
+	override public function onKeyDown(_):Void
 	{
 		//trace('Test');
 
-		if (SaveData.controls.get("Accept") == keyCode)
+		if (SaveData.controls.get("Accept") == _.keyCode)
 		{
 			if (alreadyPressedEnter)
 				TitleScreenSubState.instance.sendSignalEnter();
@@ -228,13 +228,13 @@ class TitleScreen extends MusicBeatState
 		if (!alreadyPressedEnter)
 			return;
 
-		if (SaveData.controls.get("UI_Left") == keyCode)
+		if (SaveData.controls.get("UI_Left") == _.keyCode)
 			TitleScreenSubState.instance.sendSignalLeft();
 
-		if (SaveData.controls.get("UI_Right") == keyCode)
+		if (SaveData.controls.get("UI_Right") == _.keyCode)
 			TitleScreenSubState.instance.sendSignalRight();
 
-		if (SaveData.controls.get("Backspace") == keyCode)
+		if (SaveData.controls.get("Backspace") == _.keyCode)
 		{
 			closeSubState();
 			alreadyPressedEnter = false;

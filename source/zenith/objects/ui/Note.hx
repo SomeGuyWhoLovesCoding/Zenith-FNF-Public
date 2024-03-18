@@ -41,9 +41,6 @@ class Note extends FlxSprite
 	public var offsetX:Float = 0;
 	public var offsetY:Float = 0;
 
-	public var onNoteHit:Note->Void;
-	public var onNoteMiss:Note->Void;
-
 	public static final animArray:Array<String> = ['purple', 'blue', 'green', 'red'];
 
 	public static final prototypeNoteskin:Bool = false;
@@ -56,7 +53,7 @@ class Note extends FlxSprite
 	{
 		super();
 
-		y = -2000;
+		visible = false;
 
 		if (prototypeNoteskin)
 			makeGraphic(112, 112, 0xFFFF0000);
@@ -73,11 +70,38 @@ class Note extends FlxSprite
 
 		//trace('Yes');
 
-		active = pixelPerfectPosition = false;
+		pixelPerfectPosition = false;
 	}
 
-	override public function update(elapsed:Float)
+	override public function update(elapsed:Float):Void
 	{
+		if (exists)
+		{
+			if (Conductor.songPosition >= strumTime + (750 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
+			{
+				exists = false;
+				return;
+			}
+
+			super.update(elapsed);
+
+			followStrum(Gameplay.instance.strums.members[noteData + (mustPress ? 4 : 0)]);
+
+			// For note hits and input
+
+			if (mustPress)
+			{
+				if (isSustainNote)
+					if (Conductor.songPosition >= strumTime && @:privateAccess Gameplay.instance.holdArray[noteData])
+						onNoteHit();
+
+				if (Conductor.songPosition >= strumTime + (Conductor.stepCrochet * 2) && (!wasHit && !tooLate))
+					onNoteMiss();
+			}
+			else
+				if (Conductor.songPosition >= strumTime)
+					onNoteHit();
+		}
 	}
 
 	public function followStrum(strum:StrumNote):Void
@@ -97,60 +121,12 @@ class Note extends FlxSprite
 		y = (strum.y + offsetY) + (-strum.scrollMult * distance) - (flipY ? (frameHeight * scale.y) - strum.height : 0);
 	}
 
-	public function hit():Void
-	{
-		if (wasHit)
-			return;
-
-		if (null != onNoteHit)
-			onNoteHit(this);
-
-		wasHit = true;
-	}
-
-	public function miss():Void
-	{
-		if (tooLate)
-			return;
-
-		if (null != onNoteMiss)
-			onNoteMiss(this);
-
-		tooLate = true;
-	}
-
-	override public function draw():Void
-	{
-		checkEmptyFrame();
-
-		if (alpha == 0 || _frame.type == flixel.graphics.frames.FlxFrame.FlxFrameType.EMPTY)
-			return;
-
-		if (dirty) // rarely
-			calcFrame(useFramePixels);
-
-		for (camera in cameras)
-		{
-			if (!camera.visible || !camera.exists || !isOnScreen(camera))
-				continue;
-
-			drawComplex(camera);
-
-			#if FLX_DEBUG
-			FlxBasic.visibleCount++;
-			#end
-		}
-
-		#if FLX_DEBUG
-		if (FlxG.debugger.drawDebug)
-			drawDebug();
-		#end
-	}
-
 	// Used for recycling
 	public function setupNoteData(chartNoteData:ChartNoteData):Note
 	{
-		wasHit = tooLate = false; // Don't make an update call of this for the note group
+		y = -2000;
+		wasHit = tooLate = false;
+		visible = true;
 
 		strumTime = chartNoteData.strumTime;
 		noteData = Std.int(chartNoteData.noteData % 4);
@@ -162,5 +138,47 @@ class Note extends FlxSprite
 		animation.play(animArray[noteData] + (isSustainNote ? (chartNoteData.isSustainEnd ? 'holdend' : 'hold') : 'Scroll'));
 
 		return this;
+	}
+
+	// Note hit functions
+
+	function onNoteHit():Void
+	{
+		if (!mustPress || isSustainNote)
+			inline Gameplay.instance.strums.members[noteData + (mustPress ? 4 : 0)].playAnim('confirm');
+
+		wasHit = true;
+		exists = false;
+
+		Gameplay.instance.health += (0.045 * (isSustainNote ? 0.5 : 1)) * (mustPress ? 1 : -1);
+
+		if (mustPress && !isSustainNote)
+			Gameplay.instance.score += 350 * Gameplay.instance.noteMult;
+
+		if (Gameplay.noCharacters)
+			return;
+
+		var char = (mustPress ? Gameplay.instance.bf : (gfNote ? Gameplay.instance.gf : Gameplay.instance.dad));
+
+		if (char != null)
+		{
+			inline char.playAnim(@:privateAccess Gameplay.instance.singAnimations[noteData], true);
+			char.holdTimer = 0;
+		}
+	}
+
+	function onNoteMiss():Void
+	{
+		tooLate = true;
+
+		Gameplay.instance.health -= 0.045 * (isSustainNote ? 0.5 : 1);
+		Gameplay.instance.score -= 100 * Gameplay.instance.noteMult;
+		Gameplay.instance.misses++;
+
+		if (Gameplay.noCharacters)
+			return;
+
+		inline Gameplay.instance.bf.playAnim(@:privateAccess Gameplay.instance.singAnimations[noteData] + 'miss', true);
+		Gameplay.instance.bf.holdTimer = 0;
 	}
 }

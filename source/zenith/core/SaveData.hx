@@ -1,7 +1,7 @@
 package zenith.core;
 
 import flixel.util.FlxSave;
-import lime.ui.KeyCode;
+import flixel.input.keyboard.FlxKey;
 
 enum abstract SaveContentType(Int) from Int to Int
 {
@@ -11,7 +11,7 @@ enum abstract SaveContentType(Int) from Int to Int
 
 typedef GlobalSaveContents =
 {
-	var controls:Map<String, Int>;
+	var controls:Map<String, FlxKey>;
 	var preferences:Map<String, Bool>;
 }
 
@@ -25,10 +25,10 @@ class SaveData
 {
 	// Global bullshit //
 
-	public static final defaultControls:Map<String, Int> = [
-		"Note_Left" => KeyCode.A, "Note_Down" => KeyCode.S, "Note_Up" => KeyCode.UP, "Note_Right" => KeyCode.RIGHT,
-		"UI_Left" => KeyCode.A, "UI_Down" => KeyCode.S, "UI_Up" => KeyCode.W, "UI_Right" => KeyCode.D,
-		"Accept" => KeyCode.RETURN, "Backspace" => KeyCode.BACKSPACE, "Reset" => KeyCode.R, "Control" => KeyCode.LEFT_CTRL
+	public static final defaultControls:Map<String, FlxKey> = [
+		"Note_Left" => FlxKey.A, "Note_Down" => FlxKey.S, "Note_Up" => FlxKey.UP, "Note_Right" => FlxKey.RIGHT,
+		"UI_Left" => FlxKey.A, "UI_Down" => FlxKey.S, "UI_Up" => FlxKey.W, "UI_Right" => FlxKey.D,
+		"Accept" => FlxKey.ENTER, "Backspace" => FlxKey.BACKSPACE, "Reset" => FlxKey.R, "Control" => FlxKey.CONTROL
 	];
 
 	public static final defaultPreferences:Map<String, Bool> = [
@@ -37,8 +37,8 @@ class SaveData
 
 	// These are just shortcuts, don't recommend changing the function code for them
 
-	public static var controls(get, default):Map<String, Int>;
-	static function get_controls():Map<String, Int>
+	public static var controls(get, default):Map<String, FlxKey>;
+	static function get_controls():Map<String, FlxKey>
 	{
 		return FlxG.save.data.zenithFunkinData.globalSave.controls;
 	}
