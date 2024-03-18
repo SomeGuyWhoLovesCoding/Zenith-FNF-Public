@@ -210,14 +210,19 @@ class TitleScreen extends MusicBeatState
 
 		if (SaveData.controls.get("Accept") == keyCode)
 		{
-			if (!initialized)
+			if (alreadyPressedEnter)
+				TitleScreenSubState.instance.sendSignalEnter();
+			else
 			{
-				skipIntro(true);
-				return;
-			}
+				if (!initialized)
+				{
+					skipIntro(true);
+					return;
+				}
 
-			openSubState(new TitleScreenSubState());
-			alreadyPressedEnter = true;
+				openSubState(new TitleScreenSubState());
+				alreadyPressedEnter = true;
+			}
 		}
 
 		if (!alreadyPressedEnter)
@@ -230,6 +235,9 @@ class TitleScreen extends MusicBeatState
 			TitleScreenSubState.instance.sendSignalRight();
 
 		if (SaveData.controls.get("Backspace") == keyCode)
+		{
 			closeSubState();
+			alreadyPressedEnter = false;
+		}
 	}
 }

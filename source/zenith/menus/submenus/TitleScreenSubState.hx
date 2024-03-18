@@ -24,7 +24,7 @@ class TitleScreenSubState extends FlxSubState
 		textSelection.screenCenter(X);
 		add(textSelection);
 
-		trace("Test");
+		//trace("Test");
 	}
 
 	override public function update(elapsed:Float):Void
@@ -33,10 +33,8 @@ class TitleScreenSubState extends FlxSubState
 
 		textSelection.applyMarkup(textSelection.text.replace(textSelectionArray[curSelected], '[]${textSelectionArray[curSelected]}[]'),
 		[new FlxTextFormatMarkerPair(
-			new FlxTextFormat(0xFFFFFF00, false, false, 0xFFFF00), '[]')
+			new FlxTextFormat(0xFFFFFF00, false, false, 0xFFFFFF00), '[]')
 		]);
-
-		trace(curSelected);
 	}
 
 	public inline function sendSignalLeft():Void
@@ -53,9 +51,8 @@ class TitleScreenSubState extends FlxSubState
 			curSelected = 0;
 	}
 
-	override function close():Void
+	public function sendSignalEnter():Void
 	{
-		super.close();
-		TitleScreen.alreadyPressedEnter = false;
+		trace('Test $curSelected');
 	}
 }

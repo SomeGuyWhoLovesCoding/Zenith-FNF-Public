@@ -58,18 +58,20 @@ class SaveData
 
 	public static function getCustomSaveData(saveData:String):CustomSave
 	{
-		for (customSave in (FlxG.save.data.zenithFunkinData.customSaves : Array<CustomSave>) /* Don't make the game think the variable is a dynamic */)
+		for (customSave in (FlxG.save.data.zenithFunkinData.customSaves : Array<CustomSave>) /* Don't make the compiler think the iterator is a dynamic */)
 			if (customSave.name == saveData)
 				return customSave;
+
 		return null;
 	}
 
 	public static function setGlobalSaveContent(saveContentType:SaveContentType, content:String, newContent:Dynamic)
 	{
-		(saveContentType == PREFERENCES ? FlxG.save.data.zenithFunkinData.globalSave.preferences : FlxG.save.data.zenithFunkinData.globalSave.controls).set(content, newContent);
+		if (newContent == content)
+			return;
 
-		if (newContent != content)
-			trace((saveContentType == PREFERENCES ? "Preference" : "Keybind") + ' "$content" set to $newContent');
+		(saveContentType == PREFERENCES ? FlxG.save.data.zenithFunkinData.globalSave.preferences : FlxG.save.data.zenithFunkinData.globalSave.controls).set(content, newContent);
+		trace((saveContentType == PREFERENCES ? "Preference" : "Keybind") + ' "$content" set to $newContent');
 
 		//data.flush(); This gives a null function pointer, don't uncomment that line
 	}
@@ -88,7 +90,7 @@ class SaveData
 
 	public static function reloadSave():Void
 	{
-		FlxG.save.bind("Zenith-FNF", "Zenith-FNF");
+		FlxG.save.bind("Zenith-FNF", "VeryExcited");
 
 		// The global save is a ``GlobalSaveContents``, don't recommend modifying it yourself.
 		if (null == FlxG.save.data.zenithFunkinData)
