@@ -111,9 +111,15 @@ class Gameplay extends MusicBeatState
 
 	override public function create():Void
 	{
-		super.create();
-
 		inline cpp.vm.Gc.enable(true);
+
+		FlxG.fixedTimestep = true;
+
+		if (renderMode)
+		{
+			cpuControlled = true;
+			initRender();
+		}
 
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
 
@@ -128,8 +134,6 @@ class Gameplay extends MusicBeatState
 		// Reset gameplay stuff
 		startedCountdown = songEnded = false;
 		songSpeed = noteMult = 1;
-
-		//FlxG.cameras.bgColor = 0xFF333333;
 
 		persistentUpdate = persistentDraw = true;
 
@@ -153,10 +157,12 @@ class Gameplay extends MusicBeatState
 
 		var songName:String = Sys.args()[0];
 
-		var songDifficulty:String = '-' + Sys.args()[1];
-		trace(songDifficulty); // This is intentional, teehee
+		if (null == Sys.args()[0]) // What?
+			songName = 'test';
 
-		if (songDifficulty == '-null') // What?
+		var songDifficulty:String = '-' + Sys.args()[1];
+
+		if (null == Sys.args()[1]) // What?
 			songDifficulty = '';
 
 		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.ASSET_PATH + '/images/loading.png');
@@ -221,34 +227,31 @@ class Gameplay extends MusicBeatState
 			}
 			catch (e)
 			{
-				if (songName != '-livereload') // Debug
-					trace('Error: ' + e);
+				if (renderMode)
+					FlxG.autoPause = true;
 
 				FlxG.switchState(new WelcomeState());
 			}
 		});
 
-		FlxG.fixedTimestep = renderMode;
+		super.create();
 
 		//trace(Sys.args());
 	}
 
 	override public function update(elapsed:Float):Void
 	{
-		// Testing...
-		/*if (FlxG.keys.justPressed.LBRACKET)
-			changeDownScroll(0, true, 0.5);
-		if (FlxG.keys.justPressed.RBRACKET)
-			changeDownScroll(1, true, 0.5);*/
-
 		if (!generatedMusic)
 			return;
+
+		if (renderMode)
+			elapsed = 0.016666666666;
 
 		super.update(elapsed);
 
 		health = FlxMath.bound(health, 0, (Gameplay.hideHUD || Gameplay.noCharacters) ? 2 : hudGroup.healthBar.maxValue);
 
-		Conductor.songPosition += FlxG.elapsed * 1000;
+		Conductor.songPosition += elapsed * 1000;
 
 		while (unspawnNotes.length != 0 && Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - (1950 / songSpeed))
 		{
@@ -275,11 +278,10 @@ class Gameplay extends MusicBeatState
 		if (!renderMode)
 			return;
 
-		RenderMode.pipeFrame();
-
 		notes.members.sort((a, b) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
+		pipeFrame();
 
-		if (Conductor.songPosition >= songLength && !songEnded)
+		if (Conductor.songPosition - (20 + SONG.offset) >= songLength && !songEnded)
 			endSong();
 	}
 
@@ -608,8 +610,8 @@ class Gameplay extends MusicBeatState
 			voices.loadEmbedded(Paths.voices(SONG.song));
 		inline FlxG.sound.list.add(voices);
 
-		// Do this
 		inst.looped = voices.looped = false;
+		inst.volume = voices.volume = renderMode ? 0 : 1;
 
 		Conductor.mapBPMChanges(SONG);
 		Conductor.changeBPM(SONG.bpm);
@@ -680,10 +682,8 @@ class Gameplay extends MusicBeatState
 							sustainLength: 0,
 							noAnimation: songNotes[3] == 'No Animation'
 						});
-						//Sys.sleep(0.0001);
 					}
 				}
-				//Sys.sleep(0.0001);
 			}
 		}
 
@@ -708,8 +708,6 @@ class Gameplay extends MusicBeatState
 
 		inline unspawnNotes.sort((b, a) -> Std.int(a.strumTime - b.strumTime));
 		inline eventNotes.sort((b, a) -> Std.int(a.strumTime - b.strumTime));
-
-		inline openfl.system.System.gc();
 
 		trace('Done! Now time to load HUD objects...');
 	}
@@ -826,7 +824,7 @@ class Gameplay extends MusicBeatState
 		if (null == SONG.notes[curSection])
 			return;
 
-		if (SONG.notes[Std.int(curSection)].changeBPM)
+		if (SONG.notes[curSection].changeBPM)
 			Conductor.changeBPM(SONG.notes[curSection].bpm);
 
 		moveCameraSection();
@@ -840,19 +838,12 @@ class Gameplay extends MusicBeatState
 		gameCameraZoomTween = zoomTweenFunction(FlxG.camera, defaultCamZoom);
 		hudCamera.zoom += 0.03;
 		hudCameraZoomTween = zoomTweenFunction(hudCamera, 1);
-
 	}
 
 	private function startCountdown():Void
 	{
 		if (songEnded)
 			return;
-
-		if (renderMode)
-		{
-			cpuControlled = true;
-			RenderMode.create("F:/jerem/Downloads+/Zenith-FNF-Public/video_output");
-		}
 
 		inputKeybinds = [
 			SaveData.controls.get("Note_Left"),
@@ -868,46 +859,47 @@ class Gameplay extends MusicBeatState
 
 		new flixel.util.FlxTimer().start(Conductor.crochet * 0.001, (?timer) ->
 		{
-			switch (swagCounter)
+			new flixel.util.FlxTimer().start(SONG.offset * 0.001, (?timer) ->
 			{
-				case 3:
-					inline FlxG.sound.play(Paths.sound('introGo'), 0.6);
+				switch (swagCounter)
+				{
+					case 3:
+						inline FlxG.sound.play(Paths.sound('introGo'), 0.6);
 
-				case 4:
-					startSong();
+					case 4:
+						startSong();
 
-				default:
-					inline FlxG.sound.play(Paths.sound('intro' + (3 - swagCounter)), 0.6);
-			}
-			// trace(swagCounter);
+					default:
+						inline FlxG.sound.play(Paths.sound('intro' + (3 - swagCounter)), 0.6);
+				}
+				// trace(swagCounter);
 
-			swagCounter++;
+				swagCounter++;
 
-			if (noCharacters)
-				return;
+				if (noCharacters)
+					return;
 
-			if (gf != null
-				&& timer.loopsLeft % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
-				&& gf.animation.curAnim != null
-				&& !gf.animation.curAnim.name.startsWith("sing")
-				&& gf.animation.curAnim.name.endsWith(timer.loopsLeft % 2 == 0 ? "Right" : "Left")
-				&& !gf.stunned)
-				gf.dance();
+				if (null != gf
+					&& timer.loopsLeft % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
+					&& null != gf.animation.curAnim
+					&& !gf.animation.curAnim.name.startsWith("sing")
+					&& !gf.stunned)
+					gf.dance();
 
-			if (dad != null
-				&& timer.loopsLeft % dad.danceEveryNumBeats == 0
-				&& dad.animation.curAnim != null
-				&& !dad.animation.curAnim.name.startsWith('sing')
-				|| dad.animation.curAnim.name.endsWith(timer.loopsLeft % 2 == 0 ? "Right" : "Left")
-				&& !dad.stunned)
-				dad.dance();
+				if (null != dad
+					&& timer.loopsLeft % dad.danceEveryNumBeats == 0
+					&& null != dad.animation.curAnim
+					&& !dad.animation.curAnim.name.startsWith('sing')
+					&& !dad.stunned)
+					dad.dance();
 
-			if (bf != null
-				&& timer.loopsLeft % bf.danceEveryNumBeats == 0
-				&& bf.animation.curAnim != null
-				&& !bf.animation.curAnim.name.startsWith('sing')
-				&& !bf.stunned)
-				bf.dance();
+				if (null != bf
+					&& timer.loopsLeft % bf.danceEveryNumBeats == 0
+					&& null != bf.animation.curAnim
+					&& !bf.animation.curAnim.name.startsWith('sing')
+					&& !bf.stunned)
+					bf.dance();
+				});
 		}, 5);
 	}
 
@@ -918,7 +910,6 @@ class Gameplay extends MusicBeatState
 
 		inst.play();
 		voices.play();
-		inst.volume = voices.volume = renderMode ? 0 : 1;
 
 		songLength = inst.length;
 		startedCountdown = true;
@@ -926,9 +917,9 @@ class Gameplay extends MusicBeatState
 
 	public function endSong():Void
 	{
+		stopRender();
 		songEnded = true;
 		switchState(new WelcomeState());
-		RenderMode.stop();
 	}
 
 	// Camera functions
@@ -1111,5 +1102,37 @@ class Gameplay extends MusicBeatState
 				}
 			}
 		}
+	}
+
+	// Render mode shit
+
+	private var process:sys.io.Process;
+
+	private function initRender():Void
+	{
+		if (!renderMode)
+			return;
+
+		process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '60', '-i', '-', '-c:v', 'libx265', 'F:/jerem/Downloads+/CorruptMayhemMod/CorruptEngine/output.mp4']);
+		FlxG.autoPause = false;
+	}
+
+	private function pipeFrame():Void
+	{
+		var img = lime.app.Application.current.window.readPixels(new lime.math.Rectangle(FlxG.scaleMode.offset.x, FlxG.scaleMode.offset.y, FlxG.scaleMode.gameSize.x, FlxG.scaleMode.gameSize.y));
+		var bytes = img.getPixels(new lime.math.Rectangle(0, 0, img.width, img.height));
+		process.stdin.writeBytes(bytes, 0, bytes.length);
+	}
+
+	private function stopRender():Void
+	{
+		if (!renderMode)
+			return;
+
+		process.stdin.close();
+		process.close();
+		process.kill();
+
+		FlxG.autoPause = true;
 	}
 }

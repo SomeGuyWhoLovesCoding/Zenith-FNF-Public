@@ -103,7 +103,7 @@ class Main extends Sprite
 	private static var transitionY:Float = 0;
 	function onTransitionUpdate(_):Void
 	{
-		if (@:privateAccess FlxG.game._lostFocus)
+		if (@:privateAccess FlxG.game._lostFocus && FlxG.autoPause)
 			return;
 
 		memTxt.text = flixel.util.FlxStringUtil.formatBytes(openfl.system.System.totalMemory);

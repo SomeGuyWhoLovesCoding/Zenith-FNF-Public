@@ -9,7 +9,6 @@ import zenith.menus.submenus.*;
 import zenith.objects.*;
 import zenith.objects.ui.*;
 import zenith.system.*;
-import zenith.system.ffmpeg.RenderMode;
 
 // Flixel
 import flixel.*;
