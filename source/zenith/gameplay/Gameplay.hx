@@ -37,7 +37,7 @@ class Gameplay extends MusicBeatState
 	public static var cpuControlled:Bool = false;
 	public static var downScroll:Bool = false;
 	public static var hideHUD:Bool = false;
-	public static var renderMode:Bool = false;
+	public static var renderMode:Bool = true;
 	public static var noCharacters:Bool = false;
 
 	private var framesCaptured(default, null):Int = 0;
@@ -132,11 +132,6 @@ class Gameplay extends MusicBeatState
 		//FlxG.cameras.bgColor = 0xFF333333;
 
 		persistentUpdate = persistentDraw = true;
-
-		FlxG.fixedTimestep = renderMode;
-
-		if (renderMode)
-			cpuControlled = true;
 
 		gameCamera = new FlxCamera();
 		hudCamera = new FlxCamera();
@@ -233,6 +228,8 @@ class Gameplay extends MusicBeatState
 			}
 		});
 
+		FlxG.fixedTimestep = renderMode;
+
 		//trace(Sys.args());
 	}
 
@@ -278,12 +275,12 @@ class Gameplay extends MusicBeatState
 		if (!renderMode)
 			return;
 
-		if (!sys.FileSystem.exists(Paths.ASSET_PATH + '/gameRenders/' + Paths.formatToSongPath(SONG.song)))
-			sys.FileSystem.createDirectory(Paths.ASSET_PATH + '/gameRenders/' + Paths.formatToSongPath(SONG.song));
-
-		Screenshot.capture(FlxG.game, null, Paths.ASSET_PATH + '/gameRenders/' + Paths.formatToSongPath(SONG.song) + '/' + zeroFill(7, Std.string(framesCaptured++)));
+		RenderMode.pipeFrame();
 
 		notes.members.sort((a, b) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
+
+		if (Conductor.songPosition >= songLength && !songEnded)
+			endSong();
 	}
 
 	function zeroFill(num:Int, a:String):String
@@ -851,6 +848,12 @@ class Gameplay extends MusicBeatState
 		if (songEnded)
 			return;
 
+		if (renderMode)
+		{
+			cpuControlled = true;
+			RenderMode.create("F:/jerem/Downloads+/Zenith-FNF-Public/video_output");
+		}
+
 		inputKeybinds = [
 			SaveData.controls.get("Note_Left"),
 			SaveData.controls.get("Note_Down"),
@@ -925,6 +928,7 @@ class Gameplay extends MusicBeatState
 	{
 		songEnded = true;
 		switchState(new WelcomeState());
+		RenderMode.stop();
 	}
 
 	// Camera functions

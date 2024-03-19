@@ -36,6 +36,7 @@
 	<!--These are required!-->
 	<assets path="readme.txt" />
 	<assets path="play_song.bat" />
+	<assets path="ffmpeg.exe" />
 
 	<!-- _______________________________ Libraries ______________________________ -->
 

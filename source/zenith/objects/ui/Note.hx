@@ -97,6 +97,10 @@ class Note extends FlxSprite
 
 				if (Conductor.songPosition >= strumTime + (Conductor.stepCrochet * 2) && (!wasHit && !tooLate))
 					onNoteMiss();
+
+				if (Gameplay.cpuControlled)
+					if (Conductor.songPosition >= strumTime)
+						onNoteHit();
 			}
 			else
 				if (Conductor.songPosition >= strumTime)
@@ -144,7 +148,7 @@ class Note extends FlxSprite
 
 	function onNoteHit():Void
 	{
-		if (!mustPress || isSustainNote)
+		if (!mustPress || isSustainNote || Gameplay.cpuControlled)
 			inline Gameplay.instance.strums.members[noteData + (mustPress ? 4 : 0)].playAnim('confirm');
 
 		wasHit = true;
