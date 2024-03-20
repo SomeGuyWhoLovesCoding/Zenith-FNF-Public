@@ -37,7 +37,7 @@ class Gameplay extends MusicBeatState
 	public static var cpuControlled:Bool = false;
 	public static var downScroll:Bool = false;
 	public static var hideHUD:Bool = false;
-	public static var renderMode:Bool = true;
+	public static var renderMode:Bool = false;
 	public static var noCharacters:Bool = false;
 
 	private var framesCaptured(default, null):Int = 0;
@@ -245,7 +245,7 @@ class Gameplay extends MusicBeatState
 			return;
 
 		if (renderMode)
-			elapsed = 0.016666666666;
+			elapsed = 1 / videoFramerate;
 
 		super.update(elapsed);
 
@@ -278,18 +278,11 @@ class Gameplay extends MusicBeatState
 		if (!renderMode)
 			return;
 
-		notes.members.sort((a, b) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
+		notes.members.sort((b, a) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
 		pipeFrame();
 
-		if (Conductor.songPosition - (20 + SONG.offset) >= songLength && !songEnded)
+		if (Conductor.songPosition - (20 + SONG.offset) >= (Std.int(songLength) | Std.int(voices.length)) && !songEnded)
 			endSong();
-	}
-
-	function zeroFill(num:Int, a:String):String
-	{
-		var result = '';
-		while (result.length <= num - (a.length + 1)) result += '0';
-		return result += a;
 	}
 
 	public function triggerEventNote(eventName:String, value1:String, value2:String)
@@ -859,6 +852,7 @@ class Gameplay extends MusicBeatState
 
 		new flixel.util.FlxTimer().start(Conductor.crochet * 0.001, (?timer) ->
 		{
+			var loopsLeft:Int = timer.loopsLeft;
 			new flixel.util.FlxTimer().start(SONG.offset * 0.001, (?timer) ->
 			{
 				switch (swagCounter)
@@ -880,21 +874,21 @@ class Gameplay extends MusicBeatState
 					return;
 
 				if (null != gf
-					&& timer.loopsLeft % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
+					&& loopsLeft % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
 					&& null != gf.animation.curAnim
 					&& !gf.animation.curAnim.name.startsWith("sing")
 					&& !gf.stunned)
 					gf.dance();
 
 				if (null != dad
-					&& timer.loopsLeft % dad.danceEveryNumBeats == 0
+					&& loopsLeft % dad.danceEveryNumBeats == 0
 					&& null != dad.animation.curAnim
 					&& !dad.animation.curAnim.name.startsWith('sing')
 					&& !dad.stunned)
 					dad.dance();
 
 				if (null != bf
-					&& timer.loopsLeft % bf.danceEveryNumBeats == 0
+					&& loopsLeft % bf.danceEveryNumBeats == 0
 					&& null != bf.animation.curAnim
 					&& !bf.animation.curAnim.name.startsWith('sing')
 					&& !bf.stunned)
@@ -1108,12 +1102,17 @@ class Gameplay extends MusicBeatState
 
 	private var process:sys.io.Process;
 
+	public var videoFramerate:Int = 60;
+	public var videoEncoder:String = "libx265";
+	public var outputPath:String = "output.mp4";
+
 	private function initRender():Void
 	{
 		if (!renderMode)
 			return;
 
-		process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '60', '-i', '-', '-c:v', 'libx265', 'F:/jerem/Downloads+/CorruptMayhemMod/CorruptEngine/output.mp4']);
+		process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '$videoFramerate', '-i', '-', '-c:v', videoEncoder, Sys.getCwd().replace('\\', '/') + outputPath]);
+
 		FlxG.autoPause = false;
 	}
 

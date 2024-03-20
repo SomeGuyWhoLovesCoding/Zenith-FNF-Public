@@ -73,39 +73,45 @@ class Note extends FlxSprite
 		pixelPerfectPosition = false;
 	}
 
-	override public function update(elapsed:Float):Void
+	override public function draw():Void
 	{
 		if (exists)
+			super.draw();
+	}
+
+	override public function update(elapsed:Float):Void
+	{
+		if (!exists)
+			return;
+		
+		if (Conductor.songPosition >= strumTime + (750 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
 		{
-			if (Conductor.songPosition >= strumTime + (750 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
-			{
-				exists = false;
-				return;
-			}
+			exists = false;
+			return;
+		}
 
-			super.update(elapsed);
+		super.update(elapsed);
 
-			followStrum(Gameplay.instance.strums.members[noteData + (mustPress ? 4 : 0)]);
+		followStrum(Gameplay.instance.strums.members[noteData + (mustPress ? 4 : 0)]);
 
-			// For note hits and input
+		// For note hits and input
 
-			if (mustPress)
-			{
-				if (isSustainNote)
-					if (Conductor.songPosition >= strumTime && @:privateAccess Gameplay.instance.holdArray[noteData])
-						onNoteHit();
+		if (mustPress)
+		{
+			if (isSustainNote)
+				if (Conductor.songPosition >= strumTime && @:privateAccess Gameplay.instance.holdArray[noteData])
+					onNoteHit();
 
-				if (Conductor.songPosition >= strumTime + (Conductor.stepCrochet * 2) && (!wasHit && !tooLate))
-					onNoteMiss();
+			if (Conductor.songPosition >= strumTime + (Conductor.stepCrochet * 2) && (!wasHit && !tooLate))
+				onNoteMiss();
 
-				if (Gameplay.cpuControlled)
-					if (Conductor.songPosition >= strumTime)
-						onNoteHit();
-			}
-			else
+			if (Gameplay.cpuControlled)
 				if (Conductor.songPosition >= strumTime)
 					onNoteHit();
 		}
+		else
+			if (Conductor.songPosition >= strumTime)
+				onNoteHit();
 	}
 
 	public function followStrum(strum:StrumNote):Void
