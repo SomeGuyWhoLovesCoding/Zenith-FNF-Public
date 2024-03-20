@@ -846,54 +846,50 @@ class Gameplay extends MusicBeatState
 		];
 
 		var swagCounter:Int = 0;
-		Conductor.songPosition = (-Conductor.crochet * 5) - SONG.offset;
+		Conductor.songPosition = -Conductor.crochet * 5;
 
 		//trace(swagCounter);
 
 		new flixel.util.FlxTimer().start(Conductor.crochet * 0.001, (?timer) ->
 		{
-			var loopsLeft:Int = timer.loopsLeft;
-			new flixel.util.FlxTimer().start(SONG.offset * 0.001, (?timer) ->
+			switch (swagCounter)
 			{
-				switch (swagCounter)
-				{
-					case 3:
-						inline FlxG.sound.play(Paths.sound('introGo'), 0.6);
+				case 3:
+					inline FlxG.sound.play(Paths.sound('introGo'), 0.6);
 
-					case 4:
-						startSong();
+				case 4:
+					startSong();
 
-					default:
-						inline FlxG.sound.play(Paths.sound('intro' + (3 - swagCounter)), 0.6);
-				}
-				// trace(swagCounter);
+				default:
+					inline FlxG.sound.play(Paths.sound('intro' + (3 - swagCounter)), 0.6);
+			}
+			// trace(swagCounter);
 
-				swagCounter++;
+			swagCounter++;
 
-				if (noCharacters)
-					return;
+			if (noCharacters)
+				return;
 
-				if (null != gf
-					&& loopsLeft % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
-					&& null != gf.animation.curAnim
-					&& !gf.animation.curAnim.name.startsWith("sing")
-					&& !gf.stunned)
-					gf.dance();
+			if (null != gf
+				&& timer.loopsLeft % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
+				&& null != gf.animation.curAnim
+				&& !gf.animation.curAnim.name.startsWith("sing")
+				&& !gf.stunned)
+				gf.dance();
 
-				if (null != dad
-					&& loopsLeft % dad.danceEveryNumBeats == 0
-					&& null != dad.animation.curAnim
-					&& !dad.animation.curAnim.name.startsWith('sing')
-					&& !dad.stunned)
-					dad.dance();
+			if (null != dad
+				&& timer.loopsLeft % dad.danceEveryNumBeats == 0
+				&& null != dad.animation.curAnim
+				&& !dad.animation.curAnim.name.startsWith('sing')
+				&& !dad.stunned)
+				dad.dance();
 
-				if (null != bf
-					&& loopsLeft % bf.danceEveryNumBeats == 0
-					&& null != bf.animation.curAnim
-					&& !bf.animation.curAnim.name.startsWith('sing')
-					&& !bf.stunned)
-					bf.dance();
-				});
+			if (null != bf
+				&& timer.loopsLeft % bf.danceEveryNumBeats == 0
+				&& null != bf.animation.curAnim
+				&& !bf.animation.curAnim.name.startsWith('sing')
+				&& !bf.stunned)
+				bf.dance();
 		}, 5);
 	}
 

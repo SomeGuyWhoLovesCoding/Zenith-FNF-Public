@@ -23,6 +23,7 @@ typedef EventNote =
 	value2:String
 }
 
+//abstract Note(FlxSprite) from FlxBasic to FlxSprite
 class Note extends FlxSprite
 {
 	public var strumTime(default, null):Float = 0;
