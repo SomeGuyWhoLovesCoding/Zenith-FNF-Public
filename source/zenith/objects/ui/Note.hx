@@ -23,7 +23,6 @@ typedef EventNote =
 	value2:String
 }
 
-//abstract Note(FlxSprite) from FlxBasic to FlxSprite
 class Note extends FlxSprite
 {
 	public var strumTime(default, null):Float = 0;
@@ -74,45 +73,8 @@ class Note extends FlxSprite
 		pixelPerfectPosition = false;
 	}
 
-	override public function draw():Void
-	{
-		if (exists)
-			super.draw();
-	}
-
 	override public function update(elapsed:Float):Void
 	{
-		if (!exists)
-			return;
-		
-		if (Conductor.songPosition >= strumTime + (750 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
-		{
-			exists = false;
-			return;
-		}
-
-		super.update(elapsed);
-
-		followStrum(Gameplay.instance.strums.members[noteData + (mustPress ? 4 : 0)]);
-
-		// For note hits and input
-
-		if (mustPress)
-		{
-			if (isSustainNote)
-				if (Conductor.songPosition >= strumTime && @:privateAccess Gameplay.instance.holdArray[noteData])
-					onNoteHit();
-
-			if (Conductor.songPosition >= strumTime + (Conductor.stepCrochet * 2) && (!wasHit && !tooLate))
-				onNoteMiss();
-
-			if (Gameplay.cpuControlled)
-				if (Conductor.songPosition >= strumTime)
-					onNoteHit();
-		}
-		else
-			if (Conductor.songPosition >= strumTime)
-				onNoteHit();
 	}
 
 	public function followStrum(strum:StrumNote):Void
@@ -181,6 +143,7 @@ class Note extends FlxSprite
 	function onNoteMiss():Void
 	{
 		tooLate = true;
+		@:privateAccess Gameplay.instance.hittable[noteData] = [];
 
 		Gameplay.instance.health -= 0.045 * (isSustainNote ? 0.5 : 1);
 		Gameplay.instance.score -= 100 * Gameplay.instance.noteMult;

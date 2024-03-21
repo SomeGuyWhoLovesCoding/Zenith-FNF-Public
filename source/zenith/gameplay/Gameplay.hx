@@ -109,11 +109,9 @@ class Gameplay extends MusicBeatState
 
 	public static var instance:Gameplay;
 
-	override public function create():Void
+	override function create():Void
 	{
 		inline cpp.vm.Gc.enable(true);
-
-		FlxG.fixedTimestep = true;
 
 		if (renderMode)
 		{
@@ -135,7 +133,7 @@ class Gameplay extends MusicBeatState
 		startedCountdown = songEnded = false;
 		songSpeed = noteMult = 1;
 
-		persistentUpdate = persistentDraw = true;
+		persistentUpdate = persistentDraw = FlxG.fixedTimestep = true;
 
 		gameCamera = new FlxCamera();
 		hudCamera = new FlxCamera();
@@ -239,7 +237,7 @@ class Gameplay extends MusicBeatState
 		//trace(Sys.args());
 	}
 
-	override public function update(elapsed:Float):Void
+	override function update(elapsed:Float):Void
 	{
 		if (!generatedMusic)
 			return;
@@ -283,6 +281,53 @@ class Gameplay extends MusicBeatState
 
 		if (Conductor.songPosition - (20 + SONG.offset) >= (Std.int(songLength) | Std.int(voices.length)) && !songEnded)
 			endSong();
+	}
+
+	private var hittable:Array<Array<Note>> = [[], [], [], []];
+
+	private function __notes(a:FlxTypedGroup<Note>):Void
+	{
+		if (null == a)
+			return;
+
+		for (i in 0...a.members.length)
+		{
+			var note:Note = a.members[i];
+
+			if (note.exists)
+			{
+				@:privateAccess note.followStrum(strums.members[note.noteData + (note.mustPress ? 4 : 0)]);
+
+				if (Conductor.songPosition >= note.strumTime + (750 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
+					note.exists = false;
+
+				// For note hits and input
+
+				if (note.mustPress)
+				{
+					if (cpuControlled)
+						if (Conductor.songPosition >= note.strumTime)
+							@:privateAccess note.onNoteHit();
+
+					if (Conductor.songPosition >= note.strumTime + (Conductor.stepCrochet * 2) && (!note.wasHit && !note.tooLate))
+						@:privateAccess note.onNoteMiss();
+
+					if (note.isSustainNote)
+						if (Conductor.songPosition >= note.strumTime && holdArray[note.noteData])
+							@:privateAccess note.onNoteHit();
+				}
+				else
+					if (Conductor.songPosition >= note.strumTime)
+						@:privateAccess note.onNoteHit();
+			}
+		}
+	}
+
+	override function draw():Void
+	{
+		super.draw();
+		__notes(notes);
+		__notes(sustains);
 	}
 
 	public function triggerEventNote(eventName:String, value1:String, value2:String)
@@ -496,7 +541,7 @@ class Gameplay extends MusicBeatState
 
 		trace('Loading stage...');
 
-		if (null == SONG.offset) // Fix offset
+		if (null == SONG.offset || SONG.offset < 0) // Fix offset
 			SONG.offset = 0;
 
 		curSong = SONG.song;
@@ -702,6 +747,10 @@ class Gameplay extends MusicBeatState
 		inline unspawnNotes.sort((b, a) -> Std.int(a.strumTime - b.strumTime));
 		inline eventNotes.sort((b, a) -> Std.int(a.strumTime - b.strumTime));
 
+		// Run GC twice so it knows what it's doing
+		cpp.vm.Gc.run(false);
+		cpp.vm.Gc.run(true);
+
 		trace('Done! Now time to load HUD objects...');
 	}
 
@@ -747,8 +796,7 @@ class Gameplay extends MusicBeatState
 	{
 		super.stepHit();
 
-		// Don't resync vocals at the first 2 steps, otherwise it may cause issues with the sound timing
-		if (curStep < 2)
+		if (!startedCountdown)
 			return;
 
 		if (!renderMode)
@@ -761,9 +809,8 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		if(curStep == lastStepHit) {
+		if(curStep == lastStepHit)
 			return;
-		}
 
 		lastStepHit = curStep;
 	}
@@ -779,35 +826,31 @@ class Gameplay extends MusicBeatState
 		if (noCharacters)
 			return;
 
-		if (gf != null
+		if (null != gf
 			&& curBeat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
-			&& gf.animation.curAnim != null
+			&& null != gf.animation.curAnim
 			&& !gf.animation.curAnim.name.startsWith("sing")
 			&& !gf.stunned)
 			gf.dance();
 
-		if (dad != null
+		if (null != dad
 			&& curBeat % dad.danceEveryNumBeats == 0
-			&& dad.animation.curAnim != null
+			&& null != dad.animation.curAnim
 			&& !dad.animation.curAnim.name.startsWith('sing')
 			&& !dad.stunned)
 			dad.dance();
 
-		if (bf != null
+		if (null != bf
 			&& curBeat % bf.danceEveryNumBeats == 0
-			&& bf.animation.curAnim != null
+			&& null != bf.animation.curAnim
 			&& !bf.animation.curAnim.name.startsWith('sing')
 			&& !bf.stunned)
 			bf.dance();
 
 		lastBeatHit = curBeat;
 
-		// Please learn this when making an efficient input system: SORTING IS IMPORTANT!
-
-		if (renderMode)
-			return;
-
-		inline notes.members.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
+		if (!renderMode)
+			notes.members.sort((b, a) -> Std.int(a.strumTime - b.strumTime));
 	}
 
 	override function sectionHit()
@@ -852,44 +895,48 @@ class Gameplay extends MusicBeatState
 
 		new flixel.util.FlxTimer().start(Conductor.crochet * 0.001, (?timer) ->
 		{
-			switch (swagCounter)
+			var loopsLeft:Int = timer.loopsLeft;
+			new flixel.util.FlxTimer().start(SONG.offset * 0.001, (?timer) ->
 			{
-				case 3:
-					inline FlxG.sound.play(Paths.sound('introGo'), 0.6);
+				switch (swagCounter)
+				{
+					case 3:
+						inline FlxG.sound.play(Paths.sound('introGo'), 0.6);
 
-				case 4:
-					startSong();
+					case 4:
+						startSong();
 
-				default:
-					inline FlxG.sound.play(Paths.sound('intro' + (3 - swagCounter)), 0.6);
-			}
-			// trace(swagCounter);
+					default:
+						inline FlxG.sound.play(Paths.sound('intro' + (3 - swagCounter)), 0.6);
+				}
+				// trace(swagCounter);
 
-			swagCounter++;
+				swagCounter++;
 
-			if (noCharacters)
-				return;
+				if (noCharacters)
+					return;
 
-			if (null != gf
-				&& timer.loopsLeft % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
-				&& null != gf.animation.curAnim
-				&& !gf.animation.curAnim.name.startsWith("sing")
-				&& !gf.stunned)
-				gf.dance();
+				if (null != gf
+					&& loopsLeft % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
+					&& null != gf.animation.curAnim
+					&& !gf.animation.curAnim.name.startsWith("sing")
+					&& !gf.stunned)
+					gf.dance();
 
-			if (null != dad
-				&& timer.loopsLeft % dad.danceEveryNumBeats == 0
-				&& null != dad.animation.curAnim
-				&& !dad.animation.curAnim.name.startsWith('sing')
-				&& !dad.stunned)
-				dad.dance();
+				if (null != dad
+					&& loopsLeft % dad.danceEveryNumBeats == 0
+					&& null != dad.animation.curAnim
+					&& !dad.animation.curAnim.name.startsWith('sing')
+					&& !dad.stunned)
+					dad.dance();
 
-			if (null != bf
-				&& timer.loopsLeft % bf.danceEveryNumBeats == 0
-				&& null != bf.animation.curAnim
-				&& !bf.animation.curAnim.name.startsWith('sing')
-				&& !bf.stunned)
-				bf.dance();
+				if (null != bf
+					&& loopsLeft % bf.danceEveryNumBeats == 0
+					&& null != bf.animation.curAnim
+					&& !bf.animation.curAnim.name.startsWith('sing')
+					&& !bf.stunned)
+					bf.dance();
+			});
 		}, 5);
 	}
 
@@ -1030,7 +1077,7 @@ class Gameplay extends MusicBeatState
 		if (strum.animation.curAnim.name != 'confirm')
 			inline strum.playAnim('pressed');
 
-		var hittable:Note = (inline notes.members.filter(n -> (n.mustPress && !n.isSustainNote) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && n.noteData == key && !n.wasHit && !n.tooLate))[0];
+		var hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && n.noteData == key && !n.wasHit && !n.tooLate)).pop();
 
 		if (null != hittable)
 		{
@@ -1039,6 +1086,11 @@ class Gameplay extends MusicBeatState
 		}
 
 		holdArray[key] = true;
+	}
+
+	inline function fastNoteFilter(array:Array<Note>, f:Note->Bool):Array<Note>
+	{
+		return [for (i in 0...array.length) { var a:Note = array[i]; if (f(a)) a; }];
 	}
 
 	override public function onKeyUp(_):Void
@@ -1092,6 +1144,11 @@ class Gameplay extends MusicBeatState
 				}
 			}
 		}
+	}
+
+	override function destroy():Void
+	{
+		super.destroy();
 	}
 
 	// Render mode shit
