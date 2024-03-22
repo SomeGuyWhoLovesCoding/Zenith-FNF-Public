@@ -108,8 +108,7 @@ class Note extends FlxSprite
 		isSustainNote = chartNoteData.isSustainNote;
 		sustainLength = chartNoteData.sustainLength;
 
-		if (isSustainNote)
-			cameras = [Gameplay.instance.hudCameraBelow];
+		cameras = [isSustainNote ? Gameplay.instance.hudCameraBelow : Gameplay.instance.hudCamera];
 
 		animation.play(animArray[noteData] + (isSustainNote ? (chartNoteData.isSustainEnd ? 'holdend' : 'hold') : 'Scroll'));
 
