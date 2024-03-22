@@ -35,7 +35,7 @@ class Main extends Sprite
 		#if windows //DPI AWARENESS BABY
 		@:functionCode('
 			#include <Windows.h>
-			SetProcessDPIAware()
+			SetProcessDPIAware();
 		')
 		#end
 

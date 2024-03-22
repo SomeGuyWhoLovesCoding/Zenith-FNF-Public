@@ -35,7 +35,7 @@ class Gameplay extends MusicBeatState
 
 	// Preference stuff
 	public static var cpuControlled:Bool = false;
-	public static var downScroll:Bool = false;
+	public static var downScroll:Bool = true;
 	public static var hideHUD:Bool = false;
 	public static var renderMode:Bool = false;
 	public static var noCharacters:Bool = false;
@@ -111,10 +111,9 @@ class Gameplay extends MusicBeatState
 
 	override function create():Void
 	{
-		inline cpp.vm.Gc.enable(true);
-
 		if (renderMode)
 		{
+			inline cpp.vm.Gc.enable(true);
 			cpuControlled = true;
 			initRender();
 		}
@@ -125,9 +124,9 @@ class Gameplay extends MusicBeatState
 
 		// Preferences stuff
 		
-		downScroll = SaveData.preferences.get("DownScroll");
+		/*downScroll = SaveData.preferences.get("DownScroll");
 		hideHUD = SaveData.preferences.get("HideHUD");
-		noCharacters = SaveData.preferences.get("NoCharacters");
+		noCharacters = SaveData.preferences.get("NoCharacters");*/
 
 		// Reset gameplay stuff
 		startedCountdown = songEnded = false;
@@ -178,6 +177,7 @@ class Gameplay extends MusicBeatState
 				generateSong(songName, songDifficulty);
 
 				sustains = new FlxTypedGroup<Note>();
+				sustains.active = false;
 				add(sustains);
 
 				strums = new FlxTypedGroup<StrumNote>();
@@ -187,6 +187,7 @@ class Gameplay extends MusicBeatState
 				generateStrums(1);
 
 				notes = new FlxTypedGroup<Note>();
+				notes.active = false;
 				add(notes);
 
 				if (!hideHUD)
@@ -245,32 +246,44 @@ class Gameplay extends MusicBeatState
 		if (renderMode)
 			elapsed = 1 / videoFramerate;
 
+		__notes(notes);
+		__notes(sustains);
+
 		super.update(elapsed);
 
 		health = FlxMath.bound(health, 0, (Gameplay.hideHUD || Gameplay.noCharacters) ? 2 : hudGroup.healthBar.maxValue);
 
 		Conductor.songPosition += elapsed * 1000;
 
-		while (unspawnNotes.length != 0 && Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - (1950 / songSpeed))
+		if (unspawnNotes.length != 0)
 		{
-			(unspawnNotes[unspawnNotes.length-1].isSustainNote ? sustains : notes).recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-1]);
-			inline unspawnNotes.pop();
+			while (Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - (1950 / songSpeed))
+			{
+				(unspawnNotes[unspawnNotes.length-1].isSustainNote ? sustains : notes).recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-1]);
+
+				inline unspawnNotes.pop();
+				break;
+			}
 		}
 
 		// This used to be a function
-		while(eventNotes.length != 0 && Conductor.songPosition > eventNotes[eventNotes.length-1].strumTime)
+		if (eventNotes.length != 0)
 		{
-			var value1:String = '';
-			if(null != eventNotes[eventNotes.length-1].value1)
-				value1 = eventNotes[eventNotes.length-1].value1;
+			while(Conductor.songPosition > eventNotes[eventNotes.length-1].strumTime)
+			{
+				var value1:String = '';
+				if(null != eventNotes[eventNotes.length-1].value1)
+					value1 = eventNotes[eventNotes.length-1].value1;
 
-			var value2:String = '';
-			if(null != eventNotes[eventNotes.length-1].value2)
-				value2 = eventNotes[eventNotes.length-1].value2;
+				var value2:String = '';
+				if(null != eventNotes[eventNotes.length-1].value2)
+					value2 = eventNotes[eventNotes.length-1].value2;
 
-			triggerEventNote(eventNotes[eventNotes.length-1].event, value1, value2);
+				triggerEventNote(eventNotes[eventNotes.length-1].event, value1, value2);
 
-			inline eventNotes.pop();
+				inline eventNotes.pop();
+				break;
+			}
 		}
 
 		if (!renderMode)
@@ -282,8 +295,6 @@ class Gameplay extends MusicBeatState
 		if (Conductor.songPosition - (20 + SONG.offset) >= (Std.int(songLength) | Std.int(voices.length)) && !songEnded)
 			endSong();
 	}
-
-	private var hittable:Array<Array<Note>> = [[], [], [], []];
 
 	private function __notes(a:FlxTypedGroup<Note>):Void
 	{
@@ -321,13 +332,6 @@ class Gameplay extends MusicBeatState
 						@:privateAccess note.onNoteHit();
 			}
 		}
-	}
-
-	override function draw():Void
-	{
-		super.draw();
-		__notes(notes);
-		__notes(sustains);
 	}
 
 	public function triggerEventNote(eventName:String, value1:String, value2:String)
@@ -1061,8 +1065,7 @@ class Gameplay extends MusicBeatState
 	public var inputKeybinds:Array<Int> = [];
 
 	private var holdArray(default, null):Array<Bool> = [false, false, false, false];
-
-	override public function onKeyDown(_):Void
+	inline override public function onKeyDown(_):Void
 	{
 		var key:Int = inline inputKeybinds.indexOf(_.keyCode);
 
@@ -1093,7 +1096,7 @@ class Gameplay extends MusicBeatState
 		return [for (i in 0...array.length) { var a:Note = array[i]; if (f(a)) a; }];
 	}
 
-	override public function onKeyUp(_):Void
+	inline override public function onKeyUp(_):Void
 	{
 		var key:Int = inline inputKeybinds.indexOf(_.keyCode);
 
@@ -1148,6 +1151,7 @@ class Gameplay extends MusicBeatState
 
 	override function destroy():Void
 	{
+		stopRender();
 		super.destroy();
 	}
 
@@ -1180,6 +1184,8 @@ class Gameplay extends MusicBeatState
 	{
 		if (!renderMode)
 			return;
+
+		inline cpp.vm.Gc.enable(false);
 
 		process.stdin.close();
 		process.close();

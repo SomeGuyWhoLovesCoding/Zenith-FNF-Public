@@ -75,7 +75,7 @@ class HUDGroup extends FlxSpriteGroup
 		oppIcon.x = healthBar.width * (1 - (healthBar.value / healthBar.maxValue) + 0.5) - 75;
 		plrIcon.x = oppIcon.x + 105;
 
-		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0, healthBar.maxValue), 0.08);
+		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0, healthBar.maxValue), SaveData.preferences.get("SmoothHealth") ? 0.08 : 1);
 
 		scoreTxt.text = 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Rating: ?';
 

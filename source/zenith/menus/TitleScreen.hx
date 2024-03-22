@@ -204,7 +204,7 @@ class TitleScreen extends MusicBeatState
 	}
 
 	public static var alreadyPressedEnter:Bool = false;
-	override public function onKeyDown(_):Void
+	inline override public function onKeyDown(_):Void
 	{
 		//trace('Test');
 

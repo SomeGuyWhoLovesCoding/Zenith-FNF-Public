@@ -1,6 +1,6 @@
 package zenith.system;
 
-import lime.app.Application;
+import openfl.Lib;
 
 class MusicBeatState extends FlxState
 {
@@ -21,14 +21,6 @@ class MusicBeatState extends FlxState
 		FlxG.stage.addEventListener("keyUp", onKeyUp);
 
 		super.create();
-	}
-
-	override function destroy():Void
-	{
-		FlxG.stage.removeEventListener("keyDown", onKeyDown);
-		FlxG.stage.removeEventListener("keyUp", onKeyUp);
-
-		super.destroy();
 	}
 
 	override function update(elapsed:Float):Void
@@ -55,6 +47,13 @@ class MusicBeatState extends FlxState
 		}
 	}
 
+	override function destroy():Void
+	{
+		FlxG.stage.removeEventListener("keyDown", onKeyDown);
+		FlxG.stage.removeEventListener("keyUp", onKeyUp);
+		super.destroy();
+	}
+
 	// Keyboard event stuff
 
 	public function onKeyDown(_):Void {}
@@ -64,7 +63,6 @@ class MusicBeatState extends FlxState
 
 	public function switchState(nextState:FlxState)
 	{
-		// Remove the events when switching state, that's obvious
 		FlxG.stage.removeEventListener("keyDown", onKeyDown);
 		FlxG.stage.removeEventListener("keyUp", onKeyUp);
 
@@ -76,6 +74,9 @@ class MusicBeatState extends FlxState
 
 	public function resetState()
 	{
+		FlxG.stage.removeEventListener("keyDown", onKeyDown);
+		FlxG.stage.removeEventListener("keyUp", onKeyUp);
+
 		Main.startTransition(true, function()
 		{
 			FlxG.resetState();

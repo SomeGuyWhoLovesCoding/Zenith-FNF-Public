@@ -32,7 +32,7 @@ class SaveData
 	];
 
 	public static final defaultPreferences:Map<String, Bool> = [
-		"DownScroll" => false, "HideHUD" => false, "NoCharacters" => false, "ExtendCameraBounds" => true
+		"DownScroll" => false, "HideHUD" => false, "NoCharacters" => false, "SmoothHealth" => false, "ExtendCameraBounds" => true
 	];
 
 	// These are just shortcuts, don't recommend changing the function code for them
