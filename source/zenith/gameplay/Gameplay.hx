@@ -21,7 +21,6 @@ class Gameplay extends MusicBeatState
 	private var unspawnNotes(default, null):Array<ChartNoteData> = [];
 	private var eventNotes(default, null):Array<EventNote> = [];
 
-	public var sustains:FlxTypedGroup<Note>;
 	public var strums:FlxTypedGroup<StrumNote>;
 	public var notes:FlxTypedGroup<Note>;
 
@@ -92,6 +91,7 @@ class Gameplay extends MusicBeatState
 	public var bf:Character;
 
 	public var gameCamera:FlxCamera;
+	public var hudCameraBelow:FlxCamera;
 	public var hudCamera:FlxCamera;
 	public var loadingScreenCamera:FlxCamera;
 
@@ -135,12 +135,14 @@ class Gameplay extends MusicBeatState
 		persistentUpdate = persistentDraw = FlxG.fixedTimestep = true;
 
 		gameCamera = new FlxCamera();
+		hudCameraBelow = new FlxCamera();
 		hudCamera = new FlxCamera();
 		loadingScreenCamera = new FlxCamera();
 
-		gameCamera.bgColor.alpha = hudCamera.bgColor.alpha = loadingScreenCamera.bgColor.alpha = 0;
+		gameCamera.bgColor.alpha = hudCameraBelow.bgColor.alpha = hudCamera.bgColor.alpha = loadingScreenCamera.bgColor.alpha = 0;
 
 		FlxG.cameras.reset(gameCamera);
+		FlxG.cameras.add(hudCameraBelow, false);
 		FlxG.cameras.add(hudCamera, false);
 		FlxG.cameras.add(loadingScreenCamera, false);
 
@@ -176,10 +178,6 @@ class Gameplay extends MusicBeatState
 			{
 				generateSong(songName, songDifficulty);
 
-				sustains = new FlxTypedGroup<Note>();
-				sustains.active = false;
-				add(sustains);
-
 				strums = new FlxTypedGroup<StrumNote>();
 				add(strums);
 
@@ -199,7 +197,7 @@ class Gameplay extends MusicBeatState
 					hudGroup.cameras = [hudCamera];
 				}
 
-				sustains.cameras = strums.cameras = notes.cameras = [hudCamera];
+				strums.cameras = notes.cameras = [hudCamera];
 
 				var finishTime:Float = (haxe.Timer.stamp() - timeStamp) * 1000;
 
@@ -247,7 +245,13 @@ class Gameplay extends MusicBeatState
 			elapsed = 1 / videoFramerate;
 
 		__notes(notes);
-		__notes(sustains);
+
+		// Don't remove this.
+		hudCameraBelow.x = hudCamera.x;
+		hudCameraBelow.y = hudCamera.y;
+		hudCameraBelow.angle = hudCamera.angle;
+		hudCameraBelow.alpha = hudCamera.alpha;
+		hudCameraBelow.zoom = hudCamera.zoom;
 
 		super.update(elapsed);
 
@@ -259,7 +263,7 @@ class Gameplay extends MusicBeatState
 		{
 			while (Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - (1950 / songSpeed))
 			{
-				(unspawnNotes[unspawnNotes.length-1].isSustainNote ? sustains : notes).recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-1]);
+				notes.recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-1]);
 
 				inline unspawnNotes.pop();
 				break;
@@ -305,32 +309,32 @@ class Gameplay extends MusicBeatState
 		{
 			var note:Note = a.members[i];
 
-			if (note.exists)
+			if (!note.exists)
+				continue;
+
+			@:privateAccess note.followStrum(strums.members[note.noteData + (note.mustPress ? 4 : 0)]);
+
+			if (Conductor.songPosition >= note.strumTime + (750 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
+				note.exists = false;
+
+			// For note hits and input
+
+			if (note.mustPress)
 			{
-				@:privateAccess note.followStrum(strums.members[note.noteData + (note.mustPress ? 4 : 0)]);
-
-				if (Conductor.songPosition >= note.strumTime + (750 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
-					note.exists = false;
-
-				// For note hits and input
-
-				if (note.mustPress)
-				{
-					if (cpuControlled)
-						if (Conductor.songPosition >= note.strumTime)
-							@:privateAccess note.onNoteHit();
-
-					if (Conductor.songPosition >= note.strumTime + (Conductor.stepCrochet * 2) && (!note.wasHit && !note.tooLate))
-						@:privateAccess note.onNoteMiss();
-
-					if (note.isSustainNote)
-						if (Conductor.songPosition >= note.strumTime && holdArray[note.noteData])
-							@:privateAccess note.onNoteHit();
-				}
-				else
+				if (cpuControlled)
 					if (Conductor.songPosition >= note.strumTime)
 						@:privateAccess note.onNoteHit();
+
+				if (Conductor.songPosition >= note.strumTime + (Conductor.stepCrochet * 2) && (!note.wasHit && !note.tooLate))
+					@:privateAccess note.onNoteMiss();
+
+				if (note.isSustainNote)
+					if (Conductor.songPosition >= note.strumTime && holdArray[note.noteData])
+						@:privateAccess note.onNoteHit();
 			}
+			else
+				if (Conductor.songPosition >= note.strumTime)
+					@:privateAccess note.onNoteHit();
 		}
 	}
 

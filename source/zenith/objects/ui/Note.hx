@@ -108,6 +108,9 @@ class Note extends FlxSprite
 		isSustainNote = chartNoteData.isSustainNote;
 		sustainLength = chartNoteData.sustainLength;
 
+		if (isSustainNote)
+			cameras = [Gameplay.instance.hudCameraBelow];
+
 		animation.play(animArray[noteData] + (isSustainNote ? (chartNoteData.isSustainEnd ? 'holdend' : 'hold') : 'Scroll'));
 
 		return this;
@@ -143,7 +146,6 @@ class Note extends FlxSprite
 	function onNoteMiss():Void
 	{
 		tooLate = true;
-		@:privateAccess Gameplay.instance.hittable[noteData] = [];
 
 		Gameplay.instance.health -= 0.045 * (isSustainNote ? 0.5 : 1);
 		Gameplay.instance.score -= 100 * Gameplay.instance.noteMult;
