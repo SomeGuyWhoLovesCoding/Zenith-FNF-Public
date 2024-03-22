@@ -185,7 +185,6 @@ class Gameplay extends MusicBeatState
 				generateStrums(1);
 
 				notes = new FlxTypedGroup<Note>();
-				notes.active = false;
 				add(notes);
 
 				if (!hideHUD)
@@ -244,8 +243,6 @@ class Gameplay extends MusicBeatState
 		if (renderMode)
 			elapsed = 1 / videoFramerate;
 
-		__notes(notes);
-
 		// Don't remove this.
 		hudCameraBelow.x = hudCamera.x;
 		hudCameraBelow.y = hudCamera.y;
@@ -290,25 +287,8 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		if (!renderMode)
-			return;
-
-		notes.members.sort((b, a) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
-		pipeFrame();
-
-		if (Conductor.songPosition - (20 + SONG.offset) >= (Std.int(songLength) | Std.int(voices.length)) && !songEnded)
-			endSong();
-	}
-
-	private function __notes(a:FlxTypedGroup<Note>):Void
-	{
-		if (null == a)
-			return;
-
-		for (i in 0...a.members.length)
+		for (note in notes.members)
 		{
-			var note:Note = a.members[i];
-
 			if (!note.exists)
 				continue;
 
@@ -336,6 +316,15 @@ class Gameplay extends MusicBeatState
 				if (Conductor.songPosition >= note.strumTime)
 					@:privateAccess note.onNoteHit();
 		}
+
+		if (!renderMode)
+			return;
+
+		notes.members.sort((b, a) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
+		pipeFrame();
+
+		if (Conductor.songPosition - (20 + SONG.offset) >= (Std.int(songLength) | Std.int(voices.length)) && !songEnded)
+			endSong();
 	}
 
 	public function triggerEventNote(eventName:String, value1:String, value2:String)
@@ -858,7 +847,7 @@ class Gameplay extends MusicBeatState
 		lastBeatHit = curBeat;
 
 		if (!renderMode)
-			notes.members.sort((b, a) -> Std.int(a.strumTime - b.strumTime));
+			notes.members.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
 	}
 
 	override function sectionHit()
@@ -1084,7 +1073,7 @@ class Gameplay extends MusicBeatState
 		if (strum.animation.curAnim.name != 'confirm')
 			inline strum.playAnim('pressed');
 
-		var hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && n.noteData == key && !n.wasHit && !n.tooLate)).pop();
+		var hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && n.noteData == key && !n.wasHit && !n.tooLate))[0];
 
 		if (null != hittable)
 		{

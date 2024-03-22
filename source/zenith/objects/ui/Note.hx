@@ -53,8 +53,6 @@ class Note extends FlxSprite
 	{
 		super();
 
-		visible = false;
-
 		if (prototypeNoteskin)
 			makeGraphic(112, 112, 0xFFFF0000);
 
@@ -79,15 +77,12 @@ class Note extends FlxSprite
 
 	public function followStrum(strum:StrumNote):Void
 	{
+		flipX = flipY = strum.scrollMult <= 0 && isSustainNote;
+
 		// Sustain scaling for song speed (even if it's changed)
-		if (isSustainNote)
-		{
-			offsetX = SUSTAIN_NOTE_OFFSET_THRESHOLD;
-			flipX = flipY = strum.scrollMult <= 0;
-			// Psych engine sustain calculation moment
-			scale.set(0.7, animation.curAnim.name.endsWith('end') ? 1 : (153.75 / Gameplay.SONG.bpm) * (Gameplay.instance.songSpeed * multSpeed) * Math.abs(strum.scrollMult));
-			updateHitbox();
-		}
+		// Psych engine sustain note calculation moment
+		scale.set(0.7, isSustainNote ? (animation.curAnim.name.endsWith('end') ? 1 : (153.75 / Gameplay.SONG.bpm) * (Gameplay.instance.songSpeed * multSpeed) * Math.abs(strum.scrollMult)) : 0.7);
+		updateHitbox();
 
 		distance = 0.45 * (Conductor.songPosition - strumTime) * (Gameplay.instance.songSpeed * multSpeed);
 		x = strum.x + offsetX;
@@ -99,7 +94,6 @@ class Note extends FlxSprite
 	{
 		y = -2000;
 		wasHit = tooLate = false;
-		visible = true;
 
 		strumTime = chartNoteData.strumTime;
 		noteData = Std.int(chartNoteData.noteData % 4);
@@ -108,9 +102,11 @@ class Note extends FlxSprite
 		isSustainNote = chartNoteData.isSustainNote;
 		sustainLength = chartNoteData.sustainLength;
 
+		animation.play(animArray[noteData] + (isSustainNote ? (chartNoteData.isSustainEnd ? 'holdend' : 'hold') : 'Scroll'));
+
 		cameras = [isSustainNote ? Gameplay.instance.hudCameraBelow : Gameplay.instance.hudCamera];
 
-		animation.play(animArray[noteData] + (isSustainNote ? (chartNoteData.isSustainEnd ? 'holdend' : 'hold') : 'Scroll'));
+		offsetX = isSustainNote ? SUSTAIN_NOTE_OFFSET_THRESHOLD : 0;
 
 		return this;
 	}
