@@ -182,8 +182,8 @@ class Gameplay extends MusicBeatState
 			strums = new FlxTypedGroup<StrumNote>();
 			add(strums);
 
-			generateStrumline(0);
-			generateStrumline(1);
+			inline generateStrumline(0);
+			inline generateStrumline(1);
 
 			notes = new FlxTypedGroup<Note>();
 			add(notes);
@@ -233,8 +233,6 @@ class Gameplay extends MusicBeatState
 	}
 
 	var currentNote:Note;
-	var currentNoteIndex:UInt = 0;
-	var currentEventIndex:UInt = 0;
 	var noteIndex:UInt = 0;
 
 	override function update(elapsed:Float):Void
@@ -261,25 +259,21 @@ class Gameplay extends MusicBeatState
 		while (null != (currentNote = notes.members[noteIndex++]))
 			inline events.emit(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4 : 0)]);
 
-		if (null != unspawnNotes[unspawnNotes.length-(currentNoteIndex+1)])
-			while (Conductor.songPosition > unspawnNotes[unspawnNotes.length-(currentNoteIndex+1)].strumTime - (1950 / songSpeed))
-				inline notes.recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-(currentNoteIndex++ +1)]);
+		while (null != unspawnNotes[unspawnNotes.length-1] && Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - (1950 / songSpeed))
+			inline notes.recycle(Note).setupNoteData(unspawnNotes.pop());
 
 		// This used to be a function
-		if (currentEventIndex < eventNotes.length - 1)
+		while(eventNotes[eventNotes.length-1] != null && Conductor.songPosition > eventNotes[eventNotes.length-1].strumTime)
 		{
-			while(eventNotes.length != 0 && Conductor.songPosition > eventNotes[eventNotes.length-(currentEventIndex+1)].strumTime)
-			{
-				var value1:String = '';
-				if(null != eventNotes[eventNotes.length-(currentEventIndex+1)].value1)
-					value1 = eventNotes[eventNotes.length-(currentEventIndex+1)].value1;
+			var value1:String = '';
+			if(null != eventNotes[eventNotes.length-1].value1)
+				value1 = eventNotes[eventNotes.length-1].value1;
 
-				var value2:String = '';
-				if(null != eventNotes[eventNotes.length-(currentEventIndex+1)].value2)
-					value2 = eventNotes[eventNotes.length-(currentEventIndex+1)].value2;
+			var value2:String = '';
+			if(null != eventNotes[eventNotes.length-1].value2)
+				value2 = eventNotes[eventNotes.length-1].value2;
 
-				inline triggerEventNote(eventNotes[eventNotes.length-(currentEventIndex++ +1)].event, value1, value2);
-			}
+			inline triggerEventNote(eventNotes.pop().event, value1, value2);
 		}
 
 		super.update(elapsed);
@@ -741,7 +735,7 @@ class Gameplay extends MusicBeatState
 		}
 	}
 
-	public inline function generateStrumline(player:Int = 0):Void
+	inline public function generateStrumline(player:Int = 0):Void
 	{
 		for (i in 0...4)
 		{
@@ -1041,7 +1035,7 @@ class Gameplay extends MusicBeatState
 		if (strum.animation.curAnim.name != 'confirm')
 			inline strum.playAnim('pressed');
 
-		var hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && n.noteData == key && !n.wasHit && !n.tooLate))[0];
+		var hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && !n.wasHit && !n.tooLate && n.noteData == key))[0];
 
 		if (null != hittable)
 		{
@@ -1124,7 +1118,7 @@ class Gameplay extends MusicBeatState
 		super.destroy();
 	}
 
-	function onNoteHit(note:Note):Void
+	inline public function onNoteHit(note:Note):Void
 	{
 		if (!note.mustPress || note.isSustainNote || cpuControlled)
 			inline strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
@@ -1137,19 +1131,19 @@ class Gameplay extends MusicBeatState
 		if (note.mustPress && !note.isSustainNote)
 			score += 350 * noteMult;
 
-		if (noCharacters)
-			return;
-
-		var char = (note.mustPress ? instance.bf : (note.gfNote ? gf : dad));
-
-		if (null != char)
+		if (!noCharacters)
 		{
-			inline char.playAnim(@:privateAccess singAnimations[note.noteData], true);
-			char.holdTimer = 0;
+			var char = (note.mustPress ? instance.bf : (note.gfNote ? gf : dad));
+	
+			if (null != char)
+			{
+				inline char.playAnim(@:privateAccess singAnimations[note.noteData], true);
+				char.holdTimer = 0;
+			}
 		}
 	}
 
-	function onNoteMiss(note:Note):Void
+	inline public function onNoteMiss(note:Note):Void
 	{
 		note.tooLate = true;
 
@@ -1157,50 +1151,50 @@ class Gameplay extends MusicBeatState
 		score -= 100 * noteMult;
 		misses++;
 
-		if (noCharacters)
-			return;
-
-		inline bf.playAnim(@:privateAccess singAnimations[note.noteData] + 'miss', true);
-		bf.holdTimer = 0;
+		if (!noCharacters)
+		{
+			inline bf.playAnim(@:privateAccess singAnimations[note.noteData] + 'miss', true);
+			bf.holdTimer = 0;
+		}
 	}
 
-	function __note(note:Note, strum:StrumNote):Void
+	inline function __note(note:Note, strum:StrumNote):Void
 	{
-		if (!note.exists)
-			return;
-
-		note.flipX = note.flipY = strum.scrollMult <= 0 && note.isSustainNote;
-
-		// Sustain scaling for song speed (even if it's changed)
-		// Psych engine sustain note calculation moment
-		note.scale.set(0.7, note.isSustainNote ? (note.animation.curAnim.name.endsWith('end') ? 1 : (153.75 / SONG.bpm) * (songSpeed * note.multSpeed) * Math.abs(strum.scrollMult)) : 0.7);
-		note.updateHitbox();
-
-		note.distance = 0.45 * (Conductor.songPosition - note.strumTime) * (songSpeed * note.multSpeed);
-		note.x = strum.x + note.offsetX;
-		note.y = (strum.y + note.offsetY) + (-strum.scrollMult * note.distance) - (note.flipY ? (note.frameHeight * note.scale.y) - strum.height : 0);
-
-		if (Conductor.songPosition >= note.strumTime + (750 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
-			note.exists = false;
-
-		// For note hits and input
-
-		if (note.mustPress)
+		if (note.exists)
 		{
-			if (cpuControlled)
+			note.flipX = note.flipY = strum.scrollMult <= 0 && note.isSustainNote;
+	
+			// Sustain scaling for song speed (even if it's changed)
+			// Psych engine sustain note calculation moment
+			note.scale.set(0.7, note.isSustainNote ? (note.animation.curAnim.name.endsWith('end') ? 1 : (153.75 / SONG.bpm) * (songSpeed * note.multSpeed) * Math.abs(strum.scrollMult)) : 0.7);
+			note.updateHitbox();
+	
+			note.distance = 0.45 * (Conductor.songPosition - note.strumTime) * (songSpeed * note.multSpeed);
+			note.x = strum.x + note.offsetX;
+			note.y = (strum.y + note.offsetY) + (-strum.scrollMult * note.distance) - (note.flipY ? (note.frameHeight * note.scale.y) - strum.height : 0);
+	
+			if (Conductor.songPosition >= note.strumTime + (750 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
+				note.exists = false;
+	
+			// For note hits and input
+	
+			if (note.mustPress)
+			{
+				if (cpuControlled)
+					if (Conductor.songPosition >= note.strumTime)
+						inline events.emit(SignalEvent.NOTE_HIT, note);
+	
+				if (Conductor.songPosition >= note.strumTime + (Conductor.stepCrochet * 2) && (!note.wasHit && !note.tooLate))
+					inline events.emit(SignalEvent.NOTE_MISS, note);
+	
+				if (note.isSustainNote)
+					if (Conductor.songPosition >= note.strumTime && holdArray[note.noteData])
+						inline events.emit(SignalEvent.NOTE_HIT, note);
+			}
+			else
 				if (Conductor.songPosition >= note.strumTime)
 					inline events.emit(SignalEvent.NOTE_HIT, note);
-
-			if (Conductor.songPosition >= note.strumTime + (Conductor.stepCrochet * 2) && (!note.wasHit && !note.tooLate))
-				inline events.emit(SignalEvent.NOTE_MISS, note);
-
-			if (note.isSustainNote)
-				if (Conductor.songPosition >= note.strumTime && holdArray[note.noteData])
-					inline events.emit(SignalEvent.NOTE_HIT, note);
 		}
-		else
-			if (Conductor.songPosition >= note.strumTime)
-				inline events.emit(SignalEvent.NOTE_HIT, note);
 	}
 
 	// Render mode shit
