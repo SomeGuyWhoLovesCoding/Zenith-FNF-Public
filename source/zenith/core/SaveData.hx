@@ -3,7 +3,7 @@ package zenith.core;
 import flixel.util.FlxSave;
 import flixel.input.keyboard.FlxKey;
 
-enum abstract SaveContentType(Int) from Int to Int
+enum abstract SaveContentType(UInt) from UInt to UInt
 {
 	var PREFERENCES:Int = 0;
 	var CONTROLS:Int = 1;

@@ -29,14 +29,15 @@ class Note extends FlxSprite
 	public var noteData(default, null):Int = 0;
 	public var mustPress(default, null):Bool = false;
 	public var gfNote(default, null):Bool = false;
-	public var wasHit(default, null):Bool = false;
-	public var tooLate(default, null):Bool = false;
 	public var isSustainNote(default, null):Bool = false;
 	public var sustainLength(default, null):Float = 0;
-	public var distance(default, null):Float = 0;
 	public var noteType(default, null):String = '';
+
 	public var noAnimation:Bool = false;
 	public var multSpeed:Float = 1;
+	public var wasHit:Bool = false;
+	public var tooLate:Bool = false;
+	public var distance:Float = 0;
 
 	public var offsetX:Float = 0;
 	public var offsetY:Float = 0;
@@ -75,20 +76,6 @@ class Note extends FlxSprite
 	{
 	}
 
-	public function followStrum(strum:StrumNote):Void
-	{
-		flipX = flipY = strum.scrollMult <= 0 && isSustainNote;
-
-		// Sustain scaling for song speed (even if it's changed)
-		// Psych engine sustain note calculation moment
-		scale.set(0.7, isSustainNote ? (animation.curAnim.name.endsWith('end') ? 1 : (153.75 / Gameplay.SONG.bpm) * (Gameplay.instance.songSpeed * multSpeed) * Math.abs(strum.scrollMult)) : 0.7);
-		updateHitbox();
-
-		distance = 0.45 * (Conductor.songPosition - strumTime) * (Gameplay.instance.songSpeed * multSpeed);
-		x = strum.x + offsetX;
-		y = (strum.y + offsetY) + (-strum.scrollMult * distance) - (flipY ? (frameHeight * scale.y) - strum.height : 0);
-	}
-
 	// Used for recycling
 	public function setupNoteData(chartNoteData:ChartNoteData):Note
 	{
@@ -109,47 +96,5 @@ class Note extends FlxSprite
 		offsetX = isSustainNote ? SUSTAIN_NOTE_OFFSET_THRESHOLD : 0;
 
 		return this;
-	}
-
-	// Note hit functions
-
-	function onNoteHit():Void
-	{
-		if (!mustPress || isSustainNote || Gameplay.cpuControlled)
-			inline Gameplay.instance.strums.members[noteData + (mustPress ? 4 : 0)].playAnim('confirm');
-
-		wasHit = true;
-		exists = false;
-
-		Gameplay.instance.health += (0.045 * (isSustainNote ? 0.5 : 1)) * (mustPress ? 1 : -1);
-
-		if (mustPress && !isSustainNote)
-			Gameplay.instance.score += 350 * Gameplay.instance.noteMult;
-
-		if (Gameplay.noCharacters)
-			return;
-
-		var char = (mustPress ? Gameplay.instance.bf : (gfNote ? Gameplay.instance.gf : Gameplay.instance.dad));
-
-		if (char != null)
-		{
-			inline char.playAnim(@:privateAccess Gameplay.instance.singAnimations[noteData], true);
-			char.holdTimer = 0;
-		}
-	}
-
-	function onNoteMiss():Void
-	{
-		tooLate = true;
-
-		Gameplay.instance.health -= 0.045 * (isSustainNote ? 0.5 : 1);
-		Gameplay.instance.score -= 100 * Gameplay.instance.noteMult;
-		Gameplay.instance.misses++;
-
-		if (Gameplay.noCharacters)
-			return;
-
-		inline Gameplay.instance.bf.playAnim(@:privateAccess Gameplay.instance.singAnimations[noteData] + 'miss', true);
-		Gameplay.instance.bf.holdTimer = 0;
 	}
 }

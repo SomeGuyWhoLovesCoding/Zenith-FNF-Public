@@ -32,16 +32,24 @@ class TitleScreen extends MusicBeatState
 	{
 		super.create();
 
-		persistentUpdate = true;
+		persistentDraw = persistentUpdate = true;
 
 		// Initialize the title configurations before starting the intro
-		if (titleConfig == null)
+		if (null == titleConfig)
 			titleConfig = haxe.Json.parse(sys.io.File.getContent(Paths.ASSET_PATH + '/music/menus/titleConfig.json'));
 
 		alreadyPressedEnter = false;
 
 		loadTitleScreenShit();
 		titleBG.visible = titleImage.visible = initialized;
+
+		keyEmitter.on(SignalEvent.KEY_DOWN, onKeyDown);
+	}
+
+	override function destroy():Void
+	{
+		keyEmitter.off(SignalEvent.KEY_DOWN, onKeyDown);
+		super.destroy();
 	}
 
 	private function loadTitleScreenShit():Void
@@ -204,11 +212,11 @@ class TitleScreen extends MusicBeatState
 	}
 
 	public static var alreadyPressedEnter:Bool = false;
-	inline override public function onKeyDown(_):Void
+	inline public function onKeyDown(keyCode:Int):Void
 	{
 		//trace('Test');
 
-		if (SaveData.controls.get("Accept") == _.keyCode)
+		if (SaveData.controls.get("Accept") == keyCode)
 		{
 			if (alreadyPressedEnter)
 				TitleScreenSubState.instance.sendSignalEnter();
@@ -228,13 +236,13 @@ class TitleScreen extends MusicBeatState
 		if (!alreadyPressedEnter)
 			return;
 
-		if (SaveData.controls.get("UI_Left") == _.keyCode)
+		if (SaveData.controls.get("UI_Left") == keyCode)
 			TitleScreenSubState.instance.sendSignalLeft();
 
-		if (SaveData.controls.get("UI_Right") == _.keyCode)
+		if (SaveData.controls.get("UI_Right") == keyCode)
 			TitleScreenSubState.instance.sendSignalRight();
 
-		if (SaveData.controls.get("Backspace") == _.keyCode)
+		if (SaveData.controls.get("Backspace") == keyCode)
 		{
 			closeSubState();
 			alreadyPressedEnter = false;

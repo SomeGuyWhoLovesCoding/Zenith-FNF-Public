@@ -109,8 +109,12 @@ class Gameplay extends MusicBeatState
 
 	public static var instance:Gameplay;
 
+	public var events:Emitter;
+
 	override function create():Void
 	{
+		events = new Emitter();
+
 		if (renderMode)
 		{
 			inline cpp.vm.Gc.enable(true);
@@ -119,6 +123,10 @@ class Gameplay extends MusicBeatState
 		}
 
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
+
+		events.on(SignalEvent.NOTE_FOLLOW, __note);
+		events.on(SignalEvent.NOTE_HIT, onNoteHit);
+		events.on(SignalEvent.NOTE_MISS, onNoteMiss);
 
 		instance = this;
 
@@ -129,10 +137,10 @@ class Gameplay extends MusicBeatState
 		noCharacters = SaveData.preferences.get("NoCharacters");*/
 
 		// Reset gameplay stuff
-		startedCountdown = songEnded = false;
+		FlxG.fixedTimestep = startedCountdown = songEnded = false;
 		songSpeed = noteMult = 1;
 
-		persistentUpdate = persistentDraw = FlxG.fixedTimestep = true;
+		persistentUpdate = persistentDraw = true;
 
 		gameCamera = new FlxCamera();
 		hudCameraBelow = new FlxCamera();
@@ -164,76 +172,70 @@ class Gameplay extends MusicBeatState
 		if (null == Sys.args()[1]) // What?
 			songDifficulty = '';
 
-		var bg:FlxSprite = new FlxSprite().loadGraphic(Paths.ASSET_PATH + '/images/loading.png');
-		bg.setGraphicSize(Std.int(FlxG.width), Std.int(FlxG.height));
-		bg.updateHitbox();
-		add(bg);
-		bg.cameras = [loadingScreenCamera];
-
 		var timeStamp:Float = haxe.Timer.stamp();
 
-		ThreadHandler.run(function()
+		// You don't need to thread when loading into the song anyway
+		try
 		{
-			try
+			generateSong(songName, songDifficulty);
+
+			strums = new FlxTypedGroup<StrumNote>();
+			add(strums);
+
+			generateStrumline(0);
+			generateStrumline(1);
+
+			notes = new FlxTypedGroup<Note>();
+			add(notes);
+
+			if (!hideHUD)
 			{
-				generateSong(songName, songDifficulty);
+				hudGroup = new HUDGroup();
+				add(hudGroup);
 
-				strums = new FlxTypedGroup<StrumNote>();
-				add(strums);
-
-				generateStrums(0);
-				generateStrums(1);
-
-				notes = new FlxTypedGroup<Note>();
-				add(notes);
-
-				if (!hideHUD)
-				{
-					hudGroup = new HUDGroup();
-					add(hudGroup);
-
-					@:privateAccess hudGroup.reloadHealthBar();
-					hudGroup.cameras = [hudCamera];
-				}
-
-				strums.cameras = notes.cameras = [hudCamera];
-
-				var finishTime:Float = (haxe.Timer.stamp() - timeStamp) * 1000;
-
-				trace('Done! Redirecting you shortly...');
-
-				new flixel.util.FlxTimer().start(0.5, (?timer) -> {
-					trace('Loading finished! Took ${flixel.util.FlxStringUtil.formatTime(finishTime, true, true)} to load.');
-
-					if (!noCharacters)
-					{
-						camFollowPos.setPosition(
-							gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0],
-							gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1]
-						);
-
-						moveCameraSection();
-					}
-
-					generatedMusic = true;
-					startCountdown();
-
-					remove(bg);
-				});
+				@:privateAccess hudGroup.reloadHealthBar();
+				hudGroup.cameras = [hudCamera];
 			}
-			catch (e)
+
+			strums.cameras = notes.cameras = [hudCamera];
+
+			var finishTime:Float = (haxe.Timer.stamp() - timeStamp) * 1000;
+
+			trace('Loading finished! Took ${flixel.util.FlxStringUtil.formatTime(finishTime, true, true)} to load.');
+
+			if (!noCharacters)
 			{
-				if (renderMode)
-					FlxG.autoPause = true;
+				camFollowPos.setPosition(
+					gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0],
+					gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1]
+				);
 
-				FlxG.switchState(new WelcomeState());
+				moveCameraSection();
 			}
-		});
+
+			generatedMusic = true;
+			startCountdown();
+		}
+		catch (e)
+		{
+			if (renderMode)
+				FlxG.autoPause = true;
+
+			FlxG.switchState(new WelcomeState());
+		}
 
 		super.create();
 
+		keyEmitter.on(SignalEvent.KEY_DOWN, onKeyDown);
+		keyEmitter.on(SignalEvent.KEY_UP, onKeyUp);
+
 		//trace(Sys.args());
 	}
+
+	var currentNote:Note;
+	var currentNoteIndex:UInt = 0;
+	var currentEventIndex:UInt = 0;
+	var noteIndex:UInt = 0;
 
 	override function update(elapsed:Float):Void
 	{
@@ -250,72 +252,37 @@ class Gameplay extends MusicBeatState
 		hudCameraBelow.alpha = hudCamera.alpha;
 		hudCameraBelow.zoom = hudCamera.zoom;
 
-		super.update(elapsed);
-
 		health = FlxMath.bound(health, 0, (Gameplay.hideHUD || Gameplay.noCharacters) ? 2 : hudGroup.healthBar.maxValue);
 
 		Conductor.songPosition += elapsed * 1000;
 
-		if (unspawnNotes.length != 0)
-		{
-			while (Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - (1950 / songSpeed))
-			{
-				notes.recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-1]);
+		noteIndex = 0;
 
-				inline unspawnNotes.pop();
-				break;
-			}
-		}
+		while (null != (currentNote = notes.members[noteIndex++]))
+			inline events.emit(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4 : 0)]);
+
+		if (null != unspawnNotes[unspawnNotes.length-(currentNoteIndex+1)])
+			while (Conductor.songPosition > unspawnNotes[unspawnNotes.length-(currentNoteIndex+1)].strumTime - (1950 / songSpeed))
+				inline notes.recycle(Note).setupNoteData(unspawnNotes[unspawnNotes.length-(currentNoteIndex++ +1)]);
 
 		// This used to be a function
-		if (eventNotes.length != 0)
+		if (currentEventIndex < eventNotes.length - 1)
 		{
-			while(Conductor.songPosition > eventNotes[eventNotes.length-1].strumTime)
+			while(eventNotes.length != 0 && Conductor.songPosition > eventNotes[eventNotes.length-(currentEventIndex+1)].strumTime)
 			{
 				var value1:String = '';
-				if(null != eventNotes[eventNotes.length-1].value1)
-					value1 = eventNotes[eventNotes.length-1].value1;
+				if(null != eventNotes[eventNotes.length-(currentEventIndex+1)].value1)
+					value1 = eventNotes[eventNotes.length-(currentEventIndex+1)].value1;
 
 				var value2:String = '';
-				if(null != eventNotes[eventNotes.length-1].value2)
-					value2 = eventNotes[eventNotes.length-1].value2;
+				if(null != eventNotes[eventNotes.length-(currentEventIndex+1)].value2)
+					value2 = eventNotes[eventNotes.length-(currentEventIndex+1)].value2;
 
-				triggerEventNote(eventNotes[eventNotes.length-1].event, value1, value2);
-
-				inline eventNotes.pop();
-				break;
+				inline triggerEventNote(eventNotes[eventNotes.length-(currentEventIndex++ +1)].event, value1, value2);
 			}
 		}
 
-		for (note in notes.members)
-		{
-			if (!note.exists)
-				continue;
-
-			@:privateAccess note.followStrum(strums.members[note.noteData + (note.mustPress ? 4 : 0)]);
-
-			if (Conductor.songPosition >= note.strumTime + (750 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
-				note.exists = false;
-
-			// For note hits and input
-
-			if (note.mustPress)
-			{
-				if (cpuControlled)
-					if (Conductor.songPosition >= note.strumTime)
-						@:privateAccess note.onNoteHit();
-
-				if (Conductor.songPosition >= note.strumTime + (Conductor.stepCrochet * 2) && (!note.wasHit && !note.tooLate))
-					@:privateAccess note.onNoteMiss();
-
-				if (note.isSustainNote)
-					if (Conductor.songPosition >= note.strumTime && holdArray[note.noteData])
-						@:privateAccess note.onNoteHit();
-			}
-			else
-				if (Conductor.songPosition >= note.strumTime)
-					@:privateAccess note.onNoteHit();
-		}
+		super.update(elapsed);
 
 		if (!renderMode)
 			return;
@@ -327,48 +294,48 @@ class Gameplay extends MusicBeatState
 			endSong();
 	}
 
-	public function triggerEventNote(eventName:String, value1:String, value2:String)
+	inline public function triggerEventNote(eventName:String, value1:String, value2:String)
 	{
 		switch (eventName)
 		{
 			case 'Hey!':
-				if (noCharacters)
-					return;
-
-				var value:Int = 2;
-				switch (value1.toLowerCase().trim())
+				if (!noCharacters)
 				{
-					case 'bf' | 'boyfriend' | '0':
-						value = 0;
-					case 'gf' | 'girlfriend' | '1':
-						value = 1;
-				}
-
-				var time:Float = Std.parseFloat(value2);
-				if (Math.isNaN(time) || time <= 0)
-					time = 0.6;
-
-				if (value == 1)
-				{
-					if (null != gf)
+					var value:Int = 2;
+					switch (value1.toLowerCase().trim())
 					{
-						inline gf.playAnim('cheer', true);
-						gf.specialAnim = true;
-						gf.heyTimer = time;
+						case 'bf' | 'boyfriend' | '0':
+							value = 0;
+						case 'gf' | 'girlfriend' | '1':
+							value = 1;
 					}
-					if (null != dad && dad.curCharacter == gf.curCharacter)
+	
+					var time:Float = Std.parseFloat(value2);
+					if (Math.isNaN(time) || time <= 0)
+						time = 0.6;
+	
+					if (value == 1)
 					{
-						inline dad.playAnim('cheer', true);
-						dad.specialAnim = true;
-						dad.heyTimer = time;
+						if (null != gf)
+						{
+							inline gf.playAnim('cheer', true);
+							gf.specialAnim = true;
+							gf.heyTimer = time;
+						}
+						if (null != dad && dad.curCharacter == gf.curCharacter)
+						{
+							inline dad.playAnim('cheer', true);
+							dad.specialAnim = true;
+							dad.heyTimer = time;
+						}
 					}
-				}
-				else
-				{
-					if (null != bf) {
-						inline bf.playAnim('hey', true);
-						bf.specialAnim = true;
-						bf.heyTimer = time;
+					else
+					{
+						if (null != bf) {
+							inline bf.playAnim('hey', true);
+							bf.specialAnim = true;
+							bf.heyTimer = time;
+						}
 					}
 				}
 
@@ -400,101 +367,100 @@ class Gameplay extends MusicBeatState
 				}
 
 			case 'Play Animation':
-				if (noCharacters)
-					return;
-
-				// trace('Anim to play: ' + value1);
-				var char:Character = dad;
-				switch (value2.toLowerCase().trim())
+				if (!noCharacters)
 				{
-					case 'bf' | 'boyfriend':
-						char = bf;
-					case 'gf' | 'girlfriend':
-						char = gf;
-					default:
-						var val2:Int = Std.parseInt(value2);
-						if (Math.isNaN(val2))
-							val2 = 0;
+					var char:Character = dad;
+					switch (value2.toLowerCase().trim())
+					{
+						case 'bf' | 'boyfriend':
+							char = bf;
+						case 'gf' | 'girlfriend':
+							char = gf;
+						default:
+							var val2:Int = Std.parseInt(value2);
+							if (Math.isNaN(val2))
+								val2 = 0;
 
-						switch (val2)
-						{
-							case 1: char = bf;
-							case 2: char = gf;
-						}
-				}
+							switch (val2)
+							{
+								case 1: char = bf;
+								case 2: char = gf;
+							}
+					}
 
-				if (null != char)
-				{
-					inline char.playAnim(value1, true);
-					char.specialAnim = true;
+					if (null != char)
+					{
+						inline char.playAnim(value1, true);
+						char.specialAnim = true;
+					}
 				}
 
 			case 'Change Character':
 				if (noCharacters)
-					return;
+				{
+					var charType:Int = 0;
+					switch(value1.toLowerCase().trim()) {
+						case 'gf' | 'girlfriend':
+							charType = 2;
+						case 'dad' | 'opponent':
+							charType = 1;
+						default:
+							charType = Std.parseInt(value1);
+							if(Math.isNaN(charType)) charType = 0;
+					}
 
-				var charType:Int = 0;
-				switch(value1.toLowerCase().trim()) {
-					case 'gf' | 'girlfriend':
-						charType = 2;
-					case 'dad' | 'opponent':
-						charType = 1;
-					default:
-						charType = Std.parseInt(value1);
-						if(Math.isNaN(charType)) charType = 0;
-				}
-
-				switch(charType) {
-					case 0:
-						if(bf.curCharacter != value2) {
-							if(!bfMap.exists(value2)) {
-								addCharacterToList(value2, charType);
-							}
-
-							var lastAlpha:Float = bf.alpha;
-							bf.alpha = 0.001;
-							bf = bfMap.get(value2);
-							bf.alpha = lastAlpha;
-							hudGroup.plrIcon.changeIcon(bf.healthIcon);
-						}
-
-					case 1:
-						if(dad.curCharacter != value2) {
-							if(!dadMap.exists(value2)) {
-								addCharacterToList(value2, charType);
-							}
-
-							var wasGf:Bool = dad.curCharacter.startsWith('gf');
-							var lastAlpha:Float = dad.alpha;
-							dad.alpha = 0.001;
-							dad = dadMap.get(value2);
-							if(!dad.curCharacter.startsWith('gf')) {
-								if(wasGf && null != gf) {
-									gf.visible = true;
-								}
-							} else if(null != gf) {
-								gf.visible = false;
-							}
-							dad.alpha = lastAlpha;
-							hudGroup.oppIcon.changeIcon(dad.healthIcon);
-						}
-
-					case 2:
-						if(null != gf)
-						{
-							if(gf.curCharacter != value2)
-							{
-								if(!gfMap.exists(value2))
-								{
+					switch(charType) {
+						case 0:
+							if(bf.curCharacter != value2) {
+								if(!bfMap.exists(value2)) {
 									addCharacterToList(value2, charType);
 								}
 
-								var lastAlpha:Float = gf.alpha;
-								gf.alpha = 0.001;
-								gf = gfMap.get(value2);
-								gf.alpha = lastAlpha;
+								var lastAlpha:Float = bf.alpha;
+								bf.alpha = 0.001;
+								bf = bfMap.get(value2);
+								bf.alpha = lastAlpha;
+								hudGroup.plrIcon.changeIcon(bf.healthIcon);
 							}
-						}
+
+						case 1:
+							if(dad.curCharacter != value2) {
+								if(!dadMap.exists(value2)) {
+									addCharacterToList(value2, charType);
+								}
+
+								var wasGf:Bool = dad.curCharacter.startsWith('gf');
+								var lastAlpha:Float = dad.alpha;
+								dad.alpha = 0.001;
+								dad = dadMap.get(value2);
+								if(!dad.curCharacter.startsWith('gf')) {
+									if(wasGf && null != gf) {
+										gf.visible = true;
+									}
+								} else if(null != gf) {
+									gf.visible = false;
+								}
+								dad.alpha = lastAlpha;
+								hudGroup.oppIcon.changeIcon(dad.healthIcon);
+							}
+
+						case 2:
+							if(null != gf)
+							{
+								if(gf.curCharacter != value2)
+								{
+									if(!gfMap.exists(value2))
+									{
+										addCharacterToList(value2, charType);
+									}
+
+									var lastAlpha:Float = gf.alpha;
+									gf.alpha = 0.001;
+									gf = gfMap.get(value2);
+									gf.alpha = lastAlpha;
+								}
+							}
+					}
 				}
 				@:privateAccess hudGroup.reloadHealthBar();
 
@@ -751,32 +717,31 @@ class Gameplay extends MusicBeatState
 		trace('Done! Now time to load HUD objects...');
 	}
 
-	function eventPushed(event:EventNote)
+	inline public function eventPushed(event:EventNote)
 	{
 		switch (event.event)
 		{
 			case 'Change Character':
 				if (noCharacters)
-					return;
+				{
+					var charType:Int = 0;
+					switch(event.value1.toLowerCase()) {
+						case 'gf' | 'girlfriend' | '1':
+							charType = 2;
+						case 'dad' | 'opponent' | '0':
+							charType = 1;
+						default:
+							charType = Std.parseInt(event.value1);
+							if(Math.isNaN(charType)) charType = 0;
+					}
 
-				var charType:Int = 0;
-				switch(event.value1.toLowerCase()) {
-					case 'gf' | 'girlfriend' | '1':
-						charType = 2;
-					case 'dad' | 'opponent' | '0':
-						charType = 1;
-					default:
-						charType = Std.parseInt(event.value1);
-						if(Math.isNaN(charType)) charType = 0;
+					var newCharacter:String = event.value2;
+					addCharacterToList(newCharacter, charType);
 				}
-
-				var newCharacter:String = event.value2;
-				addCharacterToList(newCharacter, charType);
-				// Will be adding change character support soon...
 		}
 	}
 
-	private function generateStrums(player:Int = 0):Void
+	public inline function generateStrumline(player:Int = 0):Void
 	{
 		for (i in 0...4)
 		{
@@ -798,8 +763,9 @@ class Gameplay extends MusicBeatState
 
 		if (!renderMode)
 		{
-			if ((inst.time < (Conductor.songPosition + SONG.offset) - 20 || inst.time > (Conductor.songPosition + SONG.offset) + 20)
-				|| (voices.time < (Conductor.songPosition + SONG.offset) - 20 || voices.time > (Conductor.songPosition + SONG.offset) + 20))
+			final off:Float = Conductor.songPosition + SONG.offset;
+			if ((inst.time < off - 20 || inst.time > off + 20)
+				|| (voices.time < off - 20 || voices.time > off + 20))
 			{
 				Conductor.songPosition = inst.time - SONG.offset;
 				voices.time = Conductor.songPosition + SONG.offset;
@@ -945,6 +911,8 @@ class Gameplay extends MusicBeatState
 		inst.play();
 		voices.play();
 
+		Game.musicDeltaTarget = inst;
+
 		songLength = inst.length;
 		startedCountdown = true;
 	}
@@ -1058,9 +1026,9 @@ class Gameplay extends MusicBeatState
 	public var inputKeybinds:Array<Int> = [];
 
 	private var holdArray(default, null):Array<Bool> = [false, false, false, false];
-	inline override public function onKeyDown(_):Void
+	inline public function onKeyDown(keyCode:Int):Void
 	{
-		var key:Int = inline inputKeybinds.indexOf(_.keyCode);
+		var key:Int = inline inputKeybinds.indexOf(keyCode);
 
 		if (key == -1 || cpuControlled || !generatedMusic || holdArray[key])
 			return;
@@ -1078,7 +1046,7 @@ class Gameplay extends MusicBeatState
 		if (null != hittable)
 		{
 			inline strum.playAnim('confirm');
-			@:privateAccess hittable.onNoteHit();
+			inline events.emit(SignalEvent.NOTE_HIT, hittable);
 		}
 
 		holdArray[key] = true;
@@ -1089,9 +1057,9 @@ class Gameplay extends MusicBeatState
 		return [for (i in 0...array.length) { var a:Note = array[i]; if (f(a)) a; }];
 	}
 
-	inline override public function onKeyUp(_):Void
+	inline public function onKeyUp(keyCode:Int):Void
 	{
-		var key:Int = inline inputKeybinds.indexOf(_.keyCode);
+		var key:Int = inline inputKeybinds.indexOf(keyCode);
 
 		//trace(key); Testing...
 
@@ -1145,7 +1113,94 @@ class Gameplay extends MusicBeatState
 	override function destroy():Void
 	{
 		stopRender();
+
+		events.off(SignalEvent.NOTE_FOLLOW, __note);
+		events.off(SignalEvent.NOTE_HIT, onNoteHit);
+		events.off(SignalEvent.NOTE_MISS, onNoteMiss);
+
+		keyEmitter.off(SignalEvent.KEY_DOWN, onKeyDown);
+		keyEmitter.off(SignalEvent.KEY_UP, onKeyUp);
+
 		super.destroy();
+	}
+
+	function onNoteHit(note:Note):Void
+	{
+		if (!note.mustPress || note.isSustainNote || cpuControlled)
+			inline strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
+
+		note.wasHit = true;
+		note.exists = false;
+
+		health += (0.045 * (note.isSustainNote ? 0.5 : 1)) * (note.mustPress ? 1 : -1);
+
+		if (note.mustPress && !note.isSustainNote)
+			score += 350 * noteMult;
+
+		if (noCharacters)
+			return;
+
+		var char = (note.mustPress ? instance.bf : (note.gfNote ? gf : dad));
+
+		if (null != char)
+		{
+			inline char.playAnim(@:privateAccess singAnimations[note.noteData], true);
+			char.holdTimer = 0;
+		}
+	}
+
+	function onNoteMiss(note:Note):Void
+	{
+		note.tooLate = true;
+
+		health -= 0.045 * (note.isSustainNote ? 0.5 : 1);
+		score -= 100 * noteMult;
+		misses++;
+
+		if (noCharacters)
+			return;
+
+		inline bf.playAnim(@:privateAccess singAnimations[note.noteData] + 'miss', true);
+		bf.holdTimer = 0;
+	}
+
+	function __note(note:Note, strum:StrumNote):Void
+	{
+		if (!note.exists)
+			return;
+
+		note.flipX = note.flipY = strum.scrollMult <= 0 && note.isSustainNote;
+
+		// Sustain scaling for song speed (even if it's changed)
+		// Psych engine sustain note calculation moment
+		note.scale.set(0.7, note.isSustainNote ? (note.animation.curAnim.name.endsWith('end') ? 1 : (153.75 / SONG.bpm) * (songSpeed * note.multSpeed) * Math.abs(strum.scrollMult)) : 0.7);
+		note.updateHitbox();
+
+		note.distance = 0.45 * (Conductor.songPosition - note.strumTime) * (songSpeed * note.multSpeed);
+		note.x = strum.x + note.offsetX;
+		note.y = (strum.y + note.offsetY) + (-strum.scrollMult * note.distance) - (note.flipY ? (note.frameHeight * note.scale.y) - strum.height : 0);
+
+		if (Conductor.songPosition >= note.strumTime + (750 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
+			note.exists = false;
+
+		// For note hits and input
+
+		if (note.mustPress)
+		{
+			if (cpuControlled)
+				if (Conductor.songPosition >= note.strumTime)
+					inline events.emit(SignalEvent.NOTE_HIT, note);
+
+			if (Conductor.songPosition >= note.strumTime + (Conductor.stepCrochet * 2) && (!note.wasHit && !note.tooLate))
+				inline events.emit(SignalEvent.NOTE_MISS, note);
+
+			if (note.isSustainNote)
+				if (Conductor.songPosition >= note.strumTime && holdArray[note.noteData])
+					inline events.emit(SignalEvent.NOTE_HIT, note);
+		}
+		else
+			if (Conductor.songPosition >= note.strumTime)
+				inline events.emit(SignalEvent.NOTE_HIT, note);
 	}
 
 	// Render mode shit
@@ -1168,8 +1223,8 @@ class Gameplay extends MusicBeatState
 
 	private function pipeFrame():Void
 	{
-		var img = lime.app.Application.current.window.readPixels(new lime.math.Rectangle(FlxG.scaleMode.offset.x, FlxG.scaleMode.offset.y, FlxG.scaleMode.gameSize.x, FlxG.scaleMode.gameSize.y));
-		var bytes = img.getPixels(new lime.math.Rectangle(0, 0, img.width, img.height));
+		var img:lime.graphics.Image = lime.app.Application.current.window.readPixels(new lime.math.Rectangle(FlxG.scaleMode.offset.x, FlxG.scaleMode.offset.y, FlxG.scaleMode.gameSize.x, FlxG.scaleMode.gameSize.y));
+		var bytes:haxe.io.Bytes = img.getPixels(new lime.math.Rectangle(0, 0, img.width, img.height));
 		process.stdin.writeBytes(bytes, 0, bytes.length);
 	}
 

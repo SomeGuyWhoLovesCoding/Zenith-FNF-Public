@@ -45,7 +45,7 @@ class CameraFrontEnd
 	 * Allows you to possibly slightly optimize the rendering process IF
 	 * you are not doing any pre-processing in your game state's draw() call.
 	 */
-	public var useBufferLocking:Bool = true;
+	public var useBufferLocking:Bool = false;
 
 	/**
 	 * Internal helper variable for clearing the cameras each frame.
@@ -97,12 +97,8 @@ class CameraFrontEnd
 		}
 
 		if (FlxG.renderTile)
-		{
 			for (i in 0...list.length)
-			{
 				list[i].ID = i;
-			}
-		}
 
 		if (Destroy)
 			Camera.destroy();
@@ -163,13 +159,9 @@ class CameraFrontEnd
 	 * @param	OnComplete	A function you want to run when the flash finishes.
 	 * @param	Force		Force the effect to reset.
 	 */
-	public function flash(Color:FlxColor = FlxColor.WHITE, Duration:Float = 1, ?OnComplete:Void->Void, Force:Bool = false):Void
-	{
-		for (camera in list)
-		{
-			camera.flash(Color, Duration, OnComplete, Force);
-		}
-	}
+	public inline function flash(Color:FlxColor = FlxColor.WHITE, Duration:Float = 1, ?OnComplete:Void->Void, Force:Bool = false):Void
+		for (i in 0...list.length)
+			list[i].flash(Color, Duration, OnComplete, Force);
 
 	/**
 	 * The screen is gradually filled with this color.
@@ -180,13 +172,9 @@ class CameraFrontEnd
 	 * @param	OnComplete	A function you want to run when the fade finishes.
 	 * @param	Force		Force the effect to reset.
 	 */
-	public function fade(Color:FlxColor = FlxColor.BLACK, Duration:Float = 1, FadeIn:Bool = false, ?OnComplete:Void->Void, Force:Bool = false):Void
-	{
-		for (camera in list)
-		{
-			camera.fade(Color, Duration, FadeIn, OnComplete, Force);
-		}
-	}
+	public inline function fade(Color:FlxColor = FlxColor.BLACK, Duration:Float = 1, FadeIn:Bool = false, ?OnComplete:Void->Void, Force:Bool = false):Void
+		for (i in 0...list.length)
+			list[i].fade(Color, Duration, FadeIn, OnComplete, Force);
 
 	/**
 	 * A simple screen-shake effect.
@@ -197,13 +185,9 @@ class CameraFrontEnd
 	 * @param	Force		Force the effect to reset (default = true, unlike flash() and fade()!).
 	 * @param	Axes		On what axes to shake. Default value is XY / both.
 	 */
-	public function shake(Intensity:Float = 0.05, Duration:Float = 0.5, ?OnComplete:Void->Void, Force:Bool = true, ?Axes:FlxAxes):Void
-	{
+	public inline function shake(Intensity:Float = 0.05, Duration:Float = 0.5, ?OnComplete:Void->Void, Force:Bool = true, ?Axes:FlxAxes):Void
 		for (camera in list)
-		{
 			camera.shake(Intensity, Duration, OnComplete, Force, Axes);
-		}
-	}
 
 	@:allow(flixel.FlxG)
 	function new()
@@ -217,8 +201,9 @@ class CameraFrontEnd
 	@:allow(flixel.FlxGame)
 	inline function lock():Void
 	{
-		for (camera in list)
+		for (i in 0...list.length)
 		{
+			var camera:FlxCamera = list[i];
 			if (camera == null || !camera.exists || !camera.visible)
 			{
 				continue;
@@ -248,11 +233,8 @@ class CameraFrontEnd
 				camera.screen.dirty = true;
 			}
 			else
-			{
-				if(camera.bgColor.alpha != 0) { // why do we fill 0 alpha!?
+				if(camera.bgColor.alpha > 0) // why do we fill 0 alpha!?
 					camera.fill(camera.bgColor.to24Bit(), camera.useBgAlphaBlending, camera.bgColor.alphaFloat);
-				}
-			}
 		}
 	}
 
@@ -261,12 +243,11 @@ class CameraFrontEnd
 	{
 		if (FlxG.renderTile)
 		{
-			for (camera in list)
+			for (i in 0...list.length)
 			{
+				var camera:FlxCamera = list[i];
 				if ((camera != null) && camera.exists && camera.visible)
-				{
 					camera.render();
-				}
 			}
 		}
 	}
@@ -277,8 +258,9 @@ class CameraFrontEnd
 	@:allow(flixel.FlxGame)
 	inline function unlock():Void
 	{
-		for (camera in list)
+		for (i in 0...list.length)
 		{
+			var camera:FlxCamera = list[i];
 			if (camera == null || !camera.exists || !camera.visible)
 			{
 				continue;
@@ -289,9 +271,7 @@ class CameraFrontEnd
 			if (FlxG.renderBlit)
 			{
 				if (useBufferLocking)
-				{
 					camera.buffer.unlock();
-				}
 
 				camera.screen.dirty = true;
 			}
@@ -304,12 +284,11 @@ class CameraFrontEnd
 	@:allow(flixel.FlxGame)
 	inline function update(elapsed:Float):Void
 	{
-		for (camera in list)
+		for (i in 0...list.length)
 		{
+			var camera:FlxCamera = list[i];
 			if (camera != null && camera.exists && camera.active)
-			{
 				camera.update(elapsed);
-			}
 		}
 	}
 
@@ -317,25 +296,17 @@ class CameraFrontEnd
 	 * Resizes and moves cameras when the game resizes (onResize signal).
 	 */
 	@:allow(flixel.FlxGame)
-	function resize():Void
-	{
+	inline function resize():Void
 		for (camera in list)
-		{
 			camera.onResize();
-		}
-	}
 
-	function get_bgColor():FlxColor
-	{
+	inline function get_bgColor():FlxColor
 		return (FlxG.camera == null ? FlxColor.BLACK : FlxG.camera.bgColor);
-	}
 
 	function set_bgColor(Color:FlxColor):FlxColor
 	{
 		for (camera in list)
-		{
 			camera.bgColor = Color;
-		}
 
 		return Color;
 	}

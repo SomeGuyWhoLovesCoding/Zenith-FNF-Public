@@ -10,6 +10,7 @@ class WelcomeState extends MusicBeatState
 		super.create();
 
 		FlxG.sound.playMusic(Paths.music('breakfast'), 0.15);
+		Game.musicDeltaTarget = FlxG.sound.music;
 
 		var bkdr:FlxBackdrop = new FlxBackdrop(Paths.image('other/welcome-grid'));
 		bkdr.velocity.set(-20, -20);

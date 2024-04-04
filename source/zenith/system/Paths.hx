@@ -17,7 +17,7 @@ class Paths
 	private static var noteFrames:FlxFramesCollection; // Don't reuse the same note spritesheet data, leave it there
 	private static var noteAnimation:FlxAnimationController;
 
-	public static var GPUCaching(default, null):Bool = true;
+	public static var GPUCaching(default, null):Bool = false;
 
 	//public static var soundChannel:SoundChannel;
 

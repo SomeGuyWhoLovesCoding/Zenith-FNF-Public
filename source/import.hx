@@ -14,4 +14,11 @@ import zenith.system.*;
 import flixel.*;
 import flixel.sound.FlxSound;
 
+// Signals
+import emitter.signals.*;
+
+#if !debug
+@:noDebug
+#end
+
 using GlobalShit;
