@@ -26,7 +26,7 @@ class Game extends FlxGame
 	override public function updateElapsed():Void
 	{
 		if (musicDeltaTarget != null)
-			FlxG.elapsed = (musicDeltaTarget.time - (prevTime = musicDeltaTarget.time)) * (FlxG.timeScale * 0.001);\
+			FlxG.elapsed = (musicDeltaTarget.time - (prevTime = musicDeltaTarget.time)) * (FlxG.timeScale * 0.001);
 		else
 			super.updateElapsed();
 	}
