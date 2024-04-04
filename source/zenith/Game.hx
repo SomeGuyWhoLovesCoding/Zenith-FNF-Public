@@ -27,7 +27,7 @@ class Game extends FlxGame
 	{
 		if (musicDeltaTarget != null)
 		{
-			FlxG.elapsed = (musicDeltaTarget.time - prevTime = musicDeltaTarget.time) * (FlxG.timeScale * 0.001);
+			FlxG.elapsed = (musicDeltaTarget.time - prevTime) * (FlxG.timeScale * 0.001);
 			prevTime = musicDeltaTarget.time;
 		}
 		else
