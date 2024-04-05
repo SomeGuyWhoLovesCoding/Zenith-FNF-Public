@@ -15,22 +15,14 @@ class Game extends FlxGame
 		SaveData.reloadSave();
 
 		super(0, 0, initState, Std.int(Application.current.window.frameRate), Std.int(Application.current.window.frameRate), true);
-		FlxG.fixedTimestep = FlxG.mouse.visible = false; // Get rid of flixel's mouse as the transition goes over it
+		FlxG.mouse.visible = false; // Get rid of flixel's mouse as the transition goes over it
 
 		trace('Game initialized.');
 	}
 
-	private var prevTime:Float = 0;
-	public static var musicDeltaTarget:FlxSound;
-
-	override public function updateElapsed():Void
+	override public function onEnterFrame(_:openfl.events.Event):Void
 	{
-		if (musicDeltaTarget != null)
-		{
-			FlxG.elapsed = (musicDeltaTarget.time - prevTime) * (FlxG.timeScale * 0.001);
-			prevTime = musicDeltaTarget.time;
-		}
-		else
-			super.updateElapsed();
+		Main.updateMain(FlxG.elapsed);
+		super.onEnterFrame(_);
 	}
 }

@@ -137,10 +137,10 @@ class Gameplay extends MusicBeatState
 		noCharacters = SaveData.preferences.get("NoCharacters");*/
 
 		// Reset gameplay stuff
-		FlxG.fixedTimestep = startedCountdown = songEnded = false;
+		startedCountdown = songEnded = false;
 		songSpeed = noteMult = 1;
 
-		persistentUpdate = persistentDraw = true;
+		FlxG.fixedTimestep = persistentUpdate = persistentDraw = true;
 
 		gameCamera = new FlxCamera();
 		hudCameraBelow = new FlxCamera();
@@ -263,7 +263,7 @@ class Gameplay extends MusicBeatState
 			inline notes.recycle(Note).setupNoteData(unspawnNotes.pop());
 
 		// This used to be a function
-		while(eventNotes[eventNotes.length-1] != null && Conductor.songPosition > eventNotes[eventNotes.length-1].strumTime)
+		while(null != eventNotes[eventNotes.length-1] && Conductor.songPosition > eventNotes[eventNotes.length-1].strumTime)
 		{
 			var value1:String = '';
 			if(null != eventNotes[eventNotes.length-1].value1)
@@ -628,7 +628,7 @@ class Gameplay extends MusicBeatState
 						value2: event[1][i][2]
 					};
 					inline eventNotes.push(subEvent);
-					eventPushed(subEvent);
+					inline eventPushed(subEvent);
 				}
 			}
 		}
@@ -695,7 +695,7 @@ class Gameplay extends MusicBeatState
 					value2: event[1][i][2]
 				};
 				inline eventNotes.push(subEvent);
-				eventPushed(subEvent);
+				inline eventPushed(subEvent);
 			}
 		}
 
@@ -905,8 +905,6 @@ class Gameplay extends MusicBeatState
 		inst.play();
 		voices.play();
 
-		Game.musicDeltaTarget = inst;
-
 		songLength = inst.length;
 		startedCountdown = true;
 	}
@@ -1022,51 +1020,47 @@ class Gameplay extends MusicBeatState
 	private var holdArray(default, null):Array<Bool> = [false, false, false, false];
 	inline public function onKeyDown(keyCode:Int):Void
 	{
-		var key:Int = inline inputKeybinds.indexOf(keyCode);
+		final key:Int = inline inputKeybinds.indexOf(keyCode);
 
-		if (key == -1 || cpuControlled || !generatedMusic || holdArray[key])
-			return;
-
-		//trace(key); Testing...
-
-		var strum:StrumNote = strums.members[key + 4];
-
-		// For some reason the strum note still plays the press animation even when a note is hit sometimes, so here's a solution to it.
-		if (strum.animation.curAnim.name != 'confirm')
-			inline strum.playAnim('pressed');
-
-		var hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && !n.wasHit && !n.tooLate && n.noteData == key))[0];
-
-		if (null != hittable)
+		if (key != -1 && !cpuControlled && generatedMusic && !holdArray[key])
 		{
-			inline strum.playAnim('confirm');
-			inline events.emit(SignalEvent.NOTE_HIT, hittable);
+			final strum:StrumNote = strums.members[key + 4];
+	
+			// For some reason the strum note still plays the press animation even when a note is hit sometimes, so here's a solution to it.
+			if (strum.animation.curAnim.name != 'confirm')
+				inline strum.playAnim('pressed');
+	
+			final hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && !n.wasHit && !n.tooLate && n.noteData == key))[0];
+	
+			if (null != hittable)
+			{
+				inline strum.playAnim('confirm');
+				inline events.emit(SignalEvent.NOTE_HIT, hittable);
+			}
+	
+			holdArray[key] = true;
 		}
-
-		holdArray[key] = true;
 	}
 
-	inline function fastNoteFilter(array:Array<Note>, f:Note->Bool):Array<Note>
-	{
-		return [for (i in 0...array.length) { var a:Note = array[i]; if (f(a)) a; }];
-	}
+	inline function fastNoteFilter(array:Array<Note>, f:(Note)->Bool):Array<Note>
+		return [for (i in 0...array.length) { final a:Note = array[i]; if (f(a)) a; }];
 
 	inline public function onKeyUp(keyCode:Int):Void
 	{
-		var key:Int = inline inputKeybinds.indexOf(keyCode);
+		final key:Int = inline inputKeybinds.indexOf(keyCode);
 
 		//trace(key); Testing...
 
-		if (key == -1 || cpuControlled || !generatedMusic || !holdArray[key])
-			return;
+		if (key != -1 && !cpuControlled && generatedMusic && holdArray[key])
+		{
+			holdArray[key] = false;
 
-		holdArray[key] = false;
+			final strum:StrumNote = strums.members[key + 4];
 
-		var strum:StrumNote = strums.members[key + 4];
-
-		if (strum.animation.curAnim.name == 'confirm' ||
-			strum.animation.curAnim.name == 'pressed')
-			inline strum.playAnim('static');
+			if (strum.animation.curAnim.name == 'confirm' ||
+				strum.animation.curAnim.name == 'pressed')
+				inline strum.playAnim('static');
+		}
 	}
 
 	// Preferences stuff (Also for lua)
@@ -1133,7 +1127,7 @@ class Gameplay extends MusicBeatState
 
 		if (!noCharacters)
 		{
-			var char = (note.mustPress ? instance.bf : (note.gfNote ? gf : dad));
+			final char:Character = (note.mustPress ? bf : (note.gfNote ? gf : dad));
 	
 			if (null != char)
 			{

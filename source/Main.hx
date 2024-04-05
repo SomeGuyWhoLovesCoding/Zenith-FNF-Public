@@ -60,9 +60,6 @@ class Main extends Sprite
 		memTxt.selectable = false;
 		memTxt.width = FlxG.width;
 		addChild(memTxt);
-
-		var evt:Sprite = new Sprite();
-		evt.addEventListener("enterFrame", onTransitionUpdate);
 	}
 
 	public static function startTransition(_transIn:Bool = false, _callback:Void->Void = null):Void
@@ -101,17 +98,18 @@ class Main extends Sprite
 	}
 
 	private static var transitionY:Float = 0;
-	function onTransitionUpdate(_):Void
+	public static function updateMain(elapsed:Float):Void
 	{
 		if (@:privateAccess FlxG.game._lostFocus && FlxG.autoPause)
 			return;
 
-		memTxt.text = flixel.util.FlxStringUtil.formatBytes(openfl.system.System.totalMemory);
+		if (null != memTxt)
+			memTxt.text = flixel.util.FlxStringUtil.formatBytes(openfl.system.System.totalMemory);
 
 		transition.y = transitionY;
 
 		if (transitionY < 720 * transition.scaleY)
-			transitionY += 45 * transition.scaleY;
+			transitionY += (1585 * transition.scaleY) * elapsed;
 
 		if (null != transitioning._in)
 		{
@@ -124,10 +122,8 @@ class Main extends Sprite
 		}
 
 		if (null != transitioning._out)
-		{
 			if (transitionY > 720 * transition.scaleY)
 				transitioning._out = null;
-		}
 
 		transition.scaleX = FlxG.scaleMode.scale.x;
 		transition.scaleY = FlxG.scaleMode.scale.y;
