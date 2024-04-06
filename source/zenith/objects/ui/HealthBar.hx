@@ -24,7 +24,6 @@ class HealthBar extends FlxSpriteGroup
 
 		reloadBar(left, right);
 
-		antialiasing = true;
 		moves = false;
 	}
 
@@ -38,9 +37,6 @@ class HealthBar extends FlxSpriteGroup
 		else
 			add(__left = new FlxSprite().makeGraphic(__width, __height, left[0]));
 
-		__left.antialiasing = true;
-		__left.pixelPerfectPosition = false;
-
 		if (null != __right)
 			remove(__right);
 
@@ -49,15 +45,14 @@ class HealthBar extends FlxSpriteGroup
 		else
 			add(__right = new FlxSprite().makeGraphic(__width, __height, right[0]));
 
-		__right.antialiasing = true;
-		__right.pixelPerfectPosition = false;
+		__left.pixelPerfectPosition = __right.pixelPerfectPosition = false;
 	}
 
 	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
-		var v = FlxMath.bound(value / maxValue, 0, 1);
+		final v:Float = inline FlxMath.bound(value / maxValue, 0, 1);
 
 		__left.scale.x = 1 - v;
 		__left.updateHitbox();

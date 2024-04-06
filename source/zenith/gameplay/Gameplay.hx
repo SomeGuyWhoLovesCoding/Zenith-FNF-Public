@@ -970,7 +970,7 @@ class Gameplay extends MusicBeatState
 					final newBoyfriend:Character = new Character(0, 0, newCharacter, true);
 					bfMap.set(newCharacter, newBoyfriend);
 					inline bfGroup.add(newBoyfriend);
-					startCharacterPos(newBoyfriend);
+					inline startCharacterPos(newBoyfriend);
 					newBoyfriend.alpha = 0.001;
 				}
 
@@ -979,7 +979,7 @@ class Gameplay extends MusicBeatState
 					final newDad:Character = new Character(0, 0, newCharacter);
 					dadMap.set(newCharacter, newDad);
 					inline dadGroup.add(newDad);
-					startCharacterPos(newDad, true);
+					inline startCharacterPos(newDad, true);
 					newDad.alpha = 0.001;
 				}
 
@@ -988,7 +988,7 @@ class Gameplay extends MusicBeatState
 					final newGf:Character = new Character(0, 0, newCharacter);
 					gfMap.set(newCharacter, newGf);
 					inline gfGroup.add(newGf);
-					startCharacterPos(newGf);
+					inline startCharacterPos(newGf);
 					newGf.alpha = 0.001;
 				}
 		}
@@ -999,9 +999,9 @@ class Gameplay extends MusicBeatState
 	public var inputKeybinds:Array<KeyCode> = [];
 
 	private var holdArray(default, null):Array<Bool> = [false, false, false, false];
-	public function onKeyDown(keyCode:KeyCode):Void
+	inline public function onKeyDown(keyCode:KeyCode):Void
 	{
-		final key:Int = inputKeybinds.indexOf(keyCode);
+		final key:Int = inline inputKeybinds.indexOf(keyCode);
 
 		if (key != -1 && !cpuControlled && generatedMusic && !holdArray[key])
 		{
@@ -1009,13 +1009,13 @@ class Gameplay extends MusicBeatState
 
 			// For some reason the strum note still plays the press animation even when a note is hit sometimes, so here's a solution to it.
 			if (strum.animation.curAnim.name != 'confirm')
-				strum.playAnim('pressed');
+				inline strum.playAnim('pressed');
 
 			final hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && (inline Math.abs(Conductor.songPosition - n.strumTime)) < 166.7 && !n.wasHit && !n.tooLate && n.noteData == key))[0];
 
 			if (null != hittable)
 			{
-				strum.playAnim('confirm');
+				inline strum.playAnim('confirm');
 				events.emit(SignalEvent.NOTE_HIT, hittable);
 			}
 
@@ -1026,9 +1026,9 @@ class Gameplay extends MusicBeatState
 	inline private function fastNoteFilter(array:Array<Note>, f:(Note)->Bool):Array<Note>
 		return [for (i in 0...array.length) { final a:Note = array[i]; if (f(a)) a; }];
 
-	public function onKeyUp(keyCode:KeyCode):Void
+	inline public function onKeyUp(keyCode:KeyCode):Void
 	{
-		final key:Int = inputKeybinds.indexOf(keyCode);
+		final key:Int = inline inputKeybinds.indexOf(keyCode);
 
 		//trace(key); Testing...
 
@@ -1040,7 +1040,7 @@ class Gameplay extends MusicBeatState
 
 			if (strum.animation.curAnim.name == 'confirm' ||
 				strum.animation.curAnim.name == 'pressed')
-				trum.playAnim('static');
+				inline strum.playAnim('static');
 		}
 	}
 
@@ -1051,8 +1051,10 @@ class Gameplay extends MusicBeatState
 	public function changeDownScroll(whichStrum:Int = -1, tween:Bool = false, tweenLength:Float = 1):Void
 	{
 		// Strumline
-		for (strum in strums.members)
+		for (i in 0...strums.members.length)
 		{
+			final strum:StrumNote = strums.members[i];
+
 			if (strum.player == whichStrum || whichStrum == -1)
 			{
 				if (tween && tweenLength != 0)
@@ -1063,12 +1065,12 @@ class Gameplay extends MusicBeatState
 					if (null != strumScrollMultTweens[strums.members.indexOf(strum)])
 						strumScrollMultTweens[strums.members.indexOf(strum)].cancel();
 
-					strumScrollMultTweens[strums.members.indexOf(strum)] = FlxTween.tween(strum, {scrollMult: strum.scrollMult > 0 ? -1 : 1}, Math.abs(tweenLength), {ease: FlxEase.quintOut});
+					strumScrollMultTweens[strums.members.indexOf(strum)] = FlxTween.tween(strum, {scrollMult: strum.scrollMult > 0 ? -1 : 1}, inline Math.abs(tweenLength), {ease: FlxEase.quintOut});
 
 					if (null != strumYTweens[strums.members.indexOf(strum)])
 						strumYTweens[strums.members.indexOf(strum)].cancel();
 
-					strumYTweens[strums.members.indexOf(strum)] = FlxTween.tween(strum, {y: actualScrollMult < 0 ? FlxG.height - 160 : 60}, Math.abs(tweenLength), {ease: FlxEase.quintOut});
+					strumYTweens[strums.members.indexOf(strum)] = FlxTween.tween(strum, {y: actualScrollMult < 0 ? FlxG.height - 160 : 60}, inline Math.abs(tweenLength), {ease: FlxEase.quintOut});
 				}
 				else
 				{
@@ -1097,7 +1099,7 @@ class Gameplay extends MusicBeatState
 	public function onNoteHit(note:Note):Void
 	{
 		if (!note.mustPress || note.isSustainNote || cpuControlled)
-			strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
+			inline strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
 
 		note.wasHit = true;
 		note.exists = false;
@@ -1113,7 +1115,7 @@ class Gameplay extends MusicBeatState
 
 			if (null != char)
 			{
-				char.playAnim(@:privateAccess singAnimations[note.noteData], true);
+				inline char.playAnim(@:privateAccess singAnimations[note.noteData], true);
 				char.holdTimer = 0;
 			}
 		}
@@ -1129,7 +1131,7 @@ class Gameplay extends MusicBeatState
 
 		if (!noCharacters)
 		{
-			bf.playAnim(@:privateAccess singAnimations[note.noteData] + 'miss', true);
+			inline bf.playAnim(@:privateAccess singAnimations[note.noteData] + 'miss', true);
 			bf.holdTimer = 0;
 		}
 	}

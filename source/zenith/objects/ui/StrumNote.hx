@@ -30,10 +30,10 @@ class StrumNote extends FlxSprite
 
 		pixelPerfectPosition = false;
 
-		inline playAnim('static'); // Wow, am I really a dumbass?
+		playAnim('static'); // Wow, am I really a dumbass?
 	}
 
-	public function playAnim(anim:String):Void
+	inline public function playAnim(anim:String):Void
 	{
 		animation.play(anim, true);
 		centerOffsets();

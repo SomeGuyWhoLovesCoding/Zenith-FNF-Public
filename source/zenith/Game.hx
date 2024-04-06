@@ -24,7 +24,7 @@ class Game extends FlxGame
 	override public function onEnterFrame(_:openfl.events.Event):Void
 	{
 		super.onEnterFrame((_ : openfl.events.Event));
-		FlxG.drawFramerate = FlxG.updateFramerate = inline Std.int(inline Math.min(SaveData.contents.preferences.fps, 1000.0));
+		FlxG.updateFramerate = FlxG.drawFramerate = inline Std.int(inline Math.min(SaveData.contents.preferences.fps, 480.0));
 		Main.updateMain(FlxG.elapsed);
 	}
 }
