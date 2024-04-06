@@ -23,7 +23,7 @@ class Main extends Sprite
 	public static var game:Game;
 	public static var transition:Sprite;
 
-	public static var memTxt:TextField;
+	public static var fpsTxt:TextField;
 
 	public static var skipTransIn:Bool = false;
 	public static var skipTransOut:Bool = false;
@@ -55,11 +55,11 @@ class Main extends Sprite
 		addChild(game = new Game());
 		addChild(transition);
 
-		memTxt = new TextField();
-		memTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFFFFFF, true);
-		memTxt.selectable = false;
-		memTxt.width = FlxG.width;
-		addChild(memTxt);
+		fpsTxt = new TextField();
+		fpsTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFFFFFF, true);
+		fpsTxt.selectable = false;
+		fpsTxt.width = FlxG.width;
+		addChild(fpsTxt);
 	}
 
 	public static function startTransition(_transIn:Bool = false, _callback:Void->Void = null):Void
@@ -98,13 +98,18 @@ class Main extends Sprite
 	}
 
 	private static var transitionY:Float = 0;
+	private static var fps:Float = 60;
 	public static function updateMain(elapsed:Float):Void
 	{
 		if (@:privateAccess FlxG.game._lostFocus && FlxG.autoPause)
 			return;
 
-		if (null != memTxt)
-			memTxt.text = flixel.util.FlxStringUtil.formatBytes(openfl.system.System.totalMemory);
+
+		if (null != fpsTxt)
+		{
+			fps = inline flixel.math.FlxMath.lerp(fps, 1 / FlxG.elapsed, 0.08);
+			fpsTxt.text = 'FPS: ' + inline Std.int(inline Math.min(fps, 1000.0)) + '\nMEM: ' + inline flixel.util.FlxStringUtil.formatBytes(openfl.system.System.totalMemory);
+		}
 
 		transition.y = transitionY;
 
