@@ -15,6 +15,7 @@ class Game extends FlxGame
 
 		super(0, 0, initState, inline Std.int(Application.current.window.frameRate), inline Std.int(Application.current.window.frameRate), true);
 		FlxG.fixedTimestep = FlxG.mouse.visible = false; // Get rid of flixel's mouse as the transition goes over it
+		FlxSprite.defaultAntialiasing = SaveData.contents.preferences.antialiasing;
 
 		trace('Game initialized.');
 	}

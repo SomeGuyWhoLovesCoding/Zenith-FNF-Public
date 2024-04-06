@@ -26,11 +26,11 @@ class Gameplay extends MusicBeatState
 
 	// Health stuff
 	private var hudGroup(default, null):HUDGroup;
-	public var health:Float = 1;
+	public var health:Float = 1.0;
 
 	// Score text stuff
-	public var score:Float = 0;
-	public var misses:Float = 0;
+	public var score:Float = 0.0;
+	public var misses:Float = 0.0;
 
 	// Preference stuff
 	public static var cpuControlled:Bool = false;
@@ -65,17 +65,17 @@ class Gameplay extends MusicBeatState
 	public var dadMap:Map<String, Character> = new Map<String, Character>();
 	public var gfMap:Map<String, Character> = new Map<String, Character>();
 
-	public var boyfriendCameraOffset:Array<Float> = [0, 0];
-	public var opponentCameraOffset:Array<Float> = [0, 0];
-	public var girlfriendCameraOffset:Array<Float> = [0, 0];
+	public var boyfriendCameraOffset:Array<Float> = [0.0, 0.0];
+	public var opponentCameraOffset:Array<Float> = [0.0, 0.0];
+	public var girlfriendCameraOffset:Array<Float> = [0.0, 0.0];
 
 	public var songSpeedTween(default, null):FlxTween;
 	public var songLengthTween(default, null):FlxTween;
 
-	public var songSpeed:Float = 1;
-	public var songLength:Float = 0;
-	public var noteMult:Float = 1;
-	public var cameraSpeed:Float = 1;
+	public var songSpeed:Float = 1.0;
+	public var songLength:Float = 0.0;
+	public var noteMult:Float = 1.0;
+	public var cameraSpeed:Float = 1.0;
 
 	public var generatedMusic:Bool = false;
 	public var startedCountdown:Bool = false;
@@ -115,12 +115,7 @@ class Gameplay extends MusicBeatState
 	{
 		events = new Emitter();
 
-		if (renderMode)
-		{
-			inline cpp.vm.Gc.enable(true);
-			cpuControlled = true;
-			inline initRender();
-		}
+		inline initRender();
 
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
 
@@ -134,7 +129,7 @@ class Gameplay extends MusicBeatState
 
 		// Reset gameplay stuff
 		FlxG.fixedTimestep = startedCountdown = songEnded = false;
-		songSpeed = noteMult = 1;
+		songSpeed = noteMult = 1.0;
 
 		persistentUpdate = persistentDraw = true;
 
@@ -195,7 +190,7 @@ class Gameplay extends MusicBeatState
 
 			strums.cameras = notes.cameras = [hudCamera];
 
-			trace('Loading finished! Took ${inline flixel.util.FlxStringUtil.formatTime((inline haxe.Timer.stamp() - timeStamp) * 1000, true, true)} to load.');
+			trace('Loading finished! Took ${inline flixel.util.FlxStringUtil.formatTime((inline haxe.Timer.stamp() - timeStamp) * 1000.0, true, true)} to load.');
 
 			if (!noCharacters)
 			{
@@ -235,7 +230,7 @@ class Gameplay extends MusicBeatState
 			return;
 
 		if (renderMode)
-			elapsed = 1 / videoFramerate;
+			elapsed = 1.0 / videoFramerate;
 
 		events.emit(SignalEvent.GAMEPLAY_UPDATE, elapsed);
 		super.update(elapsed);
@@ -1192,6 +1187,8 @@ class Gameplay extends MusicBeatState
 	{
 		if (renderMode)
 		{
+			inline cpp.vm.Gc.enable(true);
+			cpuControlled = true;
 			process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '$videoFramerate', '-i', '-', '-c:v', videoEncoder, (inline (inline Sys.getCwd()).replace('\\', '/')) + outputPath]);
 			FlxG.autoPause = false;
 		}
@@ -1206,15 +1203,15 @@ class Gameplay extends MusicBeatState
 
 	inline private function stopRender():Void
 	{
-		if (!renderMode)
-			return;
-
-		inline cpp.vm.Gc.enable(false);
-
-		process.stdin.close();
-		process.close();
-		process.kill();
-
-		FlxG.autoPause = true;
+		if (renderMode)
+		{
+			inline cpp.vm.Gc.enable(false);
+	
+			process.stdin.close();
+			process.close();
+			process.kill();
+	
+			FlxG.autoPause = true;
+		}
 	}
 }

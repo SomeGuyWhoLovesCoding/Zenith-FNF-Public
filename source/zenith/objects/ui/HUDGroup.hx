@@ -48,7 +48,6 @@ class HUDGroup extends FlxSpriteGroup
 		scoreTxt.active = timeTxt.active = false;
 
 		oppIcon.pixelPerfectPosition = plrIcon.pixelPerfectPosition = healthBar.pixelPerfectPosition = scoreTxt.pixelPerfectPosition = timeTxt.pixelPerfectPosition = false;
-		healthBar.antialiasing = scoreTxt.antialiasing = timeTxt.antialiasing = SaveData.contents.preferences.antialiasing;
 	}
 
 	private function reloadHealthBar():Void

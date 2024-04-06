@@ -9,9 +9,7 @@ import flixel.util.typeLimit.OneOfTwo;
 
 using StringTools;
 
-#if flash
-import flash.geom.Matrix;
-#end
+import openfl.geom.Matrix;
 
 /**
  * A class primarily containing functions related
@@ -696,7 +694,7 @@ class FlxStringUtil
 
 class LabelValuePair implements IFlxDestroyable
 {
-	static var _pool = new FlxPool(LabelValuePair.new);
+	static var _pool = new FlxPool(LabelValuePair);
 
 	public static inline function weak(label:String, value:Dynamic):LabelValuePair
 	{

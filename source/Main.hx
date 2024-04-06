@@ -39,8 +39,6 @@ class Main extends Sprite
 		')
 		#end
 
-		flixel.graphics.FlxGraphic.defaultPersist = true;
-
 		// Before adding ``game``, create the transition
 
 		var transitionMatrix:Matrix = new Matrix();

@@ -11,7 +11,7 @@ class SaveData
 			ghostTapping: false,
 			hideHUD: false,
 			noCharacters: false,
-			antialiasing: true,
+			antialiasing: false,
 			fps: 480
 		},
 		controls: {
@@ -67,13 +67,13 @@ typedef PreferencesData =
 
 typedef ControlsData =
 {
-	var GAMEPLAY_BINDS:Array<Int>;
-	var LEFT:Int;
-	var DOWN:Int;
-	var UP:Int;
-	var RIGHT:Int;
-	var ACCEPT:Int;
-	var BACK:Int;
-	var RESET:Int;
-	var CONTROL:Int;
+	var GAMEPLAY_BINDS:Array<KeyCode>;
+	var LEFT:KeyCode;
+	var DOWN:KeyCode;
+	var UP:KeyCode;
+	var RIGHT:KeyCode;
+	var ACCEPT:KeyCode;
+	var BACK:KeyCode;
+	var RESET:KeyCode;
+	var CONTROL:KeyCode;
 }

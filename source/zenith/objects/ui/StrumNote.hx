@@ -28,7 +28,6 @@ class StrumNote extends FlxSprite
 		scale.set(0.7, 0.7);
 		updateHitbox();
 
-		antialiasing = SaveData.contents.preferences.antialiasing;
 		pixelPerfectPosition = false;
 
 		inline playAnim('static'); // Wow, am I really a dumbass?
