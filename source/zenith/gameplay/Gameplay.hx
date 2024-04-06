@@ -236,7 +236,7 @@ class Gameplay extends MusicBeatState
 		super.update(elapsed);
 	}
 
-	public function updateGameplay(elapsed:Float):Void
+	inline public function updateGameplay(elapsed:Float):Void
 	{
 		// Don't remove this.
 		hudCameraBelow.x = hudCamera.x;
@@ -901,6 +901,7 @@ class Gameplay extends MusicBeatState
 
 	public function endSong():Void
 	{
+		hudGroup.timeTxt.visible = false;
 		inline stopRender();
 		songEnded = true;
 		switchState(new WelcomeState());

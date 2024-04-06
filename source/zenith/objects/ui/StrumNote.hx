@@ -46,7 +46,7 @@ class StrumNote extends FlxSprite
 
 		if (animation.curAnim.name == 'confirm')
 		{
-			inline centerOrigin();
+			centerOrigin();
 			if (animation.curAnim.finished && (!playerStrum || Gameplay.cpuControlled))
 				playAnim('static');
 		}
