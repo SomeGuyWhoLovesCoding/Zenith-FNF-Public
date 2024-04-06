@@ -220,13 +220,13 @@ class Gameplay extends MusicBeatState
 
 		super.create();
 
-		inline events.on(SignalEvent.NOTE_FOLLOW, onFollowNote);
-		inline events.on(SignalEvent.NOTE_HIT, onNoteHit);
-		inline events.on(SignalEvent.NOTE_MISS, onNoteMiss);
-		inline events.on(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
+		events.on(SignalEvent.NOTE_FOLLOW, onFollowNote);
+		events.on(SignalEvent.NOTE_HIT, onNoteHit);
+		events.on(SignalEvent.NOTE_MISS, onNoteMiss);
+		events.on(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
 
-		inline keyEmitter.on(SignalEvent.KEY_DOWN, onKeyDown);
-		inline keyEmitter.on(SignalEvent.KEY_UP, onKeyUp);
+		keyEmitter.on(SignalEvent.KEY_DOWN, onKeyDown);
+		keyEmitter.on(SignalEvent.KEY_UP, onKeyUp);
 	}
 
 	override function update(elapsed:Float):Void
@@ -237,11 +237,11 @@ class Gameplay extends MusicBeatState
 		if (renderMode)
 			elapsed = 1 / videoFramerate;
 
-		inline events.emit(SignalEvent.GAMEPLAY_UPDATE, elapsed);
+		events.emit(SignalEvent.GAMEPLAY_UPDATE, elapsed);
 		super.update(elapsed);
 	}
 
-	inline public function updateGameplay(elapsed:Float):Void
+	public function updateGameplay(elapsed:Float):Void
 	{
 		// Don't remove this.
 		hudCameraBelow.x = hudCamera.x;
@@ -257,7 +257,7 @@ class Gameplay extends MusicBeatState
 		for (i in 0...notes.members.length)
 		{
 			final currentNote:Note = notes.members[i];
-			inline events.emitUntyped(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4 : 0)]);
+			events.emitUntyped(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4 : 0)]);
 		}
 
 		while (null != unspawnNotes[unspawnNotes.length-1] && Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - (1950.0 / songSpeed))
@@ -274,7 +274,7 @@ class Gameplay extends MusicBeatState
 			if(null != eventNotes[eventNotes.length-1].value2)
 				value2 = eventNotes[eventNotes.length-1].value2;
 
-			inline triggerEventNote((inline eventNotes.pop()).event, value1, value2);
+			triggerEventNote((inline eventNotes.pop()).event, value1, value2);
 		}
 
 		if (renderMode)
@@ -287,7 +287,7 @@ class Gameplay extends MusicBeatState
 		}
 	}
 
-	inline public function triggerEventNote(eventName:String, value1:String, value2:String)
+	public function triggerEventNote(eventName:String, value1:String, value2:String)
 	{
 		switch (eventName)
 		{
@@ -630,7 +630,7 @@ class Gameplay extends MusicBeatState
 						value2: event[1][i][2]
 					};
 					inline eventNotes.push(subEvent);
-					inline eventPushed(subEvent);
+					eventPushed(subEvent);
 				}
 			}
 		}
@@ -697,7 +697,7 @@ class Gameplay extends MusicBeatState
 					value2: event[1][i][2]
 				};
 				inline eventNotes.push(subEvent);
-				inline eventPushed(subEvent);
+				eventPushed(subEvent);
 			}
 		}
 
@@ -709,7 +709,7 @@ class Gameplay extends MusicBeatState
 		trace('Done! Now time to load HUD objects...');
 	}
 
-	inline public function eventPushed(event:EventNote)
+	public function eventPushed(event:EventNote)
 	{
 		switch (event.event)
 		{
@@ -968,13 +968,13 @@ class Gameplay extends MusicBeatState
 		char.y += char.positionArray[1];
 	}
 
-	inline public function addCharacterToList(newCharacter:String, type:Int) {
+	public function addCharacterToList(newCharacter:String, type:Int) {
 		switch(type) {
 			case 0:
 				if(!bfMap.exists(newCharacter)) {
 					final newBoyfriend:Character = new Character(0, 0, newCharacter, true);
 					bfMap.set(newCharacter, newBoyfriend);
-					bfGroup.add(newBoyfriend);
+					inline bfGroup.add(newBoyfriend);
 					inline startCharacterPos(newBoyfriend);
 					newBoyfriend.alpha = 0.001;
 				}
@@ -983,7 +983,7 @@ class Gameplay extends MusicBeatState
 				if(!dadMap.exists(newCharacter)) {
 					final newDad:Character = new Character(0, 0, newCharacter);
 					dadMap.set(newCharacter, newDad);
-					dadGroup.add(newDad);
+					inline dadGroup.add(newDad);
 					inline startCharacterPos(newDad, true);
 					newDad.alpha = 0.001;
 				}
@@ -992,7 +992,7 @@ class Gameplay extends MusicBeatState
 				if(null != gf && !gfMap.exists(newCharacter)) {
 					final newGf:Character = new Character(0, 0, newCharacter);
 					gfMap.set(newCharacter, newGf);
-					gfGroup.add(newGf);
+					inline gfGroup.add(newGf);
 					inline startCharacterPos(newGf);
 					newGf.alpha = 0.001;
 				}
@@ -1021,14 +1021,14 @@ class Gameplay extends MusicBeatState
 			if (null != hittable)
 			{
 				inline strum.playAnim('confirm');
-				inline events.emit(SignalEvent.NOTE_HIT, hittable);
+				events.emit(SignalEvent.NOTE_HIT, hittable);
 			}
 
 			holdArray[key] = true;
 		}
 	}
 
-	inline function fastNoteFilter(array:Array<Note>, f:(Note)->Bool):Array<Note>
+	inline private function fastNoteFilter(array:Array<Note>, f:(Note)->Bool):Array<Note>
 		return [for (i in 0...array.length) { final a:Note = array[i]; if (f(a)) a; }];
 
 	inline public function onKeyUp(keyCode:Int):Void
@@ -1088,13 +1088,13 @@ class Gameplay extends MusicBeatState
 	{
 		stopRender();
 
-		inline events.off(SignalEvent.NOTE_FOLLOW, onFollowNote);
-		inline events.off(SignalEvent.NOTE_HIT, onNoteHit);
-		inline events.off(SignalEvent.NOTE_MISS, onNoteMiss);
-		inline events.off(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
+		events.off(SignalEvent.NOTE_FOLLOW, onFollowNote);
+		events.off(SignalEvent.NOTE_HIT, onNoteHit);
+		events.off(SignalEvent.NOTE_MISS, onNoteMiss);
+		events.off(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
 
-		inline keyEmitter.off(SignalEvent.KEY_DOWN, onKeyDown);
-		inline keyEmitter.off(SignalEvent.KEY_UP, onKeyUp);
+		keyEmitter.off(SignalEvent.KEY_DOWN, onKeyDown);
+		keyEmitter.off(SignalEvent.KEY_UP, onKeyUp);
 
 		super.destroy();
 	}
@@ -1139,7 +1139,7 @@ class Gameplay extends MusicBeatState
 		}
 	}
 
-	inline private function onFollowNote(note:Note, strum:StrumNote):Void
+	private function onFollowNote(note:Note, strum:StrumNote):Void
 	{
 		if (note.exists)
 		{
@@ -1163,18 +1163,18 @@ class Gameplay extends MusicBeatState
 			{
 				if (cpuControlled)
 					if (Conductor.songPosition >= note.strumTime)
-						inline events.emit(SignalEvent.NOTE_HIT, note);
+						events.emit(SignalEvent.NOTE_HIT, note);
 
 				if (Conductor.songPosition >= note.strumTime + (Conductor.stepCrochet * 2) && (!note.wasHit && !note.tooLate))
-					inline events.emit(SignalEvent.NOTE_MISS, note);
+					events.emit(SignalEvent.NOTE_MISS, note);
 
 				if (note.isSustainNote)
 					if (Conductor.songPosition >= note.strumTime && holdArray[note.noteData])
-						inline events.emit(SignalEvent.NOTE_HIT, note);
+						events.emit(SignalEvent.NOTE_HIT, note);
 			}
 			else
 				if (Conductor.songPosition >= note.strumTime)
-					inline events.emit(SignalEvent.NOTE_HIT, note);
+					events.emit(SignalEvent.NOTE_HIT, note);
 		}
 	}
 
