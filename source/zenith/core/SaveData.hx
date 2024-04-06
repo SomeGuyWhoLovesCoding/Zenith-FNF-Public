@@ -12,13 +12,13 @@ class SaveData
 			hideHUD: false,
 			noCharacters: false,
 			antialiasing: true,
-			fps: 240
+			fps: 480
 		},
 		controls: {
 			GAMEPLAY_BINDS: [
 				KeyCode.A,
 				KeyCode.S,
-				KeyCode.DOWN,
+				KeyCode.UP,
 				KeyCode.RIGHT
 			],
 			LEFT: KeyCode.LEFT,
@@ -37,7 +37,7 @@ class SaveData
 	{
 		//contents = (sys.io.File.getContent('savedata.sav') : SaveFile);
 		if (!sys.FileSystem.exists('savedata.sav'))
-			sys.io.File.saveContent('savedata.sav', '');
+			inline sys.io.File.saveContent('savedata.sav', '');
 		// WIP
 	}
 

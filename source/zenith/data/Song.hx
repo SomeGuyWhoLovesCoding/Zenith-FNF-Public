@@ -78,7 +78,7 @@ class Song
 		this.bpm = bpm;
 	}
 
-	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
+	static public function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
 		var formattedFolder:String = inline Paths.formatToSongPath(folder);
 		var formattedSong:String = inline Paths.formatToSongPath(jsonInput);

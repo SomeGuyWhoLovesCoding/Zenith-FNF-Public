@@ -14,7 +14,7 @@ class HealthIcon extends FlxSprite
 	}
 
 	private var iconOffsets(default, null):Array<Float> = [0, 0];
-	public function changeIcon(char:String) {
+	public function changeIcon(char:String):Void {
 		// Finally revamp the icon check shit
 		var file:String = Paths.ASSET_PATH + '/images/icons/icon-' + char + '.png';
 
@@ -38,11 +38,11 @@ class HealthIcon extends FlxSprite
 			iconOffsets[0] = iconOffsets[1] = (width - 150) * 0.5;
 			updateHitbox();
 
-			animation.add(char, [0, 1], 0, false, isPlayer);
-			animation.play(char);
+			inline animation.add(char, [0, 1], 0, false, isPlayer);
+			inline animation.play(char);
 
 			this.char = char;
-			antialiasing = true;
+			antialiasing = SaveData.contents.preferences.antialiasing;
 			active = false;
 		}
 	}

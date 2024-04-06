@@ -127,11 +127,12 @@ class Gameplay extends MusicBeatState
 		inline events.on(SignalEvent.NOTE_FOLLOW, __note);
 		inline events.on(SignalEvent.NOTE_HIT, onNoteHit);
 		inline events.on(SignalEvent.NOTE_MISS, onNoteMiss);
+		inline events.on(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
 
 		instance = this;
 
 		// Preferences stuff
-		
+
 		/*downScroll = SaveData.preferences.get("DownScroll");
 		hideHUD = SaveData.preferences.get("HideHUD");
 		noCharacters = SaveData.preferences.get("NoCharacters");*/
@@ -238,6 +239,22 @@ class Gameplay extends MusicBeatState
 		if (renderMode)
 			elapsed = 1 / videoFramerate;
 
+		super.update(elapsed);
+
+		inline events.emit(SignalEvent.GAMEPLAY_UPDATE, elapsed);
+
+		if (!renderMode)
+			return;
+
+		inline notes.members.sort((b, a) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
+		pipeFrame();
+
+		if (Conductor.songPosition - (20 + SONG.offset) >= inline Std.int(songLength) && !songEnded)
+			endSong();
+	}
+
+	inline public function updateGameplay(elapsed:Float):Void
+	{
 		// Don't remove this.
 		hudCameraBelow.x = hudCamera.x;
 		hudCameraBelow.y = hudCamera.y;
@@ -245,7 +262,7 @@ class Gameplay extends MusicBeatState
 		hudCameraBelow.alpha = hudCamera.alpha;
 		hudCameraBelow.zoom = hudCamera.zoom;
 
-		health = FlxMath.bound(health, 0, (Gameplay.hideHUD || Gameplay.noCharacters) ? 2 : hudGroup.healthBar.maxValue);
+		health = inline FlxMath.bound(health, 0, (Gameplay.hideHUD || Gameplay.noCharacters) ? 2 : hudGroup.healthBar.maxValue);
 
 		Conductor.songPosition += elapsed * 1000;
 
@@ -271,17 +288,6 @@ class Gameplay extends MusicBeatState
 
 			inline triggerEventNote((inline eventNotes.pop()).event, value1, value2);
 		}
-
-		super.update(elapsed);
-
-		if (!renderMode)
-			return;
-
-		inline notes.members.sort((b, a) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
-		pipeFrame();
-
-		if (Conductor.songPosition - (20 + SONG.offset) >= inline Std.int(songLength) && !songEnded)
-			endSong();
 	}
 
 	inline public function triggerEventNote(eventName:String, value1:String, value2:String)
@@ -292,7 +298,7 @@ class Gameplay extends MusicBeatState
 				if (!noCharacters)
 				{
 					var value:Int = 2;
-					switch (value1.toLowerCase().trim())
+					switch (inline (inline value1.toLowerCase()).trim())
 					{
 						case 'bf' | 'boyfriend' | '0':
 							value = 0;
@@ -300,10 +306,10 @@ class Gameplay extends MusicBeatState
 							value = 1;
 					}
 
-					var time:Float = Std.parseFloat(value2);
-					if (Math.isNaN(time) || time <= 0)
+					var time:Float = inline Std.parseFloat(value2);
+					if (inline Math.isNaN(time) || time <= 0)
 						time = 0.6;
-	
+
 					if (value == 1)
 					{
 						if (null != gf)
@@ -360,14 +366,14 @@ class Gameplay extends MusicBeatState
 				if (!noCharacters)
 				{
 					var char:Character = dad;
-					switch (inline value2.toLowerCase().trim())
+					switch (inline (inline value2.toLowerCase()).trim())
 					{
 						case 'bf' | 'boyfriend':
 							char = bf;
 						case 'gf' | 'girlfriend':
 							char = gf;
 						default:
-							var val2:Int = Std.parseInt(value2);
+							var val2:Int = inline Std.parseInt(value2);
 							if (inline Math.isNaN(val2))
 								val2 = 0;
 
@@ -389,23 +395,25 @@ class Gameplay extends MusicBeatState
 				if (noCharacters)
 				{
 					var charType:Int = 0;
-					switch(inline value1.toLowerCase().trim()) {
+					switch (inline (inline value1.toLowerCase()).trim())
+					{
 						case 'gf' | 'girlfriend':
 							charType = 2;
 						case 'dad' | 'opponent':
 							charType = 1;
 						default:
-							charType = Std.parseInt(value1);
+							charType = inline Std.parseInt(value1);
 							if (inline Math.isNaN(charType))
 								charType = 0;
 					}
 
-					switch(charType) {
+					switch(charType)
+					{
 						case 0:
-							if(bf.curCharacter != value2) {
-								if(!bfMap.exists(value2)) {
-									addCharacterToList(value2, charType);
-								}
+							if(bf.curCharacter != value2)
+							{
+								if(!bfMap.exists(value2))
+									inline addCharacterToList(value2, charType);
 
 								var lastAlpha:Float = bf.alpha;
 								bf.alpha = 0.001;
@@ -415,22 +423,19 @@ class Gameplay extends MusicBeatState
 							}
 
 						case 1:
-							if(dad.curCharacter != value2) {
-								if(!dadMap.exists(value2)) {
-									addCharacterToList(value2, charType);
-								}
+							if(dad.curCharacter != value2)
+							{
+								if(!dadMap.exists(value2))
+									inline addCharacterToList(value2, charType);
 
 								var wasGf:Bool = dad.curCharacter.startsWith('gf');
 								var lastAlpha:Float = dad.alpha;
 								dad.alpha = 0.001;
 								dad = dadMap.get(value2);
-								if(!dad.curCharacter.startsWith('gf')) {
-									if(wasGf && null != gf) {
-										gf.visible = true;
-									}
-								} else if(null != gf) {
-									gf.visible = false;
-								}
+
+								if(null != gf)
+									gf.visible = !dad.curCharacter.startsWith('gf') && wasGf;
+
 								dad.alpha = lastAlpha;
 								hudGroup.oppIcon.changeIcon(dad.healthIcon);
 							}
@@ -441,9 +446,7 @@ class Gameplay extends MusicBeatState
 								if(gf.curCharacter != value2)
 								{
 									if(!gfMap.exists(value2))
-									{
-										addCharacterToList(value2, charType);
-									}
+										inline addCharacterToList(value2, charType);
 
 									var lastAlpha:Float = gf.alpha;
 									gf.alpha = 0.001;
@@ -621,7 +624,7 @@ class Gameplay extends MusicBeatState
 			{
 				for (i in 0...event[1].length)
 				{
-					var subEvent:EventNote = {
+					final subEvent:EventNote = {
 						strumTime: event[0],
 						event: event[1][i][0],
 						value1: event[1][i][1],
@@ -641,8 +644,8 @@ class Gameplay extends MusicBeatState
 		{
 			for (songNotes in section.sectionNotes)
 			{
-				var daStrumTime:Float = songNotes[0];
-				var daNoteData:Int = Std.int(songNotes[1] % 4);
+				final daStrumTime:Float = songNotes[0];
+				final daNoteData:Int = Std.int(songNotes[1] % 4);
 
 				var gottaHitNote:Bool = section.mustHitSection;
 				if (songNotes[1] > 3)
@@ -688,7 +691,7 @@ class Gameplay extends MusicBeatState
 		{
 			for (i in 0...event[1].length)
 			{
-				var subEvent:EventNote = {
+				final subEvent:EventNote = {
 					strumTime: event[0],
 					event: event[1][i][0],
 					value1: event[1][i][1],
@@ -704,10 +707,6 @@ class Gameplay extends MusicBeatState
 		inline unspawnNotes.sort((b, a) -> Std.int(a.strumTime - b.strumTime));
 		inline eventNotes.sort((b, a) -> Std.int(a.strumTime - b.strumTime));
 
-		// Run GC twice so it knows what it's doing
-		cpp.vm.Gc.run(false);
-		cpp.vm.Gc.run(true);
-
 		trace('Done! Now time to load HUD objects...');
 	}
 
@@ -719,18 +718,18 @@ class Gameplay extends MusicBeatState
 				if (noCharacters)
 				{
 					var charType:Int = 0;
-					switch(event.value1.toLowerCase()) {
+					switch(inline event.value1.toLowerCase())
+					{
 						case 'gf' | 'girlfriend' | '1':
 							charType = 2;
 						case 'dad' | 'opponent' | '0':
 							charType = 1;
 						default:
-							charType = Std.parseInt(event.value1);
-							if(Math.isNaN(charType)) charType = 0;
+							charType = inline Std.parseInt(event.value1);
+							if(inline Math.isNaN(charType)) charType = 0;
 					}
 
-					var newCharacter:String = event.value2;
-					addCharacterToList(newCharacter, charType);
+					inline addCharacterToList(event.value2, charType);
 				}
 		}
 	}
@@ -739,7 +738,7 @@ class Gameplay extends MusicBeatState
 	{
 		for (i in 0...4)
 		{
-			var strum = new StrumNote(i, player);
+			final strum:StrumNote = new StrumNote(i, player);
 			strum.scrollMult = downScroll ? -1 : 1;
 			strum.x = 60 + (112 * strum.noteData) + ((FlxG.width * 0.5587511111112) * strum.player);
 			strum.y = downScroll ? FlxG.height - 160 : 60;
@@ -818,7 +817,7 @@ class Gameplay extends MusicBeatState
 			return;
 
 		if (SONG.notes[curSection].changeBPM)
-			Conductor.changeBPM(SONG.notes[curSection].bpm);
+			inline Conductor.changeBPM(SONG.notes[curSection].bpm);
 
 		moveCameraSection();
 
@@ -970,11 +969,11 @@ class Gameplay extends MusicBeatState
 		char.y += char.positionArray[1];
 	}
 
-	public function addCharacterToList(newCharacter:String, type:Int) {
+	inline public function addCharacterToList(newCharacter:String, type:Int) {
 		switch(type) {
 			case 0:
 				if(!bfMap.exists(newCharacter)) {
-					var newBoyfriend:Character = new Character(0, 0, newCharacter, true);
+					final newBoyfriend:Character = new Character(0, 0, newCharacter, true);
 					bfMap.set(newCharacter, newBoyfriend);
 					bfGroup.add(newBoyfriend);
 					inline startCharacterPos(newBoyfriend);
@@ -983,7 +982,7 @@ class Gameplay extends MusicBeatState
 
 			case 1:
 				if(!dadMap.exists(newCharacter)) {
-					var newDad:Character = new Character(0, 0, newCharacter);
+					final newDad:Character = new Character(0, 0, newCharacter);
 					dadMap.set(newCharacter, newDad);
 					dadGroup.add(newDad);
 					inline startCharacterPos(newDad, true);
@@ -992,7 +991,7 @@ class Gameplay extends MusicBeatState
 
 			case 2:
 				if(null != gf && !gfMap.exists(newCharacter)) {
-					var newGf:Character = new Character(0, 0, newCharacter);
+					final newGf:Character = new Character(0, 0, newCharacter);
 					gfMap.set(newCharacter, newGf);
 					gfGroup.add(newGf);
 					inline startCharacterPos(newGf);
@@ -1013,19 +1012,19 @@ class Gameplay extends MusicBeatState
 		if (key != -1 && !cpuControlled && generatedMusic && !holdArray[key])
 		{
 			final strum:StrumNote = strums.members[key + 4];
-	
+
 			// For some reason the strum note still plays the press animation even when a note is hit sometimes, so here's a solution to it.
 			if (strum.animation.curAnim.name != 'confirm')
 				inline strum.playAnim('pressed');
-	
+
 			final hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && (inline Math.abs(Conductor.songPosition - n.strumTime)) < 166.7 && !n.wasHit && !n.tooLate && n.noteData == key))[0];
-	
+
 			if (null != hittable)
 			{
 				inline strum.playAnim('confirm');
 				inline events.emit(SignalEvent.NOTE_HIT, hittable);
 			}
-	
+
 			holdArray[key] = true;
 		}
 	}
@@ -1093,6 +1092,7 @@ class Gameplay extends MusicBeatState
 		inline events.off(SignalEvent.NOTE_FOLLOW, __note);
 		inline events.off(SignalEvent.NOTE_HIT, onNoteHit);
 		inline events.off(SignalEvent.NOTE_MISS, onNoteMiss);
+		inline events.off(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
 
 		inline keyEmitter.off(SignalEvent.KEY_DOWN, onKeyDown);
 		inline keyEmitter.off(SignalEvent.KEY_UP, onKeyUp);
@@ -1116,7 +1116,7 @@ class Gameplay extends MusicBeatState
 		if (!noCharacters)
 		{
 			final char:Character = (note.mustPress ? bf : (note.gfNote ? gf : dad));
-	
+
 			if (null != char)
 			{
 				inline char.playAnim(@:privateAccess singAnimations[note.noteData], true);
@@ -1159,7 +1159,7 @@ class Gameplay extends MusicBeatState
 				note.exists = false;
 
 			// For note hits and input
-	
+
 			if (note.mustPress)
 			{
 				if (cpuControlled)
@@ -1192,7 +1192,7 @@ class Gameplay extends MusicBeatState
 		if (!renderMode)
 			return;
 
-		process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '$videoFramerate', '-i', '-', '-c:v', videoEncoder, Sys.getCwd().replace('\\', '/') + outputPath]);
+		process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '$videoFramerate', '-i', '-', '-c:v', videoEncoder, (inline (inline Sys.getCwd()).replace('\\', '/')) + outputPath]);
 
 		FlxG.autoPause = false;
 	}

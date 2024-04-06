@@ -33,7 +33,7 @@ class MusicBeatState extends FlxState
 	{
 		super.update(elapsed);
 
-		var oldStep:Int = curStep;
+		final oldStep:Int = curStep;
 
 		updateCurStep();
 		updateBeat();
@@ -78,10 +78,7 @@ class MusicBeatState extends FlxState
 		Application.current.window.onKeyDown.remove((keyCode:UInt, keyMod:UInt) -> {inline keyEmitter.emit(SignalEvent.KEY_DOWN, keyCode);});
 		Application.current.window.onKeyUp.remove((keyCode:UInt, keyMod:UInt) -> {inline keyEmitter.emit(SignalEvent.KEY_UP, keyCode);});
 
-		Main.startTransition(true, function()
-		{
-			FlxG.resetState();
-		});
+		Main.startTransition(true, FlxG.resetState);
 	}
 
 	// Beat stuff
@@ -89,12 +86,11 @@ class MusicBeatState extends FlxState
 	private function updateSection():Void
 	{
 		if (stepsToDo < 1)
-			stepsToDo = Math.round(getBeatsOnSection() * 4);
+			stepsToDo = inline Math.round(inline getBeatsOnSection() * 4);
 
 		while (curStep >= stepsToDo)
 		{
-			var beats:Float = getBeatsOnSection();
-			stepsToDo += Math.round(beats * 4);
+			stepsToDo += inline Math.round(inline getBeatsOnSection() * 4);
 			curSection++;
 			sectionHit();
 		}
@@ -112,7 +108,7 @@ class MusicBeatState extends FlxState
 		{
 			if (null != Gameplay.SONG.notes[i])
 			{
-				stepsToDo += Math.round(getBeatsOnSection() * 4);
+				stepsToDo += inline Math.round(inline getBeatsOnSection() * 4);
 				if (stepsToDo > curStep)
 					break;
 
@@ -126,7 +122,7 @@ class MusicBeatState extends FlxState
 
 	private function updateBeat():Void
 	{
-		curBeat = Std.int(curStep * 0.25);
+		curBeat = inline Std.int(curStep * 0.25);
 		curDecBeat = curDecStep * 0.25;
 	}
 
@@ -136,7 +132,7 @@ class MusicBeatState extends FlxState
 
 		var shit = (Conductor.songPosition - lastChange.songTime) / lastChange.stepCrochet;
 		curDecStep = lastChange.stepTime + shit;
-		curStep = lastChange.stepTime + Std.int(shit);
+		curStep = lastChange.stepTime + inline Std.int(shit);
 	}
 
 	public function stepHit():Void
@@ -155,7 +151,7 @@ class MusicBeatState extends FlxState
 		// trace('Section: ' + curSection + ', Beat: ' + curBeat + ', Step: ' + curStep);
 	}
 
-	function getBeatsOnSection()
+	inline function getBeatsOnSection()
 	{
 		var val:Null<Float> = 4;
 
