@@ -233,60 +233,59 @@ class Gameplay extends MusicBeatState
 
 	override function update(elapsed:Float):Void
 	{
+		if (!generatedMusic)
+			return;
+
 		if (renderMode)
 			elapsed = 1 / videoFramerate;
 
 		inline events.emit(SignalEvent.GAMEPLAY_UPDATE, elapsed);
-
 		super.update(elapsed);
 	}
 
 	inline public function updateGameplay(elapsed:Float):Void
 	{
-		if (generatedMusic)
+		// Don't remove this.
+		hudCameraBelow.x = hudCamera.x;
+		hudCameraBelow.y = hudCamera.y;
+		hudCameraBelow.angle = hudCamera.angle;
+		hudCameraBelow.alpha = hudCamera.alpha;
+		hudCameraBelow.zoom = hudCamera.zoom;
+
+		health = inline FlxMath.bound(health, 0, (Gameplay.hideHUD || Gameplay.noCharacters) ? 2.0 : hudGroup.healthBar.maxValue);
+
+		Conductor.songPosition += elapsed * 1000.0;
+
+		for (i in 0...notes.members.length)
 		{
-			// Don't remove this.
-			hudCameraBelow.x = hudCamera.x;
-			hudCameraBelow.y = hudCamera.y;
-			hudCameraBelow.angle = hudCamera.angle;
-			hudCameraBelow.alpha = hudCamera.alpha;
-			hudCameraBelow.zoom = hudCamera.zoom;
+			final currentNote:Note = notes.members[i];
+			inline events.emit(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4.0 : 0.0)]);
+		}
+
+		while (null != unspawnNotes[unspawnNotes.length-1] && Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - (1950.0 / songSpeed))
+			inline notes.recycle(Note).setupNoteData(inline unspawnNotes.pop());
+
+		// This used to be a function
+		while(null != eventNotes[eventNotes.length-1] && Conductor.songPosition > eventNotes[eventNotes.length-1].strumTime)
+		{
+			var value1:String = '';
+			if(null != eventNotes[eventNotes.length-1].value1)
+				value1 = eventNotes[eventNotes.length-1].value1;
+
+			var value2:String = '';
+			if(null != eventNotes[eventNotes.length-1].value2)
+				value2 = eventNotes[eventNotes.length-1].value2;
+
+			inline triggerEventNote((inline eventNotes.pop()).event, value1, value2);
+		}
+
+		if (renderMode)
+		{
+			inline notes.members.sort((b, a) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
+			pipeFrame();
 	
-			health = inline FlxMath.bound(health, 0, (Gameplay.hideHUD || Gameplay.noCharacters) ? 2.0 : hudGroup.healthBar.maxValue);
-	
-			Conductor.songPosition += elapsed * 1000.0;
-	
-			for (i in 0...notes.members.length)
-			{
-				final currentNote:Note = notes.members[i];
-				inline events.emit(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4.0 : 0.0)]);
-			}
-	
-			while (null != unspawnNotes[unspawnNotes.length-1] && Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - (1950.0 / songSpeed))
-				inline notes.recycle(Note).setupNoteData(inline unspawnNotes.pop());
-	
-			// This used to be a function
-			while(null != eventNotes[eventNotes.length-1] && Conductor.songPosition > eventNotes[eventNotes.length-1].strumTime)
-			{
-				var value1:String = '';
-				if(null != eventNotes[eventNotes.length-1].value1)
-					value1 = eventNotes[eventNotes.length-1].value1;
-	
-				var value2:String = '';
-				if(null != eventNotes[eventNotes.length-1].value2)
-					value2 = eventNotes[eventNotes.length-1].value2;
-	
-				inline triggerEventNote((inline eventNotes.pop()).event, value1, value2);
-			}
-	
-			if (renderMode)
-			{
-				inline notes.members.sort((b, a) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
-				pipeFrame();
-		
-				if (Conductor.songPosition - (20 + SONG.offset) >= inline Std.int(songLength) && !songEnded)
-					endSong();
-			}
+			if (Conductor.songPosition - (20 + SONG.offset) >= inline Std.int(songLength) && !songEnded)
+				endSong();
 		}
 	}
 
