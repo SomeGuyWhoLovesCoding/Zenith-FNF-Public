@@ -733,6 +733,7 @@ class Gameplay extends MusicBeatState
 		}
 	}
 
+	public static var strumlines:Int = 2;
 	inline public function generateStrumline(player:Int = 0):Void
 	{
 		for (i in 0...4)
@@ -741,7 +742,7 @@ class Gameplay extends MusicBeatState
 			strum.scrollMult = downScroll ? -1 : 1;
 			strum.x = 60 + (112 * strum.noteData) + ((FlxG.width * 0.5587511111112) * strum.player);
 			strum.y = downScroll ? FlxG.height - 160 : 60;
-			strum.playerStrum = player == strumlines;
+			strum.playerStrum = player == strumlines - 1;
 			inline strums.add(strum);
 		}
 	}
