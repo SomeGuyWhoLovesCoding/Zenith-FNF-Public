@@ -163,7 +163,7 @@ class Gameplay extends MusicBeatState
 		if (null == (inline Sys.args())[1]) // What?
 			songDifficulty = '';
 
-		final timeStamp:Float = inline haxe.Timer.stamp();
+		var timeStamp:Float = inline haxe.Timer.stamp();
 
 		// You don't need to thread when loading into the song anyway
 		try
@@ -251,7 +251,7 @@ class Gameplay extends MusicBeatState
 
 		for (i in 0...notes.members.length)
 		{
-			final currentNote:Note = notes.members[i];
+			var currentNote:Note = notes.members[i];
 			events.emit(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4 : 0)]);
 		}
 
@@ -618,7 +618,7 @@ class Gameplay extends MusicBeatState
 			{
 				for (i in 0...event[1].length)
 				{
-					final subEvent:EventNote = {
+					var subEvent:EventNote = {
 						strumTime: event[0],
 						event: event[1][i][0],
 						value1: event[1][i][1],
@@ -638,8 +638,8 @@ class Gameplay extends MusicBeatState
 		{
 			for (songNotes in section.sectionNotes)
 			{
-				final daStrumTime:Float = songNotes[0];
-				final daNoteData:Int = Std.int(songNotes[1] % 4);
+				var daStrumTime:Float = songNotes[0];
+				var daNoteData:Int = inline Std.int(songNotes[1] % 4);
 
 				var gottaHitNote:Bool = section.mustHitSection;
 				if (songNotes[1] > 3)
@@ -685,7 +685,7 @@ class Gameplay extends MusicBeatState
 		{
 			for (i in 0...event[1].length)
 			{
-				final subEvent:EventNote = {
+				var subEvent:EventNote = {
 					strumTime: event[0],
 					event: event[1][i][0],
 					value1: event[1][i][1],
@@ -733,7 +733,7 @@ class Gameplay extends MusicBeatState
 	{
 		for (i in 0...4)
 		{
-			final strum:StrumNote = new StrumNote(i, player);
+			var strum:StrumNote = new StrumNote(i, player);
 			strum.scrollMult = downScroll ? -1 : 1;
 			strum.x = 60 + (112 * strum.noteData) + ((FlxG.width * 0.5587511111112) * strum.player);
 			strum.y = downScroll ? FlxG.height - 160 : 60;
@@ -752,7 +752,7 @@ class Gameplay extends MusicBeatState
 
 		if (!renderMode)
 		{
-			final off:Float = Conductor.songPosition + SONG.offset;
+			var off:Float = Conductor.songPosition + SONG.offset;
 			if ((inst.time < off - 20 || inst.time > off + 20)
 				|| (voices.time < off - 20 || voices.time > off + 20))
 			{
@@ -969,7 +969,7 @@ class Gameplay extends MusicBeatState
 		switch(type) {
 			case 0:
 				if(!bfMap.exists(newCharacter)) {
-					final newBoyfriend:Character = new Character(0, 0, newCharacter, true);
+					var newBoyfriend:Character = new Character(0, 0, newCharacter, true);
 					bfMap.set(newCharacter, newBoyfriend);
 					inline bfGroup.add(newBoyfriend);
 					inline startCharacterPos(newBoyfriend);
@@ -978,7 +978,7 @@ class Gameplay extends MusicBeatState
 
 			case 1:
 				if(!dadMap.exists(newCharacter)) {
-					final newDad:Character = new Character(0, 0, newCharacter);
+					var newDad:Character = new Character(0, 0, newCharacter);
 					dadMap.set(newCharacter, newDad);
 					inline dadGroup.add(newDad);
 					inline startCharacterPos(newDad, true);
@@ -987,7 +987,7 @@ class Gameplay extends MusicBeatState
 
 			case 2:
 				if(null != gf && !gfMap.exists(newCharacter)) {
-					final newGf:Character = new Character(0, 0, newCharacter);
+					var newGf:Character = new Character(0, 0, newCharacter);
 					gfMap.set(newCharacter, newGf);
 					inline gfGroup.add(newGf);
 					inline startCharacterPos(newGf);
@@ -1003,34 +1003,31 @@ class Gameplay extends MusicBeatState
 	private var holdArray(default, null):Array<Bool> = [false, false, false, false];
 	inline public function onKeyDown(keyCode:KeyCode):Void
 	{
-		final key:Int = inline inputKeybinds.indexOf(keyCode);
+		var key:Int = inline inputKeybinds.indexOf(keyCode);
 
 		if (key != -1 && !cpuControlled && generatedMusic && !holdArray[key])
 		{
-			final strum:StrumNote = strums.members[key + 4];
+			var strum:StrumNote = strums.members[key + 4];
 
 			// For some reason the strum note still plays the press animation even when a note is hit sometimes, so here's a solution to it.
 			if (strum.animation.curAnim.name != 'confirm')
 				inline strum.playAnim('pressed');
 
-			final hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && (inline Math.abs(Conductor.songPosition - n.strumTime)) < 166.7 && !n.wasHit && !n.tooLate && n.noteData == key))[0];
+			var hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && (inline Math.abs(Conductor.songPosition - n.strumTime)) < 166.7 && !n.wasHit && !n.tooLate && n.noteData == key))[0];
 
 			if (null != hittable)
-			{
-				inline strum.playAnim('confirm');
 				events.emit(SignalEvent.NOTE_HIT, hittable);
-			}
 
 			holdArray[key] = true;
 		}
 	}
 
 	inline private function fastNoteFilter(array:Array<Note>, f:(Note)->Bool):Array<Note>
-		return [for (i in 0...array.length) { final a:Note = array[i]; if (f(a)) a; }];
+		return [for (i in 0...array.length) { var a:Note = array[i]; if (f(a)) a; }];
 
 	inline public function onKeyUp(keyCode:KeyCode):Void
 	{
-		final key:Int = inline inputKeybinds.indexOf(keyCode);
+		var key:Int = inline inputKeybinds.indexOf(keyCode);
 
 		//trace(key); Testing...
 
@@ -1038,7 +1035,7 @@ class Gameplay extends MusicBeatState
 		{
 			holdArray[key] = false;
 
-			final strum:StrumNote = strums.members[key + 4];
+			var strum:StrumNote = strums.members[key + 4];
 
 			if (strum.animation.curAnim.name == 'confirm' ||
 				strum.animation.curAnim.name == 'pressed')
@@ -1055,7 +1052,7 @@ class Gameplay extends MusicBeatState
 		// Strumline
 		for (i in 0...strums.members.length)
 		{
-			final strum:StrumNote = strums.members[i];
+			var strum:StrumNote = strums.members[i];
 
 			if (strum.player == whichStrum || whichStrum == -1)
 			{
@@ -1098,10 +1095,9 @@ class Gameplay extends MusicBeatState
 		super.destroy();
 	}
 
-	public function onNoteHit(note:Note):Void
+	inline public function onNoteHit(note:Note):Void
 	{
-		if (!note.mustPress || note.isSustainNote || cpuControlled)
-			inline strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
+		inline strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
 
 		note.wasHit = true;
 		note.exists = false;
@@ -1113,7 +1109,7 @@ class Gameplay extends MusicBeatState
 
 		if (!noCharacters)
 		{
-			final char:Character = (note.mustPress ? bf : (note.gfNote ? gf : dad));
+			var char:Character = (note.mustPress ? bf : (note.gfNote ? gf : dad));
 
 			if (null != char)
 			{
@@ -1123,7 +1119,7 @@ class Gameplay extends MusicBeatState
 		}
 	}
 
-	public function onNoteMiss(note:Note):Void
+	inline public function onNoteMiss(note:Note):Void
 	{
 		note.tooLate = true;
 
@@ -1138,7 +1134,7 @@ class Gameplay extends MusicBeatState
 		}
 	}
 
-	private function onFollowNote(note:Note, strum:StrumNote):Void
+	inline private function onFollowNote(note:Note, strum:StrumNote):Void
 	{
 		if (note.exists)
 		{
@@ -1198,8 +1194,8 @@ class Gameplay extends MusicBeatState
 
 	inline private function pipeFrame():Void
 	{
-		final img:lime.graphics.Image = lime.app.Application.current.window.readPixels(new lime.math.Rectangle(FlxG.scaleMode.offset.x, FlxG.scaleMode.offset.y, FlxG.scaleMode.gameSize.x, FlxG.scaleMode.gameSize.y));
-		final bytes:haxe.io.Bytes = img.getPixels(new lime.math.Rectangle(0, 0, img.width, img.height));
+		var img:lime.graphics.Image = lime.app.Application.current.window.readPixels(new lime.math.Rectangle(FlxG.scaleMode.offset.x, FlxG.scaleMode.offset.y, FlxG.scaleMode.gameSize.x, FlxG.scaleMode.gameSize.y));
+		var bytes:haxe.io.Bytes = img.getPixels(new lime.math.Rectangle(0, 0, img.width, img.height));
 		process.stdin.writeBytes(bytes, 0, bytes.length);
 	}
 
