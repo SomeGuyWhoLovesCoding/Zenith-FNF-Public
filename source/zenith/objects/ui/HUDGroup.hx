@@ -26,7 +26,6 @@ class HUDGroup extends FlxSpriteGroup
 		plrIcon = new HealthIcon(Gameplay.instance.bf.healthIcon, true);
 
 		healthBar = new HealthBar(0, Gameplay.downScroll ? 60 : FlxG.height - 86, [0xFFFF0000], [0xFF00FF00], 600, 24);
-		//healthBar.alpha = 0.5; // Testing stuff
 		add(healthBar);
 
 		oppIcon.y = plrIcon.y = healthBar.y - 60;
@@ -46,10 +45,10 @@ class HUDGroup extends FlxSpriteGroup
 		scoreTxt.borderSize = timeTxt.borderSize = 1.25;
 		scoreTxt.font = timeTxt.font = Paths.font('vcr');
 		scoreTxt.alignment = timeTxt.alignment = "center";
-		scoreTxt.antialiasing = timeTxt.antialiasing = true;
 		scoreTxt.active = timeTxt.active = false;
 
 		oppIcon.pixelPerfectPosition = plrIcon.pixelPerfectPosition = healthBar.pixelPerfectPosition = scoreTxt.pixelPerfectPosition = timeTxt.pixelPerfectPosition = false;
+		oppIcon.antialiasing = plrIcon.antialiasing = healthBar.antialiasing = scoreTxt.antialiasing = timeTxt.antialiasing = SaveData.contents.preferences.antialiasing;
 	}
 
 	private function reloadHealthBar():Void
@@ -75,7 +74,7 @@ class HUDGroup extends FlxSpriteGroup
 		oppIcon.x = healthBar.width * (1 - (healthBar.value / healthBar.maxValue) + 0.5) - 75;
 		plrIcon.x = oppIcon.x + 105;
 
-		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0, healthBar.maxValue), SaveData.preferences.get("SmoothHealth") ? 0.08 : 1);
+		healthBar.value = inline FlxMath.lerp(healthBar.value, inline FlxMath.bound(Gameplay.instance.health, 0, healthBar.maxValue), SaveData.contents.preferences.smoothHealth ? 0.08 : 1);
 
 		scoreTxt.text = 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Rating: ?';
 
@@ -83,7 +82,7 @@ class HUDGroup extends FlxSpriteGroup
 		{
 			if (timeTxt.alpha != 1)
 				timeTxt.alpha += elapsed * 6;
-			timeTxt.text = flixel.util.FlxStringUtil.formatTime(Gameplay.instance.songLength - Conductor.songPosition, true, false);
+			timeTxt.text = inline flixel.util.FlxStringUtil.formatTime(Gameplay.instance.songLength - Conductor.songPosition, true, false);
 		}
 
 		plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;

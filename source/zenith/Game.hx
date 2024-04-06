@@ -14,15 +14,17 @@ class Game extends FlxGame
 	{
 		SaveData.reloadSave();
 
-		super(0, 0, initState, Std.int(Application.current.window.frameRate), Std.int(Application.current.window.frameRate), true);
-		FlxG.mouse.visible = false; // Get rid of flixel's mouse as the transition goes over it
+		super(0, 0, initState, inline Std.int(Application.current.window.frameRate), inline Std.int(Application.current.window.frameRate), true);
+		FlxG.fixedTimestep = FlxG.mouse.visible = false; // Get rid of flixel's mouse as the transition goes over it
 
 		trace('Game initialized.');
 	}
 
 	override public function onEnterFrame(_:openfl.events.Event):Void
 	{
+		super.onEnterFrame((_ : openfl.events.Event));
+
+		FlxG.drawFramerate = FlxG.updateFramerate = inline Std.int(inline Math.min(SaveData.contents.preferences.fps, 1000.0));
 		Main.updateMain(FlxG.elapsed);
-		super.onEnterFrame(_);
 	}
 }

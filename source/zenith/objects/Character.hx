@@ -184,22 +184,14 @@ class Character extends FlxSprite
 	/**
 	 * FOR GF DANCING SHIT
 	 */
-	public function dance()
+	inline public function dance()
 	{
 		if (!debugMode && !skipDance && !specialAnim)
 		{
 			if(danceIdle)
-			{
-				danced = !danced;
-
-				if (danced)
-					inline playAnim('danceRight' + idleSuffix);
-				else
-					inline playAnim('danceLeft' + idleSuffix);
-			}
-			else if(animation.getByName('idle' + idleSuffix) != null) {
+				inline playAnim(((danced = !danced) ? 'danceRight' : 'danceLeft') + idleSuffix);
+			else if(null != animation.getByName('idle' + idleSuffix))
 				inline playAnim('idle' + idleSuffix);
-			}
 		}
 	}
 
@@ -230,7 +222,7 @@ class Character extends FlxSprite
 	private var settingCharacterUp:Bool = true;
 	public function recalculateDanceIdle() {
 		var lastDanceIdle:Bool = danceIdle;
-		danceIdle = (animation.getByName('danceLeft' + idleSuffix) != null && animation.getByName('danceRight' + idleSuffix) != null);
+		danceIdle = (null != animation.getByName('danceLeft' + idleSuffix) && null != animation.getByName('danceRight' + idleSuffix));
 
 		if(settingCharacterUp)
 			danceEveryNumBeats = (danceIdle ? 1 : 2);
@@ -243,7 +235,7 @@ class Character extends FlxSprite
 			else
 				calc *= 2;
 
-			danceEveryNumBeats = Std.int(Math.max(calc, 1));
+			danceEveryNumBeats = inline Std.int(inline Math.max(calc, 1));
 		}
 		settingCharacterUp = false;
 	}

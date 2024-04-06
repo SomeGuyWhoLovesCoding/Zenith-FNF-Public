@@ -109,10 +109,6 @@ class TitleScreen extends MusicBeatState
 			Conductor.songPosition = FlxG.sound.music.time;
 
 		super.update(elapsed);
-
-		// This was for testing save data changes
-		/*if (FlxG.keys.justPressed.T)
-			SaveData.setGlobalSaveContent(CONTROLS, 'Accept', lime.ui.KeyCode.SPACE);*/
 	}
 
 	var cameraZoomTween:FlxTween;
@@ -216,7 +212,7 @@ class TitleScreen extends MusicBeatState
 	{
 		//trace('Test');
 
-		if (SaveData.controls.get("Accept") == keyCode)
+		if (SaveData.contents.controls.ACCEPT == keyCode)
 		{
 			if (alreadyPressedEnter)
 				TitleScreenSubState.instance.sendSignalEnter();
@@ -236,10 +232,10 @@ class TitleScreen extends MusicBeatState
 		if (!alreadyPressedEnter)
 			return;
 
-		if (SaveData.controls.get("UI_Left") == keyCode)
+		if (SaveData.contents.controls.LEFT == keyCode)
 			TitleScreenSubState.instance.sendSignalLeft();
 
-		if (SaveData.controls.get("UI_Right") == keyCode)
+		if (SaveData.contents.controls.RIGHT == keyCode)
 			TitleScreenSubState.instance.sendSignalRight();
 
 		if (SaveData.controls.get("Backspace") == keyCode)

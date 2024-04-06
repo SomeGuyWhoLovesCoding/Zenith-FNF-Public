@@ -137,10 +137,10 @@ class Gameplay extends MusicBeatState
 		noCharacters = SaveData.preferences.get("NoCharacters");*/
 
 		// Reset gameplay stuff
-		startedCountdown = songEnded = false;
+		FlxG.fixedTimestep = startedCountdown = songEnded = false;
 		songSpeed = noteMult = 1;
 
-		FlxG.fixedTimestep = persistentUpdate = persistentDraw = true;
+		persistentUpdate = persistentDraw = true;
 
 		gameCamera = new FlxCamera();
 		hudCameraBelow = new FlxCamera();
@@ -232,9 +232,6 @@ class Gameplay extends MusicBeatState
 		//trace(Sys.args());
 	}
 
-	var currentNote:Note;
-	var noteIndex:UInt = 0;
-
 	override function update(elapsed:Float):Void
 	{
 		if (!generatedMusic)
@@ -254,10 +251,11 @@ class Gameplay extends MusicBeatState
 
 		Conductor.songPosition += elapsed * 1000;
 
-		noteIndex = 0;
-
-		while (null != (currentNote = notes.members[noteIndex++]))
+		for (i in 0...notes.members.length)
+		{
+			final currentNote:Note = notes.members[i];
 			inline events.emit(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4 : 0)]);
+		}
 
 		while (null != unspawnNotes[unspawnNotes.length-1] && Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - (1950 / songSpeed))
 			inline notes.recycle(Note).setupNoteData(unspawnNotes.pop());
@@ -281,7 +279,7 @@ class Gameplay extends MusicBeatState
 		if (!renderMode)
 			return;
 
-		notes.members.sort((b, a) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
+		inline notes.members.sort((b, a) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
 		pipeFrame();
 
 		if (Conductor.songPosition - (20 + SONG.offset) >= (Std.int(songLength) | Std.int(voices.length)) && !songEnded)
@@ -355,9 +353,9 @@ class Gameplay extends MusicBeatState
 						hudCameraZoomTween.cancel();
 
 					FlxG.camera.zoom += camZoom;
-					gameCameraZoomTween = zoomTweenFunction(FlxG.camera, defaultCamZoom);
+					gameCameraZoomTween = inline zoomTweenFunction(FlxG.camera, defaultCamZoom);
 					hudCamera.zoom += hudZoom;
-					hudCameraZoomTween = zoomTweenFunction(hudCamera, 1);
+					hudCameraZoomTween = inline zoomTweenFunction(hudCamera, 1);
 				}
 
 			case 'Play Animation':
@@ -573,9 +571,9 @@ class Gameplay extends MusicBeatState
 			dad = new Character(0, 0, SONG.player2);
 			bf = new Character(0, 0, SONG.player1, true);
 
-			startCharacterPos(gf, false);
-			startCharacterPos(dad, true);
-			startCharacterPos(bf, false);
+			inline startCharacterPos(gf, false);
+			inline startCharacterPos(dad, true);
+			inline startCharacterPos(bf, false);
 
 			gfGroup.add(gf);
 			dadGroup.add(dad);
@@ -661,13 +659,13 @@ class Gameplay extends MusicBeatState
 				});
 				notesLength++;
 
-				var floorSus:Int = Std.int(Math.max(songNotes[2], 0) / Conductor.stepCrochet);
+				var floorSus:Int = inline Std.int((inline Math.max(songNotes[2], 0)) / Conductor.stepCrochet);
 				if (floorSus > 1) // Don't add sustain notes that are one step long or less
 				{
 					for (susNote in 0...floorSus)
 					{
 						inline unspawnNotes.push({
-							strumTime: daStrumTime + (Conductor.stepCrochet * susNote) + (Conductor.stepCrochet / FlxMath.roundDecimal(songSpeed, 2)),
+							strumTime: daStrumTime + (Conductor.stepCrochet * susNote) + (Conductor.stepCrochet / inline FlxMath.roundDecimal(songSpeed, 2)),
 							noteData: daNoteData,
 							mustPress: gottaHitNote,
 							noteType: songNotes[3],
@@ -784,30 +782,30 @@ class Gameplay extends MusicBeatState
 			return;
 
 		if (null != gf
-			&& curBeat % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
+			&& curBeat % inline Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
 			&& null != gf.animation.curAnim
 			&& !gf.animation.curAnim.name.startsWith("sing")
 			&& !gf.stunned)
-			gf.dance();
+			inline gf.dance();
 
 		if (null != dad
 			&& curBeat % dad.danceEveryNumBeats == 0
 			&& null != dad.animation.curAnim
 			&& !dad.animation.curAnim.name.startsWith('sing')
 			&& !dad.stunned)
-			dad.dance();
+			inline dad.dance();
 
 		if (null != bf
 			&& curBeat % bf.danceEveryNumBeats == 0
 			&& null != bf.animation.curAnim
 			&& !bf.animation.curAnim.name.startsWith('sing')
 			&& !bf.stunned)
-			bf.dance();
+			inline bf.dance();
 
 		lastBeatHit = curBeat;
 
 		if (!renderMode)
-			notes.members.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
+			inline notes.members.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
 	}
 
 	override function sectionHit()
@@ -828,9 +826,9 @@ class Gameplay extends MusicBeatState
 			hudCameraZoomTween.cancel();
 
 		FlxG.camera.zoom += 0.015;
-		gameCameraZoomTween = zoomTweenFunction(FlxG.camera, defaultCamZoom);
+		gameCameraZoomTween = inline zoomTweenFunction(FlxG.camera, defaultCamZoom);
 		hudCamera.zoom += 0.03;
-		hudCameraZoomTween = zoomTweenFunction(hudCamera, 1);
+		hudCameraZoomTween = inline zoomTweenFunction(hudCamera, 1);
 	}
 
 	private function startCountdown():Void
@@ -838,12 +836,7 @@ class Gameplay extends MusicBeatState
 		if (songEnded)
 			return;
 
-		inputKeybinds = [
-			SaveData.controls.get("Note_Left"),
-			SaveData.controls.get("Note_Down"),
-			SaveData.controls.get("Note_Up"),
-			SaveData.controls.get("Note_Right")
-		];
+		inputKeybinds = SaveData.contents.controls.GAMEPLAY_BINDS;
 
 		var swagCounter:Int = 0;
 		Conductor.songPosition = -Conductor.crochet * 5;
@@ -874,7 +867,7 @@ class Gameplay extends MusicBeatState
 					return;
 
 				if (null != gf
-					&& loopsLeft % Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
+					&& loopsLeft % inline Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
 					&& null != gf.animation.curAnim
 					&& !gf.animation.curAnim.name.startsWith("sing")
 					&& !gf.stunned)
@@ -938,42 +931,35 @@ class Gameplay extends MusicBeatState
 			return;
 		}
 
-		moveCamera(!SONG.notes[curSection].mustHitSection);
+		inline moveCamera(SONG.notes[curSection].mustHitSection);
 	}
 
-	public function moveCamera(isDad:Bool)
+	inline public function moveCamera(isPlayer:Bool)
 	{
-		if (isDad)
-		{
-			camFollowPosTween = FlxTween.tween(camFollowPos, {
-				x: (dad.getMidpoint().x + 150) + dad.cameraPosition[0] + opponentCameraOffset[0],
-				y: (dad.getMidpoint().y - 100) + dad.cameraPosition[1] + opponentCameraOffset[1]
-			}, 1.3 * cameraSpeed, {ease: FlxEase.expoOut});
-		}
-		else
-		{
-			camFollowPosTween = FlxTween.tween(camFollowPos, {
-				x: (bf.getMidpoint().x - 100) - bf.cameraPosition[0] - boyfriendCameraOffset[0],
-				y: (bf.getMidpoint().y - 100) + bf.cameraPosition[1] + boyfriendCameraOffset[1]
-			}, 1.3 * cameraSpeed, {ease: FlxEase.expoOut});
-		}
+		camFollowPosTween = isPlayer ? FlxTween.tween(camFollowPos, {
+			x: (bf.getMidpoint().x - 100) - bf.cameraPosition[0] - boyfriendCameraOffset[0],
+			y: (bf.getMidpoint().y - 100) + bf.cameraPosition[1] + boyfriendCameraOffset[1]
+		}, 1.3 * cameraSpeed, {ease: FlxEase.expoOut}) : FlxTween.tween(camFollowPos, {
+			x: (dad.getMidpoint().x + 150) + dad.cameraPosition[0] + opponentCameraOffset[0],
+			y: (dad.getMidpoint().y - 100) + dad.cameraPosition[1] + opponentCameraOffset[1]
+		}, 1.3 * cameraSpeed, {ease: FlxEase.expoOut});
 	}
 
-	private function zoomTweenFunction(cam:FlxCamera, amount:Float = 1):FlxTween
+	inline private function zoomTweenFunction(cam:FlxCamera, amount:Float = 1):FlxTween
 	{
 		return FlxTween.tween(cam, {zoom: amount}, 1.3, {ease: FlxEase.expoOut});
 	}
 
-	function set_defaultCamZoom(value:Float):Float
+	inline function set_defaultCamZoom(value:Float):Float
 	{
 		if (null != gameCameraZoomTween)
 			gameCameraZoomTween.cancel();
 
-		gameCameraZoomTween = zoomTweenFunction(FlxG.camera, value);
+		gameCameraZoomTween = inline zoomTweenFunction(FlxG.camera, value);
 		return defaultCamZoom = value;
 	}
 
-	function startCharacterPos(char:Character, gfCheck:Bool = false)
+	inline function startCharacterPos(char:Character, gfCheck:Bool = false)
 	{
 		if (gfCheck && char.curCharacter.startsWith('gf')) // IF DAD IS GIRLFRIEND, HE GOES TO HER POSITION
 			char.setPosition(GF_X, GF_Y);
@@ -989,7 +975,7 @@ class Gameplay extends MusicBeatState
 					var newBoyfriend:Character = new Character(0, 0, newCharacter, true);
 					bfMap.set(newCharacter, newBoyfriend);
 					bfGroup.add(newBoyfriend);
-					startCharacterPos(newBoyfriend);
+					inline startCharacterPos(newBoyfriend);
 					newBoyfriend.alpha = 0.001;
 				}
 
@@ -998,7 +984,7 @@ class Gameplay extends MusicBeatState
 					var newDad:Character = new Character(0, 0, newCharacter);
 					dadMap.set(newCharacter, newDad);
 					dadGroup.add(newDad);
-					startCharacterPos(newDad, true);
+					inline startCharacterPos(newDad, true);
 					newDad.alpha = 0.001;
 				}
 
@@ -1007,7 +993,7 @@ class Gameplay extends MusicBeatState
 					var newGf:Character = new Character(0, 0, newCharacter);
 					gfMap.set(newCharacter, newGf);
 					gfGroup.add(newGf);
-					startCharacterPos(newGf);
+					inline startCharacterPos(newGf);
 					newGf.alpha = 0.001;
 				}
 		}
@@ -1030,7 +1016,7 @@ class Gameplay extends MusicBeatState
 			if (strum.animation.curAnim.name != 'confirm')
 				inline strum.playAnim('pressed');
 	
-			final hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && !n.wasHit && !n.tooLate && n.noteData == key))[0];
+			final hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && (inline Math.abs(Conductor.songPosition - n.strumTime)) < 166.7 && !n.wasHit && !n.tooLate && n.noteData == key))[0];
 	
 			if (null != hittable)
 			{
@@ -1157,19 +1143,19 @@ class Gameplay extends MusicBeatState
 		if (note.exists)
 		{
 			note.flipX = note.flipY = strum.scrollMult <= 0 && note.isSustainNote;
-	
+
 			// Sustain scaling for song speed (even if it's changed)
 			// Psych engine sustain note calculation moment
-			note.scale.set(0.7, note.isSustainNote ? (note.animation.curAnim.name.endsWith('end') ? 1 : (153.75 / SONG.bpm) * (songSpeed * note.multSpeed) * Math.abs(strum.scrollMult)) : 0.7);
+			note.scale.set(0.7, note.isSustainNote ? (note.animation.curAnim.name.endsWith('end') ? 1 : (153.75 / SONG.bpm) * (songSpeed * note.multSpeed) * inline Math.abs(strum.scrollMult)) : 0.7);
 			note.updateHitbox();
-	
+
 			note.distance = 0.45 * (Conductor.songPosition - note.strumTime) * (songSpeed * note.multSpeed);
 			note.x = strum.x + note.offsetX;
 			note.y = (strum.y + note.offsetY) + (-strum.scrollMult * note.distance) - (note.flipY ? (note.frameHeight * note.scale.y) - strum.height : 0);
-	
+
 			if (Conductor.songPosition >= note.strumTime + (750 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
 				note.exists = false;
-	
+
 			// For note hits and input
 	
 			if (note.mustPress)
@@ -1177,10 +1163,10 @@ class Gameplay extends MusicBeatState
 				if (cpuControlled)
 					if (Conductor.songPosition >= note.strumTime)
 						inline events.emit(SignalEvent.NOTE_HIT, note);
-	
+
 				if (Conductor.songPosition >= note.strumTime + (Conductor.stepCrochet * 2) && (!note.wasHit && !note.tooLate))
 					inline events.emit(SignalEvent.NOTE_MISS, note);
-	
+
 				if (note.isSustainNote)
 					if (Conductor.songPosition >= note.strumTime && holdArray[note.noteData])
 						inline events.emit(SignalEvent.NOTE_HIT, note);
