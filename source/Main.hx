@@ -107,8 +107,8 @@ class Main extends Sprite
 
 		if (null != fpsTxt)
 		{
-			fps = inline flixel.math.FlxMath.lerp(fps, 1 / FlxG.elapsed, 0.08);
-			fpsTxt.text = 'FPS: ' + inline Std.int(inline Math.min(fps, 1000.0)) + '\nMEM: ' + inline flixel.util.FlxStringUtil.formatBytes(openfl.system.System.totalMemory);
+			fps = inline Math.min(inline flixel.math.FlxMath.lerp(fps, 1 / FlxG.elapsed, 0.08), 1000.0);
+			fpsTxt.text = 'FPS: ' + inline Std.int(fps) + '\nMEM: ' + inline flixel.util.FlxStringUtil.formatBytes(openfl.system.System.totalMemory);
 		}
 
 		transition.y = transitionY;
@@ -127,8 +127,14 @@ class Main extends Sprite
 		}
 
 		if (null != transitioning._out)
+		{
 			if (transitionY > 720 * transition.scaleY)
+			{
+				if (null != transitioning._out.callback)
+					transitioning._out.callback();
 				transitioning._out = null;
+			}
+		}
 
 		transition.scaleX = FlxG.scaleMode.scale.x;
 		transition.scaleY = FlxG.scaleMode.scale.y;
