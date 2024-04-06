@@ -19,7 +19,7 @@ class StrumNote extends FlxSprite
 
 		//trace(noteData);
 
-		frames = @:privateAccess Paths.noteFrames;
+		frames = Paths.getSparrowAtlas('noteskins/Regular/Strums');
 
 		animation.addByPrefix('static', 'arrow' + inline animArray[noteData].toUpperCase());
 		animation.addByPrefix('pressed', animArray[noteData] + ' press', 24, false);

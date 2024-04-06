@@ -123,9 +123,9 @@ class Gameplay extends MusicBeatState
 
 		// Preferences stuff
 
-		/*downScroll = SaveData.preferences.get("DownScroll");
-		hideHUD = SaveData.preferences.get("HideHUD");
-		noCharacters = SaveData.preferences.get("NoCharacters");*/
+		downScroll = SaveData.contents.preferences.downScroll;
+		hideHUD = SaveData.contents.preferences.hideHUD;
+		noCharacters = SaveData.contents.preferences.noCharacters;
 
 		// Reset gameplay stuff
 		FlxG.fixedTimestep = startedCountdown = songEnded = false;
@@ -775,29 +775,29 @@ class Gameplay extends MusicBeatState
 		if(lastBeatHit >= curBeat)
 			return;
 
-		if (noCharacters)
-			return;
+		if (!noCharacters)
+		{
+			if (null != gf
+				&& curBeat % inline Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
+				&& null != gf.animation.curAnim
+				&& !gf.animation.curAnim.name.startsWith("sing")
+				&& !gf.stunned)
+				inline gf.dance();
 
-		if (null != gf
-			&& curBeat % inline Math.round(gfSpeed * gf.danceEveryNumBeats) == 0
-			&& null != gf.animation.curAnim
-			&& !gf.animation.curAnim.name.startsWith("sing")
-			&& !gf.stunned)
-			inline gf.dance();
+			if (null != dad
+				&& curBeat % dad.danceEveryNumBeats == 0
+				&& null != dad.animation.curAnim
+				&& !dad.animation.curAnim.name.startsWith('sing')
+				&& !dad.stunned)
+				inline dad.dance();
 
-		if (null != dad
-			&& curBeat % dad.danceEveryNumBeats == 0
-			&& null != dad.animation.curAnim
-			&& !dad.animation.curAnim.name.startsWith('sing')
-			&& !dad.stunned)
-			inline dad.dance();
-
-		if (null != bf
-			&& curBeat % bf.danceEveryNumBeats == 0
-			&& null != bf.animation.curAnim
-			&& !bf.animation.curAnim.name.startsWith('sing')
-			&& !bf.stunned)
-			inline bf.dance();
+			if (null != bf
+				&& curBeat % bf.danceEveryNumBeats == 0
+				&& null != bf.animation.curAnim
+				&& !bf.animation.curAnim.name.startsWith('sing')
+				&& !bf.stunned)
+				inline bf.dance();
+		}
 
 		lastBeatHit = curBeat;
 
