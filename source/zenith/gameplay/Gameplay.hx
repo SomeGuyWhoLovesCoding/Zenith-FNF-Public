@@ -752,7 +752,9 @@ class Gameplay extends MusicBeatState
 
 		if (!renderMode)
 		{
-			if (Math.abs(inst.time - voices.time) > 5)
+			final off:Float = Conductor.songPosition + SONG.offset;
+			if ((inst.time < off - 20 || inst.time > off + 20)
+				|| (voices.time < off - 20 || voices.time > off + 20))
 			{
 				Conductor.songPosition = inst.time - SONG.offset;
 				voices.time = Conductor.songPosition + SONG.offset;
