@@ -124,9 +124,9 @@ class Gameplay extends MusicBeatState
 
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
 
-		events.on(SignalEvent.NOTE_FOLLOW, __note);
-		events.on(SignalEvent.NOTE_HIT, onNoteHit);
-		events.on(SignalEvent.NOTE_MISS, onNoteMiss);
+		inline events.on(SignalEvent.NOTE_FOLLOW, __note);
+		inline events.on(SignalEvent.NOTE_HIT, onNoteHit);
+		inline events.on(SignalEvent.NOTE_MISS, onNoteMiss);
 
 		instance = this;
 
@@ -162,17 +162,17 @@ class Gameplay extends MusicBeatState
 		FlxG.camera.follow(camFollowPos, LOCKON, 1);
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 
-		var songName:String = Sys.args()[0];
+		var songName:String = (inline Sys.args())[0];
 
-		if (null == Sys.args()[0]) // What?
+		if (null == (inline Sys.args())[0]) // What?
 			songName = 'test';
 
-		var songDifficulty:String = '-' + Sys.args()[1];
+		var songDifficulty:String = '-' + (inline Sys.args())[1];
 
-		if (null == Sys.args()[1]) // What?
+		if (null == (inline Sys.args())[1]) // What?
 			songDifficulty = '';
 
-		var timeStamp:Float = haxe.Timer.stamp();
+		final timeStamp:Float = inline haxe.Timer.stamp();
 
 		// You don't need to thread when loading into the song anyway
 		try
@@ -199,9 +199,7 @@ class Gameplay extends MusicBeatState
 
 			strums.cameras = notes.cameras = [hudCamera];
 
-			var finishTime:Float = (haxe.Timer.stamp() - timeStamp) * 1000;
-
-			trace('Loading finished! Took ${flixel.util.FlxStringUtil.formatTime(finishTime, true, true)} to load.');
+			trace('Loading finished! Took ${inline flixel.util.FlxStringUtil.formatTime((inline haxe.Timer.stamp() - timeStamp) * 1000, true, true)} to load.');
 
 			if (!noCharacters)
 			{
@@ -226,8 +224,8 @@ class Gameplay extends MusicBeatState
 
 		super.create();
 
-		keyEmitter.on(SignalEvent.KEY_DOWN, onKeyDown);
-		keyEmitter.on(SignalEvent.KEY_UP, onKeyUp);
+		inline keyEmitter.on(SignalEvent.KEY_DOWN, onKeyDown);
+		inline keyEmitter.on(SignalEvent.KEY_UP, onKeyUp);
 
 		//trace(Sys.args());
 	}
@@ -258,7 +256,7 @@ class Gameplay extends MusicBeatState
 		}
 
 		while (null != unspawnNotes[unspawnNotes.length-1] && Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - (1950 / songSpeed))
-			inline notes.recycle(Note).setupNoteData(unspawnNotes.pop());
+			inline notes.recycle(Note).setupNoteData(inline unspawnNotes.pop());
 
 		// This used to be a function
 		while(null != eventNotes[eventNotes.length-1] && Conductor.songPosition > eventNotes[eventNotes.length-1].strumTime)
@@ -271,7 +269,7 @@ class Gameplay extends MusicBeatState
 			if(null != eventNotes[eventNotes.length-1].value2)
 				value2 = eventNotes[eventNotes.length-1].value2;
 
-			inline triggerEventNote(eventNotes.pop().event, value1, value2);
+			inline triggerEventNote((inline eventNotes.pop()).event, value1, value2);
 		}
 
 		super.update(elapsed);
@@ -282,7 +280,7 @@ class Gameplay extends MusicBeatState
 		inline notes.members.sort((b, a) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
 		pipeFrame();
 
-		if (Conductor.songPosition - (20 + SONG.offset) >= (Std.int(songLength) | Std.int(voices.length)) && !songEnded)
+		if (Conductor.songPosition - (20 + SONG.offset) >= inline Std.int(songLength) && !songEnded)
 			endSong();
 	}
 
@@ -301,7 +299,7 @@ class Gameplay extends MusicBeatState
 						case 'gf' | 'girlfriend' | '1':
 							value = 1;
 					}
-	
+
 					var time:Float = Std.parseFloat(value2);
 					if (Math.isNaN(time) || time <= 0)
 						time = 0.6;
@@ -332,19 +330,19 @@ class Gameplay extends MusicBeatState
 				}
 
 			case 'Set GF Speed':
-				var value:Int = Std.parseInt(value1);
-				if (Math.isNaN(value) || value < 1)
+				var value:Int = inline Std.parseInt(value1);
+				if (inline Math.isNaN(value) || value < 1)
 					value = 1;
 				gfSpeed = value;
 
 			case 'Add Camera Zoom':
 				if (FlxG.camera.zoom < 1.35)
 				{
-					var camZoom:Float = Std.parseFloat(value1);
-					var hudZoom:Float = Std.parseFloat(value2);
-					if (Math.isNaN(camZoom))
+					var camZoom:Float = inline Std.parseFloat(value1);
+					var hudZoom:Float = inline Std.parseFloat(value2);
+					if (inline Math.isNaN(camZoom))
 						camZoom = 0.015;
-					if (Math.isNaN(hudZoom))
+					if (inline Math.isNaN(hudZoom))
 						hudZoom = 0.03;
 
 					if (null != gameCameraZoomTween)
@@ -362,7 +360,7 @@ class Gameplay extends MusicBeatState
 				if (!noCharacters)
 				{
 					var char:Character = dad;
-					switch (value2.toLowerCase().trim())
+					switch (inline value2.toLowerCase().trim())
 					{
 						case 'bf' | 'boyfriend':
 							char = bf;
@@ -370,7 +368,7 @@ class Gameplay extends MusicBeatState
 							char = gf;
 						default:
 							var val2:Int = Std.parseInt(value2);
-							if (Math.isNaN(val2))
+							if (inline Math.isNaN(val2))
 								val2 = 0;
 
 							switch (val2)
@@ -391,14 +389,15 @@ class Gameplay extends MusicBeatState
 				if (noCharacters)
 				{
 					var charType:Int = 0;
-					switch(value1.toLowerCase().trim()) {
+					switch(inline value1.toLowerCase().trim()) {
 						case 'gf' | 'girlfriend':
 							charType = 2;
 						case 'dad' | 'opponent':
 							charType = 1;
 						default:
 							charType = Std.parseInt(value1);
-							if(Math.isNaN(charType)) charType = 0;
+							if (inline Math.isNaN(charType))
+								charType = 0;
 					}
 
 					switch(charType) {
@@ -460,11 +459,12 @@ class Gameplay extends MusicBeatState
 				if (null != songSpeedTween)
 					songSpeedTween.cancel();
 
-				var val1:Float = Std.parseFloat(value1);
-				var val2:Float = Std.parseFloat(value2);
-				if (Math.isNaN(val1))
+				var val1:Float = inline Std.parseFloat(value1);
+				var val2:Float = inline Std.parseFloat(value2);
+
+				if (inline Math.isNaN(val1))
 					val1 = 1;
-				if (Math.isNaN(val2))
+				if (inline Math.isNaN(val2))
 					val2 = 0;
 
 				var newValue:Float = SONG.speed * val1;
@@ -477,8 +477,10 @@ class Gameplay extends MusicBeatState
 			case 'Fake Song Length':
 				if (null != songLengthTween)
 					songLengthTween.cancel();
-				var v1 = Std.parseFloat(value1);
-				if (!Math.isNaN(v1))
+
+				var v1 = inline Std.parseFloat(value1);
+
+				if (!(inline Math.isNaN(v1)))
 				{
 					if (value2 == 'true')
 						songLengthTween = FlxTween.tween(this, {songLength: v1 * 1000}, 1, {ease: FlxEase.quintOut});
@@ -492,7 +494,7 @@ class Gameplay extends MusicBeatState
 	{
 		trace('Parsing chart data from song json...');
 
-		SONG = Song.loadFromJson(name + '/' + name + diff);
+		SONG = inline Song.loadFromJson(name + '/' + name + diff);
 
 		trace('Loading stage...');
 
@@ -1088,12 +1090,12 @@ class Gameplay extends MusicBeatState
 	{
 		stopRender();
 
-		events.off(SignalEvent.NOTE_FOLLOW, __note);
-		events.off(SignalEvent.NOTE_HIT, onNoteHit);
-		events.off(SignalEvent.NOTE_MISS, onNoteMiss);
+		inline events.off(SignalEvent.NOTE_FOLLOW, __note);
+		inline events.off(SignalEvent.NOTE_HIT, onNoteHit);
+		inline events.off(SignalEvent.NOTE_MISS, onNoteMiss);
 
-		keyEmitter.off(SignalEvent.KEY_DOWN, onKeyDown);
-		keyEmitter.off(SignalEvent.KEY_UP, onKeyUp);
+		inline keyEmitter.off(SignalEvent.KEY_DOWN, onKeyDown);
+		inline keyEmitter.off(SignalEvent.KEY_UP, onKeyUp);
 
 		super.destroy();
 	}
@@ -1197,8 +1199,8 @@ class Gameplay extends MusicBeatState
 
 	private function pipeFrame():Void
 	{
-		var img:lime.graphics.Image = lime.app.Application.current.window.readPixels(new lime.math.Rectangle(FlxG.scaleMode.offset.x, FlxG.scaleMode.offset.y, FlxG.scaleMode.gameSize.x, FlxG.scaleMode.gameSize.y));
-		var bytes:haxe.io.Bytes = img.getPixels(new lime.math.Rectangle(0, 0, img.width, img.height));
+		final img:lime.graphics.Image = lime.app.Application.current.window.readPixels(new lime.math.Rectangle(FlxG.scaleMode.offset.x, FlxG.scaleMode.offset.y, FlxG.scaleMode.gameSize.x, FlxG.scaleMode.gameSize.y));
+		final bytes:haxe.io.Bytes = img.getPixels(new lime.math.Rectangle(0, 0, img.width, img.height));
 		process.stdin.writeBytes(bytes, 0, bytes.length);
 	}
 

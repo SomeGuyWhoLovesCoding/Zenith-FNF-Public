@@ -38,15 +38,15 @@ class Song
 
 	public var offset:Null<Float> = 0;
 
-	private static function onLoadJson(songJson:Dynamic) // Convert old charts to newest format
+	inline static private function onLoadJson(songJson:Dynamic) // Convert old charts to newest format
 	{
-		if(songJson.gfVersion == null)
+		if(null == songJson.gfVersion)
 		{
 			songJson.gfVersion = songJson.player3;
 			songJson.player3 = null;
 		}
 
-		if(songJson.events == null)
+		if(null == songJson.events)
 		{
 			songJson.events = [];
 			for (secNum in 0...songJson.notes.length)
@@ -61,8 +61,8 @@ class Song
 					var note:Array<Dynamic> = notes[i];
 					if(note[1] < 0)
 					{
-						songJson.events.push([note[0], [[note[2], note[3], note[4]]]]);
-						notes.remove(note);
+						inline songJson.events.push([note[0], [[note[2], note[3], note[4]]]]);
+						inline notes.remove(note);
 						len = notes.length;
 					}
 					else i++;
@@ -80,23 +80,23 @@ class Song
 
 	public static function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
-		var formattedFolder:String = Paths.formatToSongPath(folder);
-		var formattedSong:String = Paths.formatToSongPath(jsonInput);
+		var formattedFolder:String = inline Paths.formatToSongPath(folder);
+		var formattedSong:String = inline Paths.formatToSongPath(jsonInput);
 
-		var rawJson:String = sys.io.File.getContent(Paths.ASSET_PATH + '/data/' + formattedFolder + '/' + formattedSong + '.json').trim();
+		var rawJson:String = inline sys.io.File.getContent(Paths.ASSET_PATH + '/data/' + formattedFolder + '/' + formattedSong + '.json').trim();
 
 		while (!rawJson.endsWith("}"))
-			rawJson = rawJson.substr(0, rawJson.length - 1); // LOL GOING THROUGH THE BULLSHIT TO CLEAN IDK WHATS STRANGE
+			rawJson = inline rawJson.substr(0, rawJson.length - 1); // LOL GOING THROUGH THE BULLSHIT TO CLEAN IDK WHATS STRANGE
 
-		var songJson:SwagSong = parseJSONshit(rawJson);
+		var songJson:SwagSong = inline parseJSONshit(rawJson);
 		if(jsonInput != 'events') StageData.loadDirectory(songJson);
 		onLoadJson(songJson);
 		return songJson;
 	}
 
-	public static function parseJSONshit(rawJson:String):SwagSong
+	inline static public function parseJSONshit(rawJson:String):SwagSong
 	{
-		var swagShit:SwagSong = JsonParser.parse(rawJson).song;
+		var swagShit:SwagSong = (inline JsonParser.parse(rawJson)).song;
 		return swagShit;
 	}
 }

@@ -35,6 +35,9 @@ class SaveData
 
 	static public function reloadSave():Void
 	{
+		//contents = (sys.io.File.getContent('savedata.sav') : SaveFile);
+		if (!sys.FileSystem.exists('savedata.sav'))
+			sys.io.File.saveContent('savedata.sav', '');
 		// WIP
 	}
 
