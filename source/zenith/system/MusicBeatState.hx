@@ -2,6 +2,7 @@ package zenith.system;
 
 import openfl.Lib;
 import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
 import lime.app.Application;
 import flixel.input.keyboard.FlxKey;
 
@@ -23,8 +24,8 @@ class MusicBeatState extends FlxState
 
 		keyEmitter = new Emitter();
 
-		Application.current.window.onKeyDown.add((keyCode:UInt, keyMod:UInt) -> {keyEmitter.emit(SignalEvent.KEY_DOWN, keyCode);});
-		Application.current.window.onKeyUp.add((keyCode:UInt, keyMod:UInt) -> {keyEmitter.emit(SignalEvent.KEY_UP, keyCode);});
+		Application.current.window.onKeyDown.add((keyCode:KeyCode, keyMod:KeyModifier) -> {keyEmitter.emit(SignalEvent.KEY_DOWN, keyCode);});
+		Application.current.window.onKeyUp.add((keyCode:KeyCode, keyMod:KeyModifier) -> {keyEmitter.emit(SignalEvent.KEY_UP, keyCode);});
 
 		super.create();
 	}
@@ -55,8 +56,8 @@ class MusicBeatState extends FlxState
 
 	override function destroy():Void
 	{
-		Application.current.window.onKeyDown.remove((keyCode:UInt, keyMod:UInt) -> {keyEmitter.emit(SignalEvent.KEY_DOWN, keyCode);});
-		Application.current.window.onKeyUp.remove((keyCode:UInt, keyMod:UInt) -> {keyEmitter.emit(SignalEvent.KEY_UP, keyCode);});
+		Application.current.window.onKeyDown.remove((keyCode:KeyCode, keyMod:KeyModifier) -> {keyEmitter.emit(SignalEvent.KEY_DOWN, keyCode);});
+		Application.current.window.onKeyUp.remove((keyCode:KeyCode, keyMod:KeyModifier) -> {keyEmitter.emit(SignalEvent.KEY_UP, keyCode);});
 		super.destroy();
 	}
 
@@ -64,8 +65,8 @@ class MusicBeatState extends FlxState
 
 	public function switchState(nextState:FlxState)
 	{
-		Application.current.window.onKeyDown.remove((keyCode:UInt, keyMod:UInt) -> {keyEmitter.emit(SignalEvent.KEY_DOWN, keyCode);});
-		Application.current.window.onKeyUp.remove((keyCode:UInt, keyMod:UInt) -> {keyEmitter.emit(SignalEvent.KEY_UP, keyCode);});
+		Application.current.window.onKeyDown.remove((keyCode:KeyCode, keyMod:KeyModifier) -> {keyEmitter.emit(SignalEvent.KEY_DOWN, keyCode);});
+		Application.current.window.onKeyUp.remove((keyCode:KeyCode, keyMod:KeyModifier) -> {keyEmitter.emit(SignalEvent.KEY_UP, keyCode);});
 
 		Main.startTransition(true, function()
 		{
@@ -75,8 +76,8 @@ class MusicBeatState extends FlxState
 
 	public function resetState()
 	{
-		Application.current.window.onKeyDown.remove((keyCode:UInt, keyMod:UInt) -> {keyEmitter.emit(SignalEvent.KEY_DOWN, keyCode);});
-		Application.current.window.onKeyUp.remove((keyCode:UInt, keyMod:UInt) -> {keyEmitter.emit(SignalEvent.KEY_UP, keyCode);});
+		Application.current.window.onKeyDown.remove((keyCode:KeyCode, keyMod:KeyModifier) -> {keyEmitter.emit(SignalEvent.KEY_DOWN, keyCode);});
+		Application.current.window.onKeyUp.remove((keyCode:KeyCode, keyMod:KeyModifier) -> {keyEmitter.emit(SignalEvent.KEY_UP, keyCode);});
 
 		Main.startTransition(true, FlxG.resetState);
 	}
