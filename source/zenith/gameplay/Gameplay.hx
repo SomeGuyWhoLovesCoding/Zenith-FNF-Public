@@ -257,7 +257,7 @@ class Gameplay extends MusicBeatState
 		for (i in 0...notes.members.length)
 		{
 			final currentNote:Note = notes.members[i];
-			events.emitUntyped(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4 : 0)]);
+			events.emit(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4 : 0)]);
 		}
 
 		while (null != unspawnNotes[unspawnNotes.length-1] && Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - (1950.0 / songSpeed))
@@ -741,6 +741,7 @@ class Gameplay extends MusicBeatState
 			strum.scrollMult = downScroll ? -1 : 1;
 			strum.x = 60 + (112 * strum.noteData) + ((FlxG.width * 0.5587511111112) * strum.player);
 			strum.y = downScroll ? FlxG.height - 160 : 60;
+			strum.playerStrum = player == strumlines;
 			inline strums.add(strum);
 		}
 	}
@@ -904,7 +905,7 @@ class Gameplay extends MusicBeatState
 
 	public function endSong():Void
 	{
-		stopRender();
+		inline stopRender();
 		songEnded = true;
 		switchState(new WelcomeState());
 	}
@@ -1049,7 +1050,7 @@ class Gameplay extends MusicBeatState
 		}
 	}
 
-	// Preferences stuff (Also for lua)
+	// Preferences stuff (Also for scripting)
 
 	var strumYTweens(default, null):Array<FlxTween> = [];
 	var strumScrollMultTweens(default, null):Array<FlxTween> = [];
@@ -1195,14 +1196,14 @@ class Gameplay extends MusicBeatState
 		}
 	}
 
-	private function pipeFrame():Void
+	inline private function pipeFrame():Void
 	{
 		final img:lime.graphics.Image = lime.app.Application.current.window.readPixels(new lime.math.Rectangle(FlxG.scaleMode.offset.x, FlxG.scaleMode.offset.y, FlxG.scaleMode.gameSize.x, FlxG.scaleMode.gameSize.y));
 		final bytes:haxe.io.Bytes = img.getPixels(new lime.math.Rectangle(0, 0, img.width, img.height));
 		process.stdin.writeBytes(bytes, 0, bytes.length);
 	}
 
-	private function stopRender():Void
+	inline private function stopRender():Void
 	{
 		if (!renderMode)
 			return;

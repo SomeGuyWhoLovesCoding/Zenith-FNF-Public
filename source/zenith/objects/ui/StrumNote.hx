@@ -6,6 +6,7 @@ class StrumNote extends FlxSprite
 	public var player:Int = 0;
 	//public var resetAnim:Float = 0;
 	public var scrollMult:Float = 1;
+	public var playerStrum:Bool = false;
 
 	public static final animArray:Array<String> = ['left', 'down', 'up', 'right'];
 
@@ -20,17 +21,17 @@ class StrumNote extends FlxSprite
 
 		frames = @:privateAccess Paths.noteFrames;
 
-		animation.addByPrefix('static', 'arrow' + animArray[noteData].toUpperCase());
+		animation.addByPrefix('static', 'arrow' + inline animArray[noteData].toUpperCase());
 		animation.addByPrefix('pressed', animArray[noteData] + ' press', 24, false);
 		animation.addByPrefix('confirm', animArray[noteData] + ' confirm', 24, false);
 
 		scale.set(0.7, 0.7);
 		updateHitbox();
 
-		antialiasing = true;
+		antialiasing = SaveData.contents.preferences.antialiasing;
 		pixelPerfectPosition = false;
 
-		playAnim('static'); // Wow, am I really a dumbass?
+		inline playAnim('static'); // Wow, am I really a dumbass?
 	}
 
 	public function playAnim(anim:String):Void
@@ -45,8 +46,10 @@ class StrumNote extends FlxSprite
 		super.update(elapsed);
 
 		if (animation.curAnim.name == 'confirm')
-			centerOrigin();
-			if (animation.curAnim.finished && (player != 1 || Gameplay.cpuControlled))
+		{
+			inline centerOrigin();
+			if (animation.curAnim.finished && (playerStrum || Gameplay.cpuControlled))
 				playAnim('static');
+		}
 	}
 }

@@ -57,7 +57,7 @@ class Note extends FlxSprite
 		if (prototypeNoteskin)
 			makeGraphic(112, 112, 0xFFFF0000);
 
-		antialiasing = true;
+		antialiasing = SaveData.contents.preferences.antialiasing;
 
 		// Set the note's scale to 0.7 initially and update the hitbox, don't reuse that same process each time a note, and add the animation prefixes in the constructor.
 
