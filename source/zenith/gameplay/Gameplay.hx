@@ -178,8 +178,8 @@ class Gameplay extends MusicBeatState
 			strums = new FlxTypedGroup<StrumNote>();
 			add(strums);
 
-			inline generateStrumline(0);
-			inline generateStrumline(1);
+			for (i in 0...strumlines)
+				inline generateStrumline(i);
 
 			notes = new FlxTypedGroup<Note>();
 			add(notes);
