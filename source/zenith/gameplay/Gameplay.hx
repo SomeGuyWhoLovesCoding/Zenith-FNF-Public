@@ -10,7 +10,7 @@ import flixel.text.FlxText;
 import flixel.util.FlxSort;
 
 import lime.app.Application;
-import lime.ui.*;
+import lime.ui.KeyCode;
 
 import zenith.objects.ui.Note; // Don't remove this.
 
@@ -1003,10 +1003,10 @@ class Gameplay extends MusicBeatState
 
 	// Real input system!!
 
-	public var inputKeybinds:Array<Int> = [];
+	public var inputKeybinds:Array<KeyCode> = [];
 
 	private var holdArray(default, null):Array<Bool> = [false, false, false, false];
-	inline public function onKeyDown(keyCode:Int):Void
+	inline public function onKeyDown(keyCode:KeyCode):Void
 	{
 		final key:Int = inline inputKeybinds.indexOf(keyCode);
 
@@ -1033,7 +1033,7 @@ class Gameplay extends MusicBeatState
 	inline private function fastNoteFilter(array:Array<Note>, f:(Note)->Bool):Array<Note>
 		return [for (i in 0...array.length) { final a:Note = array[i]; if (f(a)) a; }];
 
-	inline public function onKeyUp(keyCode:Int):Void
+	inline public function onKeyUp(keyCode:KeyCode):Void
 	{
 		final key:Int = inline inputKeybinds.indexOf(keyCode);
 
