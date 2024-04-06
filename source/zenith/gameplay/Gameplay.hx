@@ -119,15 +119,10 @@ class Gameplay extends MusicBeatState
 		{
 			inline cpp.vm.Gc.enable(true);
 			cpuControlled = true;
-			initRender();
+			inline initRender();
 		}
 
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
-
-		inline events.on(SignalEvent.NOTE_FOLLOW, __note);
-		inline events.on(SignalEvent.NOTE_HIT, onNoteHit);
-		inline events.on(SignalEvent.NOTE_MISS, onNoteMiss);
-		inline events.on(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
 
 		instance = this;
 
@@ -225,10 +220,13 @@ class Gameplay extends MusicBeatState
 
 		super.create();
 
+		inline events.on(SignalEvent.NOTE_FOLLOW, onFollowNote);
+		inline events.on(SignalEvent.NOTE_HIT, onNoteHit);
+		inline events.on(SignalEvent.NOTE_MISS, onNoteMiss);
+		inline events.on(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
+
 		inline keyEmitter.on(SignalEvent.KEY_DOWN, onKeyDown);
 		inline keyEmitter.on(SignalEvent.KEY_UP, onKeyUp);
-
-		//trace(Sys.args());
 	}
 
 	override function update(elapsed:Float):Void
@@ -252,14 +250,14 @@ class Gameplay extends MusicBeatState
 		hudCameraBelow.alpha = hudCamera.alpha;
 		hudCameraBelow.zoom = hudCamera.zoom;
 
-		health = inline FlxMath.bound(health, 0, (Gameplay.hideHUD || Gameplay.noCharacters) ? 2.0 : hudGroup.healthBar.maxValue);
+		health = inline FlxMath.bound(health, 0.0, (Gameplay.hideHUD || Gameplay.noCharacters) ? 2.0 : hudGroup.healthBar.maxValue);
 
 		Conductor.songPosition += elapsed * 1000.0;
 
 		for (i in 0...notes.members.length)
 		{
 			final currentNote:Note = notes.members[i];
-			inline events.emit(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4.0 : 0.0)]);
+			inline events.emitUntyped(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4 : 0)]);
 		}
 
 		while (null != unspawnNotes[unspawnNotes.length-1] && Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - (1950.0 / songSpeed))
@@ -281,10 +279,10 @@ class Gameplay extends MusicBeatState
 
 		if (renderMode)
 		{
-			inline notes.members.sort((b, a) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
+			inline notes.members.sort((b:Note, a:Note) -> inline Std.int(a.y - b.y)); // Psych engine display note sorting moment
 			pipeFrame();
-	
-			if (Conductor.songPosition - (20 + SONG.offset) >= inline Std.int(songLength) && !songEnded)
+
+			if (Conductor.songPosition - (20.0 + SONG.offset) >= inline Std.int(songLength) && !songEnded)
 				endSong();
 		}
 	}
@@ -338,6 +336,7 @@ class Gameplay extends MusicBeatState
 				var value:Int = inline Std.parseInt(value1);
 				if (inline Math.isNaN(value) || value < 1)
 					value = 1;
+
 				gfSpeed = value;
 
 			case 'Add Camera Zoom':
@@ -345,6 +344,7 @@ class Gameplay extends MusicBeatState
 				{
 					var camZoom:Float = inline Std.parseFloat(value1);
 					var hudZoom:Float = inline Std.parseFloat(value2);
+
 					if (inline Math.isNaN(camZoom))
 						camZoom = 0.015;
 					if (inline Math.isNaN(hudZoom))
@@ -703,8 +703,8 @@ class Gameplay extends MusicBeatState
 
 		trace('Let\'s finish up chart and events loading...');
 
-		inline unspawnNotes.sort((b, a) -> Std.int(a.strumTime - b.strumTime));
-		inline eventNotes.sort((b, a) -> Std.int(a.strumTime - b.strumTime));
+		inline unspawnNotes.sort((b:ChartNoteData, a:ChartNoteData) -> inline Std.int(a.strumTime - b.strumTime));
+		inline eventNotes.sort((b:EventNote, a:EventNote) -> inline Std.int(a.strumTime - b.strumTime));
 
 		trace('Done! Now time to load HUD objects...');
 	}
@@ -805,7 +805,7 @@ class Gameplay extends MusicBeatState
 		lastBeatHit = curBeat;
 
 		if (!renderMode)
-			inline notes.members.sort((a, b) -> Std.int(a.strumTime - b.strumTime));
+			inline notes.members.sort((a:Note, b:Note) -> inline Std.int(a.strumTime - b.strumTime));
 	}
 
 	override function sectionHit()
@@ -1088,7 +1088,7 @@ class Gameplay extends MusicBeatState
 	{
 		stopRender();
 
-		inline events.off(SignalEvent.NOTE_FOLLOW, __note);
+		inline events.off(SignalEvent.NOTE_FOLLOW, onFollowNote);
 		inline events.off(SignalEvent.NOTE_HIT, onNoteHit);
 		inline events.off(SignalEvent.NOTE_MISS, onNoteMiss);
 		inline events.off(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
@@ -1139,7 +1139,7 @@ class Gameplay extends MusicBeatState
 		}
 	}
 
-	inline function __note(note:Note, strum:StrumNote):Void
+	inline private function onFollowNote(note:Note, strum:StrumNote):Void
 	{
 		if (note.exists)
 		{
@@ -1186,14 +1186,13 @@ class Gameplay extends MusicBeatState
 	public var videoEncoder:String = "libx265";
 	public var outputPath:String = "output.mp4";
 
-	private function initRender():Void
+	inline private function initRender():Void
 	{
-		if (!renderMode)
-			return;
-
-		process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '$videoFramerate', '-i', '-', '-c:v', videoEncoder, (inline (inline Sys.getCwd()).replace('\\', '/')) + outputPath]);
-
-		FlxG.autoPause = false;
+		if (renderMode)
+		{
+			process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '$videoFramerate', '-i', '-', '-c:v', videoEncoder, (inline (inline Sys.getCwd()).replace('\\', '/')) + outputPath]);
+			FlxG.autoPause = false;
+		}
 	}
 
 	private function pipeFrame():Void
