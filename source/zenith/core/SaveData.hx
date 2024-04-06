@@ -1,17 +1,19 @@
 package zenith.core;
 
 import lime.ui.KeyCode;
+import haxe.Json;
 
 class SaveData
 {
 	static public var contents:SaveFile = {
 		preferences: {
 			downScroll: false,
-			smoothHealth: false,
+			smoothHealth: true,
 			ghostTapping: false,
 			hideHUD: false,
 			noCharacters: false,
-			antialiasing: false,
+			antialiasing: true,
+			gpuCaching: true,
 			fps: 480
 		},
 		controls: {
@@ -35,15 +37,19 @@ class SaveData
 
 	static public function reloadSave():Void
 	{
-		//contents = (sys.io.File.getContent('savedata.sav') : SaveFile);
-		if (!sys.FileSystem.exists('savedata.sav'))
+		if (sys.FileSystem.exists('savedata.sav'))
+		{
+			var contentStr:String = sys.io.File.getContent('savedata.sav');
+			contents = (contentStr != '' ? (haxe.Json.parse(contentStr) : SaveFile) : contents);
+		}
+		else
 			inline sys.io.File.saveContent('savedata.sav', '');
 		// WIP
 	}
 
 	static public function saveContent():Void
 	{
-		// WIP
+		sys.io.File.saveContent('savedata.sav', haxe.Json.stringify(contents, '\t'));
 	}
 }
 
@@ -62,6 +68,7 @@ typedef PreferencesData =
 	var hideHUD:Bool;
 	var noCharacters:Bool;
 	var antialiasing:Bool;
+	var gpuCaching:Bool;
 	var fps:Int;
 }
 

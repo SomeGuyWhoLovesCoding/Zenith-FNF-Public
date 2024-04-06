@@ -50,6 +50,8 @@ class Main extends Sprite
 		transition.graphics.endFill();
 		transition.x = -transition.width * 0.5;
 
+		SaveData.reloadSave();
+
 		addChild(game = new Game());
 		addChild(transition);
 

@@ -3,6 +3,8 @@ package zenith.menus;
 import flixel.addons.display.FlxBackdrop;
 import flixel.text.FlxText;
 
+// Don't mind this
+
 class WelcomeState extends MusicBeatState
 {
 	override public function create():Void

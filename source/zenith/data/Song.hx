@@ -1,7 +1,6 @@
 package zenith.data;
 
 import zenith.data.Section;
-import haxe.format.JsonParser;
 
 using StringTools;
 
@@ -38,12 +37,11 @@ class Song
 
 	public var offset:Null<Float> = 0;
 
-	inline static private function onLoadJson(songJson:Dynamic) // Convert old charts to newest format
+	inline static private function onLoadJson(songJson:SwagSong):SwagSong // Convert old charts to newest format
 	{
 		if(null == songJson.gfVersion)
 		{
-			songJson.gfVersion = songJson.player3;
-			songJson.player3 = null;
+			songJson.gfVersion = 'gf';
 		}
 
 		if(null == songJson.events)
@@ -51,10 +49,10 @@ class Song
 			songJson.events = [];
 			for (secNum in 0...songJson.notes.length)
 			{
-				var sec:SwagSection = songJson.notes[secNum];
+				final sec:SwagSection = songJson.notes[secNum];
 
 				var i:Int = 0;
-				var notes:Array<Dynamic> = sec.sectionNotes;
+				final notes:Array<Dynamic> = sec.sectionNotes;
 				var len:Int = notes.length;
 				while(i < len)
 				{
@@ -69,9 +67,11 @@ class Song
 				}
 			}
 		}
+
+		return songJson;
 	}
 
-	public function new(song, notes, bpm)
+	public function new(song:String, notes:Array<SwagSection>, bpm:Float)
 	{
 		this.song = song;
 		this.notes = notes;
@@ -90,13 +90,12 @@ class Song
 
 		var songJson:SwagSong = inline parseJSONshit(rawJson);
 		if(jsonInput != 'events') StageData.loadDirectory(songJson);
-		onLoadJson(songJson);
-		return songJson;
+		return onLoadJson(songJson);
 	}
 
 	inline static public function parseJSONshit(rawJson:String):SwagSong
 	{
-		var swagShit:SwagSong = (inline JsonParser.parse(rawJson)).song;
+		var swagShit:SwagSong = (inline haxe.Json.parse(rawJson)).song;
 		return swagShit;
 	}
 }

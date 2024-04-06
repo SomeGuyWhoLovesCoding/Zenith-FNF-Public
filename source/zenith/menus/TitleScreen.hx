@@ -238,7 +238,7 @@ class TitleScreen extends MusicBeatState
 		if (SaveData.contents.controls.RIGHT == keyCode)
 			TitleScreenSubState.instance.sendSignalRight();
 
-		if (SaveData.controls.get("Backspace") == keyCode)
+		if (SaveData.contents.controls.BACK == keyCode)
 		{
 			closeSubState();
 			alreadyPressedEnter = false;
