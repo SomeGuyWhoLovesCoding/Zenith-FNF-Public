@@ -16,7 +16,7 @@
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
-	<window width="1280" height="720" fps="480" background="null" hardware="true" vsync="false" />
+	<window width="1280" height="720" fps="1000" background="null" hardware="true" vsync="false" />
 
 	<!--Desktop-specific-->
 	<window if="desktop" orientation="landscape" fullscreen="false" resizable="false" />
