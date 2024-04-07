@@ -98,7 +98,9 @@ class Main extends Sprite
 	}
 
 	private static var transitionY:Float = 0.0;
+
 	private static var fps:Float = 60.0;
+	private static var fpsMax:Float = 60.0;
 	public static function updateMain(elapsed:Float):Void
 	{
 		if (@:privateAccess FlxG.game._lostFocus && FlxG.autoPause)
@@ -108,7 +110,11 @@ class Main extends Sprite
 		if (null != fpsTxt)
 		{
 			fps = inline Math.min(inline flixel.math.FlxMath.lerp(fps, 1.0 / elapsed, 0.01), 1000.0);
-			fpsTxt.text = 'FPS: ' + inline Std.int(fps) + '\nMEM: ' + inline flixel.util.FlxStringUtil.formatBytes(openfl.system.System.totalMemory);
+
+			if (fpsMax < fps)
+				fpsMax = fps;
+
+			fpsTxt.text = 'FPS: ' + inline Std.int(fps) + ' [MAX: ]' + inline Std.int(fpsMax) + '\nMEM: ' + inline flixel.util.FlxStringUtil.formatBytes(openfl.system.System.totalMemory);
 		}
 
 		transition.y = transitionY;

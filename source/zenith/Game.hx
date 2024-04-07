@@ -5,7 +5,7 @@ import lime.app.Application;
 
 import sys.thread.Mutex;
 
-@:allow(flixel.FlxG.elapsed) // Please don't remve this
+@:allow(flixel.FlxG.elapsed) // Please don't remove this
 class Game extends FlxGame
 {
 	private final initState:Class<FlxState> = Gameplay;
@@ -14,7 +14,7 @@ class Game extends FlxGame
 
 	public var inputEnabled:Bool = true;
 
-	var __mutex:Mutex;
+	private var __mutex:Mutex;
 	public function new():Void
 	{
 		var fps:Int = inline Std.int(setFramerate(SaveData.contents.preferences.fps));
@@ -24,6 +24,8 @@ class Game extends FlxGame
 		Application.current.window.onClose.add(SaveData.saveContent);
 
 		__mutex = new Mutex();
+
+		delta = untyped __global__.__time_stamp() * 1000.0;
 
 		trace('Game initialized.');
 	}
@@ -36,7 +38,7 @@ class Game extends FlxGame
 		__mutex.release();
 	}
 
-	var delta:Float = 0;
+	private var delta:Float;
 	override function updateElapsed():Void
 	{
 		var timestamp:Float = untyped __global__.__time_stamp() * 1000.0;

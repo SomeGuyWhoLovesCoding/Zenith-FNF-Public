@@ -44,11 +44,11 @@ class WelcomeState extends MusicBeatState
 	{
 		super.update(elapsed);
 
-		if (FlxG.keys.justPressed.SPACE)
+		/*if (FlxG.keys.justPressed.SPACE)
 		{
 			//Main.skipTransIn = true;
 			resetState();
 			//trace('a');
-		}
+		}*/
 	}
 }
