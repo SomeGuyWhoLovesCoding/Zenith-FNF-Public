@@ -5,6 +5,7 @@ import lime.app.Application;
 
 import sys.thread.Mutex;
 
+@:allow(flixel.FlxG.elapsed) // Please don't remve this
 class Game extends FlxGame
 {
 	private final initState:Class<FlxState> = Gameplay;
@@ -33,6 +34,16 @@ class Game extends FlxGame
 		super.onEnterFrame((_ : openfl.events.Event));
 		Main.updateMain(FlxG.elapsed);
 		mutex.release();
+	}
+
+	var delta:Float = 0;
+	override function updateElapsed():Void
+	{
+		var timestamp:Float = untyped __global__.__time_stamp() * 1000.0;
+		if (delta != 0)
+    		_elapsedMS = timestamp - delta;
+		super.updateElapsed();
+		delta = timestamp;
 	}
 
 	inline public function setFramerate(fps:Int):Float

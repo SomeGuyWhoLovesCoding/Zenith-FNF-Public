@@ -12,7 +12,7 @@ import zenith.system.*;
 
 // Flixel
 import flixel.*;
-import flixel.system.FlxSound;
+import flixel.sound.FlxSound;
 
 // Signals
 import emitter.signals.*;
