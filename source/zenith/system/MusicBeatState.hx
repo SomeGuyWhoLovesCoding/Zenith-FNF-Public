@@ -14,18 +14,12 @@ class MusicBeatState extends FlxState
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
 
-	private var curDecStep:Float = 0;
-	private var curDecBeat:Float = 0;
+	private var curDecStep:Float = 0.0;
+	private var curDecBeat:Float = 0.0;
 
-	public var keyEmitter:Emitter;
 	override function create():Void
 	{
 		Main.startTransition(false);
-
-		keyEmitter = new Emitter();
-
-		Application.current.window.onKeyDown.add((keyCode:KeyCode, keyMod:KeyModifier) -> {keyEmitter.emit(SignalEvent.KEY_DOWN, keyCode);});
-		Application.current.window.onKeyUp.add((keyCode:KeyCode, keyMod:KeyModifier) -> {keyEmitter.emit(SignalEvent.KEY_UP, keyCode);});
 
 		super.create();
 	}
@@ -54,20 +48,10 @@ class MusicBeatState extends FlxState
 		}
 	}
 
-	override function destroy():Void
-	{
-		Application.current.window.onKeyDown.remove((keyCode:KeyCode, keyMod:KeyModifier) -> {keyEmitter.emit(SignalEvent.KEY_DOWN, keyCode);});
-		Application.current.window.onKeyUp.remove((keyCode:KeyCode, keyMod:KeyModifier) -> {keyEmitter.emit(SignalEvent.KEY_UP, keyCode);});
-		super.destroy();
-	}
-
 	// State stuff
 
 	public function switchState(nextState:FlxState)
 	{
-		Application.current.window.onKeyDown.remove((keyCode:KeyCode, keyMod:KeyModifier) -> {keyEmitter.emit(SignalEvent.KEY_DOWN, keyCode);});
-		Application.current.window.onKeyUp.remove((keyCode:KeyCode, keyMod:KeyModifier) -> {keyEmitter.emit(SignalEvent.KEY_UP, keyCode);});
-
 		Main.startTransition(true, function()
 		{
 			FlxG.switchState(nextState);
@@ -76,9 +60,6 @@ class MusicBeatState extends FlxState
 
 	public function resetState()
 	{
-		Application.current.window.onKeyDown.remove((keyCode:KeyCode, keyMod:KeyModifier) -> {keyEmitter.emit(SignalEvent.KEY_DOWN, keyCode);});
-		Application.current.window.onKeyUp.remove((keyCode:KeyCode, keyMod:KeyModifier) -> {keyEmitter.emit(SignalEvent.KEY_UP, keyCode);});
-
 		Main.startTransition(true, FlxG.resetState);
 	}
 
@@ -87,11 +68,11 @@ class MusicBeatState extends FlxState
 	private function updateSection():Void
 	{
 		if (stepsToDo < 1)
-			stepsToDo = inline Math.round(inline getBeatsOnSection() * 4);
+			stepsToDo = inline Math.round(inline getBeatsOnSection() * 4.0);
 
 		while (curStep >= stepsToDo)
 		{
-			stepsToDo += inline Math.round(inline getBeatsOnSection() * 4);
+			stepsToDo += inline Math.round(inline getBeatsOnSection() * 4.0);
 			curSection++;
 			sectionHit();
 		}
@@ -109,7 +90,7 @@ class MusicBeatState extends FlxState
 		{
 			if (null != Gameplay.SONG.notes[i])
 			{
-				stepsToDo += inline Math.round(inline getBeatsOnSection() * 4);
+				stepsToDo += inline Math.round(inline getBeatsOnSection() * 4.0);
 				if (stepsToDo > curStep)
 					break;
 

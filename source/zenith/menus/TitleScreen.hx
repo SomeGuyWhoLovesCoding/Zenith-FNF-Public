@@ -5,6 +5,9 @@ import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 import flixel.text.FlxText;
 
+import lime.app.Application;
+import lime.ui.KeyCode;
+
 typedef TitleConfigurations =
 {
 	var bpm:Float;
@@ -43,12 +46,12 @@ class TitleScreen extends MusicBeatState
 		loadTitleScreenShit();
 		titleBG.visible = titleImage.visible = initialized;
 
-		keyEmitter.on(SignalEvent.KEY_DOWN, onKeyDown);
+		Application.current.window.onKeyDown.add(onKeyDown);
 	}
 
 	override function destroy():Void
 	{
-		keyEmitter.off(SignalEvent.KEY_DOWN, onKeyDown);
+		Application.current.window.onKeyDown.remove(onKeyDown);
 		super.destroy();
 	}
 
@@ -208,7 +211,7 @@ class TitleScreen extends MusicBeatState
 	}
 
 	public static var alreadyPressedEnter:Bool = false;
-	inline public function onKeyDown(keyCode:Int):Void
+	inline public function onKeyDown(keyCode:KeyCode, m:Int):Void
 	{
 		//trace('Test');
 

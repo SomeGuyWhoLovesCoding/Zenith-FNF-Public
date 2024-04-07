@@ -220,8 +220,8 @@ class Gameplay extends MusicBeatState
 		events.on(SignalEvent.NOTE_MISS, onNoteMiss);
 		events.on(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
 
-		keyEmitter.on(SignalEvent.KEY_DOWN, onKeyDown);
-		keyEmitter.on(SignalEvent.KEY_UP, onKeyUp);
+		Application.current.window.onKeyDown.add(onKeyDown);
+		Application.current.window.onKeyUp.add(onKeyUp);
 	}
 
 	override function update(elapsed:Float):Void
@@ -232,7 +232,8 @@ class Gameplay extends MusicBeatState
 		if (renderMode)
 			elapsed = 1.0 / videoFramerate;
 
-		events.emit(SignalEvent.GAMEPLAY_UPDATE, elapsed);
+		inline events.emit(SignalEvent.GAMEPLAY_UPDATE, elapsed);
+
 		super.update(elapsed);
 	}
 
@@ -252,15 +253,23 @@ class Gameplay extends MusicBeatState
 		for (i in 0...notes.members.length)
 		{
 			var currentNote:Note = notes.members[i];
-			events.emit(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4 : 0)]);
+			inline events.emit(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4 : 0)]);
 		}
 
-		while (null != unspawnNotes[unspawnNotes.length-1] && Conductor.songPosition > unspawnNotes[unspawnNotes.length-1].strumTime - (1950.0 / songSpeed))
-			inline notes.recycle(Note).setupNoteData(inline unspawnNotes.pop());
+		while (null != unspawnNotes[unspawnNotes.length-1])
+		{
+			if (Conductor.songPosition < unspawnNotes[unspawnNotes.length-1].strumTime - (1950.0 / songSpeed))
+				break;
+
+			notes.recycle(Note).setupNoteData(inline unspawnNotes.pop());
+		}
 
 		// This used to be a function
-		while(null != eventNotes[eventNotes.length-1] && Conductor.songPosition > eventNotes[eventNotes.length-1].strumTime)
+		while(null != eventNotes[eventNotes.length-1])
 		{
+			if (Conductor.songPosition < eventNotes[eventNotes.length-1].strumTime)
+				break;
+
 			var value1:String = '';
 			if(null != eventNotes[eventNotes.length-1].value1)
 				value1 = eventNotes[eventNotes.length-1].value1;
@@ -1004,7 +1013,7 @@ class Gameplay extends MusicBeatState
 	public var inputKeybinds:Array<KeyCode> = [];
 
 	private var holdArray(default, null):Array<Bool> = [false, false, false, false];
-	inline public function onKeyDown(keyCode:KeyCode):Void
+	inline public function onKeyDown(keyCode:KeyCode, m:Int):Void
 	{
 		var key:Int = inline inputKeybinds.indexOf(keyCode);
 
@@ -1019,7 +1028,10 @@ class Gameplay extends MusicBeatState
 			var hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && (inline Math.abs(Conductor.songPosition - n.strumTime)) < 166.7 && !n.wasHit && !n.tooLate && n.noteData == key))[0];
 
 			if (null != hittable)
-				events.emit(SignalEvent.NOTE_HIT, hittable);
+			{
+				inline events.emit(SignalEvent.NOTE_HIT, hittable);
+				strum.update(0);
+			}
 
 			holdArray[key] = true;
 		}
@@ -1028,7 +1040,7 @@ class Gameplay extends MusicBeatState
 	inline private function fastNoteFilter(array:Array<Note>, f:(Note)->Bool):Array<Note>
 		return [for (i in 0...array.length) { var a:Note = array[i]; if (f(a)) a; }];
 
-	inline public function onKeyUp(keyCode:KeyCode):Void
+	inline public function onKeyUp(keyCode:KeyCode, m:Int):Void
 	{
 		var key:Int = inline inputKeybinds.indexOf(keyCode);
 
@@ -1092,8 +1104,8 @@ class Gameplay extends MusicBeatState
 		events.off(SignalEvent.NOTE_MISS, onNoteMiss);
 		events.off(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
 
-		keyEmitter.off(SignalEvent.KEY_DOWN, onKeyDown);
-		keyEmitter.off(SignalEvent.KEY_UP, onKeyUp);
+		Application.current.window.onKeyDown.remove(onKeyDown);
+		Application.current.window.onKeyUp.remove(onKeyUp);
 
 		super.destroy();
 	}
@@ -1161,18 +1173,18 @@ class Gameplay extends MusicBeatState
 			{
 				if (cpuControlled)
 					if (Conductor.songPosition >= note.strumTime)
-						events.emit(SignalEvent.NOTE_HIT, note);
+						inline events.emit(SignalEvent.NOTE_HIT, note);
 
 				if (Conductor.songPosition >= note.strumTime + (Conductor.stepCrochet * 2) && (!note.wasHit && !note.tooLate))
-					events.emit(SignalEvent.NOTE_MISS, note);
+					inline events.emit(SignalEvent.NOTE_MISS, note);
 
 				if (note.isSustainNote)
 					if (Conductor.songPosition >= note.strumTime && holdArray[note.noteData])
-						events.emit(SignalEvent.NOTE_HIT, note);
+						inline events.emit(SignalEvent.NOTE_HIT, note);
 			}
 			else
 				if (Conductor.songPosition >= note.strumTime)
-					events.emit(SignalEvent.NOTE_HIT, note);
+					inline events.emit(SignalEvent.NOTE_HIT, note);
 		}
 	}
 
