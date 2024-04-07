@@ -107,7 +107,7 @@ class Main extends Sprite
 
 		if (null != fpsTxt)
 		{
-			fps = inline Math.min(inline flixel.math.FlxMath.lerp(fps, lime.app.Application.current.window.frameRate = 1.0 / elapsed, 0.01), 1000.0);
+			fps = inline Math.min(inline flixel.math.FlxMath.lerp(fps, 1.0 / elapsed, 0.01), 1000.0);
 			fpsTxt.text = 'FPS: ' + inline Std.int(fps) + '\nMEM: ' + inline flixel.util.FlxStringUtil.formatBytes(openfl.system.System.totalMemory);
 		}
 
