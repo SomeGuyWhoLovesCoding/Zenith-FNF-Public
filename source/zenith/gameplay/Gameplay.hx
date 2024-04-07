@@ -901,7 +901,9 @@ class Gameplay extends MusicBeatState
 
 	public function endSong():Void
 	{
-		hudGroup.timeTxt.visible = false;
+		if (null != hudGroup.timeTxt)
+			hudGroup.timeTxt.visible = false;
+
 		inline stopRender();
 		songEnded = true;
 		switchState(new WelcomeState());

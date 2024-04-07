@@ -7,13 +7,14 @@ class Game extends FlxGame
 {
 	private final initState:Class<FlxState> = Gameplay;
 
+	public static var frameRate:Int;
+
 	public var inputEnabled:Bool = true;
 
 	public function new():Void
 	{
-		SaveData.reloadSave();
-
-		super(0, 0, initState, inline Std.int(Application.current.window.frameRate), inline Std.int(Application.current.window.frameRate), true);
+		var fps:Int = inline Std.int(setFramerate(SaveData.contents.preferences.fps));
+		super(0, 0, initState, fps, fps, true);
 		FlxG.fixedTimestep = FlxG.mouse.visible = false; // Get rid of flixel's mouse as the transition goes over it
 		FlxSprite.defaultAntialiasing = SaveData.contents.preferences.antialiasing;
 		Application.current.window.onClose.add(SaveData.saveContent);
@@ -24,7 +25,9 @@ class Game extends FlxGame
 	override public function onEnterFrame(_:openfl.events.Event):Void
 	{
 		super.onEnterFrame((_ : openfl.events.Event));
-		FlxG.updateFramerate = FlxG.drawFramerate = inline Std.int(inline Math.min(SaveData.contents.preferences.fps, 480.0));
 		Main.updateMain(FlxG.elapsed);
 	}
+
+	inline public function setFramerate(fps:Int):Float
+		return Application.current.window.frameRate = frameRate = fps;
 }
