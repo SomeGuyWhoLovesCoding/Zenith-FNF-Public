@@ -1028,10 +1028,7 @@ class Gameplay extends MusicBeatState
 			var hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && (inline Math.abs(Conductor.songPosition - n.strumTime)) < 166.7 && !n.wasHit && !n.tooLate && n.noteData == key))[0];
 
 			if (null != hittable)
-			{
 				inline events.emit(SignalEvent.NOTE_HIT, hittable);
-				strum.update(0);
-			}
 
 			holdArray[key] = true;
 		}
