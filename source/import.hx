@@ -17,8 +17,8 @@ import flixel.sound.FlxSound;
 // Signals
 import emitter.signals.*;
 
+using GlobalShit;
+
 #if !debug
 @:noDebug
 #end
-
-using GlobalShit;

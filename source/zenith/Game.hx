@@ -14,6 +14,7 @@ class Game extends FlxGame
 
 	public var inputEnabled:Bool = true;
 
+	var __mutex:Mutex;
 	public function new():Void
 	{
 		var fps:Int = inline Std.int(setFramerate(SaveData.contents.preferences.fps));
@@ -22,26 +23,24 @@ class Game extends FlxGame
 		FlxSprite.defaultAntialiasing = SaveData.contents.preferences.antialiasing;
 		Application.current.window.onClose.add(SaveData.saveContent);
 
-		mutex = new Mutex();
+		__mutex = new Mutex();
 
 		trace('Game initialized.');
 	}
 
-	var mutex:Mutex;
 	override public function onEnterFrame(_:openfl.events.Event):Void
 	{
-		mutex.acquire();
+		__mutex.acquire();
 		super.onEnterFrame((_ : openfl.events.Event));
 		Main.updateMain(FlxG.elapsed);
-		mutex.release();
+		__mutex.release();
 	}
 
 	var delta:Float = 0;
 	override function updateElapsed():Void
 	{
 		var timestamp:Float = untyped __global__.__time_stamp() * 1000.0;
-		if (delta != 0)
-    		_elapsedMS = timestamp - delta;
+		_elapsedMS = timestamp - delta;
 		super.updateElapsed();
 		delta = timestamp;
 	}
