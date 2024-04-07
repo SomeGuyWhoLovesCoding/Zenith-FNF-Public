@@ -114,7 +114,7 @@ class Main extends Sprite
 			if (fpsMax < fps)
 				fpsMax = fps;
 
-			fpsTxt.text = 'FPS: ' + inline Std.int(fps) + ' [MAX: ]' + inline Std.int(fpsMax) + '\nMEM: ' + inline flixel.util.FlxStringUtil.formatBytes(openfl.system.System.totalMemory);
+			fpsTxt.text = 'FPS: ' + inline Std.int(fps) + ' (MAX: ' + inline Std.int(fpsMax) + ')\nMEM: ' + inline flixel.util.FlxStringUtil.formatBytes(openfl.system.System.totalMemory);
 		}
 
 		transition.y = transitionY;
