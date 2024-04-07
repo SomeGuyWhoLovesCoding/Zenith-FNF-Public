@@ -7,7 +7,7 @@ class Game extends FlxGame
 {
 	private final initState:Class<FlxState> = Gameplay;
 
-	public static var frameRate:Int;
+	public static var frameRate(default, null):Int;
 
 	public var inputEnabled:Bool = true;
 
@@ -29,5 +29,5 @@ class Game extends FlxGame
 	}
 
 	inline public function setFramerate(fps:Int):Float
-		return Application.current.window.frameRate = frameRate = fps;
+		return frameRate = fps;
 }
