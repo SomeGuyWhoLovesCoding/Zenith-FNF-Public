@@ -2436,59 +2436,30 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		#end
 	}
 
-	@:noCompletion private override function __update(transformOnly:Bool, updateChildren:Bool):Void
+	// From https://github.com/openfl/openfl/blob/2d6362902aaea1b9940fe20b9e73cf9747cfbba5/src/openfl/display/Stage.hx#L3440
+	@:noCompletion override public function __update(transformOnly:Bool, updateChildren:Bool):Void
 	{
-		if (transformOnly)
+		var updateFix:Array<DisplayObjectContainer> = [];
+		var updateQueue:Array<DisplayObject> = DisplayObject.updateQueue;
+
+		while (updateQueue.length != 0)
 		{
-			if (__transformDirty)
-			{
-				super.__update(true, updateChildren);
+			var displayObject:DisplayObject = updateQueue.shift();
+			var parentDisplayObject = displayObject.parent;
 
-				if (updateChildren)
-				{
-					__transformDirty = false;
-					// __dirty = true;
-				}
+			if (parentDisplayObject != null && parentDisplayObject.__updateRequired == true && parentDisplayObject != this)
+			{
+				parentDisplayObject.__update(transformOnly, false);
+				parentDisplayObject.__updateRequired = false;
+				updateFix.push(parentDisplayObject);
 			}
+
+			displayObject.__update(transformOnly, updateChildren);
+			displayObject._updateQueueFlag = false;
 		}
-		else
-		{
-			if (__transformDirty || __renderDirty)
-			{
-				super.__update(false, updateChildren);
 
-				if (updateChildren)
-				{
-					// #if dom
-					if (DisplayObject.__supportDOM)
-					{
-						__wasDirty = true;
-					}
-
-					// #end
-
-					// __dirty = false;
-				}
-			}
-			/*
-				#if dom
-			**/
-			else if (!__renderDirty && __wasDirty)
-			{
-				// If we were dirty last time, we need at least one more
-				// update in order to clear "changed" properties
-
-				super.__update(false, updateChildren);
-
-				if (updateChildren)
-				{
-					__wasDirty = false;
-				}
-			}
-			/*
-				#end
-			**/
-		}
+		for (i in 0...updateFix.length)
+			updateFix[i].__updateRequired = true;
 	}
 
 	// Get & Set Methods
@@ -2500,8 +2471,10 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 	@:noCompletion private function set_color(value:Null<Int>):Null<Int>
 	{
 		if (value == null)
+		{
 			__transparent = true;
 			value = 0x000000;
+		}
 		else
 			__transparent = false;
 
