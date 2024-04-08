@@ -1,14 +1,28 @@
 package zenith;
 
-import openfl.display.Sprite;
-import lime.app.Application;
-
 import sys.thread.Mutex;
 
 @:allow(flixel.FlxG.elapsed) // Please don't remove this
 class Game extends FlxGame
 {
-	private final initState:Class<FlxState> = Gameplay;
+	private final initState:Class<flixel.FlxState> = Gameplay;
+
+	// Keyboard events
+	public static var onKeyDown:Emitter = new Emitter();
+	public static var onKeyUp:Emitter = new Emitter();
+
+	// Mouse events
+	public static var onMouseDown:Emitter = new Emitter();
+	public static var onMouseUp:Emitter = new Emitter();
+	public static var onMouseMove:Emitter = new Emitter();
+	public static var onMouseWheel:Emitter = new Emitter();
+
+	// Gamepad events
+	public static var onGamepadAxisMove:Emitter = new Emitter();
+	public static var onGamepadButtonDown:Emitter = new Emitter();
+	public static var onGamepadButtonUp:Emitter = new Emitter();
+	public static var onGamepadConnect:Emitter = new Emitter();
+	public static var onGamepadDisconnect:Emitter = new Emitter();
 
 	public static var frameRate(default, null):Int;
 
@@ -22,7 +36,7 @@ class Game extends FlxGame
 		FlxG.fixedTimestep = false; // Get rid of flixel's mouse as the transition goes over it
 		FlxSprite.defaultAntialiasing = SaveData.contents.preferences.antialiasing;
 
-		Application.current.window.onClose.add(SaveData.saveContent);
+		lime.app.Application.current.window.onClose.add(SaveData.saveContent);
 
 		__mutex = new Mutex();
 

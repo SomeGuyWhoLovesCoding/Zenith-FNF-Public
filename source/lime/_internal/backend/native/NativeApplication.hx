@@ -43,20 +43,20 @@ import lime.ui.Window;
 @:access(lime.ui.Window)
 class NativeApplication
 {
-	private var applicationEventInfo = new ApplicationEventInfo(UPDATE);
-	private var clipboardEventInfo = new ClipboardEventInfo();
-	private var currentTouches = new Map<Int, Touch>();
-	private var dropEventInfo = new DropEventInfo();
-	private var gamepadEventInfo = new GamepadEventInfo();
-	private var joystickEventInfo = new JoystickEventInfo();
-	private var keyEventInfo = new KeyEventInfo();
-	private var mouseEventInfo = new MouseEventInfo();
-	private var renderEventInfo = new RenderEventInfo(RENDER);
-	private var sensorEventInfo = new SensorEventInfo();
-	private var textEventInfo = new TextEventInfo();
-	private var touchEventInfo = new TouchEventInfo();
-	private var unusedTouchesPool = new List<Touch>();
-	private var windowEventInfo = new WindowEventInfo();
+	private var applicationEventInfo:ApplicationEventInfo = new ApplicationEventInfo(UPDATE);
+	private var clipboardEventInfo:ClipboardEventInfo = new ClipboardEventInfo();
+	private var currentTouches:Map<Int, Touch> = new Map<Int, Touch>();
+	private var dropEventInfo:DropEventInfo = new DropEventInfo();
+	private var gamepadEventInfo:GamepadEventInfo = new GamepadEventInfo();
+	private var joystickEventInfo:JoystickEventInfo = new JoystickEventInfo();
+	private var keyEventInfo:KeyEventInfo = new KeyEventInfo();
+	private var mouseEventInfo:MouseEventInfo = new MouseEventInfo();
+	private var renderEventInfo:RenderEventInfo = new RenderEventInfo(RENDER);
+	private var sensorEventInfo:SensorEventInfo = new SensorEventInfo();
+	private var textEventInfo:TextEventInfo = new TextEventInfo();
+	private var touchEventInfo:TouchEventInfo = new TouchEventInfo();
+	private var unusedTouchesPool:List<Touch> = new List<Touch>();
+	private var windowEventInfo:WindowEventInfo = new WindowEventInfo();
 
 	public var handle:Dynamic;
 
@@ -188,114 +188,84 @@ class NativeApplication
 
 	private function handleGamepadEvent():Void
 	{
-		switch (gamepadEventInfo.type)
+		if (gamepadEventInfo.type == AXIS_MOVE)
+			Game.onGamepadAxisMove.emit(SignalEvent.GAMEPAD_AXIS_MOVE, gamepadEventInfo.axis, gamepadEventInfo.axisValue);
+
+		if (gamepadEventInfo.type == BUTTON_DOWN)
+			Game.onGamepadButtonDown.emit(SignalEvent.GAMEPAD_BUTTON_DOWN, gamepadEventInfo.button);
+
+		if (gamepadEventInfo.type == BUTTON_UP)
+			Game.onGamepadButtonUp.emit(SignalEvent.GAMEPAD_BUTTON_UP, gamepadEventInfo.button);
+
+		if (gamepadEventInfo.type == CONNECT)
 		{
-			case AXIS_MOVE:
-				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
-				if (gamepad != null) gamepad.onAxisMove.dispatch(gamepadEventInfo.axis, gamepadEventInfo.axisValue);
+			Gamepad.__connect(gamepadEventInfo.id);
+			Game.onGamepadConnect.emit(SignalEvent.GAMEPAD_CONNECT, gamepadEventInfo.id);
+		}
 
-			case BUTTON_DOWN:
-				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
-				if (gamepad != null) {
-					gamepad.onButtonDown.dispatch(gamepadEventInfo.button);
-					gamepad.onButtonDownPrecise.dispatch(gamepadEventInfo.button, gamepadEventInfo.timestamp);
-				}
-
-			case BUTTON_UP:
-				var gamepad = Gamepad.devices.get(gamepadEventInfo.id);
-				if (gamepad != null) {
-					gamepad.onButtonUp.dispatch(gamepadEventInfo.button);
-					gamepad.onButtonUpPrecise.dispatch(gamepadEventInfo.button, gamepadEventInfo.timestamp);
-				}
-
-			case CONNECT:
-				Gamepad.__connect(gamepadEventInfo.id);
-
-			case DISCONNECT:
-				Gamepad.__disconnect(gamepadEventInfo.id);
+		if (gamepadEventInfo.type == DISCONNECT)
+		{
+			Gamepad.__disconnect(gamepadEventInfo.id);
+			Game.onGamepadConnect.emit(SignalEvent.GAMEPAD_DISCONNECT, gamepadEventInfo.id);
 		}
 	}
 
 	private function handleJoystickEvent():Void
 	{
-		switch (joystickEventInfo.type)
-		{
-			case AXIS_MOVE:
-				var joystick = Joystick.devices.get(joystickEventInfo.id);
-				if (joystick != null) joystick.onAxisMove.dispatch(joystickEventInfo.index, joystickEventInfo.x);
+		var joystick:Joystick = Joystick.devices.get(joystickEventInfo.id);
+		if (joystick == null) return;
 
-			case HAT_MOVE:
-				var joystick = Joystick.devices.get(joystickEventInfo.id);
-				if (joystick != null) joystick.onHatMove.dispatch(joystickEventInfo.index, joystickEventInfo.eventValue);
+		if (joystickEventInfo.type == AXIS_MOVE)
+			joystick.onAxisMove.dispatch(joystickEventInfo.index, joystickEventInfo.x);
 
-			case TRACKBALL_MOVE:
-				var joystick = Joystick.devices.get(joystickEventInfo.id);
-				if (joystick != null) joystick.onTrackballMove.dispatch(joystickEventInfo.index, joystickEventInfo.x, joystickEventInfo.y);
+		if (joystickEventInfo.type == HAT_MOVE)
+			joystick.onHatMove.dispatch(joystickEventInfo.index, joystickEventInfo.eventValue);
 
-			case BUTTON_DOWN:
-				var joystick = Joystick.devices.get(joystickEventInfo.id);
-				if (joystick != null) joystick.onButtonDown.dispatch(joystickEventInfo.index);
+		if (joystickEventInfo.type == TRACKBALL_MOVE)
+			joystick.onTrackballMove.dispatch(joystickEventInfo.index, joystickEventInfo.x, joystickEventInfo.y);
 
-			case BUTTON_UP:
-				var joystick = Joystick.devices.get(joystickEventInfo.id);
-				if (joystick != null) joystick.onButtonUp.dispatch(joystickEventInfo.index);
+		if (joystickEventInfo.type == BUTTON_DOWN)
+			joystick.onButtonDown.dispatch(joystickEventInfo.index);
 
-			case CONNECT:
-				Joystick.__connect(joystickEventInfo.id);
+		if (joystickEventInfo.type == BUTTON_UP)
+			joystick.onButtonUp.dispatch(joystickEventInfo.index);
 
-			case DISCONNECT:
-				Joystick.__disconnect(joystickEventInfo.id);
-		}
+		if (joystickEventInfo.type == CONNECT)
+			Joystick.__connect(joystickEventInfo.id);
+
+		if (joystickEventInfo.type == DISCONNECT)
+			Joystick.__disconnect(joystickEventInfo.id);
 	}
 
 	private function handleKeyEvent():Void
 	{
-		var window = parent.__windowByID.get(keyEventInfo.windowID);
+		var window:Window = parent.__windowByID.get(keyEventInfo.windowID);
+		if (window == null) return;
+		
+		var type:KeyEventType = keyEventInfo.type;
+		var keyCode:KeyCode = keyEventInfo.keyCode;
+		var modifier:KeyModifier = keyEventInfo.modifier;
 
-		if (window != null)
-		{
-			var type:KeyEventType = keyEventInfo.type;
-			var keyCode:KeyCode = inline Std.int(keyEventInfo.keyCode);
-			var modifier:KeyModifier = keyEventInfo.modifier;
+		if (type == KEY_UP)
+			Game.onKeyUp.emit(SignalEvent.KEY_UP, keyCode, modifier);
 
-			if (type == KEY_UP)
-				Main.onKeyUp.emit(SignalEvent.KEY_UP, keyCode, modifier);
-
-			if (type == KEY_DOWN)
-			{
-				Main.onKeyDown.emit(SignalEvent.KEY_DOWN, keyCode, modifier);
-				#if (windows || linux)
-				if (keyCode == F11)
-					window.fullscreen = !window.fullscreen;
-				#end
-			}
-		}
+		if (type == KEY_DOWN)
+			Game.onKeyDown.emit(SignalEvent.KEY_DOWN, keyCode, modifier);
 	}
 
 	private function handleMouseEvent():Void
 	{
-		var window = parent.__windowByID.get(mouseEventInfo.windowID);
+		if (mouseEventInfo.type == MOUSE_DOWN)
+			Game.onMouseDown.emit(SignalEvent.MOUSE_DOWN, mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
 
-		if (window != null)
-		{
-			switch (mouseEventInfo.type)
-			{
-				case MOUSE_DOWN:
-					window.onMouseDown.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+		if (mouseEventInfo.type == MOUSE_UP)
+			Game.onMouseUp.emit(SignalEvent.MOUSE_UP, mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
 
-				case MOUSE_UP:
-					window.onMouseUp.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+		if (mouseEventInfo.type == MOUSE_MOVE)
+			Game.onMouseMove.emit(SignalEvent.MOUSE_MOVE, mouseEventInfo.x, mouseEventInfo.y);
 
-				case MOUSE_MOVE:
-					window.onMouseMove.dispatch(mouseEventInfo.x, mouseEventInfo.y);
-					window.onMouseMoveRelative.dispatch(mouseEventInfo.movementX, mouseEventInfo.movementY);
-
-				case MOUSE_WHEEL:
-					window.onMouseWheel.dispatch(mouseEventInfo.x, mouseEventInfo.y, UNKNOWN);
-
-				default:
-			}
-		}
+		if (mouseEventInfo.type == MOUSE_WHEEL)
+			Game.onMouseWheel.emit(SignalEvent.MOUSE_MOVE, mouseEventInfo.x, UNKNOWN);
 	}
 
 	private function handleRenderEvent():Void
@@ -365,7 +335,7 @@ class NativeApplication
 
 	private function handleTextEvent():Void
 	{
-		var window = parent.__windowByID.get(textEventInfo.windowID);
+		var window:Window = parent.__windowByID.get(textEventInfo.windowID);
 
 		if (window != null)
 		{
@@ -447,7 +417,7 @@ class NativeApplication
 
 	private function handleWindowEvent():Void
 	{
-		var window = parent.__windowByID.get(windowEventInfo.windowID);
+		var window:Window = parent.__windowByID.get(windowEventInfo.windowID);
 
 		if (window != null)
 		{
@@ -568,7 +538,7 @@ class NativeApplication
 	}
 }
 
-@:keep /*private*/ class ApplicationEventInfo
+@:generic class ApplicationEventInfo
 {
 	public var deltaTime:Int;
 	public var type:ApplicationEventType;
@@ -591,7 +561,7 @@ class NativeApplication
 	var EXIT = 1;
 }
 
-@:keep /*private*/ class ClipboardEventInfo
+@:generic class ClipboardEventInfo
 {
 	public var type:ClipboardEventType;
 
@@ -611,7 +581,7 @@ class NativeApplication
 	var UPDATE = 0;
 }
 
-@:keep /*private*/ class DropEventInfo
+@:generic class DropEventInfo
 {
 	public var file:#if hl hl.Bytes #else String #end;
 	public var type:DropEventType;
@@ -633,7 +603,7 @@ class NativeApplication
 	var DROP_FILE = 0;
 }
 
-@:keep /*private*/ class GamepadEventInfo
+@:generic class GamepadEventInfo
 {
 	public var axis:Int;
 	public var button:Int;
@@ -674,7 +644,7 @@ class NativeApplication
 	var DISCONNECT = 4;
 }
 
-@:keep /*private*/ class JoystickEventInfo
+@:generic class JoystickEventInfo
 {
 	public var id:Int;
 	public var index:Int;
@@ -710,9 +680,9 @@ class NativeApplication
 	var DISCONNECT = 6;
 }
 
-@:keep /*private*/ class KeyEventInfo
+@:generic class KeyEventInfo
 {
-	public var keyCode: Float;
+	public var keyCode:Int;
 	public var modifier:Int;
 	public var type:KeyEventType;
 	public var windowID:Int;
@@ -724,18 +694,17 @@ class NativeApplication
 	 */
 	public var timestamp:Int;
 
-	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode: Float = 0, modifier:Int = 0, ?timestamp:Int = 0)
+	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Int = 0, modifier:Int = 0)
 	{
 		this.type = type;
 		this.windowID = windowID;
 		this.keyCode = keyCode;
 		this.modifier = modifier;
-		this.timestamp = timestamp;
 	}
 
 	public function clone():KeyEventInfo
 	{
-		return new KeyEventInfo(type, windowID, keyCode, modifier, timestamp);
+		return new KeyEventInfo(type, windowID, keyCode, modifier);
 	}
 }
 
@@ -745,7 +714,7 @@ class NativeApplication
 	var KEY_UP = 1;
 }
 
-@:keep /*private*/ class MouseEventInfo
+@:generic class MouseEventInfo
 {
 	public var button:Int;
 	public var movementX:Float;
@@ -780,7 +749,7 @@ class NativeApplication
 	var MOUSE_WHEEL = 3;
 }
 
-@:keep /*private*/ class RenderEventInfo
+@:generic class RenderEventInfo
 {
 	public var type:RenderEventType;
 
@@ -802,7 +771,7 @@ class NativeApplication
 	var RENDER_CONTEXT_RESTORED = 2;
 }
 
-@:keep /*private*/ class SensorEventInfo
+@:generic class SensorEventInfo
 {
 	public var id:Int;
 	public var x:Float;
@@ -830,7 +799,7 @@ class NativeApplication
 	var ACCELEROMETER = 0;
 }
 
-@:keep /*private*/ class TextEventInfo
+@:generic class TextEventInfo
 {
 	public var id:Int;
 	public var length:Int;
@@ -860,7 +829,7 @@ class NativeApplication
 	var TEXT_EDIT = 1;
 }
 
-@:keep /*private*/ class TouchEventInfo
+@:generic class TouchEventInfo
 {
 	public var device:Int;
 	public var dx:Float;
@@ -896,7 +865,7 @@ class NativeApplication
 	var TOUCH_MOVE = 2;
 }
 
-@:keep /*private*/ class WindowEventInfo
+@:generic class WindowEventInfo
 {
 	public var height:Int;
 	public var type:WindowEventType;

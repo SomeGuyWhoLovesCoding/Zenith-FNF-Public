@@ -221,8 +221,8 @@ class Gameplay extends MusicBeatState
 		events.on(SignalEvent.NOTE_MISS, onNoteMiss);
 		events.on(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
 
-		Main.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
-		Main.onKeyUp.on(SignalEvent.KEY_UP, onKeyUp);
+		Game.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
+		Game.onKeyUp.on(SignalEvent.KEY_UP, onKeyUp);
 	}
 
 	override function update(elapsed:Float):Void
@@ -266,7 +266,7 @@ class Gameplay extends MusicBeatState
 		}
 
 		// This used to be a function
-		while(null != eventNotes[eventNotes.length-1])
+		while (null != eventNotes[eventNotes.length-1])
 		{
 			if (Conductor.songPosition < eventNotes[eventNotes.length-1].strumTime)
 				break;
@@ -1102,8 +1102,8 @@ class Gameplay extends MusicBeatState
 		events.off(SignalEvent.NOTE_MISS, onNoteMiss);
 		events.off(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
 
-		Main.onKeyDown.off(SignalEvent.KEY_DOWN, onKeyDown);
-		Main.onKeyUp.off(SignalEvent.KEY_UP, onKeyUp);
+		Game.onKeyDown.off(SignalEvent.KEY_DOWN, onKeyDown);
+		Game.onKeyUp.off(SignalEvent.KEY_UP, onKeyUp);
 
 		super.destroy();
 	}

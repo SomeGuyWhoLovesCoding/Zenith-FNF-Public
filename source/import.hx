@@ -1,4 +1,7 @@
+#if !macro // I swear to god, PLEASE don't remove this.
+
 // Engine
+
 import zenith.Game;
 import zenith.core.*;
 import zenith.data.*;
@@ -11,15 +14,21 @@ import zenith.objects.ui.*;
 import zenith.system.*;
 
 // Flixel
+
+import flixel.system.FlxAssets.*;
 import flixel.*;
-import flixel.util.*;
 import flixel.sound.FlxSound;
+import flixel.util.*;
+import flixel.ui.*;
 
 // Signals
+
 import emitter.signals.*;
 
 using GlobalShit;
 
 #if !debug
 @:noDebug
+#end
+
 #end
