@@ -11,6 +11,7 @@ import flixel.util.FlxSort;
 
 import lime.app.Application;
 import lime.ui.KeyCode;
+import lime.ui.KeyModifier;
 
 import zenith.objects.ui.Note; // Don't remove this.
 
@@ -220,8 +221,8 @@ class Gameplay extends MusicBeatState
 		events.on(SignalEvent.NOTE_MISS, onNoteMiss);
 		events.on(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
 
-		Application.current.window.onKeyDown.add(onKeyDown);
-		Application.current.window.onKeyUp.add(onKeyUp);
+		Main.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
+		Main.onKeyUp.on(SignalEvent.KEY_UP, onKeyUp);
 	}
 
 	override function update(elapsed:Float):Void
@@ -416,7 +417,7 @@ class Gameplay extends MusicBeatState
 							if(bf.curCharacter != value2)
 							{
 								if(!bfMap.exists(value2))
-									inline addCharacterToList(value2, charType);
+									addCharacterToList(value2, charType);
 
 								var lastAlpha:Float = bf.alpha;
 								bf.alpha = 0.001;
@@ -429,7 +430,7 @@ class Gameplay extends MusicBeatState
 							if(dad.curCharacter != value2)
 							{
 								if(!dadMap.exists(value2))
-									inline addCharacterToList(value2, charType);
+									addCharacterToList(value2, charType);
 
 								var wasGf:Bool = dad.curCharacter.startsWith('gf');
 								var lastAlpha:Float = dad.alpha;
@@ -449,7 +450,7 @@ class Gameplay extends MusicBeatState
 								if(gf.curCharacter != value2)
 								{
 									if(!gfMap.exists(value2))
-										inline addCharacterToList(value2, charType);
+										addCharacterToList(value2, charType);
 
 									var lastAlpha:Float = gf.alpha;
 									gf.alpha = 0.001;
@@ -732,7 +733,7 @@ class Gameplay extends MusicBeatState
 							if(inline Math.isNaN(charType)) charType = 0;
 					}
 
-					inline addCharacterToList(event.value2, charType);
+					addCharacterToList(event.value2, charType);
 				}
 		}
 	}
@@ -743,9 +744,9 @@ class Gameplay extends MusicBeatState
 		for (i in 0...4)
 		{
 			var strum:StrumNote = new StrumNote(i, player);
-			strum.scrollMult = downScroll ? -1 : 1;
-			strum.x = 60 + (112 * strum.noteData) + ((FlxG.width * 0.5587511111112) * strum.player);
-			strum.y = downScroll ? FlxG.height - 160 : 60;
+			strum.scrollMult = downScroll ? -1.0 : 1.0;
+			strum.x = 60.0 + (112.0 * strum.noteData) + ((FlxG.width * 0.5587511111112) * strum.player);
+			strum.y = downScroll ? FlxG.height - 160.0 : 60.0;
 			strum.playerStrum = player == strumlines - 1;
 			inline strums.add(strum);
 		}
@@ -762,8 +763,8 @@ class Gameplay extends MusicBeatState
 		if (!renderMode)
 		{
 			var off:Float = Conductor.songPosition + SONG.offset;
-			if ((inst.time < off - 20 || inst.time > off + 20)
-				|| (voices.time < off - 20 || voices.time > off + 20))
+			if ((inst.time < off - 20.0 || inst.time > off + 20.0)
+				|| (voices.time < off - 20.0 || voices.time > off + 20.0))
 			{
 				Conductor.songPosition = inst.time - SONG.offset;
 				voices.time = Conductor.songPosition + SONG.offset;
@@ -845,7 +846,7 @@ class Gameplay extends MusicBeatState
 		inputKeybinds = SaveData.contents.controls.GAMEPLAY_BINDS;
 
 		var swagCounter:Int = 0;
-		Conductor.songPosition = -Conductor.crochet * 5;
+		Conductor.songPosition = -Conductor.crochet * 5.0;
 
 		//trace(swagCounter);
 
@@ -946,11 +947,11 @@ class Gameplay extends MusicBeatState
 	inline public function moveCamera(isPlayer:Bool)
 	{
 		camFollowPosTween = isPlayer ? FlxTween.tween(camFollowPos, {
-			x: (bf.getMidpoint().x - 100) - bf.cameraPosition[0] - boyfriendCameraOffset[0],
-			y: (bf.getMidpoint().y - 100) + bf.cameraPosition[1] + boyfriendCameraOffset[1]
+			x: (bf.getMidpoint().x - 100.0) - bf.cameraPosition[0] - boyfriendCameraOffset[0],
+			y: (bf.getMidpoint().y - 100.0) + bf.cameraPosition[1] + boyfriendCameraOffset[1]
 		}, 1.3 * cameraSpeed, {ease: FlxEase.expoOut}) : FlxTween.tween(camFollowPos, {
-			x: (dad.getMidpoint().x + 150) + dad.cameraPosition[0] + opponentCameraOffset[0],
-			y: (dad.getMidpoint().y - 100) + dad.cameraPosition[1] + opponentCameraOffset[1]
+			x: (dad.getMidpoint().x + 150.0) + dad.cameraPosition[0] + opponentCameraOffset[0],
+			y: (dad.getMidpoint().y - 100.0) + dad.cameraPosition[1] + opponentCameraOffset[1]
 		}, 1.3 * cameraSpeed, {ease: FlxEase.expoOut});
 	}
 
@@ -1013,7 +1014,7 @@ class Gameplay extends MusicBeatState
 	public var inputKeybinds:Array<KeyCode> = [];
 
 	private var holdArray(default, null):Array<Bool> = [false, false, false, false];
-	inline public function onKeyDown(keyCode:KeyCode, m:Int):Void
+	inline public function onKeyDown(keyCode:KeyCode, keyMod:KeyModifier):Void
 	{
 		var key:Int = inline inputKeybinds.indexOf(keyCode);
 
@@ -1037,7 +1038,7 @@ class Gameplay extends MusicBeatState
 	inline private function fastNoteFilter(array:Array<Note>, f:(Note)->Bool):Array<Note>
 		return [for (i in 0...array.length) { var a:Note = array[i]; if (f(a)) a; }];
 
-	inline public function onKeyUp(keyCode:KeyCode, m:Int):Void
+	inline public function onKeyUp(keyCode:KeyCode, keyMod:KeyModifier):Void
 	{
 		var key:Int = inline inputKeybinds.indexOf(keyCode);
 
@@ -1059,7 +1060,7 @@ class Gameplay extends MusicBeatState
 
 	var strumYTweens(default, null):Array<FlxTween> = [];
 	var strumScrollMultTweens(default, null):Array<FlxTween> = [];
-	public function changeDownScroll(whichStrum:Int = -1, tween:Bool = false, tweenLength:Float = 1):Void
+	public function changeDownScroll(whichStrum:Int = -1, tween:Bool = false, tweenLength:Float = 1.0):Void
 	{
 		// Strumline
 		for (i in 0...strums.members.length)
@@ -1068,7 +1069,7 @@ class Gameplay extends MusicBeatState
 
 			if (strum.player == whichStrum || whichStrum == -1)
 			{
-				if (tween && tweenLength != 0)
+				if (tween && tweenLength != 0.0)
 				{
 					var actualScrollMult:Float = strum.scrollMult;
 					actualScrollMult = -actualScrollMult;
@@ -1076,17 +1077,17 @@ class Gameplay extends MusicBeatState
 					if (null != strumScrollMultTweens[strums.members.indexOf(strum)])
 						strumScrollMultTweens[strums.members.indexOf(strum)].cancel();
 
-					strumScrollMultTweens[strums.members.indexOf(strum)] = FlxTween.tween(strum, {scrollMult: strum.scrollMult > 0 ? -1 : 1}, inline Math.abs(tweenLength), {ease: FlxEase.quintOut});
+					strumScrollMultTweens[strums.members.indexOf(strum)] = FlxTween.tween(strum, {scrollMult: strum.scrollMult > 0.0 ? -1.0 : 1.0}, inline Math.abs(tweenLength), {ease: FlxEase.quintOut});
 
 					if (null != strumYTweens[strums.members.indexOf(strum)])
 						strumYTweens[strums.members.indexOf(strum)].cancel();
 
-					strumYTweens[strums.members.indexOf(strum)] = FlxTween.tween(strum, {y: actualScrollMult < 0 ? FlxG.height - 160 : 60}, inline Math.abs(tweenLength), {ease: FlxEase.quintOut});
+					strumYTweens[strums.members.indexOf(strum)] = FlxTween.tween(strum, {y: actualScrollMult < 0.0 ? FlxG.height - 160.0 : 60.0}, inline Math.abs(tweenLength), {ease: FlxEase.quintOut});
 				}
 				else
 				{
 					strum.scrollMult = -strum.scrollMult;
-					strum.y = strum.scrollMult < 0 ? FlxG.height - 160 : 60;
+					strum.y = strum.scrollMult < 0.0 ? FlxG.height - 160.0 : 60.0;
 				}
 			}
 		}
@@ -1101,8 +1102,8 @@ class Gameplay extends MusicBeatState
 		events.off(SignalEvent.NOTE_MISS, onNoteMiss);
 		events.off(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
 
-		Application.current.window.onKeyDown.remove(onKeyDown);
-		Application.current.window.onKeyUp.remove(onKeyUp);
+		Main.onKeyDown.off(SignalEvent.KEY_DOWN, onKeyDown);
+		Main.onKeyUp.off(SignalEvent.KEY_UP, onKeyUp);
 
 		super.destroy();
 	}
@@ -1114,10 +1115,10 @@ class Gameplay extends MusicBeatState
 		note.wasHit = true;
 		note.exists = false;
 
-		health += (0.045 * (note.isSustainNote ? 0.5 : 1)) * (note.mustPress ? 1 : -1);
+		health += (0.045 * (note.isSustainNote ? 0.5 : 1.0)) * (note.mustPress ? 1.0 : -1.0);
 
 		if (note.mustPress && !note.isSustainNote)
-			score += 350 * noteMult;
+			score += 350.0 * noteMult;
 
 		if (!noCharacters)
 		{
@@ -1126,7 +1127,7 @@ class Gameplay extends MusicBeatState
 			if (null != char)
 			{
 				inline char.playAnim(@:privateAccess singAnimations[note.noteData], true);
-				char.holdTimer = 0;
+				char.holdTimer = 0.0;
 			}
 		}
 	}
@@ -1135,14 +1136,14 @@ class Gameplay extends MusicBeatState
 	{
 		note.tooLate = true;
 
-		health -= 0.045 * (note.isSustainNote ? 0.5 : 1);
-		score -= 100 * noteMult;
+		health -= 0.045 * (note.isSustainNote ? 0.5 : 1.0);
+		score -= 100.0 * noteMult;
 		misses++;
 
 		if (!noCharacters)
 		{
 			inline bf.playAnim(@:privateAccess singAnimations[note.noteData] + 'miss', true);
-			bf.holdTimer = 0;
+			bf.holdTimer = 0.0;
 		}
 	}
 
@@ -1150,11 +1151,11 @@ class Gameplay extends MusicBeatState
 	{
 		if (note.exists)
 		{
-			note.flipX = note.flipY = strum.scrollMult <= 0 && note.isSustainNote;
+			note.flipX = note.flipY = strum.scrollMult <= 0.0 && note.isSustainNote;
 
 			// Sustain scaling for song speed (even if it's changed)
 			// Psych engine sustain note calculation moment
-			note.scale.set(0.7, note.isSustainNote ? (note.animation.curAnim.name.endsWith('end') ? 1 : (153.75 / SONG.bpm) * (songSpeed * note.multSpeed) * inline Math.abs(strum.scrollMult)) : 0.7);
+			note.scale.set(0.7, note.isSustainNote ? (note.animation.curAnim.name.endsWith('end') ? 1.0 : (153.75 / SONG.bpm) * (songSpeed * note.multSpeed) * inline Math.abs(strum.scrollMult)) : 0.7);
 			note.updateHitbox();
 
 			note.distance = 0.45 * (Conductor.songPosition - note.strumTime) * (songSpeed * note.multSpeed);
@@ -1172,7 +1173,7 @@ class Gameplay extends MusicBeatState
 					if (Conductor.songPosition >= note.strumTime)
 						inline events.emit(SignalEvent.NOTE_HIT, note);
 
-				if (Conductor.songPosition >= note.strumTime + (Conductor.stepCrochet * 2) && (!note.wasHit && !note.tooLate))
+				if (Conductor.songPosition >= note.strumTime + (Conductor.stepCrochet * 2.0) && (!note.wasHit && !note.tooLate))
 					inline events.emit(SignalEvent.NOTE_MISS, note);
 
 				if (note.isSustainNote)

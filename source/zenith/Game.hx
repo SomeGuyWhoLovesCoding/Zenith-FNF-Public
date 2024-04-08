@@ -21,6 +21,7 @@ class Game extends FlxGame
 		super(0, 0, initState, fps, fps, true);
 		FlxG.fixedTimestep = false; // Get rid of flixel's mouse as the transition goes over it
 		FlxSprite.defaultAntialiasing = SaveData.contents.preferences.antialiasing;
+
 		Application.current.window.onClose.add(SaveData.saveContent);
 
 		__mutex = new Mutex();
@@ -28,6 +29,11 @@ class Game extends FlxGame
 		delta = untyped __global__.__time_stamp() * 1000.0;
 
 		trace('Game initialized.');
+	}
+
+	override public function create(_:openfl.events.Event):Void
+	{
+		super.create((_ : openfl.events.Event));
 	}
 
 	override public function onEnterFrame(_:openfl.events.Event):Void

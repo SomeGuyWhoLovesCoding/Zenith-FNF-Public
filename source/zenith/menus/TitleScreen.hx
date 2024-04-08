@@ -46,12 +46,12 @@ class TitleScreen extends MusicBeatState
 		loadTitleScreenShit();
 		titleBG.visible = titleImage.visible = initialized;
 
-		Application.current.window.onKeyDown.add(onKeyDown);
+		Main.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
 	}
 
 	override function destroy():Void
 	{
-		Application.current.window.onKeyDown.remove(onKeyDown);
+		Main.onKeyDown.off(SignalEvent.KEY_DOWN, onKeyDown);
 		super.destroy();
 	}
 

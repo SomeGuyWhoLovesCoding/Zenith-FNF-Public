@@ -28,6 +28,9 @@ class Main extends Sprite
 	public static var skipTransIn:Bool = false;
 	public static var skipTransOut:Bool = false;
 
+	public static var onKeyDown:Emitter = new Emitter();
+	public static var onKeyUp:Emitter = new Emitter();
+
 	public function new()
 	{
 		super();

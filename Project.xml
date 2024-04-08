@@ -36,6 +36,7 @@
 	<assets path="readme.txt" />
 	<assets path="play_song.bat" />
 	<assets path="ffmpeg.exe" />
+	<assets path="logo.png" />
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
@@ -67,6 +68,7 @@
 	<haxedef name="FLX_NO_KEYBOARD" />
 	<haxedef name="FLX_NO_TOUCH" />
 	<haxedef name="FLX_NO_GAMEPAD" />
+	<haxedef name="FLX_NO_MOUSE" />
 
 	<!--Disable the Flixel core sound tray-->
 	<!--<haxedef name="FLX_NO_SOUND_TRAY" />-->
@@ -79,9 +81,6 @@
 
 	<!--Disable the Flixel core debugger. Automatically gets set whenever you compile in release mode!-->
 	<haxedef name="FLX_NO_DEBUG" unless="debug" />
-
-	<!--Enable this for Nape release builds for a serious peformance improvement-->
-	<haxedef name="NAPE_RELEASE_BUILD" />
 
 	<!--Allow working memory greater than 1 Gig-->
 	<haxedef name="HXCPP_GC_BIG_BLOCKS" />
