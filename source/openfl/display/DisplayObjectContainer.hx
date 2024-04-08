@@ -724,10 +724,8 @@ class DisplayObjectContainer extends InteractiveObject
 
 	@:noCompletion private override function __enterFrame(deltaTime:Int):Void
 	{
-		for (child in __children)
-		{
-			child.__enterFrame(deltaTime);
-		}
+		for (i in 0...__children.length)
+			__children[i].__enterFrame(deltaTime);
 	}
 
 	@:noCompletion private override function __getBounds(rect:Rectangle, matrix:Matrix):Void

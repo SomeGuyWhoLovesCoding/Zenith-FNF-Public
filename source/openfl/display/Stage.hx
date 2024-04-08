@@ -1523,8 +1523,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		if (this.window != window) return;
 
 		window.onClose.add(__onLimeWindowClose.bind(window), false, -9000);
-		window.onDropFile.add(__onLimeWindowDropFile.bind(window));
-		window.onEnter.add(__onLimeWindowEnter.bind(window));
 		window.onExpose.add(__onLimeWindowExpose.bind(window));
 		window.onFocusIn.add(__onLimeWindowFocusIn.bind(window));
 		window.onFocusOut.add(__onLimeWindowFocusOut.bind(window));
@@ -1748,11 +1746,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		}
 	}
 
-	@:noCompletion private function __onLimeTextEdit(window:Window, text:String, start:Int, length:Int):Void
-	{
-		// if (this.window == null || this.window != window) return;
-	}
-
 	@:noCompletion private function __onLimeTextInput(window:Window, text:String):Void
 	{
 		if (this.window == null || this.window != window) return;
@@ -1823,13 +1816,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		__onTouch(TouchEvent.TOUCH_BEGIN, touch, __primaryTouch == touch);
 	}
 
-	@:noCompletion private function __onLimeWindowActivate(window:Window):Void
-	{
-		if (this.window == null || this.window != window) return;
-
-		// __broadcastEvent (new Event (Event.ACTIVATE));
-	}
-
 	@:noCompletion private function __onLimeWindowClose(window:Window):Void
 	{
 		if (this.window == window)
@@ -1863,21 +1849,6 @@ class Stage extends DisplayObjectContainer #if lime implements IModule #end
 		{
 			__createRenderer();
 		}
-	}
-
-	@:noCompletion private function __onLimeWindowDeactivate(window:Window):Void
-	{
-		if (this.window == null || this.window != window) return;
-
-		// __primaryTouch = null;
-		// __broadcastEvent (new Event (Event.DEACTIVATE));
-	}
-
-	@:noCompletion private function __onLimeWindowDropFile(window:Window, file:String):Void {}
-
-	@:noCompletion private function __onLimeWindowEnter(window:Window):Void
-	{
-		// if (this.window == null || this.window != window) return;
 	}
 
 	@:noCompletion private function __onLimeWindowExpose(window:Window):Void

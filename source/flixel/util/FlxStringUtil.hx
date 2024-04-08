@@ -1,6 +1,6 @@
 package flixel.util;
 
-import flash.display.BitmapData;
+import openfl.display.BitmapData;
 import flixel.FlxG;
 import flixel.math.FlxMath;
 import flixel.system.FlxAssets;
