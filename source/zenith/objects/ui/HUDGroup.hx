@@ -33,7 +33,7 @@ class HUDGroup extends FlxSpriteGroup
 		add(oppIcon);
 		add(plrIcon);
 
-		scoreTxt = new FlxText(0, healthBar.y + (healthBar.height + 2), 0, 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Rating: ?', 20);
+		scoreTxt = new FlxText(0, healthBar.y + (healthBar.height + 2), 0, 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ???', 20);
 		scoreTxt.setBorderStyle(OUTLINE, 0xFF000000);
 		add(scoreTxt);
 
@@ -75,7 +75,8 @@ class HUDGroup extends FlxSpriteGroup
 
 		healthBar.value = inline FlxMath.lerp(healthBar.value, inline FlxMath.bound(Gameplay.instance.health, 0, healthBar.maxValue), SaveData.contents.preferences.smoothHealth ? 0.08 : 1);
 
-		scoreTxt.text = 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Rating: ?';
+		scoreTxt.text = 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ' + (Gameplay.instance.accuracy_right == 0.0 ? '???' :
+			inline Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000) * 0.01 + '%');
 
 		if (Gameplay.instance.startedCountdown)
 		{

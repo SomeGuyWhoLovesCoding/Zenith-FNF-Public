@@ -13,7 +13,8 @@ class SaveData
 			hideHUD: false,
 			noCharacters: false,
 			antialiasing: true,
-			gpuCaching: true,
+			gpuCaching: false,
+			persistentGraphics: true,
 			fps: 480
 		},
 		controls: {
@@ -69,6 +70,7 @@ typedef PreferencesData =
 	var noCharacters:Bool;
 	var antialiasing:Bool;
 	var gpuCaching:Bool;
+	var persistentGraphics:Bool;
 	var fps:Int;
 }
 

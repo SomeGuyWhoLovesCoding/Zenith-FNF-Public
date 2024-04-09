@@ -24,6 +24,15 @@ class MusicBeatState extends FlxState
 		super.create();
 	}
 
+	override function destroy():Void
+	{
+		if (!SaveData.contents.preferences.persistentGraphics)
+			for (bitmap in Paths.bitmapDataCache.keys())
+				Paths.bitmapDataCache.get(bitmap).dispose();
+
+		super.destroy();
+	}
+
 	override function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
@@ -65,7 +74,7 @@ class MusicBeatState extends FlxState
 
 	// Beat stuff
 
-	private function updateSection():Void
+	inline private function updateSection():Void
 	{
 		if (stepsToDo < 1)
 			stepsToDo = inline Math.round(inline getBeatsOnSection() * 4.0);
@@ -78,7 +87,7 @@ class MusicBeatState extends FlxState
 		}
 	}
 
-	private function rollbackSection():Void
+	inline private function rollbackSection():Void
 	{
 		if (curStep < 0)
 			return;
@@ -102,13 +111,13 @@ class MusicBeatState extends FlxState
 			sectionHit();
 	}
 
-	private function updateBeat():Void
+	inline private function updateBeat():Void
 	{
 		curBeat = inline Std.int(curStep * 0.25);
 		curDecBeat = curDecStep * 0.25;
 	}
 
-	private function updateCurStep():Void
+	inline private function updateCurStep():Void
 	{
 		var lastChange:Conductor.BPMChangeEvent = Conductor.getBPMFromSeconds(Conductor.songPosition);
 

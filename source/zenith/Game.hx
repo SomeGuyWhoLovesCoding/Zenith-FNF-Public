@@ -31,7 +31,6 @@ class Game extends FlxGame
 	{
 		var fps:Int = inline Std.int(setFramerate(SaveData.contents.preferences.fps));
 		FlxSprite.defaultAntialiasing = SaveData.contents.preferences.antialiasing;
-		Paths.GPUCaching = SaveData.contents.preferences.gpuCaching;
 
 		super(0, 0, initState, fps, fps, true);
 		FlxG.fixedTimestep = false; // Get rid of flixel's mouse as the transition goes over it

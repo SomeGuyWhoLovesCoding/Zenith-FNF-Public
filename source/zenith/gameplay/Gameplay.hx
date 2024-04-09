@@ -33,6 +33,9 @@ class Gameplay extends MusicBeatState
 	public var score:Float = 0.0;
 	public var misses:Float = 0.0;
 
+	public var accuracy_left:Float = 0.0;
+	public var accuracy_right:Float = 0.0;
+
 	// Preference stuff
 	public static var cpuControlled:Bool = false;
 	public static var downScroll:Bool = true;
@@ -116,7 +119,7 @@ class Gameplay extends MusicBeatState
 	{
 		events = new Emitter();
 
-		inline initRender();
+		initRender();
 
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
 
@@ -216,7 +219,6 @@ class Gameplay extends MusicBeatState
 
 		super.create();
 
-		events.on(SignalEvent.NOTE_FOLLOW, onFollowNote);
 		events.on(SignalEvent.NOTE_HIT, onNoteHit);
 		events.on(SignalEvent.NOTE_MISS, onNoteMiss);
 		events.on(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
@@ -233,11 +235,12 @@ class Gameplay extends MusicBeatState
 		if (renderMode)
 			elapsed = 1.0 / videoFramerate;
 
-		events.emit(SignalEvent.GAMEPLAY_UPDATE, elapsed);
-
 		super.update(elapsed);
+
+		events.emit(SignalEvent.GAMEPLAY_UPDATE, elapsed);
 	}
 
+	var initialStrumHeight:Float; // Because for some reason, on downscroll, the sustain note changes y offset when its strum plays the confirm anim LOL
 	inline public function updateGameplay(elapsed:Float):Void
 	{
 		// Don't remove this.
@@ -253,8 +256,43 @@ class Gameplay extends MusicBeatState
 
 		for (i in 0...notes.members.length)
 		{
-			var currentNote:Note = notes.members[i];
-			events.emit(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4 : 0)]);
+			var note:Note = notes.members[i];
+			if (note.exists)
+			{
+				var strum:StrumNote = strums.members[note.noteData + (note.mustPress ? 4 : 0)];
+
+				note.flipX = note.flipY = strum.scrollMult <= 0.0 && note.isSustainNote;
+
+				// Sustain scaling for song speed (even if it's changed)
+				// Psych engine sustain note calculation moment
+				note.scale.set(0.7, note.isSustainNote ? (note.animation.curAnim.name.endsWith('tail') ? 1.0 : (153.75 / Gameplay.SONG.bpm) * (Gameplay.instance.songSpeed * note.multSpeed) * inline Math.abs(strum.scrollMult)) : 0.7);
+
+				note.distance = 0.45 * (Conductor.songPosition - note.strumTime) * (songSpeed * note.multSpeed);
+				note.x = strum.x + note.offsetX;
+				note.y = (strum.y + note.offsetY) + (-strum.scrollMult * note.distance) - (note.flipY ? (note.frameHeight * note.scale.y) - initialStrumHeight : 0);
+
+				if (Conductor.songPosition >= note.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
+					note.exists = false;
+
+				// For note hits and hold input
+
+				if (note.mustPress)
+				{
+					if (cpuControlled)
+						if (Conductor.songPosition >= note.strumTime)
+							events.emit(SignalEvent.NOTE_HIT, note);
+
+					if (Conductor.songPosition >= note.strumTime + (Conductor.stepCrochet * 2.0) && (!note.wasHit && !note.tooLate))
+						events.emit(SignalEvent.NOTE_MISS, note);
+
+					if (note.isSustainNote)
+						if (Conductor.songPosition >= note.strumTime && @:privateAccess holdArray[note.noteData])
+							events.emit(SignalEvent.NOTE_HIT, note);
+				}
+				else
+					if (Conductor.songPosition >= note.strumTime)
+						events.emit(SignalEvent.NOTE_HIT, note);
+			}
 		}
 
 		while (null != unspawnNotes[unspawnNotes.length-1])
@@ -262,7 +300,7 @@ class Gameplay extends MusicBeatState
 			if (Conductor.songPosition < unspawnNotes[unspawnNotes.length-1].strumTime - (1950.0 / songSpeed))
 				break;
 
-			notes.recycle(Note).setupNoteData(inline unspawnNotes.pop());
+			notes.recycle(Note).setupNoteData(unspawnNotes.pop());
 		}
 
 		// This used to be a function
@@ -279,7 +317,7 @@ class Gameplay extends MusicBeatState
 			if(null != eventNotes[eventNotes.length-1].value2)
 				value2 = eventNotes[eventNotes.length-1].value2;
 
-			triggerEventNote((inline eventNotes.pop()).event, value1, value2);
+			triggerEventNote(eventNotes.pop().event, value1, value2);
 		}
 
 		if (renderMode)
@@ -748,6 +786,7 @@ class Gameplay extends MusicBeatState
 			strum.x = 60.0 + (112.0 * strum.noteData) + ((FlxG.width * 0.5587511111112) * strum.player);
 			strum.y = downScroll ? FlxG.height - 160.0 : 60.0;
 			strum.playerStrum = player == strumlines - 1;
+			initialStrumHeight = strum.height;
 			inline strums.add(strum);
 		}
 	}
@@ -914,7 +953,6 @@ class Gameplay extends MusicBeatState
 		if (null != hudGroup.timeTxt)
 			hudGroup.timeTxt.visible = false;
 
-		inline stopRender();
 		songEnded = true;
 		switchState(new WelcomeState());
 	}
@@ -1024,7 +1062,7 @@ class Gameplay extends MusicBeatState
 
 			// For some reason the strum note still plays the press animation even when a note is hit sometimes, so here's a solution to it.
 			if (strum.animation.curAnim.name != 'confirm')
-				inline strum.playAnim('pressed');
+				strum.playAnim('pressed');
 
 			var hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && (inline Math.abs(Conductor.songPosition - n.strumTime)) < 166.7 && !n.wasHit && !n.tooLate && n.noteData == key))[0];
 
@@ -1052,7 +1090,7 @@ class Gameplay extends MusicBeatState
 
 			if (strum.animation.curAnim.name == 'confirm' ||
 				strum.animation.curAnim.name == 'pressed')
-				inline strum.playAnim('static');
+				strum.playAnim('static');
 		}
 	}
 
@@ -1097,7 +1135,6 @@ class Gameplay extends MusicBeatState
 	{
 		stopRender();
 
-		events.off(SignalEvent.NOTE_FOLLOW, onFollowNote);
 		events.off(SignalEvent.NOTE_HIT, onNoteHit);
 		events.off(SignalEvent.NOTE_MISS, onNoteMiss);
 		events.off(SignalEvent.GAMEPLAY_UPDATE, updateGameplay);
@@ -1110,7 +1147,7 @@ class Gameplay extends MusicBeatState
 
 	inline public function onNoteHit(note:Note):Void
 	{
-		inline strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
+		strums.members[note.noteData + (note.mustPress ? 4 : 0)].playAnim('confirm');
 
 		note.wasHit = true;
 		note.exists = false;
@@ -1118,7 +1155,11 @@ class Gameplay extends MusicBeatState
 		health += (0.045 * (note.isSustainNote ? 0.5 : 1.0)) * (note.mustPress ? 1.0 : -1.0);
 
 		if (note.mustPress && !note.isSustainNote)
+		{
 			score += 350.0 * noteMult;
+			accuracy_left += Math.abs(note.strumTime - Conductor.songPosition) > 83.35 ? 0.75 : 1.0;
+			accuracy_right++;
+		}
 
 		if (!noCharacters)
 		{
@@ -1139,50 +1180,12 @@ class Gameplay extends MusicBeatState
 		health -= 0.045 * (note.isSustainNote ? 0.5 : 1.0);
 		score -= 100.0 * noteMult;
 		misses++;
+		accuracy_right++;
 
 		if (!noCharacters)
 		{
 			inline bf.playAnim(@:privateAccess singAnimations[note.noteData] + 'miss', true);
 			bf.holdTimer = 0.0;
-		}
-	}
-
-	inline private function onFollowNote(note:Note, strum:StrumNote):Void
-	{
-		if (note.exists)
-		{
-			note.flipX = note.flipY = strum.scrollMult <= 0.0 && note.isSustainNote;
-
-			// Sustain scaling for song speed (even if it's changed)
-			// Psych engine sustain note calculation moment
-			note.scale.set(0.7, note.isSustainNote ? (note.animation.curAnim.name.endsWith('tail') ? 1.0 : (153.75 / SONG.bpm) * (songSpeed * note.multSpeed) * inline Math.abs(strum.scrollMult)) : 0.7);
-			note.updateHitbox();
-
-			note.distance = 0.45 * (Conductor.songPosition - note.strumTime) * (songSpeed * note.multSpeed);
-			note.x = strum.x + note.offsetX;
-			note.y = (strum.y + note.offsetY) + (-strum.scrollMult * note.distance) - (note.flipY ? (note.frameHeight * note.scale.y) - strum.height : 0);
-
-			if (Conductor.songPosition >= note.strumTime + (750 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
-				note.exists = false;
-
-			// For note hits and input
-
-			if (note.mustPress)
-			{
-				if (cpuControlled)
-					if (Conductor.songPosition >= note.strumTime)
-						events.emit(SignalEvent.NOTE_HIT, note);
-
-				if (Conductor.songPosition >= note.strumTime + (Conductor.stepCrochet * 2.0) && (!note.wasHit && !note.tooLate))
-					events.emit(SignalEvent.NOTE_MISS, note);
-
-				if (note.isSustainNote)
-					if (Conductor.songPosition >= note.strumTime && holdArray[note.noteData])
-						events.emit(SignalEvent.NOTE_HIT, note);
-			}
-			else
-				if (Conductor.songPosition >= note.strumTime)
-					events.emit(SignalEvent.NOTE_HIT, note);
 		}
 	}
 
@@ -1198,7 +1201,6 @@ class Gameplay extends MusicBeatState
 	{
 		if (renderMode)
 		{
-			inline cpp.vm.Gc.enable(true);
 			cpuControlled = true;
 			process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '$videoFramerate', '-i', '-', '-c:v', videoEncoder, (inline (inline Sys.getCwd()).replace('\\', '/')) + outputPath]);
 			FlxG.autoPause = false;
@@ -1216,8 +1218,6 @@ class Gameplay extends MusicBeatState
 	{
 		if (renderMode)
 		{
-			inline cpp.vm.Gc.enable(false);
-
 			process.stdin.close();
 			process.close();
 			process.kill();

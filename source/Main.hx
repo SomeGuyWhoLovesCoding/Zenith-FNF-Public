@@ -33,13 +33,6 @@ class Main extends Sprite
 	{
 		super();
 
-		#if windows //DPI AWARENESS BABY
-		@:functionCode('
-			#include <Windows.h>
-			SetProcessDPIAware();
-		')
-		#end
-
 		// Before adding ``game``, create the transition
 
 		var transitionMatrix:Matrix = new Matrix();
@@ -127,7 +120,7 @@ class Main extends Sprite
 			if (fpsMax < fps)
 				fpsMax = fps;
 
-			fpsTxt.text = 'FPS: ' + inline Std.int(fps) + ' (MAX: ' + inline Std.int(fpsMax) + ')\nMEM: ' + inline flixel.util.FlxStringUtil.formatBytes(openfl.system.System.totalMemory);
+			fpsTxt.text = 'FPS: ' + inline Std.int(fps) + ' (MAX: ' + inline Std.int(fpsMax) + ')\nMEM: ' + inline flixel.util.FlxStringUtil.formatBytes(cpp.vm.Gc.memInfo(3)) + '\nCPU: ' + inline Std.int(Utils.getCPUUsage() * 100.0) * 0.01 + '%';
 		}
 
 		transition.y = transitionY;

@@ -15,7 +15,6 @@ import zenith.system.*;
 
 // Flixel
 
-import flixel.system.FlxAssets.*;
 import flixel.*;
 import flixel.sound.FlxSound;
 import flixel.util.*;

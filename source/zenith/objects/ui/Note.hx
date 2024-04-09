@@ -63,24 +63,50 @@ class Note extends FlxSprite
 		frames = Paths.getSparrowAtlas('noteskins/Regular');
 		animation.copyFrom(@:privateAccess Paths.noteAnimationHolder.animation);
 
-		scale.set(0.7, 0.7);
-		updateHitbox();
-
 		//trace('Yes');
 
 		pixelPerfectPosition = active = false;
 	}
 
-	override public function update(elapsed:Float):Void
-	{
-	}
-
 	override public function draw():Void
 	{
-		inline centerOrigin();
-		inline centerOffsets();
+		if (!exists || alpha == 0.0)
+			return;
 
-		super.draw();
+		updateHitbox();
+
+		inline checkEmptyFrame();
+
+		if (_frame.type == flixel.graphics.frames.FlxFrame.FlxFrameType.EMPTY)
+			return;
+
+		if (dirty) // rarely
+			calcFrame(useFramePixels);
+
+		if (null != shader && shader is flixel.graphics.tile.FlxGraphicsShader)
+			cast(shader, flixel.graphics.tile.FlxGraphicsShader).setCamSize(_frame.frame.x, _frame.frame.y, _frame.frame.width, _frame.frame.height);
+
+		for (i in 0...cameras.length)
+		{
+			var camera:FlxCamera = cameras[i];
+
+			if (!camera.visible || !camera.exists || !isOnScreen(camera))
+				continue;
+
+			if (isSimpleRender(camera))
+				drawSimple(camera);
+			else
+				drawComplex(camera);
+
+			#if FLX_DEBUG
+			FlxBasic.visibleCount++;
+			#end
+		}
+
+		#if FLX_DEBUG
+		if (FlxG.debugger.drawDebug)
+			drawDebug();
+		#end
 	}
 
 	// Used for recycling

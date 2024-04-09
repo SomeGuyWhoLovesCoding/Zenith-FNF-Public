@@ -55,7 +55,5 @@ class HealthIcon extends FlxSprite
 	}
 
 	public inline function getCharacter():String
-	{
 		return char;
-	}
 }

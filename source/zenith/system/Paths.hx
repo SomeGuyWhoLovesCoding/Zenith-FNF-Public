@@ -16,9 +16,6 @@ class Paths
 
 	private static var noteAnimationHolder:FlxSprite;
 
-	@:allow(zenith.Game.new)
-	public static var GPUCaching(default, null):Bool = false;
-
 	//public static var soundChannel:SoundChannel;
 
 	public static function initNoteShit()
@@ -39,20 +36,13 @@ class Paths
 
 		if (sys.FileSystem.exists(imagePath))
 		{
-			if (bitmapDataCache.exists(imagePath))
-			{
-				return (GPUCaching ? Utils.toTexture(bitmapDataCache.get(imagePath)) : bitmapDataCache.get(imagePath));
-			}
-			else
-			{
-				// Create a new FlxGraphic and add its bitmap data to the cache
-				bitmapDataCache.set(imagePath, FlxG.bitmap.add(BitmapData.fromFile(imagePath), true, imagePath).bitmap);
-				return (GPUCaching ? Utils.toTexture(bitmapDataCache.get(imagePath)) : bitmapDataCache.get(imagePath));
-			}
+			if (!bitmapDataCache.exists(imagePath)) // Create a new FlxGraphic and add its bitmap data to the cache
+				bitmapDataCache.set(imagePath, Utils.toTexture(FlxG.bitmap.add(BitmapData.fromFile(imagePath), true, imagePath).bitmap));
+
+			return bitmapDataCache.get(imagePath);
 		}
 
 		trace('Image file "$imagePath" doesn\'t exist.');
-
 		return null;
 	}
 
