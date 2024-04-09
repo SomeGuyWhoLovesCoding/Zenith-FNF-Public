@@ -7,6 +7,8 @@ class Game extends FlxGame
 {
 	private final initState:Class<flixel.FlxState> = Gameplay;
 
+	public static var blockSoundKeys:Bool = false;
+
 	// Keyboard events
 	public static var onKeyDown:Emitter = new Emitter();
 	public static var onKeyUp:Emitter = new Emitter();

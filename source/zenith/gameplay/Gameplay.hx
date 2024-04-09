@@ -233,7 +233,7 @@ class Gameplay extends MusicBeatState
 		if (renderMode)
 			elapsed = 1.0 / videoFramerate;
 
-		inline events.emit(SignalEvent.GAMEPLAY_UPDATE, elapsed);
+		events.emit(SignalEvent.GAMEPLAY_UPDATE, elapsed);
 
 		super.update(elapsed);
 	}
@@ -254,7 +254,7 @@ class Gameplay extends MusicBeatState
 		for (i in 0...notes.members.length)
 		{
 			var currentNote:Note = notes.members[i];
-			inline events.emit(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4 : 0)]);
+			events.emit(SignalEvent.NOTE_FOLLOW, currentNote, strums.members[currentNote.noteData + (currentNote.mustPress ? 4 : 0)]);
 		}
 
 		while (null != unspawnNotes[unspawnNotes.length-1])
@@ -1029,7 +1029,7 @@ class Gameplay extends MusicBeatState
 			var hittable:Note = (inline fastNoteFilter(notes.members, n -> (n.mustPress && !n.isSustainNote) && (inline Math.abs(Conductor.songPosition - n.strumTime)) < 166.7 && !n.wasHit && !n.tooLate && n.noteData == key))[0];
 
 			if (null != hittable)
-				inline events.emit(SignalEvent.NOTE_HIT, hittable);
+				events.emit(SignalEvent.NOTE_HIT, hittable);
 
 			holdArray[key] = true;
 		}
@@ -1171,18 +1171,18 @@ class Gameplay extends MusicBeatState
 			{
 				if (cpuControlled)
 					if (Conductor.songPosition >= note.strumTime)
-						inline events.emit(SignalEvent.NOTE_HIT, note);
+						events.emit(SignalEvent.NOTE_HIT, note);
 
 				if (Conductor.songPosition >= note.strumTime + (Conductor.stepCrochet * 2.0) && (!note.wasHit && !note.tooLate))
-					inline events.emit(SignalEvent.NOTE_MISS, note);
+					events.emit(SignalEvent.NOTE_MISS, note);
 
 				if (note.isSustainNote)
 					if (Conductor.songPosition >= note.strumTime && holdArray[note.noteData])
-						inline events.emit(SignalEvent.NOTE_HIT, note);
+						events.emit(SignalEvent.NOTE_HIT, note);
 			}
 			else
 				if (Conductor.songPosition >= note.strumTime)
-					inline events.emit(SignalEvent.NOTE_HIT, note);
+					events.emit(SignalEvent.NOTE_HIT, note);
 		}
 	}
 

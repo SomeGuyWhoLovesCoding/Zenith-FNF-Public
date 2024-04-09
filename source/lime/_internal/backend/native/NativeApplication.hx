@@ -250,7 +250,21 @@ class NativeApplication
 			Game.onKeyUp.emit(SignalEvent.KEY_UP, keyCode, modifier);
 
 		if (type == KEY_DOWN)
+		{
 			Game.onKeyDown.emit(SignalEvent.KEY_DOWN, keyCode, modifier);
+
+			if (null != FlxG.sound && !Game.blockSoundKeys)
+			{
+				if (keyCode == EQUALS)
+					FlxG.sound.changeVolume(0.1);
+
+				if (keyCode == MINUS)
+					FlxG.sound.changeVolume(-0.1);
+
+				if (keyCode == NUMBER_0)
+					FlxG.sound.toggleMuted();
+			}
+		}
 	}
 
 	private function handleMouseEvent():Void
