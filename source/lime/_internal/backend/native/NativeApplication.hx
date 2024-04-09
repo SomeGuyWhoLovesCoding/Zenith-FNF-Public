@@ -253,16 +253,28 @@ class NativeApplication
 		{
 			Game.onKeyDown.emit(SignalEvent.KEY_DOWN, keyCode, modifier);
 
+			if (keyCode == F11)
+				window.fullscreen = !window.fullscreen;
+
 			if (null != FlxG.sound && !Game.blockSoundKeys)
 			{
 				if (keyCode == EQUALS)
-					FlxG.sound.changeVolume(0.1);
+				{
+					FlxG.sound.volume = inline Math.min(FlxG.sound.volume + 0.1, 1.0);
+					Main.volumeTxt.alpha = 1.0;
+				}
 
 				if (keyCode == MINUS)
-					FlxG.sound.changeVolume(-0.1);
+				{
+					FlxG.sound.volume = inline Math.max(FlxG.sound.volume - 0.1, 0.0);
+					Main.volumeTxt.alpha = 1.0;
+				}
 
 				if (keyCode == NUMBER_0)
-					FlxG.sound.toggleMuted();
+				{
+					FlxG.sound.muted = !FlxG.sound.muted;
+					Main.volumeTxt.alpha = 1.0;
+				}
 			}
 		}
 	}

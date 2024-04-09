@@ -19,36 +19,38 @@ class StrumNote extends FlxSprite
 
 		//trace(noteData);
 
-		frames = Paths.getSparrowAtlas('noteskins/Regular/Strums');
+		frames = Paths.getSparrowAtlas('noteskins/Regular');
 
-		animation.addByPrefix('static', 'arrow' + inline animArray[noteData].toUpperCase());
-		animation.addByPrefix('pressed', animArray[noteData] + ' press', 24, false);
-		animation.addByPrefix('confirm', animArray[noteData] + ' confirm', 24, false);
+		animation.addByPrefix('static', 'static');
+		animation.addByPrefix('pressed', 'press', 24, false);
+		animation.addByPrefix('confirm', 'confirm', 24, false);
 
 		scale.set(0.7, 0.7);
 		updateHitbox();
 
 		pixelPerfectPosition = false;
 
+		angle = Note.angleArray[noteData];
+
 		inline playAnim('static'); // Wow, am I really a dumbass?
 	}
 
 	public function playAnim(anim:String):Void
 	{
+		color = anim == 'static' ? 0xffffffff : Note.colorArray[noteData];
 		animation.play(anim, true);
-		centerOffsets();
-		centerOrigin();
+		active = anim != 'static';
 	}
 
-	override function update(elapsed:Float)
+	override function draw():Void
 	{
-		super.update(elapsed);
+		inline centerOrigin();
+		inline centerOffsets();
+
+		super.draw();
 
 		if (animation.curAnim.name == 'confirm')
-		{
-			centerOrigin();
 			if (animation.curAnim.finished && (!playerStrum || Gameplay.cpuControlled))
 				playAnim('static');
-		}
 	}
 }

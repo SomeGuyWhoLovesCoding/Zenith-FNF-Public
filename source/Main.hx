@@ -24,6 +24,7 @@ class Main extends Sprite
 	public static var transition:Sprite;
 
 	public static var fpsTxt:TextField;
+	public static var volumeTxt:TextField;
 
 	public static var skipTransIn:Bool = false;
 	public static var skipTransOut:Bool = false;
@@ -57,9 +58,15 @@ class Main extends Sprite
 
 		fpsTxt = new TextField();
 		fpsTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFFFFFF, true);
-		fpsTxt.selectable = false;
-		fpsTxt.width = FlxG.width;
 		addChild(fpsTxt);
+
+		volumeTxt = new TextField();
+		volumeTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFF0000, true);
+		addChild(volumeTxt);
+
+		volumeTxt.selectable = fpsTxt.selectable = false;
+		volumeTxt.width = fpsTxt.width = FlxG.width;
+		volumeTxt.alpha = 0;
 	}
 
 	public static function startTransition(_transIn:Bool = false, _callback:Void->Void = null):Void
@@ -106,6 +113,12 @@ class Main extends Sprite
 		if (@:privateAccess FlxG.game._lostFocus && FlxG.autoPause)
 			return;
 
+		if (null != volumeTxt)
+		{
+			volumeTxt.y = (FlxG.height * FlxG.scaleMode.scale.y) - 20;
+			volumeTxt.text = (FlxG.sound.muted ? 0 : inline Std.int(FlxG.sound.volume * 100.0)) + '%';
+			volumeTxt.alpha -= elapsed * 2.0;
+		}
 
 		if (null != fpsTxt)
 		{

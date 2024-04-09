@@ -15,28 +15,21 @@ class Paths
 	inline public static var SOUND_EXT:String = "ogg";
 
 	private static var noteAnimationHolder:FlxSprite;
-	private static var noteAnimation:FlxAnimationController;
 
+	@:allow(zenith.Game.new)
 	public static var GPUCaching(default, null):Bool = false;
 
 	//public static var soundChannel:SoundChannel;
 
-	public static function initNoteShit(keys:Int = 4)
+	public static function initNoteShit()
 	{
 		// Do this to be able to just copy over the note animations and not reallocate it
 
 		noteAnimationHolder = new FlxSprite();
-		noteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular/Notes');
-		noteAnimation = new FlxAnimationController(noteAnimationHolder);
-
-		// Use a for loop for adding all of the animations in the note spritesheet, otherwise it won't find the animations for the next recycle
-		for (i in 0...keys)
-		{
-			var anims:String = Note.animArray[i];
-			noteAnimation.addByPrefix(anims + 'holdend', anims + ' hold end0');
-			noteAnimation.addByPrefix(anims + 'hold', anims + ' hold piece0');
-			noteAnimation.addByPrefix(anims + 'Scroll', anims + '0');
-		}
+		noteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular');
+		noteAnimationHolder.animation.addByPrefix('tail', 'hold end0');
+		noteAnimationHolder.animation.addByPrefix('piece', 'hold piece0');
+		noteAnimationHolder.animation.addByPrefix('scroll', 'purple0');
 	}
 
 	public static var bitmapDataCache:Map<String, BitmapData> = new Map<String, BitmapData>();

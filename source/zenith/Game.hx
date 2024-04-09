@@ -1,8 +1,5 @@
 package zenith;
 
-import sys.thread.Mutex;
-
-@:allow(flixel.FlxG.elapsed) // Please don't remove this
 class Game extends FlxGame
 {
 	private final initState:Class<flixel.FlxState> = Gameplay;
@@ -30,17 +27,16 @@ class Game extends FlxGame
 
 	public var inputEnabled:Bool = true;
 
-	private var __mutex:Mutex;
 	public function new():Void
 	{
 		var fps:Int = inline Std.int(setFramerate(SaveData.contents.preferences.fps));
+		FlxSprite.defaultAntialiasing = SaveData.contents.preferences.antialiasing;
+		Paths.GPUCaching = SaveData.contents.preferences.gpuCaching;
+
 		super(0, 0, initState, fps, fps, true);
 		FlxG.fixedTimestep = false; // Get rid of flixel's mouse as the transition goes over it
-		FlxSprite.defaultAntialiasing = SaveData.contents.preferences.antialiasing;
 
 		lime.app.Application.current.window.onClose.add(SaveData.saveContent);
-
-		__mutex = new Mutex();
 
 		delta = untyped __global__.__time_stamp() * 1000.0;
 
@@ -54,10 +50,8 @@ class Game extends FlxGame
 
 	override public function onEnterFrame(_:openfl.events.Event):Void
 	{
-		__mutex.acquire();
 		super.onEnterFrame((_ : openfl.events.Event));
 		Main.updateMain(FlxG.elapsed);
-		__mutex.release();
 	}
 
 	private var delta:Float;

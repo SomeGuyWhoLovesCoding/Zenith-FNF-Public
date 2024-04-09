@@ -42,7 +42,8 @@ class Note extends FlxSprite
 	public var offsetX:Float = 0;
 	public var offsetY:Float = 0;
 
-	public static final animArray:Array<String> = ['purple', 'blue', 'green', 'red'];
+	public static final colorArray:Array<Int> = [0xffc941d5, 0xff00ffff, 0xff0ffb3e, 0xfffa3e3e];
+	public static final angleArray:Array<Float> = [0, -90, 90, 180];
 
 	public static final prototypeNoteskin:Bool = false;
 
@@ -59,19 +60,27 @@ class Note extends FlxSprite
 
 		// Set the note's scale to 0.7 initially and update the hitbox, don't reuse that same process each time a note, and add the animation prefixes in the constructor.
 
-		frames = Paths.getSparrowAtlas('noteskins/Regular/Notes');
-		animation.copyFrom(@:privateAccess Paths.noteAnimation);
+		frames = Paths.getSparrowAtlas('noteskins/Regular');
+		animation.copyFrom(@:privateAccess Paths.noteAnimationHolder.animation);
 
 		scale.set(0.7, 0.7);
 		updateHitbox();
 
 		//trace('Yes');
 
-		pixelPerfectPosition = false;
+		pixelPerfectPosition = active = false;
 	}
 
 	override public function update(elapsed:Float):Void
 	{
+	}
+
+	override public function draw():Void
+	{
+		inline centerOrigin();
+		inline centerOffsets();
+
+		super.draw();
 	}
 
 	// Used for recycling
@@ -81,13 +90,16 @@ class Note extends FlxSprite
 		wasHit = tooLate = false;
 
 		strumTime = chartNoteData.strumTime;
-		noteData = Std.int(chartNoteData.noteData % 4);
+		noteData = inline Std.int(chartNoteData.noteData % 4);
 		mustPress = chartNoteData.mustPress;
 		gfNote = chartNoteData.gfNote;
 		isSustainNote = chartNoteData.isSustainNote;
 		sustainLength = chartNoteData.sustainLength;
 
-		animation.play(animArray[noteData] + (isSustainNote ? (chartNoteData.isSustainEnd ? 'holdend' : 'hold') : 'Scroll'));
+		color = colorArray[noteData];
+		angle = isSustainNote ? 0 : angleArray[noteData];
+
+		inline animation.play(isSustainNote ? (chartNoteData.isSustainEnd ? 'tail' : 'piece') : 'scroll');
 
 		cameras = [isSustainNote ? Gameplay.instance.hudCameraBelow : Gameplay.instance.hudCamera];
 

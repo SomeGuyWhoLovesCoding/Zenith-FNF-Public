@@ -62,6 +62,9 @@
 	<!--Disable the Flixel core debugger. Automatically gets set whenever you compile in release mode!-->
 	<haxedef name="FLX_NO_DEBUG" unless="debug" />
 
+	<!--Disable the Flixel core sound tray-->
+	<haxedef name="FLX_NO_SOUND_TRAY" />
+
 	<!--Allow working memory greater than 1 Gig-->
 	<haxedef name="HXCPP_GC_BIG_BLOCKS" />
 

@@ -1155,7 +1155,7 @@ class Gameplay extends MusicBeatState
 
 			// Sustain scaling for song speed (even if it's changed)
 			// Psych engine sustain note calculation moment
-			note.scale.set(0.7, note.isSustainNote ? (note.animation.curAnim.name.endsWith('end') ? 1.0 : (153.75 / SONG.bpm) * (songSpeed * note.multSpeed) * inline Math.abs(strum.scrollMult)) : 0.7);
+			note.scale.set(0.7, note.isSustainNote ? (note.animation.curAnim.name.endsWith('tail') ? 1.0 : (153.75 / SONG.bpm) * (songSpeed * note.multSpeed) * inline Math.abs(strum.scrollMult)) : 0.7);
 			note.updateHitbox();
 
 			note.distance = 0.45 * (Conductor.songPosition - note.strumTime) * (songSpeed * note.multSpeed);
