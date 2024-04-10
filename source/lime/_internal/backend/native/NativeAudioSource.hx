@@ -9,7 +9,7 @@ import lime.media.openal.ALSource;
 import lime.media.vorbis.VorbisFile;
 import lime.media.AudioManager;
 import lime.media.AudioSource;
-import lime.utils.UInt32Array;
+import lime.utils.UInt8Array;
 
 #if !lime_debug
 @:fileXml('tags="haxe,release"')
@@ -171,10 +171,10 @@ class NativeAudioSource
 			timer.stop();
 	}
 
-	private function readVorbisFileBuffer(vorbisFile:VorbisFile, length:UInt):UInt32Array
+	private function readVorbisFileBuffer(vorbisFile:VorbisFile, length:UInt):UInt8Array
 	{
 		#if lime_vorbis
-		var buffer = new UInt32Array(length);
+		var buffer = new UInt8Array(length);
 		var read = 0, total = 0, readMax;
 
 		for (i in 0...STREAM_NUM_BUFFERS-1)
