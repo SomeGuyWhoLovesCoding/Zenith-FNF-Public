@@ -109,7 +109,7 @@ class Main extends Sprite
 		if (null != volumeTxt)
 		{
 			volumeTxt.y = (FlxG.height * FlxG.scaleMode.scale.y) - 20;
-			volumeTxt.text = (FlxG.sound.muted ? 0 : inline Std.int(FlxG.sound.volume * 100.0)) + '%';
+			volumeTxt.text = (FlxG.sound.muted ? 0 : Std.int(FlxG.sound.volume * 100.0)) + '%';
 			volumeTxt.alpha -= elapsed * 2.0;
 		}
 
@@ -120,7 +120,7 @@ class Main extends Sprite
 			if (fpsMax < fps)
 				fpsMax = fps;
 
-			fpsTxt.text = 'FPS: ' + inline Std.int(fps) + ' (MAX: ' + inline Std.int(fpsMax) + ')\nMEM: ' + inline flixel.util.FlxStringUtil.formatBytes(cpp.vm.Gc.memInfo(3));
+			fpsTxt.text = 'FPS: ' + Std.int(fps) + ' (MAX: ' + Std.int(fpsMax) + ')\nMEM: ' + flixel.util.FlxStringUtil.formatBytes(#if neko neko.vm.Gc.stats().heap #elseif hl hl.Gc. stats().currentMemory #elseif cpp cpp.vm.Gc.memInfo(3) #end);
 		}
 
 		transition.y = transitionY;

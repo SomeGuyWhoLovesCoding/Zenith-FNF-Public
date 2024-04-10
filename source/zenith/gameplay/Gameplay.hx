@@ -326,7 +326,7 @@ class Gameplay extends MusicBeatState
 							value = 1;
 					}
 
-					var time:Float = inline Std.parseFloat(value2);
+					var time:Float = Std.parseFloat(value2);
 					if (Math.isNaN(time) || time <= 0)
 						time = 0.6;
 
@@ -356,7 +356,7 @@ class Gameplay extends MusicBeatState
 				}
 
 			case 'Set GF Speed':
-				var value:Int = inline Std.parseInt(value1);
+				var value:Int = Std.parseInt(value1);
 				if (Math.isNaN(value) || value < 1)
 					value = 1;
 
@@ -365,8 +365,8 @@ class Gameplay extends MusicBeatState
 			case 'Add Camera Zoom':
 				if (FlxG.camera.zoom < 1.35)
 				{
-					var camZoom:Float = inline Std.parseFloat(value1);
-					var hudZoom:Float = inline Std.parseFloat(value2);
+					var camZoom:Float = Std.parseFloat(value1);
+					var hudZoom:Float = Std.parseFloat(value2);
 
 					if (Math.isNaN(camZoom))
 						camZoom = 0.015;
@@ -395,7 +395,7 @@ class Gameplay extends MusicBeatState
 						case 'gf' | 'girlfriend':
 							char = gf;
 						default:
-							var val2:Int = inline Std.parseInt(value2);
+							var val2:Int = Std.parseInt(value2);
 							if (Math.isNaN(val2))
 								val2 = 0;
 
@@ -424,7 +424,7 @@ class Gameplay extends MusicBeatState
 						case 'dad' | 'opponent':
 							charType = 1;
 						default:
-							charType = inline Std.parseInt(value1);
+							charType = Std.parseInt(value1);
 							if (Math.isNaN(charType))
 								charType = 0;
 					}
@@ -884,7 +884,7 @@ class Gameplay extends MusicBeatState
 	private var holdArray(default, null):Array<Bool> = [false, false, false, false];
 	inline public function onKeyDown(keyCode:KeyCode, keyMod:KeyModifier):Void
 	{
-		var key:Int = inline inputKeybinds.indexOf(keyCode);
+		var key:Int = inputKeybinds.indexOf(keyCode);
 
 		if (key != -1 && !cpuControlled && generatedMusic && !holdArray[key])
 		{
@@ -908,7 +908,7 @@ class Gameplay extends MusicBeatState
 
 	inline public function onKeyUp(keyCode:KeyCode, keyMod:KeyModifier):Void
 	{
-		var key:Int = inline inputKeybinds.indexOf(keyCode);
+		var key:Int = inputKeybinds.indexOf(keyCode);
 
 		if (key != -1 && !cpuControlled && generatedMusic && holdArray[key])
 		{
