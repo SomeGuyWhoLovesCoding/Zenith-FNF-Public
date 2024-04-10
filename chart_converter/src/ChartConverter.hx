@@ -28,7 +28,8 @@ typedef PsychSwagSong =
 	var gfVersion:String;
 	var stage:String;
 
-	var offset:Null<Float>; // For the "Sync notes to beat" option
+	@:optional var offset:Null<Float>; // For the "Sync notes to beat" option
+	@:optional var strumlines:UInt;
 }
 
 typedef SongInfo =
