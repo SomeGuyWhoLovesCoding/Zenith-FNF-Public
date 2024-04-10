@@ -31,7 +31,7 @@ class Game extends FlxGame
 
 		lime.app.Application.current.window.onClose.add(SaveData.saveContent);
 
-		delta = timeStamp();
+		delta = inline timeStamp();
 
 		trace('Game initialized.');
 	}
@@ -50,7 +50,7 @@ class Game extends FlxGame
 	private var delta:Float;
 	override function updateElapsed():Void
 	{
-		var timestamp:Float = timeStamp();
+		var timestamp:Float = inline timeStamp();
 		_elapsedMS = timestamp - delta;
 		super.updateElapsed();
 		delta = timestamp;
@@ -59,6 +59,14 @@ class Game extends FlxGame
 	inline public function setFramerate(fps:Int):Float
 		return frameRate = fps;
 
-	inline function timeStamp():Float
-		return #if cpp untyped __global__.__time_stamp() * 1000.0; #elseif hl Date.now().getTime(); #end
+	function timeStamp():Float
+	{
+		#if cpp
+		return untyped __global__.__time_stamp() * 1000.0;
+		#elseif sys
+		return Sys.time() * 1000.0;
+		#else
+		return FlxG.elapsed;
+		#end
+	}
 }
