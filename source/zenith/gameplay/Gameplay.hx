@@ -275,20 +275,16 @@ class Gameplay extends MusicBeatState
 			var note:Note = notes.members[i];
 			if (note.exists)
 			{
-				var strum:StrumNote = strums.members[note.noteData + (4 * note.lane)];
-
-				// Sustain scaling for song speed (even if it's changed)
-				// Psych engine sustain note calculation moment
 				note.distance = 0.45 * (Conductor.songPosition - note.strumTime) * (songSpeed * note.multSpeed);
-				note.x = strum.x + note.offsetX;
-				note.y = (strum.y + note.offsetY) + (-strum.scrollMult * note.distance);
+				note.x = note.strum.x + note.offsetX;
+				note.y = (note.strum.y + note.offsetY) + (-note.strum.scrollMult * note.distance);
 
 				if (Conductor.songPosition >= note.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
 					note.exists = false;
 
 				// For note hits and hold input
 
-				if (strum.playerStrum)
+				if (note.strum.playerStrum)
 				{
 					if (cpuControlled)
 						if (Conductor.songPosition >= note.strumTime)
@@ -898,7 +894,7 @@ class Gameplay extends MusicBeatState
 			if (strum.animation.curAnim.name != 'confirm')
 				strum.playAnim('pressed');
 
-			var hittable:Note = fastNoteFilter(notes.members, n -> n.strum.playerStrum && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && !n.wasHit && !n.tooLate && n.noteData == key)[0];
+			var hittable:Note = fastNoteFilter(notes.members, n -> (!n.wasHit && !n.tooLate) && (n.strum.playerStrum && n.noteData == key) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7)[0];
 
 			if (null != hittable)
 				events.emit(SignalEvent.NOTE_HIT, hittable);
