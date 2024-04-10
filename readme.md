@@ -4,7 +4,7 @@ Hey there, welcome to this repository.
 
 # Libraries needed to compile this engine
 
-Flixel: ``haxelib install flixel``
+Flixel: ``haxelib git flixel https://github.com/FNF-CNE-Devs/flixel.git`` (If you have an already installed git, delete it first)
 
 Flixel Addons: ``haxelib install flixel-addons``
 
