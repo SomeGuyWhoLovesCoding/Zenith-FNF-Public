@@ -29,6 +29,12 @@
 	<set name="BUILD_DIR" value="export/debug" if="debug" />
 	<set name="BUILD_DIR" value="export/release" unless="debug" />
 
+	<set name="BUILD_DIR" value="export/debug/mac" if="debug && mac" />
+	<set name="BUILD_DIR" value="export/release/mac" if="mac" />
+
+	<set name="BUILD_DIR" value="export/debug/linux" if="debug && linux" />
+	<set name="BUILD_DIR" value="export/release/linux" if="linux" />
+
 	<source path="src" />
 
 	<!--These are required!-->
