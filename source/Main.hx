@@ -59,7 +59,7 @@ class Main extends Sprite
 
 		volumeTxt.selectable = fpsTxt.selectable = false;
 		volumeTxt.width = fpsTxt.width = FlxG.width;
-		volumeTxt.alpha = 0;
+		volumeTxt.alpha = 0.0;
 	}
 
 	public static function startTransition(_transIn:Bool = false, _callback:Void->Void = null):Void

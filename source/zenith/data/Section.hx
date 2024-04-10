@@ -1,5 +1,7 @@
 package zenith.data;
 
+// For psych's chart format, don't mind this
+
 typedef SwagSection =
 {
 	var sectionNotes:Array<Dynamic>;

@@ -15,6 +15,7 @@ class Paths
 	inline public static var SOUND_EXT:String = "ogg";
 
 	private static var noteAnimationHolder:FlxSprite;
+	private static var holdNoteAnimationHolder:FlxSprite;
 
 	//public static var soundChannel:SoundChannel;
 
@@ -24,9 +25,12 @@ class Paths
 
 		noteAnimationHolder = new FlxSprite();
 		noteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular');
-		noteAnimationHolder.animation.addByPrefix('tail', 'hold end0');
-		noteAnimationHolder.animation.addByPrefix('piece', 'hold piece0');
 		noteAnimationHolder.animation.addByPrefix('scroll', 'purple0');
+
+		holdNoteAnimationHolder = new FlxSprite();
+		holdNoteAnimationHolder.frames = noteAnimationHolder.frames;
+		holdNoteAnimationHolder.animation.addByPrefix('piece', 'hold piece0');
+		holdNoteAnimationHolder.animation.addByPrefix('tail', 'hold end0');
 	}
 
 	public static var bitmapDataCache:Map<String, BitmapData> = new Map<String, BitmapData>();

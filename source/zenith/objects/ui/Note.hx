@@ -2,36 +2,17 @@ package zenith.objects.ui;
 
 using StringTools;
 
-typedef ChartNoteData =
-{
-	strumTime:Float,
-	noteData:Int,
-	mustPress:Bool,
-	noteType:String,
-	gfNote:Bool,
-	isSustainNote:Bool,
-	isSustainEnd:Bool,
-	sustainLength:Float,
-	noAnimation:Bool
-}
-
-typedef EventNote =
-{
-	strumTime:Float,
-	event:String,
-	value1:String,
-	value2:String
-}
-
 class Note extends FlxSprite
 {
 	public var strumTime(default, null):Float = 0;
-	public var noteData(default, null):Int = 0;
+	public var noteData(default, null):UInt = 0;
 	public var mustPress(default, null):Bool = false;
 	public var gfNote(default, null):Bool = false;
-	public var isSustainNote(default, null):Bool = false;
-	public var sustainLength(default, null):Float = 0;
+	public var sustainLength(default, null):UInt = 0;
 	public var noteType(default, null):String = '';
+
+	public var lane:UInt = 0;
+	public var multiplier:UInt = 1;
 
 	public var noAnimation:Bool = false;
 	public var multSpeed:Float = 1;
@@ -66,6 +47,8 @@ class Note extends FlxSprite
 		//trace('Yes');
 
 		pixelPerfectPosition = active = false;
+
+		inline animation.play('scroll');
 	}
 
 	override public function draw():Void
@@ -73,6 +56,7 @@ class Note extends FlxSprite
 		if (!exists || alpha == 0.0)
 			return;
 
+		scale.x = scale.y = 0.7;
 		updateHitbox();
 
 		inline checkEmptyFrame();
@@ -84,7 +68,7 @@ class Note extends FlxSprite
 			calcFrame(useFramePixels);
 
 		if (null != shader && shader is flixel.graphics.tile.FlxGraphicsShader)
-			cast(shader, flixel.graphics.tile.FlxGraphicsShader).setCamSize(_frame.frame.x, _frame.frame.y, _frame.frame.width, _frame.frame.height);
+			shader.setCamSize(_frame.frame.x, _frame.frame.y, _frame.frame.width, _frame.frame.height);
 
 		for (i in 0...cameras.length)
 		{
@@ -110,26 +94,19 @@ class Note extends FlxSprite
 	}
 
 	// Used for recycling
-	public function setupNoteData(chartNoteData:ChartNoteData):Note
+	public function setupNoteData(chartNoteData:Array<Int>):Note
 	{
 		y = -2000;
 		wasHit = tooLate = false;
 
-		strumTime = chartNoteData.strumTime;
-		noteData = inline Std.int(chartNoteData.noteData % 4);
-		mustPress = chartNoteData.mustPress;
-		gfNote = chartNoteData.gfNote;
-		isSustainNote = chartNoteData.isSustainNote;
-		sustainLength = chartNoteData.sustainLength;
+		strumTime = chartNoteData[0];
+		noteData = chartNoteData[1];
+		sustainLength = chartNoteData[2];
+		lane = chartNoteData[3];
+		multiplier = chartNoteData[4];
 
 		color = colorArray[noteData];
-		angle = isSustainNote ? 0 : angleArray[noteData];
-
-		inline animation.play(isSustainNote ? (chartNoteData.isSustainEnd ? 'tail' : 'piece') : 'scroll');
-
-		cameras = [isSustainNote ? Gameplay.instance.hudCameraBelow : Gameplay.instance.hudCamera];
-
-		offsetX = isSustainNote ? SUSTAIN_NOTE_OFFSET_THRESHOLD : 0;
+		angle = angleArray[noteData];
 
 		return this;
 	}

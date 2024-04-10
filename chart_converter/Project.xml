@@ -4,7 +4,7 @@
 
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin: Zenith" file="Zenith-FNF" main="Main" version="1.0" company="VeryExcited" />
+	<app title="Friday Night Funkin: Zenith - Chart Converter" file="ChartConverter" main="ChartConverter" version="1.0" company="VeryExcited" />
 
 	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
 		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
@@ -16,10 +16,10 @@
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
-	<window width="1280" height="720" fps="1000" background="null" hardware="true" vsync="false" />
+	<window width="1280" height="720" fps="60" background="c4ff0e" hardware="true" vsync="false" />
 
 	<!--Desktop-specific-->
-	<window if="desktop" orientation="landscape" fullscreen="false" resizable="false" />
+	<window if="desktop" orientation="landscape" fullscreen="false" resizable="false" borderless="true" />
 
 	<!--Mobile-specific-->
 	<window if="mobile" orientation="landscape" fullscreen="true" width="0" height="0" />
@@ -29,11 +29,9 @@
 	<set name="BUILD_DIR" value="export/debug" if="debug" />
 	<set name="BUILD_DIR" value="export/release" unless="debug" />
 
-	<source path="source" />
-	<assets path="assets" />
+	<source path="src" />
 
 	<!--These are required!-->
-	<assets path="play_song.bat" />
 	<assets path="logo.png" />
 
 	<!-- _______________________________ Libraries ______________________________ -->

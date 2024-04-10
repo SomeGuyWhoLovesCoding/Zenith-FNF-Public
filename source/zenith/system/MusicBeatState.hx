@@ -8,9 +8,6 @@ import flixel.input.keyboard.FlxKey;
 
 class MusicBeatState extends FlxState
 {
-	private var curSection:Int = 0;
-	private var stepsToDo:Int = 0;
-
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
 
@@ -37,23 +34,16 @@ class MusicBeatState extends FlxState
 	{
 		super.update(elapsed);
 
-		final oldStep:Int = curStep;
+		var oldStep:Int = curStep;
 
 		updateCurStep();
 		updateBeat();
 
 		if (oldStep != curStep)
 		{
-			if (curStep > 0)
-				stepHit();
-
-			if (null != Gameplay.SONG)
-			{
-				if (oldStep < curStep)
-					updateSection();
-				else
-					rollbackSection();
-			}
+			stepHit();
+			if (curStep % 4 == 0)
+				beatHit();
 		}
 	}
 
@@ -74,43 +64,6 @@ class MusicBeatState extends FlxState
 
 	// Beat stuff
 
-	inline private function updateSection():Void
-	{
-		if (stepsToDo < 1)
-			stepsToDo = inline Math.round(inline getBeatsOnSection() * 4.0);
-
-		while (curStep >= stepsToDo)
-		{
-			stepsToDo += inline Math.round(inline getBeatsOnSection() * 4.0);
-			curSection++;
-			sectionHit();
-		}
-	}
-
-	inline private function rollbackSection():Void
-	{
-		if (curStep < 0)
-			return;
-
-		var lastSection:Int = curSection;
-		curSection = 0;
-		stepsToDo = 0;
-		for (i in 0...Gameplay.SONG.notes.length)
-		{
-			if (null != Gameplay.SONG.notes[i])
-			{
-				stepsToDo += inline Math.round(inline getBeatsOnSection() * 4.0);
-				if (stepsToDo > curStep)
-					break;
-
-				curSection++;
-			}
-		}
-
-		if (curSection > lastSection)
-			sectionHit();
-	}
-
 	inline private function updateBeat():Void
 	{
 		curBeat = inline Std.int(curStep * 0.25);
@@ -128,27 +81,11 @@ class MusicBeatState extends FlxState
 
 	public function stepHit():Void
 	{
-		if (curStep % 4 == 0)
-			beatHit();
+		// trace('Step: ' + curStep);
 	}
 
 	public function beatHit():Void
 	{
 		// trace('Beat: ' + curBeat);
-	}
-
-	public function sectionHit():Void
-	{
-		// trace('Section: ' + curSection + ', Beat: ' + curBeat + ', Step: ' + curStep);
-	}
-
-	inline function getBeatsOnSection()
-	{
-		var val:Null<Float> = 4;
-
-		if (null != Gameplay.SONG && null != Gameplay.SONG.notes[curSection])
-			val = Gameplay.SONG.notes[curSection].sectionBeats;
-
-		return null == val ? 4 : val;
 	}
 }

@@ -4,98 +4,43 @@ import zenith.data.Section;
 
 using StringTools;
 
-typedef SwagSong =
+typedef SongInfo =
 {
-	var song:String;
-	var notes:Array<SwagSection>;
-	var events:Array<Dynamic>;
-	var bpm:Float;
-	var needsVoices:Bool;
-	var speed:Float;
-
+	var stage:String;
 	var player1:String;
 	var player2:String;
-	var gfVersion:String;
-	var stage:String;
+	var spectator:String;
+	var speed:Float;
+	var bpm:Float;
+	var time_signature:Array<UInt>;
+	var offset:Null<Float>;
+	var needsVoices:Bool;
+	@:optional var strumlines:UInt;
+}
 
-	var offset:Null<Float>; // For the "Sync notes to beat" option
+typedef SwagSong =
+{
+	song:Null<String>,
+	info:SongInfo,
+	noteData:Array<Array<UInt>>,
+	bpmChanges:Array<Array<Float>>
 }
 
 class Song
 {
-	public var song:String;
-	public var notes:Array<SwagSection>;
-	public var events:Array<Dynamic>;
-	public var bpm:Float = 100;
-	public var needsVoices:Bool = true;
-	public var speed:Float = 1;
-
-	public var player1:String = 'bf';
-	public var player2:String = 'dad';
-	public var gfVersion:String = 'gf';
-	public var stage:String = 'stage';
-
-	public var offset:Null<Float> = 0;
-
-	inline static private function onLoadJson(songJson:SwagSong):SwagSong // Convert old charts to newest format
-	{
-		if(null == songJson.gfVersion)
-		{
-			songJson.gfVersion = 'gf';
-		}
-
-		if(null == songJson.events)
-		{
-			songJson.events = [];
-			for (secNum in 0...songJson.notes.length)
-			{
-				final sec:SwagSection = songJson.notes[secNum];
-
-				var i:Int = 0;
-				final notes:Array<Dynamic> = sec.sectionNotes;
-				var len:Int = notes.length;
-				while(i < len)
-				{
-					var note:Array<Dynamic> = notes[i];
-					if(note[1] < 0)
-					{
-						inline songJson.events.push([note[0], [[note[2], note[3], note[4]]]]);
-						inline notes.remove(note);
-						len = notes.length;
-					}
-					else i++;
-				}
-			}
-		}
-
-		return songJson;
-	}
-
-	public function new(song:String, notes:Array<SwagSection>, bpm:Float)
-	{
-		this.song = song;
-		this.notes = notes;
-		this.bpm = bpm;
-	}
-
 	static public function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
 		var formattedFolder:String = inline Paths.formatToSongPath(folder);
 		var formattedSong:String = inline Paths.formatToSongPath(jsonInput);
 
-		var rawJson:String = inline sys.io.File.getContent(Paths.ASSET_PATH + '/data/' + formattedFolder + '/' + formattedSong + '.json').trim();
-
-		while (!rawJson.endsWith("}"))
-			rawJson = inline rawJson.substr(0, rawJson.length - 1); // LOL GOING THROUGH THE BULLSHIT TO CLEAN IDK WHATS STRANGE
-
-		var songJson:SwagSong = inline parseJSONshit(rawJson);
+		var songJson:SwagSong = parseJSONshit(inline sys.io.File.getContent(Paths.ASSET_PATH + '/data/' + formattedFolder + '/' + formattedSong + '.json'));
 		if(jsonInput != 'events') StageData.loadDirectory(songJson);
-		return onLoadJson(songJson);
+		return songJson;
 	}
 
 	inline static public function parseJSONshit(rawJson:String):SwagSong
 	{
-		var swagShit:SwagSong = (inline haxe.Json.parse(rawJson)).song;
+		var swagShit:SwagSong = inline haxe.Json.parse(rawJson);
 		return swagShit;
 	}
 }

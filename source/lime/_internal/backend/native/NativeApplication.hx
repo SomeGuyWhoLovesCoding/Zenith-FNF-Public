@@ -294,7 +294,7 @@ class NativeApplication
 			window.onMouseMove.dispatch(mouseEventInfo.x, mouseEventInfo.y);
 
 		if (mouseEventInfo.type == MOUSE_WHEEL)
-			window.onMouseWheel.dispatch(mouseEventInfo.x, UNKNOWN);
+			window.onMouseWheel.dispatch(mouseEventInfo.x, mouseEventInfo.y, UNKNOWN);
 	}
 
 	private function handleRenderEvent():Void
