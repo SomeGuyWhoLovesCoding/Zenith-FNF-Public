@@ -893,12 +893,12 @@ class Gameplay extends MusicBeatState
 		if (key != -1 && !cpuControlled && generatedMusic && !holdArray[key])
 		{
 			var strum:StrumNote = strums.members[key + (4 * Std.int(Math.max(SONG.info.strumlines - 1, 1)))];
-
+			
 			// For some reason the strum note still plays the press animation even when a note is hit sometimes, so here's a solution to it.
 			if (strum.animation.curAnim.name != 'confirm')
 				strum.playAnim('pressed');
 
-			var hittable:Note = fastNoteFilter(notes.members, n -> strum.playerStrum && (Math.abs(Conductor.songPosition - n.strumTime)) < 166.7 && !n.wasHit && !n.tooLate && n.noteData == key)[0];
+			var hittable:Note = fastNoteFilter(notes.members, n -> n.strum.playerStrum && Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && !n.wasHit && !n.tooLate && n.noteData == key)[0];
 
 			if (null != hittable)
 				events.emit(SignalEvent.NOTE_HIT, hittable);

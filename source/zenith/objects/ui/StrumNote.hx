@@ -7,6 +7,8 @@ class StrumNote extends FlxSprite
 	public var scrollMult:Float = 1;
 	public var playerStrum:Bool = false;
 
+	var _played:Bool = false;
+
 	public function new(data:Int, plr:Int)
 	{
 		super();
@@ -44,5 +46,13 @@ class StrumNote extends FlxSprite
 		offset.set((frameWidth * 0.5) - 54, (frameHeight * 0.5) - 56);
 
 		active = anim != 'static';
+
+		_played = true;
+	}
+
+	override function draw():Void
+	{
+		_played = false;
+		super.draw();
 	}
 }

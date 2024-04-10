@@ -14,6 +14,8 @@ class Note extends FlxSprite
 	public var lane:UInt = 0;
 	public var multiplier:UInt = 1;
 
+	public var strum:StrumNote;
+
 	public var noAnimation:Bool = false;
 	public var multSpeed:Float = 1;
 	public var wasHit:Bool = false;
@@ -107,6 +109,8 @@ class Note extends FlxSprite
 
 		color = colorArray[noteData];
 		angle = angleArray[noteData];
+
+		strum = Gameplay.instance.strums.members[noteData + (4 * lane)];
 
 		return this;
 	}
