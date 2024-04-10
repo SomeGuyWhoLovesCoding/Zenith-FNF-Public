@@ -34,40 +34,10 @@
 	<!--These are required!-->
 	<assets path="logo.png" />
 
-	<!-- _______________________________ Libraries ______________________________ -->
-
-	<!--Emitter-->
-	<haxelib name="emitter" />
-
 	<!--Flixel-->
 	<haxelib name="flixel" />
 
-	<!--HaxeUI stuff-->
-	<haxelib name="haxeui-core" />
-	<haxelib name="haxeui-flixel" />
-
-	<!--In case you want to use the addons package-->
-	<haxelib name="flixel-addons" />
-
-	<!--In case you want to use the ui package-->
-	<haxelib name="flixel-ui" />
-
 	<!-- ______________________________ Haxedefines _____________________________ -->
-
-	<!--Optimise inputs. Be careful because you'll get null errors if you don't use conditionals in your game-->
-	<haxedef name="FLX_NO_KEYBOARD" />
-	<haxedef name="FLX_NO_TOUCH" />
-	<haxedef name="FLX_NO_GAMEPAD" />
-	<haxedef name="FLX_NO_MOUSE" />
-
-	<!--Disable the Flixel core focus lost screen-->
-	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
-
-	<!--Disable the Flixel core debugger. Automatically gets set whenever you compile in release mode!-->
-	<haxedef name="FLX_NO_DEBUG" unless="debug" />
-
-	<!--Disable the Flixel core sound tray-->
-	<haxedef name="FLX_NO_SOUND_TRAY" />
 
 	<!--Allow working memory greater than 1 Gig-->
 	<haxedef name="HXCPP_GC_BIG_BLOCKS" />
