@@ -897,7 +897,7 @@ class Gameplay extends MusicBeatState
 
 		if (key != -1 && !cpuControlled && generatedMusic && !holdArray[key])
 		{
-			var strum:StrumNote = strums.members[key + (4 * Math.max(SONG.info.strumlines - 1, 1))];
+			var strum:StrumNote = strums.members[key + (4 * Std.int(Math.max(SONG.info.strumlines - 1, 1)))];
 
 			// For some reason the strum note still plays the press animation even when a note is hit sometimes, so here's a solution to it.
 			if (strum.animation.curAnim.name != 'confirm')
