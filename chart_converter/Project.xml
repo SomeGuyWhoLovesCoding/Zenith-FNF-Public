@@ -33,6 +33,7 @@
 
 	<!--These are required!-->
 	<assets path="logo.png" />
+	<assets path="run.bat" />
 
 	<!--Flixel-->
 	<haxelib name="flixel" />

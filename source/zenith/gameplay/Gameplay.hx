@@ -17,6 +17,7 @@ import zenith.objects.ui.Note; // Don't remove this.
 
 using StringTools;
 
+@:access(flixel.FlxG.elapsed) // And don't delete this
 class Gameplay extends MusicBeatState
 {
 	public var strums:FlxTypedGroup<StrumNote>;
@@ -111,12 +112,10 @@ class Gameplay extends MusicBeatState
 
 	public static var instance:Gameplay;
 
-	public var events:Emitter;
+	public var events:Emitter = new Emitter();
 
 	override function create():Void
 	{
-		events = new Emitter();
-
 		initRender();
 
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
@@ -235,7 +234,7 @@ class Gameplay extends MusicBeatState
 			return;
 
 		if (renderMode)
-			elapsed = 1.0 / videoFramerate;
+			FlxG.elapsed = 1.0 / videoFramerate;
 
 		super.update(elapsed);
 
