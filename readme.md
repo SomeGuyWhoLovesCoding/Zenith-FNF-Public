@@ -18,5 +18,10 @@ Emitter: ``haxelib git emitter https://github.com/Dimensionscape/Emitter``
 
 # Frequently asked questions
 
-1. Q: How do I play FNF Zenith on linux?, A: To test this engine on there, you must have a computer of that operating system and THEN do ``lime test linux`` or ``haxelib run lime test linux``. *The same goes with mac!*
-2. Q: Why does the compiler throw an error like ``..../flixel/5,6,2/flixel/input/actions/FlxActionManager.hx:54: characters 47-96 : Type not found : FlxTypedSignal`` or other weird errors!?, A: Well, it appears that latest haxe officially kills shadowing classes, or idk. The only way to fix that error is downgrade to 4.2.5.
+1st Q: How do I play FNF Zenith on linux?
+
+1st A: To test this engine on there, you must have a computer of that operating system and THEN do ``lime test linux`` or ``haxelib run lime test linux``. *The same goes with mac!*
+
+2nd Q: Why does the compiler throw an error like ``..../flixel/5,6,2/flixel/input/actions/FlxActionManager.hx:54: characters 47-96 : Type not found : FlxTypedSignal`` or other weird errors!?
+
+2nd A: Well, it appears that latest haxe officially kills shadowing classes, or idk. The only way to fix that error is downgrade to 4.2.5.
