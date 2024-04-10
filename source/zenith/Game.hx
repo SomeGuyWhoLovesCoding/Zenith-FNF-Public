@@ -10,12 +10,6 @@ class Game extends FlxGame
 	public static var onKeyDown:Emitter = new Emitter();
 	public static var onKeyUp:Emitter = new Emitter();
 
-	// Mouse events
-	public static var onMouseDown:Emitter = new Emitter();
-	public static var onMouseUp:Emitter = new Emitter();
-	public static var onMouseMove:Emitter = new Emitter();
-	public static var onMouseWheel:Emitter = new Emitter();
-
 	// Gamepad events
 	public static var onGamepadAxisMove:Emitter = new Emitter();
 	public static var onGamepadButtonDown:Emitter = new Emitter();

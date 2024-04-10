@@ -9,13 +9,6 @@ class SignalEvent
 	inline static public var KEY_DOWN:SignalType.SignalType2<(KeyCode, KeyModifier)->Void, KeyCode, KeyModifier> = "key_down";
 	inline static public var KEY_UP:SignalType.SignalType2<(KeyCode, KeyModifier)->Void, KeyCode, KeyModifier> = "key_up";
 
-	// Mouse
-
-	inline static public var MOUSE_DOWN:SignalType.SignalType3<(Float, Float, MouseButton)->Void, Float, Float, MouseButton> = "mouse_down";
-	inline static public var MOUSE_UP:SignalType.SignalType3<(Float, Float, MouseButton)->Void, Float, Float, MouseButton> = "mouse_up";
-	inline static public var MOUSE_MOVE:SignalType.SignalType2<(Float, Float)->Void, Float, Float> = "mouse_move";
-	inline static public var MOUSE_WHEEL:SignalType.SignalType3<(Float, Float, MouseWheelMode)->Void, Float, Float, MouseWheelMode> = "mouse_move";
-
 	// Gamepad
 
 	inline static public var GAMEPAD_AXIS_MOVE:SignalType.SignalType2<(GamepadAxis, Float)->Void, GamepadAxis, Float> = "gamepad_axis_move";

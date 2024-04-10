@@ -281,17 +281,20 @@ class NativeApplication
 
 	private function handleMouseEvent():Void
 	{
+		var window:Window = parent.__windowByID.get(keyEventInfo.windowID);
+		if (window == null) return;
+
 		if (mouseEventInfo.type == MOUSE_DOWN)
-			Game.onMouseDown.emit(SignalEvent.MOUSE_DOWN, mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+			window.onMouseDown.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
 
 		if (mouseEventInfo.type == MOUSE_UP)
-			Game.onMouseUp.emit(SignalEvent.MOUSE_UP, mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
+			window.onMouseUp.dispatch(mouseEventInfo.x, mouseEventInfo.y, mouseEventInfo.button);
 
 		if (mouseEventInfo.type == MOUSE_MOVE)
-			Game.onMouseMove.emit(SignalEvent.MOUSE_MOVE, mouseEventInfo.x, mouseEventInfo.y);
+			window.onMouseMove.dispatch(mouseEventInfo.x, mouseEventInfo.y);
 
 		if (mouseEventInfo.type == MOUSE_WHEEL)
-			Game.onMouseWheel.emit(SignalEvent.MOUSE_MOVE, mouseEventInfo.x, UNKNOWN);
+			window.onMouseWheel.dispatch(mouseEventInfo.x, UNKNOWN);
 	}
 
 	private function handleRenderEvent():Void
