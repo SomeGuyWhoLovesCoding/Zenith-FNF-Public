@@ -77,7 +77,6 @@ class Gameplay extends MusicBeatState
 
 	public var songSpeed:Float = 1.0;
 	public var songLength:Float = 0.0;
-	public var noteMult:Float = 1.0;
 	public var cameraSpeed:Float = 1.0;
 
 	public var generatedMusic:Bool = false;
@@ -130,7 +129,7 @@ class Gameplay extends MusicBeatState
 
 		// Reset gameplay stuff
 		FlxG.fixedTimestep = startedCountdown = songEnded = false;
-		songSpeed = noteMult = 1.0;
+		songSpeed = 1.0;
 
 		persistentUpdate = persistentDraw = true;
 
