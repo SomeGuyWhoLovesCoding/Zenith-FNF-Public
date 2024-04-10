@@ -758,8 +758,6 @@ class Gameplay extends MusicBeatState
 		var swagCounter:Int = 0;
 		Conductor.songPosition = (-Conductor.crochet * 5.0) - SONG.info.offset;
 
-		//trace(swagCounter);
-
 		new flixel.util.FlxTimer().start(Conductor.crochet * 0.001, (?timer) ->
 		{
 			switch (swagCounter)
@@ -773,12 +771,11 @@ class Gameplay extends MusicBeatState
 				default:
 					FlxG.sound.play(Paths.sound('intro' + (3 - swagCounter)), 0.6);
 			}
-			// trace(swagCounter);
-
-			swagCounter++;
 
 			if (swagCounter != 4)
 				dance(swagCounter - 1);
+
+			swagCounter++;
 		}, 5);
 	}
 
@@ -918,8 +915,6 @@ class Gameplay extends MusicBeatState
 	inline public function onKeyUp(keyCode:KeyCode, keyMod:KeyModifier):Void
 	{
 		var key:Int = inline inputKeybinds.indexOf(keyCode);
-
-		//trace(key); Testing...
 
 		if (key != -1 && !cpuControlled && generatedMusic && holdArray[key])
 		{
