@@ -243,7 +243,7 @@ class NativeApplication
 		if (window == null) return;
 		
 		var type:KeyEventType = keyEventInfo.type;
-		var keyCode:KeyCode = keyEventInfo.keyCode;
+		var keyCode:KeyCode = Std.int(keyEventInfo.keyCode);
 		var modifier:KeyModifier = keyEventInfo.modifier;
 
 		if (type == KEY_UP)
@@ -702,12 +702,12 @@ class NativeApplication
 
 @:keep class KeyEventInfo
 {
-	public var keyCode:Int;
+	public var keyCode:Float;
 	public var modifier:Int;
 	public var type:KeyEventType;
 	public var windowID:Int;
 
-	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Int = 0, modifier:Int = 0)
+	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Float = 0.0, modifier:Int = 0)
 	{
 		this.type = type;
 		this.windowID = windowID;
@@ -736,6 +736,7 @@ class NativeApplication
 	public var windowID:Int;
 	public var x:Float;
 	public var y:Float;
+	public var clickCount:Int;
 
 	public function new(type:MouseEventType = null, windowID:Int = 0, x:Float = 0, y:Float = 0, button:Int = 0, movementX:Float = 0, movementY:Float = 0)
 	{
