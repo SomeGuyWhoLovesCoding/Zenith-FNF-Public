@@ -91,6 +91,9 @@ class ChartConverter
 				bpmChanges: []
 			};
 
+			if (result.info.strumlines == 0)
+				result.info.strumlines = 2;
+
 			for (i in 0...songImported.notes.length)
 			{
 				var section:SwagSection = songImported.notes[i];
@@ -100,7 +103,13 @@ class ChartConverter
 					result.bpmChanges.push([currentBPM, songPosition]);
 
 				for (songNotes in section.sectionNotes)
-					result.noteData.push([songNotes[0], Std.int(songNotes[1] % 4), songNotes[2], section.mustHitSection ? 1 : 0, 0]);
+					result.noteData.push([
+						songNotes[0],
+						Std.int(songNotes[1] % 4),
+						songNotes[2],
+						section.mustHitSection && songNotes[1] < 4 ? result.info.strumlines - 1 : 0,
+						0
+					]);
 			}
 
 			result.noteData.sort((a:Array<Int>, b:Array<Int>) -> inline Std.int(a[0] - b[0]));
