@@ -10,7 +10,7 @@ Flixel Addons: ``haxelib install flixel-addons``
 
 Flixel UI: ``haxelib install flixel-ui``
 
-Lime: ``haxelib install lime 7.9.0`
+Lime: ``haxelib install lime`
 
 Openfl: ``haxelib install openfl``
 
