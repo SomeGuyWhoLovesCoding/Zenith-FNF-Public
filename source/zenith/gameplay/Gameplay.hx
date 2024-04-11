@@ -153,17 +153,17 @@ class Gameplay extends MusicBeatState
 		FlxG.camera.follow(camFollowPos, LOCKON, 1);
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 
-		var songName:String = (inline Sys.args())[0];
+		var songName:String = Sys.args()[0];
 
-		if (null == (inline Sys.args())[0]) // What?
+		if (null == Sys.args()[0]) // What?
 			songName = 'test';
 
-		var songDifficulty:String = '-' + (inline Sys.args())[1];
+		var songDifficulty:String = '-' + Sys.args()[1];
 
-		if (null == (inline Sys.args())[1]) // What?
+		if (null == Sys.args()[1]) // What?
 			songDifficulty = '';
 
-		var timeStamp:Float = inline haxe.Timer.stamp();
+		var timeStamp:Float = haxe.Timer.stamp();
 
 		// You don't need to thread when loading into the song anyway
 		try
@@ -190,7 +190,7 @@ class Gameplay extends MusicBeatState
 
 			strums.cameras = notes.cameras = [hudCamera];
 
-			trace('Loading finished! Took ${inline flixel.util.FlxStringUtil.formatTime((inline haxe.Timer.stamp() - timeStamp) * 1000.0, true, true)} to load.');
+			trace('Loading finished! Took ${flixel.util.FlxStringUtil.formatTime((haxe.Timer.stamp() - timeStamp) * 1000.0, true, true)} to load.');
 
 			if (!noCharacters)
 			{
