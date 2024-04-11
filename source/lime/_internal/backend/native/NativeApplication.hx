@@ -567,7 +567,7 @@ class NativeApplication
 	}
 }
 
-@:generic class ApplicationEventInfo
+@:keep class ApplicationEventInfo
 {
 	public var deltaTime:Int;
 	public var type:ApplicationEventType;
@@ -590,7 +590,7 @@ class NativeApplication
 	var EXIT = 1;
 }
 
-@:generic class ClipboardEventInfo
+@:keep class ClipboardEventInfo
 {
 	public var type:ClipboardEventType;
 
@@ -610,7 +610,7 @@ class NativeApplication
 	var UPDATE = 0;
 }
 
-@:generic class DropEventInfo
+@:keep class DropEventInfo
 {
 	public var file:#if hl hl.Bytes #else String #end;
 	public var type:DropEventType;
@@ -632,7 +632,7 @@ class NativeApplication
 	var DROP_FILE = 0;
 }
 
-@:generic class GamepadEventInfo
+@:keep class GamepadEventInfo
 {
 	public var axis:Int;
 	public var button:Int;
@@ -640,22 +640,13 @@ class NativeApplication
 	public var type:GamepadEventType;
 	public var axisValue:Float;
 
-	/**
-	 * The timestamp, in milliseconds, of when the event occurred.
-	 * Relative to `lime_sdl_get_ticks()`
-	 * May be `0` if timestamp could not be determined.
-	 * TODO: Replace with `Int64` when I figure out how to return one from HashLink
-	 */
-	public var timestamp:Int;
-
-	public function new(type:GamepadEventType = null, id:Int = 0, button:Int = 0, axis:Int = 0, value:Float = 0, ?timestamp:Int = 0)
+	public function new(type:GamepadEventType = null, id:Int = 0, button:Int = 0, axis:Int = 0, value:Float = 0)
 	{
 		this.type = type;
 		this.id = id;
 		this.button = button;
 		this.axis = axis;
 		this.axisValue = value;
-		this.timestamp = timestamp;
 	}
 
 	public function clone():GamepadEventInfo
@@ -673,7 +664,7 @@ class NativeApplication
 	var DISCONNECT = 4;
 }
 
-@:generic class JoystickEventInfo
+@:keep class JoystickEventInfo
 {
 	public var id:Int;
 	public var index:Int;
@@ -709,27 +700,19 @@ class NativeApplication
 	var DISCONNECT = 6;
 }
 
-@:generic class KeyEventInfo
+@:keep class KeyEventInfo
 {
 	public var keyCode:Int;
 	public var modifier:Int;
 	public var type:KeyEventType;
 	public var windowID:Int;
-	/**
-	 * The timestamp, in milliseconds, of when the event occurred.
-	 * Relative to `lime_sdl_get_ticks()`
-	 * May be `0` if timestamp could not be determined.
-	 * TODO: Replace with `Int64` when I figure out how to return one from HashLink
-	 */
-	public var timestamp:Int;
 
-	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Int = 0, modifier:Int = 0, ?timestamp:Int)
+	public function new(type:KeyEventType = null, windowID:Int = 0, keyCode:Int = 0, modifier:Int = 0)
 	{
 		this.type = type;
 		this.windowID = windowID;
 		this.keyCode = keyCode;
 		this.modifier = modifier;
-		this.timestamp = timestamp;
 	}
 
 	public function clone():KeyEventInfo
@@ -744,7 +727,7 @@ class NativeApplication
 	var KEY_UP = 1;
 }
 
-@:generic class MouseEventInfo
+@:keep class MouseEventInfo
 {
 	public var button:Int;
 	public var movementX:Float;
@@ -779,7 +762,7 @@ class NativeApplication
 	var MOUSE_WHEEL = 3;
 }
 
-@:generic class RenderEventInfo
+@:keep class RenderEventInfo
 {
 	public var type:RenderEventType;
 
@@ -801,7 +784,7 @@ class NativeApplication
 	var RENDER_CONTEXT_RESTORED = 2;
 }
 
-@:generic class SensorEventInfo
+@:keep class SensorEventInfo
 {
 	public var id:Int;
 	public var x:Float;
@@ -829,7 +812,7 @@ class NativeApplication
 	var ACCELEROMETER = 0;
 }
 
-@:generic class TextEventInfo
+@:keep class TextEventInfo
 {
 	public var id:Int;
 	public var length:Int;
@@ -859,7 +842,7 @@ class NativeApplication
 	var TEXT_EDIT = 1;
 }
 
-@:generic class TouchEventInfo
+@:keep class TouchEventInfo
 {
 	public var device:Int;
 	public var dx:Float;
@@ -895,7 +878,7 @@ class NativeApplication
 	var TOUCH_MOVE = 2;
 }
 
-@:generic class WindowEventInfo
+@:keep class WindowEventInfo
 {
 	public var height:Int;
 	public var type:WindowEventType;
