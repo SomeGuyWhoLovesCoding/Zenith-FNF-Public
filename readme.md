@@ -27,3 +27,5 @@ To compile on hasklink, [read this.](https://haxe.org/manual/target-hl-getting-s
 2nd Q: Why does the compiler throw an error like ``..../flixel/5,6,2/flixel/input/actions/FlxActionManager.hx:54: characters 47-96 : Type not found : FlxTypedSignal`` or other weird errors!?
 
 2nd A: Well, it appears that latest haxe officially kills shadowing classes, or idk. The only way to fix that error is downgrade to 4.2.5.
+
+**WARNING: HashLink may not be fully compatible with this engine, as it's still a WIP!**
