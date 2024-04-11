@@ -39,7 +39,7 @@ class TitleScreen extends MusicBeatState
 
 		// Initialize the title configurations before starting the intro
 		if (null == titleConfig)
-			titleConfig = haxe.Json.parse(sys.io.File.getContent(Paths.ASSET_PATH + '/music/menus/titleConfig.json'));
+			titleConfig = haxe.Json.parse(sys.io.File.getContent(Paths.ASSET_PATH + '${Utils.SLASH}music${Utils.SLASH}menus${Utils.SLASH}titleConfig.json'));
 
 		alreadyPressedEnter = false;
 
@@ -57,7 +57,7 @@ class TitleScreen extends MusicBeatState
 
 	private function loadTitleScreenShit():Void
 	{
-		var titleScreenFile:String = Paths.ASSET_PATH + '/music/menus/title.ogg'; // Avoid usage of string interpolation twice
+		var titleScreenFile:String = '${Paths.ASSET_PATH}${Utils.SLASH}music${Utils.SLASH}menus${Utils.SLASH}title.ogg'; // Avoid usage of string interpolation twice
 
 		if (!sys.FileSystem.exists(titleScreenFile))
 		{
@@ -67,7 +67,7 @@ class TitleScreen extends MusicBeatState
 
 		if (!initialized)
 		{
-			FlxG.sound.playMusic(Paths.music('menus/title'), 0);
+			FlxG.sound.playMusic(Paths.music('menus${Utils.SLASH}title'), 0);
 			FlxG.sound.music.fadeIn(4, 0, 0.7);
 
 			Conductor.changeBPM(titleConfig.bpm);
@@ -213,8 +213,6 @@ class TitleScreen extends MusicBeatState
 	public static var alreadyPressedEnter:Bool = false;
 	inline public function onKeyDown(keyCode:KeyCode, m:Int):Void
 	{
-		//trace('Test');
-
 		if (SaveData.contents.controls.ACCEPT == keyCode)
 		{
 			if (alreadyPressedEnter)
