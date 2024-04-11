@@ -53,7 +53,7 @@ class Paths
 	public static var soundCache:Map<String, Sound> = new Map<String, Sound>();
 	public static function __soundHelper(key:String):Sound
 	{
-		var soundPath:String = '$ASSET_PATH/$key.$SOUND_EXT';
+		var soundPath:String = '$ASSET_PATH${Utils.SLASH}$key.$SOUND_EXT';
 
 		if (sys.FileSystem.exists(soundPath))
 		{
@@ -88,22 +88,22 @@ class Paths
 
 	public static function voices(song:String):Sound
 	{
-		return __soundHelper('songs/${formatToSongPath(song)}/Voices');
+		return __soundHelper('songs${Utils.SLASH}${formatToSongPath(song)}${Utils.SLASH}Voices');
 	}
 
 	public static function inst(song:String):Sound
 	{
-		return __soundHelper('songs/${formatToSongPath(song)}/Inst');
+		return __soundHelper('songs${Utils.SLASH}${formatToSongPath(song)}${Utils.SLASH}Inst');
 	}
 
 	public static function font(key:String, ext:String = 'ttf')
 	{
-		return '$ASSET_PATH/fonts/$key.$ext';
+		return '$ASSET_PATH${Utils.SLASH}fonts${Utils.SLASH}$key.$ext';
 	}
 
 	public static function getSparrowAtlas(key:String):FlxAtlasFrames
 	{
-		return FlxAtlasFrames.fromSparrow(image(key), '$ASSET_PATH/images/$key.xml');
+		return FlxAtlasFrames.fromSparrow(image(key), '$ASSET_PATH${Utils.SLASH}images${Utils.SLASH}$key.xml');
 	}
 
 	public static function formatToSongPath(path:String) {

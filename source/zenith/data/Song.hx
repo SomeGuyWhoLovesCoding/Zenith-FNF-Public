@@ -28,12 +28,12 @@ typedef SwagSong =
 
 class Song
 {
-	static public function loadFromJson(jsonInput:String, ?folder:String):SwagSong
+	inline static public function loadFromJson(jsonInput:String, ?folder:String):SwagSong
 	{
-		var formattedFolder:String = inline Paths.formatToSongPath(folder);
-		var formattedSong:String = inline Paths.formatToSongPath(jsonInput);
+		var formattedFolder:String = Paths.formatToSongPath(folder);
+		var formattedSong:String = Paths.formatToSongPath(jsonInput);
 
-		var songJson:SwagSong = parseJSONshit(inline sys.io.File.getContent(Paths.ASSET_PATH + '/data/' + formattedFolder + '/' + formattedSong + '.json'));
+		var songJson:SwagSong = parseJSONshit(sys.io.File.getContent(Paths.ASSET_PATH + Utils.SLASH + 'data' + Utils.SLASH + formattedFolder + Utils.SLASH + formattedSong + '.json'));
 		if(jsonInput != 'events') StageData.loadDirectory(songJson);
 		return songJson;
 	}

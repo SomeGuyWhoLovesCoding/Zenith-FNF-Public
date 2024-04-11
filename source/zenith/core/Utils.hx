@@ -8,6 +8,8 @@ import openfl.display3D.textures.TextureBase;
 
 class Utils
 {
+	inline static public var SLASH:String = #if linux '/' #else '\\' #end ;
+
 	// If you want to reduce RAM usage, this is for you
 
 	inline static public function toTexture(source:BitmapData):BitmapData

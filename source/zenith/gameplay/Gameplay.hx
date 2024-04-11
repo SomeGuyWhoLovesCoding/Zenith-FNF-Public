@@ -503,14 +503,14 @@ class Gameplay extends MusicBeatState
 				if (null != songLengthTween)
 					songLengthTween.cancel();
 
-				var v1 = inline Std.parseFloat(value1);
+				var v1 = Std.parseFloat(value1);
 
 				if (!Math.isNaN(v1))
 				{
 					if (value2 == 'true')
-						songLengthTween = FlxTween.tween(this, {songLength: v1 * 1000}, 1, {ease: FlxEase.quintOut});
+						songLengthTween = FlxTween.tween(this, {songLength: v1 * 1000.0}, 1, {ease: FlxEase.quintOut});
 					else
-						songLength = v1 * 1000;
+						songLength = v1 * 1000.0;
 				}
 		}
 	}
@@ -519,7 +519,7 @@ class Gameplay extends MusicBeatState
 	{
 		trace('Parsing chart data from song json...');
 
-		SONG = inline Song.loadFromJson(name + '/' + name + diff);
+		SONG = Song.loadFromJson(name + '/' + name + diff);
 
 		trace('Loaded ${SONG.noteData.length} notes! Now time to load more stuff here...');
 
@@ -1031,10 +1031,10 @@ class Gameplay extends MusicBeatState
 
 	inline private function initRender():Void
 	{
-		if (renderMode)
+		if (renderMode && sys.FileSystem.exists(#if linux 'ffmpeg' #else 'ffmpeg.exe' #end))
 		{
 			cpuControlled = true;
-			process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '$videoFramerate', '-i', '-', '-c:v', videoEncoder, (inline (inline Sys.getCwd()).replace('\\', '/')) + outputPath]);
+			process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '$videoFramerate', '-i', '-', '-c:v', videoEncoder, inline Sys.getCwd().replace('\\', '/') + outputPath]);
 			FlxG.autoPause = false;
 		}
 	}
