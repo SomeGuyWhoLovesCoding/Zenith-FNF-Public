@@ -318,7 +318,7 @@ class Gameplay extends MusicBeatState
 				if (!noCharacters)
 				{
 					var value:Int = 2;
-					switch (inline (inline value1.toLowerCase()).trim())
+					switch (inline value1.toLowerCase().trim())
 					{
 						case 'bf' | 'boyfriend' | '0':
 							value = 0;
@@ -388,7 +388,7 @@ class Gameplay extends MusicBeatState
 				if (!noCharacters)
 				{
 					var char:Character = dad;
-					switch ((inline value2.toLowerCase()).trim())
+					switch (inline value2.toLowerCase().trim())
 					{
 						case 'bf' | 'boyfriend':
 							char = bf;
@@ -414,10 +414,10 @@ class Gameplay extends MusicBeatState
 				}
 
 			case 'Change Character':
-				if (noCharacters)
+				if (!noCharacters)
 				{
 					var charType:Int = 0;
-					switch ((inline value1.toLowerCase()).trim())
+					switch (inline value1.toLowerCase().trim())
 					{
 						case 'gf' | 'girlfriend':
 							charType = 2;
