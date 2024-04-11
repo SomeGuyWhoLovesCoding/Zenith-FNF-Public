@@ -17,8 +17,8 @@ class Utils
 		if (SaveData.contents.preferences.gpuCaching && source.readable && !GL.isContextLost())
 		{
 			var context:Context3D = Lib.current.stage.context3D;
-			var texture:TextureBase = source.getTexture(context);
-			return BitmapData.fromTexture(texture);
+			var texture:TextureBase = inline source.getTexture(context);
+			return inline BitmapData.fromTexture(texture);
 		}
 
 		return source;

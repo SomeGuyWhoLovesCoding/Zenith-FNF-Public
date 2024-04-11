@@ -1034,7 +1034,7 @@ class Gameplay extends MusicBeatState
 		if (renderMode && sys.FileSystem.exists(#if linux 'ffmpeg' #else 'ffmpeg.exe' #end))
 		{
 			cpuControlled = true;
-			process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '$videoFramerate', '-i', '-', '-c:v', videoEncoder, inline Sys.getCwd().replace('\\', '/') + outputPath]);
+			process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '$videoFramerate', '-i', '-', '-c:v', videoEncoder, inline Sys.getCwd().replace('\\', Utils.SLASH) + outputPath]);
 			FlxG.autoPause = false;
 		}
 	}
