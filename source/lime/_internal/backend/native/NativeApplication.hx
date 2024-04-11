@@ -660,7 +660,7 @@ class NativeApplication
 
 	public function clone():GamepadEventInfo
 	{
-		return new GamepadEventInfo(type, id, button, axis, axisValue, timestamp);
+		return new GamepadEventInfo(type, id, button, axis, axisValue);
 	}
 }
 
@@ -734,7 +734,7 @@ class NativeApplication
 
 	public function clone():KeyEventInfo
 	{
-		return new KeyEventInfo(type, windowID, keyCode, modifier, timestamp);
+		return new KeyEventInfo(type, windowID, keyCode, modifier);
 	}
 }
 
