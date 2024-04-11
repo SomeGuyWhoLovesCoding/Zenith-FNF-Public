@@ -10,7 +10,7 @@ Flixel Addons: ``haxelib install flixel-addons``
 
 Flixel UI: ``haxelib install flixel-ui``
 
-Lime: ``haxelib git lime https://github.com/lime`` (If lime isn't set to git, delete the previous one and do ``haxelib set lime git``) *Works if not on neko, but useful for hasklink* (or just ``haxelib install lime``)
+Lime: ``haxelib git lime https://github.com/lime/lime.git`` (If lime isn't set to git, delete the previous one and do ``haxelib set lime git``) *Works if not on neko, but useful for hasklink* (or just ``haxelib install lime``)
 
 Openfl: ``haxelib install openfl``
 
