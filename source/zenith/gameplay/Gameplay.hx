@@ -528,8 +528,7 @@ class Gameplay extends MusicBeatState
 		if (null == SONG.info.offset || SONG.info.offset < 0) // Fix offset
 			SONG.info.offset = 0;
 
-		if (null == SONG.info.strumlines) // Fix strumlines
-			SONG.info.strumlines = 2;
+		strumlines = null == SONG.info.strumlines ? 2 : SONG.info.strumlines;
 
 		curSong = SONG.song;
 		songSpeed = SONG.info.speed;
@@ -888,13 +887,13 @@ class Gameplay extends MusicBeatState
 
 		if (key != -1 && !cpuControlled && generatedMusic && !holdArray[key])
 		{
-			var strum:StrumNote = strums.members[key + (4 * Std.int(Math.max(SONG.info.strumlines - 1, 1)))];
+			var strum:StrumNote = strums.members[key + (4 * Std.int(Math.max(strumlines - 1, 1)))];
 			
 			// For some reason the strum note still plays the press animation even when a note is hit sometimes, so here's a solution to it.
 			if (strum.animation.curAnim.name != 'confirm')
 				strum.playAnim('pressed');
 
-			var hittable:Note = fastNoteFilter(notes.members, n -> (!n.wasHit && !n.tooLate) && (n.strum.playerStrum && n.noteData == key) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7)[0];
+			var hittable:Note = fastNoteFilter(notes.members, n -> null != n.strum /* Null check */ && (!n.wasHit && !n.tooLate) && (n.strum.playerStrum && n.noteData == key) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7)[0];
 
 			if (null != hittable)
 				events.emit(SignalEvent.NOTE_HIT, hittable);
@@ -914,7 +913,7 @@ class Gameplay extends MusicBeatState
 		{
 			holdArray[key] = false;
 
-			var strum:StrumNote = strums.members[key + (4 * Std.int(Math.max(SONG.info.strumlines - 1, 1)))];
+			var strum:StrumNote = strums.members[key + (4 * Std.int(Math.max(strumlines - 1, 1)))];
 
 			if (strum.animation.curAnim.name == 'confirm' ||
 				strum.animation.curAnim.name == 'pressed')

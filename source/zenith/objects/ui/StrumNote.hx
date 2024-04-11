@@ -40,7 +40,7 @@ class StrumNote extends FlxSprite
 	{
 		color = anim == 'static' ? 0xffffffff : Note.colorArray[noteData];
 
-		inline animation.play(anim, true);
+		animation.play(anim, true);
 
 		updateHitbox();
 		offset.set((frameWidth * 0.5) - 54, (frameHeight * 0.5) - 56);
