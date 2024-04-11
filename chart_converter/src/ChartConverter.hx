@@ -84,8 +84,7 @@ class ChartConverter
 					bpm: currentBPM = songImported.bpm,
 					time_signature: [4, 4],
 					offset: songImported.offset,
-					needsVoices: songImported.needsVoices,
-					strumlines: null == songImported.strumlines ? 2 : songImported.strumlines
+					needsVoices: songImported.needsVoices
 				},
 				noteData: [],
 				bpmChanges: []
@@ -100,7 +99,7 @@ class ChartConverter
 					result.bpmChanges.push([currentBPM, songPosition]);
 
 				for (songNotes in section.sectionNotes)
-					result.noteData.push([songNotes[0], Std.int(songNotes[1] % 4), songNotes[2], section.mustHitSection ? result.info.strumlines - 1 : 0, 0]);
+					result.noteData.push([songNotes[0], Std.int(songNotes[1] % 4), songNotes[2], section.mustHitSection ? 1 : 0, 0]);
 			}
 
 			result.noteData.sort((a:Array<Int>, b:Array<Int>) -> inline Std.int(a[0] - b[0]));
