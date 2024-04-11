@@ -84,7 +84,8 @@ class ChartConverter
 					bpm: currentBPM = songImported.bpm,
 					time_signature: [4, 4],
 					offset: songImported.offset,
-					needsVoices: songImported.needsVoices
+					needsVoices: songImported.needsVoices,
+					strumlines: 2
 				},
 				noteData: [],
 				bpmChanges: []
