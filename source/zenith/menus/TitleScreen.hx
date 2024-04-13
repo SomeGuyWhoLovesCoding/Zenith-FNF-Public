@@ -33,9 +33,7 @@ class TitleScreen extends MusicBeatState
 
 	override public function create():Void
 	{
-		super.create();
-
-		persistentDraw = persistentUpdate = true;
+		Main.skipTransOut = persistentDraw = persistentUpdate = true;
 
 		// Initialize the title configurations before starting the intro
 		if (null == titleConfig)
@@ -46,7 +44,44 @@ class TitleScreen extends MusicBeatState
 		loadTitleScreenShit();
 		titleBG.visible = titleImage.visible = initialized;
 
+		onKeyDown = (keyCode:Int, keyModifier:Int) ->
+		{
+			if (SaveData.contents.controls.ACCEPT == keyCode)
+			{
+				if (alreadyPressedEnter)
+					TitleScreenSubState.instance.sendSignalEnter();
+				else
+				{
+					if (!initialized)
+					{
+						skipIntro(true);
+						return;
+					}
+
+					openSubState(new TitleScreenSubState());
+					alreadyPressedEnter = true;
+				}
+			}
+
+			if (!alreadyPressedEnter)
+				return;
+
+			if (SaveData.contents.controls.LEFT == keyCode)
+				TitleScreenSubState.instance.sendSignalLeft();
+
+			if (SaveData.contents.controls.RIGHT == keyCode)
+				TitleScreenSubState.instance.sendSignalRight();
+
+			if (SaveData.contents.controls.BACK == keyCode)
+			{
+				closeSubState();
+				alreadyPressedEnter = false;
+			}
+		}
+
 		Game.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
+
+		super.create();
 	}
 
 	override function destroy():Void
@@ -190,7 +225,7 @@ class TitleScreen extends MusicBeatState
 		{
 			if (null != FlxG.sound.music.fadeTween)
 				FlxG.sound.music.fadeTween.cancel();
-	
+
 			FlxG.sound.music.volume = 1;
 			FlxG.sound.music.time = Conductor.crochet * 16;
 		}
@@ -211,38 +246,6 @@ class TitleScreen extends MusicBeatState
 	}
 
 	public static var alreadyPressedEnter:Bool = false;
-	inline public function onKeyDown(keyCode:KeyCode, m:Int):Void
-	{
-		if (SaveData.contents.controls.ACCEPT == keyCode)
-		{
-			if (alreadyPressedEnter)
-				TitleScreenSubState.instance.sendSignalEnter();
-			else
-			{
-				if (!initialized)
-				{
-					skipIntro(true);
-					return;
-				}
 
-				openSubState(new TitleScreenSubState());
-				alreadyPressedEnter = true;
-			}
-		}
-
-		if (!alreadyPressedEnter)
-			return;
-
-		if (SaveData.contents.controls.LEFT == keyCode)
-			TitleScreenSubState.instance.sendSignalLeft();
-
-		if (SaveData.contents.controls.RIGHT == keyCode)
-			TitleScreenSubState.instance.sendSignalRight();
-
-		if (SaveData.contents.controls.BACK == keyCode)
-		{
-			closeSubState();
-			alreadyPressedEnter = false;
-		}
-	}
+	private var onKeyDown:(Int, Int)->(Void);
 }

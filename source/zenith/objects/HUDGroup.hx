@@ -1,4 +1,4 @@
-package zenith.objects.ui;
+package zenith.objects;
 
 import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxText;
@@ -82,7 +82,7 @@ class HUDGroup extends FlxSpriteGroup
 		{
 			if (timeTxt.alpha != 1)
 				timeTxt.alpha += elapsed * 6;
-			timeTxt.text = inline flixel.util.FlxStringUtil.formatTime(Gameplay.instance.songLength - Conductor.songPosition, true, false);
+			timeTxt.text = Utils.formatTime(Gameplay.instance.songLength - Conductor.songPosition, true, true);
 		}
 
 		plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;

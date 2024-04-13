@@ -1,6 +1,6 @@
 package;
 
-// Use ``ChartConverter %path2import% %path2save% --interp`` to compile this in order for it for work.
+// Use run.bat in order for it for work, or simply type out what's at the end of the code inside using the command prompt.
 
 typedef SwagSection =
 {
@@ -28,8 +28,8 @@ typedef PsychSwagSong =
 	var gfVersion:String;
 	var stage:String;
 
-	@:optional var offset:Null<Float>; // For the "Sync notes to beat" option
-	@:optional var strumlines:UInt;
+	@:optional var offset:Null<Int>; // For the "Sync notes to beat" option
+	@:optional var strumlines:Int;
 }
 
 typedef SongInfo =
@@ -40,17 +40,17 @@ typedef SongInfo =
 	var spectator:String;
 	var speed:Float;
 	var bpm:Float;
-	var time_signature:Array<UInt>;
-	var offset:Null<Float>;
+	var time_signature:Array<Int>;
+	var offset:Null<Int>;
 	var needsVoices:Bool;
-	@:optional var strumlines:UInt;
+	@:optional var strumlines:Int;
 }
 
 typedef SwagSong =
 {
 	song:Null<String>,
 	info:SongInfo,
-	noteData:Array<Array<UInt>>,
+	noteData:Array<Array<Float>>,
 	bpmChanges:Array<Array<Float>>
 }
 
@@ -107,12 +107,12 @@ class ChartConverter
 						songNotes[0],
 						Std.int(songNotes[1] % 4),
 						songNotes[2],
-						section.mustHitSection && songNotes[1] < 4 ? result.info.strumlines - 1 : 0,
+						section.mustHitSection || songNotes[1] < 4 ? result.info.strumlines - 1 : 0,
 						0
 					]);
 			}
 
-			result.noteData.sort((a:Array<Int>, b:Array<Int>) -> inline Std.int(a[0] - b[0]));
+			result.noteData.sort((a:Array<Float>, b:Array<Float>) -> Std.int(a[0] - b[0]));
 			sys.io.File.saveContent(Sys.args()[1], haxe.Json.stringify(result));
 		}
 		catch (e)

@@ -81,6 +81,9 @@
 	<haxedef name="HXCPP_GC_BIG_BLOCKS" />
 
 	<haxedef name="openfl_enable_experimental_update_queue" />
+	<haxedef name="openfl_pool_events" />
+
+	<warn value="HL might not fully work on this build." if="hl" />
 
 	<!-- _________________________________ Custom _______________________________ -->
 

@@ -7,6 +7,16 @@ import flixel.text.FlxText;
 
 class WelcomeState extends MusicBeatState
 {
+	var exceptionString:String = 'No Error';
+
+	public function new(exception:Null<String> = null):Void
+	{
+		if (null != exception)
+			exceptionString = exception;
+
+		super();
+	}
+
 	override public function create():Void
 	{
 		super.create();
@@ -29,7 +39,7 @@ class WelcomeState extends MusicBeatState
 		txt.screenCenter();
 		add(txt);
 
-		var txt2:FlxText = new FlxText(2, 0, 0, 'Zenith by SomeGuyWhoLikesFNF', 14);
+		var txt2:FlxText = new FlxText(2, 0, 0, '$exceptionString - Zenith by SomeGuyWhoLikesFNF', 14);
 		txt2.alignment = "left";
 		txt2.updateHitbox();
 		txt2.y = FlxG.height - (txt2.height - 2);

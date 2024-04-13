@@ -12,17 +12,17 @@ typedef SongInfo =
 	var spectator:String;
 	var speed:Float;
 	var bpm:Float;
-	var time_signature:Array<UInt>;
-	var offset:Null<Float>;
+	var time_signature:Array<Int>;
+	var offset:Null<Int>;
 	var needsVoices:Bool;
-	@:optional var strumlines:UInt;
+	@:optional var strumlines:Int;
 }
 
 typedef SwagSong =
 {
 	song:Null<String>,
 	info:SongInfo,
-	noteData:Array<Array<UInt>>,
+	noteData:Array<Array<Float>>,
 	bpmChanges:Array<Array<Float>>
 }
 
@@ -40,7 +40,7 @@ class Song
 
 	inline static public function parseJSONshit(rawJson:String):SwagSong
 	{
-		var swagShit:SwagSong = inline haxe.Json.parse(rawJson);
+		var swagShit:SwagSong = haxe.Json.parse(rawJson);
 		return swagShit;
 	}
 }

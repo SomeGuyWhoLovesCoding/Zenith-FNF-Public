@@ -1,4 +1,4 @@
-package zenith.gameplay.data;
+package zenith.data;
 
 import flixel.group.FlxGroup;
 

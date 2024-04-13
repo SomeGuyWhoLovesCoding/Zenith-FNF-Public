@@ -1,4 +1,4 @@
-package zenith.objects.ui;
+package zenith.objects;
 
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
@@ -10,8 +10,8 @@ class HealthBar extends FlxSpriteGroup
 	private var __left:FlxSprite;
 	private var __right:FlxSprite;
 
-	public var value:Float = 1;
-	public var maxValue:Float = 2;
+	public var value:Float = 1.0;
+	public var maxValue:Float = 2.0;
 
 	public function new(x:Float = 0, y:Float = 0, left:Array<Int>, right:Array<Int>, width:Int = 100, height:Int = 10, maxValue:Float = 2):Void
 	{
@@ -45,20 +45,20 @@ class HealthBar extends FlxSpriteGroup
 		else
 			add(__right = new FlxSprite().makeGraphic(__width, __height, right[0]));
 
-		__left.pixelPerfectPosition = __right.pixelPerfectPosition = false;
+		__left.pixelPerfectPosition = __right.pixelPerfectPosition = __left.active = __right.active = false;
 	}
 
 	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
-		final v:Float = inline FlxMath.bound(value / maxValue, 0, 1);
+		var v:Float = FlxMath.bound(value / maxValue, 0.0, 1.0);
 
-		__left.scale.x = 1 - v;
+		__left.scale.x = 1.0 - v;
 		__left.updateHitbox();
 		
 		__right.scale.x = v;
 		__right.updateHitbox();
-		__right.x = __left.width + 340 /* Crazy math I got there :trollface: */;
+		__right.x = __left.width + 340.0 /* Crazy math I got there :trollface: */;
 	}
 }

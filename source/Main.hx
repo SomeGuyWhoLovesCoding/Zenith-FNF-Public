@@ -5,6 +5,8 @@ import openfl.text.TextField;
 import openfl.text.TextFormat;
 import openfl.geom.Matrix;
 
+import lime.ui.*;
+
 typedef Transitioning =
 {
 	var _in:TransitioningInfo;
@@ -33,6 +35,8 @@ class Main extends Sprite
 	{
 		super();
 
+		stage.quality = LOW;
+
 		// Before adding ``game``, create the transition
 
 		var transitionMatrix:Matrix = new Matrix();
@@ -45,6 +49,7 @@ class Main extends Sprite
 		transition.x = -transition.width * 0.5;
 
 		SaveData.reloadSave();
+		flixel.graphics.FlxGraphic.defaultPersist = SaveData.contents.preferences.persistentGraphics;
 
 		addChild(game = new Game());
 		addChild(transition);
@@ -56,6 +61,40 @@ class Main extends Sprite
 		volumeTxt = new TextField();
 		volumeTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFF0000, true);
 		addChild(volumeTxt);
+
+		var window:Window = stage.window;
+
+		window.onKeyDown.add((keyCode:Int, keyModifier:Int) -> {
+			Game.onKeyDown.emit(SignalEvent.KEY_DOWN, keyCode, keyModifier);
+
+			if (keyCode == KeyCode.F11)
+				window.fullscreen = !window.fullscreen;
+
+			if (null != FlxG.sound && !Game.blockSoundKeys)
+			{
+				if (keyCode == KeyCode.EQUALS)
+				{
+					FlxG.sound.volume = Math.min(FlxG.sound.volume + 0.1, 1.0);
+					Main.volumeTxt.alpha = 1.0;
+				}
+
+				if (keyCode == KeyCode.MINUS)
+				{
+					FlxG.sound.volume = Math.max(FlxG.sound.volume - 0.1, 0.0);
+					Main.volumeTxt.alpha = 1.0;
+				}
+
+				if (keyCode == KeyCode.NUMBER_0)
+				{
+					FlxG.sound.muted = !FlxG.sound.muted;
+					Main.volumeTxt.alpha = 1.0;
+				}
+			}
+		});
+
+		window.onKeyUp.add((keyCode:Int, keyModifier:Int) -> {
+			Game.onKeyUp.emit(SignalEvent.KEY_UP, keyCode, keyModifier);
+		});
 
 		volumeTxt.selectable = fpsTxt.selectable = false;
 		volumeTxt.width = fpsTxt.width = FlxG.width;
@@ -73,6 +112,7 @@ class Main extends Sprite
 				if (null != _callback)
 					_callback();
 
+				skipTransIn = false;
 				return;
 			}
 
@@ -86,7 +126,7 @@ class Main extends Sprite
 			if (skipTransOut)
 			{
 				transitionY = 720;
-
+				skipTransOut = false;
 				return;
 			}
 
@@ -109,7 +149,7 @@ class Main extends Sprite
 		if (null != volumeTxt)
 		{
 			volumeTxt.y = (FlxG.height * FlxG.scaleMode.scale.y) - 20;
-			volumeTxt.text = (FlxG.sound.muted ? 0 : Std.int(FlxG.sound.volume * 100.0)) + '%';
+			volumeTxt.text = (FlxG.sound.muted ? 0.0 : Std.int(FlxG.sound.volume * 100.0)) + '%';
 			volumeTxt.alpha -= elapsed * 2.0;
 		}
 

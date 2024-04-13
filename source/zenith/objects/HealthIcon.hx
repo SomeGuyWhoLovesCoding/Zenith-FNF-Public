@@ -1,4 +1,4 @@
-package zenith.objects.ui;
+package zenith.objects;
 
 class HealthIcon extends FlxSprite
 {
@@ -36,22 +36,24 @@ class HealthIcon extends FlxSprite
 			loadGraphic(file); // Get the file size of the graphic
 			loadGraphic(file, true, Std.int(width * 0.5), Std.int(height)); // Then load it with the animation frames
 			iconOffsets[0] = iconOffsets[1] = (width - 150) * 0.5;
-			updateHitbox();
 
-			inline animation.add(char, [0, 1], 0, false, isPlayer);
-			inline animation.play(char);
+			animation.add(char, [0, 1], 0, false, isPlayer);
+			animation.play(char);
 
 			this.char = char;
 			antialiasing = SaveData.contents.preferences.antialiasing;
-			active = false;
+			active = moves = false;
 		}
 	}
 
 	override function updateHitbox()
 	{
-		super.updateHitbox();
+		width = Math.abs(scale.x) * frameWidth;
+		height = Math.abs(scale.y) * frameHeight;
 		offset.x = iconOffsets[0];
 		offset.y = iconOffsets[1];
+		origin.x = offset.x + 54;
+		origin.y = offset.y + 56;
 	}
 
 	public inline function getCharacter():String

@@ -4,6 +4,8 @@ class Game extends FlxGame
 {
 	private final initState:Class<flixel.FlxState> = Gameplay;
 
+	public static var volume:Float = 1.0;
+	public static var muted:Bool = false;
 	public static var blockSoundKeys:Bool = false;
 
 	// Keyboard events
@@ -31,7 +33,7 @@ class Game extends FlxGame
 
 		lime.app.Application.current.window.onClose.add(SaveData.saveContent);
 
-		delta = inline timeStamp();
+		delta = timeStamp();
 
 		trace('Game initialized.');
 	}
@@ -50,7 +52,7 @@ class Game extends FlxGame
 	private var delta:Float;
 	override function updateElapsed():Void
 	{
-		var timestamp:Float = inline timeStamp();
+		var timestamp:Float = timeStamp();
 		_elapsedMS = timestamp - delta;
 		super.updateElapsed();
 		delta = timestamp;
@@ -59,14 +61,14 @@ class Game extends FlxGame
 	inline public function setFramerate(fps:Int):Float
 		return frameRate = fps;
 
-	function timeStamp():Float
+	inline function timeStamp():Float
 	{
 		#if cpp
 		return untyped __global__.__time_stamp() * 1000.0;
 		#elseif sys
 		return Sys.time() * 1000.0;
 		#else
-		return FlxG.elapsed;
+		return 1000.0 / FlxG.updateFramerate;
 		#end
 	}
 }

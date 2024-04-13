@@ -1,4 +1,4 @@
-package zenith.menus.submenus;
+package zenith.submenus;
 
 import flixel.text.FlxText;
 

@@ -1,10 +1,10 @@
 Hey there, welcome to this repository.
 
-**We recommend you to use Haxe 4.2.5.**
+**We recommend you to use latest Haxe.**
 
 # Libraries needed to compile this engine
 
-Flixel: ``haxelib git flixel https://github.com/FNF-CNE-Devs/flixel.git`` (If you have an already installed git, delete it first)
+Flixel: ``haxelib install flixel``
 
 Flixel Addons: ``haxelib install flixel-addons``
 
@@ -22,10 +22,8 @@ To compile on hasklink, [read this.](https://haxe.org/manual/target-hl-getting-s
 
 1st Q: How do I play FNF Zenith on linux?
 
-1st A: To test this engine on there, you must have a computer of that operating system and THEN do ``lime test linux`` or ``haxelib run lime test linux``. *The same goes with mac!*
+1st A: To test this engine on there, you must have a computer of that operating system. To compile it, install the dependencies required to compile and do ``haxelib install hxcpp``, then ``lime test target`` or ``haxelib run lime test target``. Replace "target" with your computer's operating corresponding to the target. 
 
-2nd Q: Why does the compiler throw an error like ``..../flixel/5,6,2/flixel/input/actions/FlxActionManager.hx:54: characters 47-96 : Type not found : FlxTypedSignal`` or other weird errors!?
-
-2nd A: Well, it appears that latest haxe officially kills shadowing classes, or idk. The only way to fix that error is downgrade to 4.2.5.
+2nd Q+A: No more shadowed classes
 
 **WARNING: HashLink may not be fully compatible with this engine, as it's still a WIP!**

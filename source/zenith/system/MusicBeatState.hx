@@ -21,15 +21,6 @@ class MusicBeatState extends FlxState
 		super.create();
 	}
 
-	override function destroy():Void
-	{
-		if (!SaveData.contents.preferences.persistentGraphics)
-			for (bitmap in Paths.bitmapDataCache.keys())
-				Paths.bitmapDataCache.get(bitmap).dispose();
-
-		super.destroy();
-	}
-
 	override function update(elapsed:Float):Void
 	{
 		super.update(elapsed);

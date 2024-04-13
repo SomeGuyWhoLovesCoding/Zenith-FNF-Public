@@ -41,16 +41,16 @@ class SaveData
 		if (sys.FileSystem.exists('savedata.sav'))
 		{
 			var contentStr:String = sys.io.File.getContent('savedata.sav');
-			contents = (contentStr != '' ? (haxe.Json.parse(contentStr) : SaveFile) : contents);
+			contents = (contentStr != '' ? (Json.parse(contentStr) : SaveFile) : contents);
 		}
 		else
-			inline sys.io.File.saveContent('savedata.sav', '');
+			sys.io.File.saveContent('savedata.sav', '');
 		// WIP
 	}
 
 	static public function saveContent():Void
 	{
-		sys.io.File.saveContent('savedata.sav', haxe.Json.stringify(contents, '\t'));
+		sys.io.File.saveContent('savedata.sav', Json.stringify(contents, '\t'));
 	}
 }
 
@@ -76,13 +76,13 @@ typedef PreferencesData =
 
 typedef ControlsData =
 {
-	var GAMEPLAY_BINDS:Array<KeyCode>;
-	var LEFT:KeyCode;
-	var DOWN:KeyCode;
-	var UP:KeyCode;
-	var RIGHT:KeyCode;
-	var ACCEPT:KeyCode;
-	var BACK:KeyCode;
-	var RESET:KeyCode;
-	var CONTROL:KeyCode;
+	var GAMEPLAY_BINDS:Array<Int>;
+	var LEFT:Int;
+	var DOWN:Int;
+	var UP:Int;
+	var RIGHT:Int;
+	var ACCEPT:Int;
+	var BACK:Int;
+	var RESET:Int;
+	var CONTROL:Int;
 }

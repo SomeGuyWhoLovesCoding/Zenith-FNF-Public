@@ -30,20 +30,21 @@ typedef AnimArray = {
 	var offsets:Array<Int>;
 }
 
+@:access(flixel.animation.FlxAnimationController)
+@:access(flixel.animation.FlxAnimation)
 class Character extends FlxSprite
 {
-	public var animOffsets:Map<String, Array<Dynamic>>;
+	public var animOffsets:Map<String, Array<Float>>;
 	public var debugMode:Bool = false;
 
 	public var isPlayer:Bool = false;
 	public var curCharacter:String = DEFAULT_CHARACTER;
 
-	public var holdTimer:Float = 0;
-	public var heyTimer:Float = 0;
+	public var holdTimer:Float = 0.0;
+	public var heyTimer:Float = 0.0;
 	public var specialAnim:Bool = false;
-	public var animationNotes:Array<Dynamic> = [];
 	public var stunned:Bool = false;
-	public var singDuration:Float = 4; //Multiplier of how long a character holds the sing pose
+	public var singDuration:Float = 4.0; //Multiplier of how long a character holds the sing pose
 	public var idleSuffix:String = '';
 	public var danceIdle:Bool = false; //Character use "danceLeft" and "danceRight" instead of "idle"
 	public var skipDance:Bool = false;
@@ -51,8 +52,8 @@ class Character extends FlxSprite
 	public var healthIcon:String = 'face';
 	public var animationsArray:Array<AnimArray> = [];
 
-	public var positionArray:Array<Float> = [0, 0];
-	public var cameraPosition:Array<Float> = [0, 0];
+	public var positionArray:Array<Float> = [0.0, 0.0];
+	public var cameraPosition:Array<Float> = [0.0, 0.0];
 
 	public var hasMissAnimations:Bool = false;
 
@@ -76,13 +77,12 @@ class Character extends FlxSprite
 		curCharacter = character;
 		this.isPlayer = isPlayer;
 
-		var characterPath:String = 'characters/' + curCharacter + '.json';
+		var characterPath:String = 'characters' + Utils.SLASH + curCharacter + '.json';
 
-		var path:String = Paths.ASSET_PATH + '/' + characterPath;
+		var path:String = Paths.ASSET_PATH + Utils.SLASH + characterPath;
+
 		if (!FileSystem.exists(path))
-		{
-			path = Paths.ASSET_PATH + '/characters/' + DEFAULT_CHARACTER + '.json'; //If a character couldn't be found, change him to BF just to prevent a crash
-		}
+			path = Paths.ASSET_PATH + Utils.SLASH + 'characters' + Utils.SLASH + DEFAULT_CHARACTER + '.json'; //If a character couldn't be found, change him to BF just to prevent a crash
 
 		var json:CharacterFile = Json.parse(File.getContent(path));
 
@@ -113,25 +113,23 @@ class Character extends FlxSprite
 
 		animationsArray = json.animations;
 		if(null != animationsArray && animationsArray.length > 0) {
-			for (anim in animationsArray) {
-				var animAnim:String = '' + anim.anim;
-				var animName:String = '' + anim.name;
-				var animFps:Int = anim.fps;
+			for (i in 0...animationsArray.length)
+			{
+				var anim:AnimArray = animationsArray[i];
 				var animLoop:Bool = !!anim.loop; //Bruh
-				var animIndices:Array<Int> = anim.indices;
-				if(null != animIndices && animIndices.length > 0) {
-					animation.addByIndices(animAnim, animName, animIndices, "", animFps, animLoop);
-				} else {
-					animation.addByPrefix(animAnim, animName, animFps, animLoop);
-				}
 
-				if(null != anim.offsets && anim.offsets.length > 1) {
+				if(null != anim.indices && anim.indices.length > 0)
+					animation.addByIndices(anim.anim, anim.name, anim.indices, "", anim.fps, animLoop);
+				else
+					animation.addByPrefix(anim.anim, anim.name, anim.fps, animLoop);
+
+				if(null != anim.offsets && anim.offsets.length > 1)
 					addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
-				}
 			}
-		} else {
-			quickAnimAdd('idle', 'BF idle dance');
 		}
+		else
+			quickAnimAdd('idle', 'BF idle dance');
+
 		originalFlipX = flipX;
 
 		if(animOffsets.exists('singLEFTmiss') || animOffsets.exists('singDOWNmiss') || animOffsets.exists('singUPmiss') || animOffsets.exists('singRIGHTmiss')) hasMissAnimations = true;
@@ -144,7 +142,7 @@ class Character extends FlxSprite
 
 	override function update(elapsed:Float)
 	{
-		if(!debugMode && animation.curAnim != null)
+		if(!debugMode && null != animation.curAnim)
 		{
 			if(specialAnim && animation.curAnim.finished)
 			{
@@ -173,7 +171,7 @@ class Character extends FlxSprite
 			}
 
 			if(animation.curAnim.finished && null != animation.getByName(animation.curAnim.name + '-loop'))
-				inline playAnim(animation.curAnim.name + '-loop');
+				playAnim(animation.curAnim.name + '-loop');
 		}
 
 		super.update(elapsed);
@@ -184,38 +182,40 @@ class Character extends FlxSprite
 	/**
 	 * FOR GF DANCING SHIT
 	 */
-	inline public function dance()
+	public function dance()
 	{
-		if (!debugMode && !skipDance && !specialAnim)
-		{
-			if(danceIdle)
-				inline playAnim(((danced = !danced) ? 'danceRight' : 'danceLeft') + idleSuffix);
-			else if(null != animation.getByName('idle' + idleSuffix))
-				inline playAnim('idle' + idleSuffix);
-		}
+		if ((!debugMode && !skipDance && !specialAnim) && danceIdle)
+			playAnim(((danced = !danced) ? 'danceRight' : 'danceLeft') + idleSuffix);
+		else if (null != animation.getByName('idle' + idleSuffix))
+			playAnim('idle' + idleSuffix);
 	}
 
-	public function playAnim(AnimName:String, Force:Bool = false, Reversed:Bool = false, Frame:Int = 0):Void
+	public function playAnim(AnimName:String, special:Bool = false):Void
 	{
-		specialAnim = false;
-		animation.play(AnimName, Force, Reversed, Frame);
+		specialAnim = special;
+		(animation.curAnim = animation._animations.get(AnimName))._frameTimer = animation.curAnim.curFrame = 0;
+		animation.curAnim.finished = animation.curAnim.paused = false;
 
-		var daOffset = animOffsets.get(AnimName);
-		if (animOffsets.exists(AnimName))
-			offset.set(daOffset[0], daOffset[1]);
+		var daOffset:Array<Float> = animOffsets.get(AnimName);
+
+		if (null != daOffset)
+		{
+			offset.x = daOffset[0];
+			offset.y = daOffset[1];
+		}
 		else
-			offset.set(0, 0);
+			offset.x = offset.y = 0;
 
-		if (!curCharacter.startsWith('gf'))
-			return;
-
-		if (AnimName == 'singLEFT')
-			danced = true;
-		else if (AnimName == 'singRIGHT')
-			danced = false;
-
-		if (AnimName == 'singUP' || AnimName == 'singDOWN')
-			danced = !danced;
+		if (curCharacter.startsWith('gf'))
+		{
+			if (AnimName == 'singLEFT')
+				danced = true;
+			else if (AnimName == 'singRIGHT')
+				danced = false;
+	
+			if (AnimName == 'singUP' || AnimName == 'singDOWN')
+				danced = !danced;
+		}
 	}
 
 	public var danceEveryNumBeats:Int = 2;
@@ -235,18 +235,14 @@ class Character extends FlxSprite
 			else
 				calc *= 2;
 
-			danceEveryNumBeats = inline Std.int(inline Math.max(calc, 1));
+			danceEveryNumBeats = Std.int(Math.max(calc, 1.0));
 		}
 		settingCharacterUp = false;
 	}
 
-	public function addOffset(name:String, x:Float = 0, y:Float = 0)
-	{
+	inline public function addOffset(name:String, x:Float = 0, y:Float = 0)
 		animOffsets[name] = [x, y];
-	}
 
-	public function quickAnimAdd(name:String, anim:String)
-	{
+	inline public function quickAnimAdd(name:String, anim:String)
 		animation.addByPrefix(name, anim, 24, false);
-	}
 }
