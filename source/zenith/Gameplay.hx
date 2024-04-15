@@ -442,7 +442,7 @@ class Gameplay extends MusicBeatState
 	}
 
 	var initialStrumHeight:Float; // Because for some reason, on downscroll, the sustain note changes y offset when its strum plays the confirm anim LOL
-	var currentNoteId:Float = 0;
+	var currentNoteId:Float = 0.0;
 
 	public var onGameplayCreate:()->(Void);
 	public var onGameplayUpdate:(Float)->(Void);
