@@ -66,7 +66,7 @@ class Game extends FlxGame
 		#if cpp
 		return untyped __global__.__time_stamp() * 1000.0;
 		#elseif sys
-		return Sys.time() * 1000.0;
+		return Sys.cpuTime() * 1000.0;
 		#else
 		return 1000.0 / FlxG.updateFramerate;
 		#end
