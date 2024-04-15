@@ -160,10 +160,11 @@ class Gameplay extends MusicBeatState
 			if (null == Sys.args()[1]) // What?
 				songDifficulty = '';
 			#else
-			var songName = 'test', songDifficulty = '';
+			var songName:String = 'test';
+			var songDifficulty:String = '';
 			#end
 
-			var timeStamp:Float = haxe.Timer.stamp();
+			#if sys var timeStamp:Float = Sys.cpuTime(); #end
 
 			// You don't need to thread when loading into the song anyway
 			try
@@ -190,7 +191,7 @@ class Gameplay extends MusicBeatState
 
 				strums.cameras = notes.cameras = [hudCamera];
 
-				trace('Loading finished! Took ${Utils.formatTime((haxe.Timer.stamp() - timeStamp) * 1000.0, true, true)} to load.');
+				trace('Loading finished!' #if sys + ' Took ${Utils.formatTime((haxe.Timer.stamp() - timeStamp) * 1000.0, true, true)} to load.' #end);
 
 				if (!noCharacters)
 				{
@@ -269,7 +270,7 @@ class Gameplay extends MusicBeatState
 		{
 			note.strum.playAnim('confirm');
 
-			var multiplier:Float = Math.round(Math.max(note.multiplier, 1.0)); // Avoid calling math.max 4 times
+			var multiplier:Float = Math.floor(Math.max(note.multiplier, 1.0)); // Avoid calling math.max 4 times
 
 			health += (0.045 * multiplier) * (note.strum.playerStrum ? 1.0 : -1.0);
 
@@ -299,7 +300,7 @@ class Gameplay extends MusicBeatState
 		{
 			note.tooLate = true;
 
-			var multiplier:Float = Math.round(Math.max(note.multiplier, 1.0)); // Avoid calling math.max 4 times
+			var multiplier:Float = Math.floor(Math.max(note.multiplier, 1.0)); // Avoid calling math.max 4 times
 
 			health -= 0.045 * multiplier;
 			score -= 100.0 * multiplier;
@@ -363,10 +364,10 @@ class Gameplay extends MusicBeatState
 
 			Conductor.songPosition += elapsed * 1000.0;
 
-			while (null != SONG.noteData[currentNoteId])
+			while (null != SONG.noteData[Math.floor(currentNoteId)])
 			{
 				// Avoid redundant array access
-				var note:Array<Float> = SONG.noteData[currentNoteId];
+				var note:Array<Float> = SONG.noteData[Math.floor(currentNoteId)];
 				var time:Float = note[0];
 
 				if (Conductor.songPosition < time - (1950.0 / songSpeed))
@@ -441,7 +442,7 @@ class Gameplay extends MusicBeatState
 	}
 
 	var initialStrumHeight:Float; // Because for some reason, on downscroll, the sustain note changes y offset when its strum plays the confirm anim LOL
-	var currentNoteId:Int = 0;
+	var currentNoteId:Float = 0;
 
 	public var onGameplayCreate:()->(Void);
 	public var onGameplayUpdate:(Float)->(Void);
@@ -471,19 +472,19 @@ class Gameplay extends MusicBeatState
 					{
 						if (null != gf)
 						{
-							gf.playAnim('cheer', true);
+							gf.playAnim('cheer');
 							gf.heyTimer = time;
 						}
 						if (null != dad && dad.curCharacter == gf.curCharacter)
 						{
-							dad.playAnim('cheer', true);
+							dad.playAnim('cheer');
 							dad.heyTimer = time;
 						}
 					}
 					else
 					{
 						if (null != bf) {
-							bf.playAnim('hey', true);
+							bf.playAnim('hey');
 							bf.heyTimer = time;
 						}
 					}
@@ -541,10 +542,7 @@ class Gameplay extends MusicBeatState
 					}
 
 					if (null != char)
-					{
-						char.playAnim(value1, true);
-						char.specialAnim = true;
-					}
+						char.playAnim(value1);
 				}
 
 			case 'Change Character':
@@ -653,7 +651,7 @@ class Gameplay extends MusicBeatState
 	{
 		trace('Parsing chart data from song json...');
 
-		SONG = Song.loadFromJson(name + Utils.SLASH + name + diff);
+		SONG = Song.loadFromJson(name + '/' + name + diff);
 
 		trace('Loaded ${SONG.noteData.length} notes! Now time to load more stuff here...');
 
@@ -767,6 +765,7 @@ class Gameplay extends MusicBeatState
 			voices = new Sound(Paths.voices(SONG.song), null);
 			add(voices);
 			voices.volume = inst.volume;
+			voices.onComplete = voices.stop;
 		}
 
 		Conductor.mapBPMChanges(SONG); ////Since the chart format is being reworked, comment this out for now.
@@ -833,6 +832,7 @@ class Gameplay extends MusicBeatState
 			notes.members.sort((a:Note, b:Note) -> Std.int(a.strumTime - b.strumTime));
 	}
 
+	var isDad:Bool = true;
 	public function dance(beat:Int):Void
 	{
 		if (!noCharacters)
@@ -848,15 +848,19 @@ class Gameplay extends MusicBeatState
 				&& 0 == beat % dad.danceEveryNumBeats
 				&& null != dad.animation.curAnim
 				&& !dad.animation.curAnim.name.startsWith('sing')
-				&& !dad.stunned)
+				&& !dad.stunned
+				&& dad.animation.curAnim.finished)
 				dad.dance();
 
 			if (null != bf
 				&& 0 == beat % bf.danceEveryNumBeats
 				&& null != bf.animation.curAnim
 				&& !bf.animation.curAnim.name.startsWith('sing')
-				&& !bf.stunned)
+				&& !bf.stunned
+				&& bf.animation.curAnim.finished)
 				bf.dance();
+
+			moveCamera((isDad = !isDad) ? dad : bf);
 		}
 	}
 
@@ -923,9 +927,6 @@ class Gameplay extends MusicBeatState
 	{
 		if (null != inst)
 			inst.stop();
-
-		if (null != voices)
-			voices.stop();
 
 		if (null != hudGroup.timeTxt)
 			hudGroup.timeTxt.visible = false;
@@ -1098,31 +1099,32 @@ class Gameplay extends MusicBeatState
 	public var videoEncoder:String = "libx265";
 	public var outputPath:String = "output.mp4";
 
-	inline private function initRender():Void
+	private function initRender():Void
 	{
-		if (renderMode && sys.FileSystem.exists(#if linux 'ffmpeg' #else 'ffmpeg.exe' #end))
+		if (renderMode && sys.FileSystem.exists(#if windows 'ffmpeg.exe' #else 'ffmpeg' #end))
 		{
+			cpp.vm.Gc.enable(true);
 			cpuControlled = true;
-			process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '$videoFramerate', '-i', '-', '-c:v', videoEncoder, inline Sys.getCwd().replace('\\', Utils.SLASH) + outputPath]);
+			process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '$videoFramerate', '-i', '-', '-c:v', videoEncoder, Sys.getCwd().replace('\\', '/') + outputPath]);
 			FlxG.autoPause = false;
 		}
 	}
 
-	inline private function pipeFrame():Void
+	private function pipeFrame():Void
 	{
 		var img:lime.graphics.Image = lime.app.Application.current.window.readPixels(new lime.math.Rectangle(FlxG.scaleMode.offset.x, FlxG.scaleMode.offset.y, FlxG.scaleMode.gameSize.x, FlxG.scaleMode.gameSize.y));
 		var bytes:haxe.io.Bytes = img.getPixels(new lime.math.Rectangle(0, 0, img.width, img.height));
 		process.stdin.writeBytes(bytes, 0, bytes.length);
 	}
 
-	inline private function stopRender():Void
+	private function stopRender():Void
 	{
 		if (renderMode)
 		{
+			cpp.vm.Gc.enable(false);
 			process.stdin.close();
 			process.close();
 			process.kill();
-
 			FlxG.autoPause = true;
 		}
 	}

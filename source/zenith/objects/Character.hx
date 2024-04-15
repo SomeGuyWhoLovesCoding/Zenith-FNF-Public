@@ -77,12 +77,12 @@ class Character extends FlxSprite
 		curCharacter = character;
 		this.isPlayer = isPlayer;
 
-		var characterPath:String = 'characters' + Utils.SLASH + curCharacter + '.json';
+		var characterPath:String = 'characters/' + curCharacter + '.json';
 
-		var path:String = Paths.ASSET_PATH + Utils.SLASH + characterPath;
+		var path:String = Paths.ASSET_PATH + '/' + characterPath;
 
 		if (!FileSystem.exists(path))
-			path = Paths.ASSET_PATH + Utils.SLASH + 'characters' + Utils.SLASH + DEFAULT_CHARACTER + '.json'; //If a character couldn't be found, change him to BF just to prevent a crash
+			path = Paths.ASSET_PATH + '/characters/' + DEFAULT_CHARACTER + '.json'; //If a character couldn't be found, change him to BF just to prevent a crash
 
 		var json:CharacterFile = Json.parse(File.getContent(path));
 
@@ -212,7 +212,7 @@ class Character extends FlxSprite
 				danced = true;
 			else if (AnimName == 'singRIGHT')
 				danced = false;
-	
+
 			if (AnimName == 'singUP' || AnimName == 'singDOWN')
 				danced = !danced;
 		}

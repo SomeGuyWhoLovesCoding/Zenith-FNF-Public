@@ -4,6 +4,7 @@ import openfl.display.Sprite;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
 import openfl.geom.Matrix;
+import lime._internal.backend.native.NativeCFFI;
 
 import lime.ui.*;
 
@@ -18,6 +19,13 @@ typedef TransitioningInfo =
 	var callback:Void->Void;
 }
 
+// Keep these
+@:access(lime.app.Application)
+@:access(lime.ui.Gamepad)
+@:access(lime.ui.Joystick)
+@:access(lime._internal.backend.native.NativeApplication)
+@:access(lime._internal.backend.native.NativeCFFI)
+
 class Main extends Sprite
 {
 	private static final transitioning:Transitioning = {_in: null, _out: null};
@@ -31,11 +39,85 @@ class Main extends Sprite
 	public static var skipTransIn:Bool = false;
 	public static var skipTransOut:Bool = false;
 
+	private var gamepad:()->(Void);
+	private var joystick:()->(Void);
+	private var keyboard:()->(Void);
+
 	public function new()
 	{
 		super();
 
-		stage.quality = LOW;
+		var backend = lime.app.Application.current.__backend;
+
+		NativeCFFI.lime_joystick_event_manager_register(joystick = () -> {/**/}, backend.joystickEventInfo);
+
+		NativeCFFI.lime_gamepad_event_manager_register(gamepad = () ->
+		{
+			var gamepadEventInfo = backend.gamepadEventInfo;
+
+			if (gamepadEventInfo.type == cast 0)
+				Game.onGamepadAxisMove.emit(SignalEvent.GAMEPAD_AXIS_MOVE, gamepadEventInfo.axis, gamepadEventInfo.axisValue);
+
+			if (gamepadEventInfo.type == cast 1)
+				Game.onGamepadButtonDown.emit(SignalEvent.GAMEPAD_BUTTON_DOWN, gamepadEventInfo.button);
+
+			if (gamepadEventInfo.type == cast 2)
+				Game.onGamepadButtonUp.emit(SignalEvent.GAMEPAD_BUTTON_UP, gamepadEventInfo.button);
+
+			if (gamepadEventInfo.type == cast 3)
+			{
+				Gamepad.__connect(gamepadEventInfo.id);
+				Game.onGamepadConnect.emit(SignalEvent.GAMEPAD_CONNECT, gamepadEventInfo.id);
+			}
+
+			if (gamepadEventInfo.type == cast 4)
+			{
+				Gamepad.__disconnect(gamepadEventInfo.id);
+				Game.onGamepadConnect.emit(SignalEvent.GAMEPAD_DISCONNECT, gamepadEventInfo.id);
+			}
+		}, backend.gamepadEventInfo);
+
+		NativeCFFI.lime_key_event_manager_register(keyboard = () ->
+		{
+			var keyEventInfo = backend.keyEventInfo;
+
+			if (keyEventInfo.type == cast 1)
+				Game.onKeyUp.emit(SignalEvent.KEY_UP, Std.int(keyEventInfo.keyCode), keyEventInfo.modifier);
+
+			if (keyEventInfo.type == cast 0)
+			{
+				Game.onKeyDown.emit(SignalEvent.KEY_DOWN, Std.int(keyEventInfo.keyCode), keyEventInfo.modifier);
+
+				if (keyEventInfo.keyCode == KeyCode.F11)
+				{
+					var window:Window = backend.parent.__windowByID.get(keyEventInfo.windowID);
+					window.fullscreen = !window.fullscreen;
+				}
+
+				if (null != FlxG.sound && !Game.blockSoundKeys)
+				{
+					if (keyEventInfo.keyCode == KeyCode.EQUALS)
+					{
+						FlxG.sound.volume = Math.min(FlxG.sound.volume + 0.1, 1.0);
+						Main.volumeTxt.alpha = 1.0;
+					}
+
+					if (keyEventInfo.keyCode == KeyCode.MINUS)
+					{
+						FlxG.sound.volume = Math.max(FlxG.sound.volume - 0.1, 0.0);
+						Main.volumeTxt.alpha = 1.0;
+					}
+
+					if (keyEventInfo.keyCode == KeyCode.NUMBER_0)
+					{
+						FlxG.sound.muted = !FlxG.sound.muted;
+						Main.volumeTxt.alpha = 1.0;
+					}
+				}
+			}
+		}, backend.keyEventInfo);
+
+		openfl.Lib.current.stage.quality = stage.quality = LOW;
 
 		// Before adding ``game``, create the transition
 
@@ -61,40 +143,6 @@ class Main extends Sprite
 		volumeTxt = new TextField();
 		volumeTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFF0000, true);
 		addChild(volumeTxt);
-
-		var window:Window = stage.window;
-
-		window.onKeyDown.add((keyCode:Int, keyModifier:Int) -> {
-			Game.onKeyDown.emit(SignalEvent.KEY_DOWN, keyCode, keyModifier);
-
-			if (keyCode == KeyCode.F11)
-				window.fullscreen = !window.fullscreen;
-
-			if (null != FlxG.sound && !Game.blockSoundKeys)
-			{
-				if (keyCode == KeyCode.EQUALS)
-				{
-					FlxG.sound.volume = Math.min(FlxG.sound.volume + 0.1, 1.0);
-					Main.volumeTxt.alpha = 1.0;
-				}
-
-				if (keyCode == KeyCode.MINUS)
-				{
-					FlxG.sound.volume = Math.max(FlxG.sound.volume - 0.1, 0.0);
-					Main.volumeTxt.alpha = 1.0;
-				}
-
-				if (keyCode == KeyCode.NUMBER_0)
-				{
-					FlxG.sound.muted = !FlxG.sound.muted;
-					Main.volumeTxt.alpha = 1.0;
-				}
-			}
-		});
-
-		window.onKeyUp.add((keyCode:Int, keyModifier:Int) -> {
-			Game.onKeyUp.emit(SignalEvent.KEY_UP, keyCode, keyModifier);
-		});
 
 		volumeTxt.selectable = fpsTxt.selectable = false;
 		volumeTxt.width = fpsTxt.width = FlxG.width;

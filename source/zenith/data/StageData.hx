@@ -28,11 +28,11 @@ class StageData
 	public static function loadDirectory(SONG:SwagSong):Void
 	{
 		var stage:String = '';
-		if(null != SONG.info.stage)
+		if (null != SONG.info.stage)
 			stage = SONG.info.stage;
-		else if(null != SONG.song)
+		else if (null != SONG.song)
 		{
-			switch (Paths.formatToSongPath(inline SONG.song.toLowerCase()))
+			switch (Paths.formatToSongPath(SONG.song.toLowerCase()))
 			{
 				case 'spookeez' | 'south' | 'monster':
 					stage = 'spooky';
@@ -48,7 +48,7 @@ class StageData
 		var rawJson:String = null;
 		var path:String = Paths.ASSET_PATH + '/stages/' + stage + '.json';
 
-		if(sys.FileSystem.exists(path))
+		if (sys.FileSystem.exists(path))
 			return cast Json.parse(sys.io.File.getContent(path));
 		else
 			return null;

@@ -53,7 +53,7 @@ class Conductor
 				bpmChangeMap.push(event);
 			}
 
-			totalSteps += inline Math.round(4); // What am I supposed to do?
+			totalSteps += 4; // What am I supposed to do?
 			totalPos += (60 / curBPM) * 250.0;
 		}
 		trace("new BPM map BUDDY " + bpmChangeMap);

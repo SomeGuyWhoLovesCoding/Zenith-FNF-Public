@@ -58,7 +58,7 @@ class Paths
 	public static var bitmapDataCache:Map<String, BitmapData> = new Map<String, BitmapData>();
 	inline static public function image(key:String):BitmapData
 	{
-		var imagePath:String = '$ASSET_PATH${Utils.SLASH}images${Utils.SLASH}$key.png';
+		var imagePath:String = '$ASSET_PATH/images/$key.png';
 
 		if (sys.FileSystem.exists(imagePath))
 		{
@@ -68,33 +68,33 @@ class Paths
 			return bitmapDataCache.get(imagePath);
 		}
 
-		trace('Image file "$imagePath" doesn\'t exist.');
+		trace("Image file \"" + imagePath + "\" doesn't exist.");
 		return null;
 	}
 
 	inline static public function sound(key:String):String
-		return '$ASSET_PATH${Utils.SLASH}sounds${Utils.SLASH}$key.$SOUND_EXT';
+		return '$ASSET_PATH/sounds/$key.$SOUND_EXT';
 
 	inline static public function soundRandom(key:String, min:Int = 0, max:Int = flixel.math.FlxMath.MAX_VALUE_INT):String
 		return sound(key + FlxG.random.int(min, max));
 
 	inline static public function music(key:String):String
-		return '$ASSET_PATH${Utils.SLASH}music${Utils.SLASH}$key.$SOUND_EXT';
+		return '$ASSET_PATH/music/$key.$SOUND_EXT';
 
 	inline static public function voices(song:String):String
-		return '$ASSET_PATH${Utils.SLASH}songs${Utils.SLASH}${formatToSongPath(song)}${Utils.SLASH}Voices.$SOUND_EXT';
+		return '$ASSET_PATH/songs/${formatToSongPath(song)}/Voices.$SOUND_EXT';
 
 	inline static public function inst(song:String):String
-		return '$ASSET_PATH${Utils.SLASH}songs${Utils.SLASH}${formatToSongPath(song)}${Utils.SLASH}Inst.$SOUND_EXT';
+		return '$ASSET_PATH/songs/${formatToSongPath(song)}/Inst.$SOUND_EXT';
 
-	inline static public function font(key:String, ext:String = 'ttf'):String
-		return '$ASSET_PATH${Utils.SLASH}fonts${Utils.SLASH}$key.$ext';
+	inline static public function font(key:String, ext:String = "ttf"):String
+		return '$ASSET_PATH/fonts/$key.$ext';
 
 	public static function getSparrowAtlas(key:String):FlxAtlasFrames
 	{
-		return FlxAtlasFrames.fromSparrow(image(key), '$ASSET_PATH/images/$key.xml'); // Don't change the slashes to "Utils.SLASH".
+		return FlxAtlasFrames.fromSparrow(image(key), '$ASSET_PATH/images/$key.xml');
 	}
 
-	inline static public function formatToSongPath(path:String):String
+	static public function formatToSongPath(path:String):String
 		return path.replace(' ', '-').toLowerCase();
 }

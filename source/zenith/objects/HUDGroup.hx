@@ -4,8 +4,6 @@ import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.math.FlxMath;
-import flixel.tweens.FlxTween;
-import flixel.tweens.FlxEase;
 
 class HUDGroup extends FlxSpriteGroup
 {
@@ -15,7 +13,7 @@ class HUDGroup extends FlxSpriteGroup
 	public var scoreTxt:FlxText;
 	public var timeTxt:FlxText;
 
-	public inline function new():Void
+	public function new():Void
 	{
 		super();
 
@@ -25,10 +23,11 @@ class HUDGroup extends FlxSpriteGroup
 		oppIcon = new HealthIcon(Gameplay.instance.dad.healthIcon);
 		plrIcon = new HealthIcon(Gameplay.instance.bf.healthIcon, true);
 
-		healthBar = new HealthBar(0, Gameplay.downScroll ? 60 : FlxG.height - 86, [0xFFFF0000], [0xFF00FF00], 600, 24);
+		healthBar = new HealthBar(0, Gameplay.downScroll ? 60.0 : FlxG.height - 86.0, [0xFFFF0000], [0xFF00FF00], 600, 24);
+		healthBar.screenCenter(X);
 		add(healthBar);
 
-		oppIcon.y = plrIcon.y = healthBar.y - 60;
+		oppIcon.y = plrIcon.y = healthBar.y - 60.0;
 
 		add(oppIcon);
 		add(plrIcon);
@@ -66,17 +65,16 @@ class HUDGroup extends FlxSpriteGroup
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
 
-		healthBar.screenCenter(X);
 		scoreTxt.screenCenter(X);
 		timeTxt.screenCenter(X);
 
-		oppIcon.x = healthBar.width * (1 - (healthBar.value / healthBar.maxValue) + 0.5) - 75;
-		plrIcon.x = oppIcon.x + 105;
+		oppIcon.x = healthBar.width * (1 - (healthBar.value / healthBar.maxValue) + 0.5) - 75.0;
+		plrIcon.x = oppIcon.x + 105.0;
 
-		healthBar.value = inline FlxMath.lerp(healthBar.value, inline FlxMath.bound(Gameplay.instance.health, 0, healthBar.maxValue), SaveData.contents.preferences.smoothHealth ? 0.08 : 1);
+		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0.0, healthBar.maxValue), SaveData.contents.preferences.smoothHealth ? 0.08 : 1.0);
 
 		scoreTxt.text = 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ' + (Gameplay.instance.accuracy_right == 0.0 ? '???' :
-			inline Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000) * 0.01 + '%');
+			Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000.0) * 0.01 + '%');
 
 		if (Gameplay.instance.startedCountdown)
 		{

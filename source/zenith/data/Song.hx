@@ -26,21 +26,14 @@ typedef SwagSong =
 	bpmChanges:Array<Array<Float>>
 }
 
-class Song
+@:keep class Song
 {
-	inline static public function loadFromJson(jsonInput:String, ?folder:String):SwagSong
+	static public function loadFromJson(jsonInput:String = "", folder:String = ""):SwagSong
 	{
-		var formattedFolder:String = Paths.formatToSongPath(folder);
-		var formattedSong:String = Paths.formatToSongPath(jsonInput);
-
-		var songJson:SwagSong = parseJSONshit(sys.io.File.getContent(Paths.ASSET_PATH + Utils.SLASH + 'data' + Utils.SLASH + formattedFolder + Utils.SLASH + formattedSong + '.json'));
-		if(jsonInput != 'events') StageData.loadDirectory(songJson);
+		var path:String = Paths.ASSET_PATH + '/data/' + folder.toLowerCase().replace(' ', '-') + '/' + jsonInput.toLowerCase().replace(' ', '-') + '.json';
+		var content:String = sys.io.File.getContent(path);
+		var songJson:SwagSong = haxe.Json.parse(content);
+		StageData.loadDirectory(songJson);
 		return songJson;
-	}
-
-	inline static public function parseJSONshit(rawJson:String):SwagSong
-	{
-		var swagShit:SwagSong = haxe.Json.parse(rawJson);
-		return swagShit;
 	}
 }

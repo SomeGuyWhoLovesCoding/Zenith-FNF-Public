@@ -25,7 +25,7 @@ class Game extends FlxGame
 
 	public function new():Void
 	{
-		var fps:Int = inline Std.int(setFramerate(SaveData.contents.preferences.fps));
+		var fps:Int = Std.int(setFramerate(SaveData.contents.preferences.fps));
 		FlxSprite.defaultAntialiasing = SaveData.contents.preferences.antialiasing;
 
 		super(0, 0, initState, fps, fps, true);

@@ -13,7 +13,7 @@ class HealthBar extends FlxSpriteGroup
 	public var value:Float = 1.0;
 	public var maxValue:Float = 2.0;
 
-	public function new(x:Float = 0, y:Float = 0, left:Array<Int>, right:Array<Int>, width:Int = 100, height:Int = 10, maxValue:Float = 2):Void
+	public function new(x:Float = 0.0, y:Float = 0.0, left:Array<Int>, right:Array<Int>, width:Int = 100, height:Int = 10, maxValue:Float = 2.0):Void
 	{
 		super(x, y);
 
@@ -45,7 +45,7 @@ class HealthBar extends FlxSpriteGroup
 		else
 			add(__right = new FlxSprite().makeGraphic(__width, __height, right[0]));
 
-		__left.pixelPerfectPosition = __right.pixelPerfectPosition = __left.active = __right.active = false;
+		__left.pixelPerfectPosition = __right.pixelPerfectPosition = false;
 	}
 
 	override public function update(elapsed:Float):Void

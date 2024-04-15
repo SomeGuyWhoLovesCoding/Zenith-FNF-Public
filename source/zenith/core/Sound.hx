@@ -1,4 +1,4 @@
-package zenith.core;
+package;
 
 import openfl.events.Event;
 import openfl.display.Sprite;
@@ -8,31 +8,31 @@ import lime.media.vorbis.VorbisFile;
 
 // Just a sound class made to load audio files near-instant by streaming.
 // You MUST add the sound to the sound list, or it'll cause unintential behavior.
-
 class Sound extends FlxBasic
 {
 	public var source(default, null):AudioSource = null;
 
-	public var length:Int = 0;
-	public var time:Int = 0;
+	public var length:Float = 0.0;
+	public var time:Float = 0.0;
 
-	public var volume:Float = 1;
+	public var volume:Float = 1.0;
 
-	public var pitch(default, set):Float = 1;
+	public var pitch(default, set):Float = 1.0;
+
 	function set_pitch(value:Float):Float
 	{
 		source.pitch = value;
 		return pitch = value;
 	}
 
-	public var onComplete:()->(Void);
+	public var onComplete:() -> (Void);
 
 	public var playing(default, null):Bool = false;
 	public var paused(default, null):Bool = false;
 
 	public var stage:Sprite;
 
-	public function new(sourceFile:String, onComplete:()->(Void)):Void
+	public function new(sourceFile:String, onComplete:() -> (Void) = null):Void
 	{
 		super();
 
@@ -41,22 +41,16 @@ class Sound extends FlxBasic
 
 		ID = -1;
 
+		source = new AudioSource(AudioBuffer.fromVorbisFile(VorbisFile.fromFile(sourceFile)));
+
 		this.onComplete = onComplete;
 
-		load = (sourceFile:String) ->
-		{
-			source = new AudioSource(AudioBuffer.fromVorbisFile(VorbisFile.fromFile(sourceFile)));
+		if (null != onComplete)
+			source.onComplete.add(onComplete);
 
-			if (null != onComplete)
-				source.onComplete.add(onComplete);
-
-			length = source.length;
-		}
-
-		load(sourceFile);
+		length = source.length;
+		trace(length);
 	}
-
-	public var load:(String)->(Void);
 
 	override public function update(elapsed:Float):Void
 	{
@@ -70,27 +64,24 @@ class Sound extends FlxBasic
 		}
 	}
 
-	public inline function play(forceRestart:Bool = false, startTime:Int = 0):Void
+	public function play(forceRestart:Bool = false, startTime:Int = 0):Void
 		if (null != source && (!playing || paused))
 		{
 			if (forceRestart)
 				source.stop();
 			else
 				time = startTime;
-
 			source.play();
-
 			if (null != stage && (!stage.hasEventListener(Event.DEACTIVATE) || !stage.hasEventListener(Event.ACTIVATE)))
 			{
 				stage.addEventListener(Event.DEACTIVATE, (_) -> pause());
 				stage.addEventListener(Event.ACTIVATE, (_) -> play());
 			}
-
 			playing = true;
 			paused = false;
 		}
 
-	public inline function pause():Void
+	public function pause():Void
 		if (null != source && (playing || !paused))
 		{
 			source.pause();
@@ -98,14 +89,12 @@ class Sound extends FlxBasic
 			paused = true;
 		}
 
-	public inline function stop():Void
+	public function stop():Void
 		if (null != source && playing)
 		{
 			source.stop();
-
 			if (null != stage)
 				@:privateAccess stage.__removeAllListeners();
-
 			playing = paused = false;
 		}
 
@@ -126,6 +115,6 @@ class Sound extends FlxBasic
 		super.destroy();
 	}
 
-	public inline function setTime(newTime:Int):Void
+	public inline function setTime(newTime:Float):Void
 		time = source.currentTime = newTime;
 }
