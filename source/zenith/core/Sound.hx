@@ -1,4 +1,4 @@
-package;
+package zenith.core;
 
 import openfl.events.Event;
 import openfl.display.Sprite;
@@ -67,7 +67,7 @@ class Sound extends FlxBasic
 	public function play(forceRestart:Bool = false, startTime:Int = 0):Void
 		if (null != source && (!playing || paused))
 		{
-			if (forceRestart)
+			if (forceRestart || @:privateAccess source.__backend.completed)
 				source.stop();
 			else
 				time = startTime;

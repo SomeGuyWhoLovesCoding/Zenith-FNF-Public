@@ -1103,7 +1103,9 @@ class Gameplay extends MusicBeatState
 	{
 		if (renderMode && sys.FileSystem.exists(#if windows 'ffmpeg.exe' #else 'ffmpeg' #end))
 		{
+			#if cpp
 			cpp.vm.Gc.enable(true);
+			#end
 			cpuControlled = true;
 			process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '$videoFramerate', '-i', '-', '-c:v', videoEncoder, Sys.getCwd().replace('\\', '/') + outputPath]);
 			FlxG.autoPause = false;
@@ -1121,7 +1123,9 @@ class Gameplay extends MusicBeatState
 	{
 		if (renderMode)
 		{
+			#if cpp
 			cpp.vm.Gc.enable(false);
+			#end
 			process.stdin.close();
 			process.close();
 			process.kill();
