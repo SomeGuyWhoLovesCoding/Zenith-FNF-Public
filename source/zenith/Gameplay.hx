@@ -832,7 +832,6 @@ class Gameplay extends MusicBeatState
 			notes.members.sort((a:Note, b:Note) -> Std.int(a.strumTime - b.strumTime));
 	}
 
-	var isDad:Bool = true;
 	public function dance(beat:Int):Void
 	{
 		if (!noCharacters)
@@ -859,8 +858,6 @@ class Gameplay extends MusicBeatState
 				&& !bf.stunned
 				&& bf.animation.curAnim.finished)
 				bf.dance();
-
-			moveCamera((isDad = !isDad) ? dad : bf);
 		}
 	}
 
