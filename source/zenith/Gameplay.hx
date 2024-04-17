@@ -765,7 +765,7 @@ class Gameplay extends MusicBeatState
 			voices = new Sound(Paths.voices(SONG.song), null);
 			add(voices);
 			voices.volume = inst.volume;
-			voices.onComplete = voices.stop;
+			voices.onComplete = () -> {voices.mute = true; /* For some reason it does some classic game crash type sound when finished */};
 		}
 
 		Conductor.mapBPMChanges(SONG); ////Since the chart format is being reworked, comment this out for now.

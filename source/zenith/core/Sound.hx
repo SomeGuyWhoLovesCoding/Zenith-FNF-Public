@@ -37,6 +37,8 @@ class Sound extends FlxBasic
 		return 0.0;
 	}
 
+	public var mute:Bool = false;
+
 	private var __paused(default, null):Bool = false; // For focus gain
 
 	public var onComplete:() -> (Void);
@@ -69,7 +71,7 @@ class Sound extends FlxBasic
 			return;
 
 		if (null != FlxG.sound)
-			source.gain = FlxG.sound.muted ? 0.0 : (volume * FlxG.sound.volume);
+			source.gain = FlxG.sound.muted || mute ? 0.0 : (volume * FlxG.sound.volume);
 	}
 
 	public function play(forceRestart:Bool = false, startTime:Float = 0.0):Void
