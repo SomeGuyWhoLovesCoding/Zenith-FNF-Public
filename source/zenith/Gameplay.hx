@@ -164,9 +164,8 @@ class Gameplay extends MusicBeatState
 			var songDifficulty:String = '';
 			#end
 
-			#if sys var timeStamp:Float = Sys.cpuTime(); #end
+			var timeStamp:Float = haxe.Timer.stamp();
 
-			// You don't need to thread when loading into the song anyway
 			try
 			{
 				generateSong(songName, songDifficulty);
@@ -191,7 +190,7 @@ class Gameplay extends MusicBeatState
 
 				strums.cameras = notes.cameras = [hudCamera];
 
-				trace('Loading finished!' #if sys + ' Took ${Utils.formatTime((haxe.Timer.stamp() - timeStamp) * 1000.0, true, true)} to load.' #end);
+				trace('Loading finished! Took ${Utils.formatTime((haxe.Timer.stamp() - timeStamp) * 1000.0, true, true)} to load.');
 
 				if (!noCharacters)
 				{
