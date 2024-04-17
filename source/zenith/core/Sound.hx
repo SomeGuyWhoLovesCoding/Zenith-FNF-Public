@@ -62,7 +62,6 @@ class Sound extends FlxBasic
 			source.onComplete.add(onComplete);
 
 		length = source.length;
-		trace(length);
 	}
 
 	override public function update(elapsed:Float):Void

@@ -764,7 +764,6 @@ class Gameplay extends MusicBeatState
 			voices = new Sound(Paths.voices(SONG.song), null);
 			add(voices);
 			voices.volume = inst.volume;
-			voices.onComplete = () -> {voices.mute = true; /* For some reason it does some classic game crash type sound when finished */};
 		}
 
 		Conductor.mapBPMChanges(SONG); ////Since the chart format is being reworked, comment this out for now.
@@ -795,7 +794,7 @@ class Gameplay extends MusicBeatState
 	{
 		super.stepHit();
 
-		if (!startedCountdown)
+		if (!startedCountdown || songEnded)
 			return;
 
 		if (!renderMode && (null != inst || null != voices))
@@ -921,13 +920,17 @@ class Gameplay extends MusicBeatState
 
 	public function endSong():Void
 	{
+		songEnded = true;
+
 		if (null != inst)
 			inst.stop();
+
+		if (null != voices)
+			voices.stop();
 
 		if (null != hudGroup.timeTxt)
 			hudGroup.timeTxt.visible = false;
 
-		songEnded = true;
 		switchState(new WelcomeState());
 	}
 
