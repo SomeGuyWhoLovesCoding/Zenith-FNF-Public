@@ -18,7 +18,6 @@ class Paths
 
 	private static var strumNoteAnimationHolder:FlxSprite;
 	private static var noteAnimationHolder:FlxSprite;
-	private static var holdNoteAnimationHolder:FlxSprite;
 	private static var noteFrame:FlxFrame;
 	private static var holdPieceFrame:FlxFrame;
 	private static var holdEndFrame:FlxFrame;
@@ -32,18 +31,13 @@ class Paths
 		try
 		{
 			strumNoteAnimationHolder = new FlxSprite();
-	
 			strumNoteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular/Strums');
 			strumNoteAnimationHolder.animation.addByPrefix('static', 'static', 0, false);
 			strumNoteAnimationHolder.animation.addByPrefix('pressed', 'press', 12, false);
 			strumNoteAnimationHolder.animation.addByPrefix('confirm', 'confirm', 24, false);
-	
+
 			noteAnimationHolder = new FlxSprite();
-			holdNoteAnimationHolder = new FlxSprite();
-	
 			noteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular/Notes');
-			holdNoteAnimationHolder.frames = noteAnimationHolder.frames;
-	
 			noteFrame = noteAnimationHolder.frames.frames[2];
 			holdPieceFrame = noteAnimationHolder.frames.frames[1];
 			holdEndFrame = noteAnimationHolder.frames.frames[0];
@@ -72,29 +66,57 @@ class Paths
 		return null;
 	}
 
-	inline static public function sound(key:String):String
-		return '$ASSET_PATH/sounds/$key.$SOUND_EXT';
+	public static var soundCache:Map<String, Sound> = new Map<String, Sound>();
+	public static function __soundHelper(key:String):Sound
+	{
+		var soundPath:String = '$ASSET_PATH/$key.$SOUND_EXT';
 
-	inline static public function soundRandom(key:String, min:Int = 0, max:Int = flixel.math.FlxMath.MAX_VALUE_INT):String
+		if (sys.FileSystem.exists(soundPath))
+		{
+			if (soundCache.exists(soundPath))
+				return soundCache.get(soundPath);
+			else
+			{
+				soundCache.set(soundPath, Sound.fromFile(soundPath));
+				return soundCache.get(soundPath);
+			}
+		}
+
+		trace('Sound file "$soundPath" doesn\'t exist.');
+
+		return null;
+	}
+
+	public static function sound(key:String):Sound
+	{
+		return __soundHelper('sounds/$key');
+	}
+
+	public static function soundRandom(key:String, min:Int = 0, max:Int = flixel.math.FlxMath.MAX_VALUE_INT):Sound
+	{
 		return sound(key + FlxG.random.int(min, max));
+	}
 
-	inline static public function music(key:String):String
-		return '$ASSET_PATH/music/$key.$SOUND_EXT';
+	public static function music(key:String):Sound
+	{
+		return __soundHelper('music/$key');
+	}
 
-	inline static public function voices(song:String):String
-		return '$ASSET_PATH/songs/${formatToSongPath(song)}/Voices.$SOUND_EXT';
+	public static function voices(song:String):Sound
+	{
+		return __soundHelper('songs/${formatToSongPath(song)}/Voices');
+	}
 
-	inline static public function inst(song:String):String
-		return '$ASSET_PATH/songs/${formatToSongPath(song)}/Inst.$SOUND_EXT';
-
-	inline static public function font(key:String, ext:String = "ttf"):String
-		return '$ASSET_PATH/fonts/$key.$ext';
+	public static function inst(song:String):Sound
+	{
+		return __soundHelper('songs/${formatToSongPath(song)}/Inst');
+	}
 
 	public static function getSparrowAtlas(key:String):FlxAtlasFrames
 	{
 		return FlxAtlasFrames.fromSparrow(image(key), '$ASSET_PATH/images/$key.xml');
 	}
 
-	static public function formatToSongPath(path:String):String
+	public static function formatToSongPath(path:String):String
 		return path.replace(' ', '-').toLowerCase();
 }
