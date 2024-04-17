@@ -756,6 +756,7 @@ class Gameplay extends MusicBeatState
 
 		add(inst);
 		inst.volume = renderMode ? 0.0 : 1.0;
+		inst.looped = false;
 
 		if (SONG.info.needsVoices)
 		{
@@ -763,6 +764,7 @@ class Gameplay extends MusicBeatState
 			voices = new FlxSound().loadEmbedded(Paths.voices(SONG.song));
 			add(voices);
 			voices.volume = inst.volume;
+			voices.looped = inst.looped;
 		}
 
 		Conductor.mapBPMChanges(SONG); ////Since the chart format is being reworked, comment this out for now.
