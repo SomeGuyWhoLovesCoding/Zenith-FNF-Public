@@ -79,8 +79,8 @@ class Gameplay extends MusicBeatState
 
 	public var gfSpeed:Int = 1;
 
-	public var inst:Sound;
-	public var voices:Sound;
+	public var inst:FlxSound;
+	public var voices:FlxSound;
 
 	public var gf:Character;
 	public var dad:Character;
@@ -752,7 +752,7 @@ class Gameplay extends MusicBeatState
 
 		trace('Loading instrumental audio file...');
 
-		inst = new Sound(Paths.inst(SONG.song), endSong);
+		inst = new FlxSound().loadEmbedded(Paths.inst(SONG.song));
 
 		add(inst);
 		inst.volume = renderMode ? 0.0 : 1.0;
@@ -760,7 +760,7 @@ class Gameplay extends MusicBeatState
 		if (SONG.info.needsVoices)
 		{
 			trace('Loading voices audio file...');
-			voices = new Sound(Paths.voices(SONG.song), null);
+			voices = new FlxSound().loadEmbedded(Paths.voices(SONG.song));
 			add(voices);
 			voices.volume = inst.volume;
 		}
@@ -803,7 +803,7 @@ class Gameplay extends MusicBeatState
 				|| (voices.time < off - 20.0 || voices.time > off + 20.0))
 			{
 				Conductor.songPosition = inst.time - SONG.info.offset;
-				voices.setTime(Std.int(Conductor.songPosition) + SONG.info.offset);
+				voices.time = Std.int(Conductor.songPosition) + SONG.info.offset;
 			}
 		}
 
