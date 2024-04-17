@@ -222,7 +222,7 @@ class Gameplay extends MusicBeatState
 
 		super.create();
 
-		newNote = (note:(Note)) ->
+		newNote = (note:Note) ->
 		{
 			note.pixelPerfectPosition = note.active = false;
 
@@ -246,7 +246,7 @@ class Gameplay extends MusicBeatState
 			note.origin.y = note.frameHeight * 0.5;
 		}
 
-		setupNoteData = (chartNoteData:(Array<(Float)>)) ->
+		setupNoteData = (chartNoteData:Array<Float>) ->
 		{
 			var note:Note = notes.recycle(Note);
 
@@ -265,7 +265,7 @@ class Gameplay extends MusicBeatState
 			note.angle = NoteBase.angleArray[note.noteData];
 		}
 
-		onNoteHit = (note:(Note)) ->
+		onNoteHit = (note:Note) ->
 		{
 			note.strum.playAnim('confirm');
 
@@ -295,7 +295,7 @@ class Gameplay extends MusicBeatState
 			note.exists = false;
 		}
 
-		onNoteMiss = (note:(Note)) ->
+		onNoteMiss = (note:Note) ->
 		{
 			note.tooLate = true;
 
@@ -313,7 +313,7 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		onKeyDown = (keyCode:(Int), keyModifier:(Int)) ->
+		onKeyDown = (keyCode:Int, keyModifier:Int) ->
 		{
 			var key:Int = inputKeybinds.indexOf(keyCode);
 
@@ -325,7 +325,7 @@ class Gameplay extends MusicBeatState
 				if (strum.animation.curAnim.name != 'confirm')
 					strum.playAnim('pressed');
 
-				var hittable:(Note) = fastNoteFilter(notes.members, n -> (!n.wasHit && !n.tooLate) && (Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && (null != n.strum /* Null check */ && n.strum.playerStrum && n.strum.noteData == key)))[0];
+				var hittable:Note = fastNoteFilter(notes.members, n -> (!n.wasHit && !n.tooLate) && (Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && (null != n.strum /* Null check */ && n.strum.playerStrum && n.strum.noteData == key)))[0];
 
 				if (null != hittable)
 					events.emit(SignalEvent.NOTE_HIT, hittable);
@@ -334,7 +334,7 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		onKeyUp = (keyCode:(Int), keyModifier:(Int)) ->
+		onKeyUp = (keyCode:Int, keyModifier:Int) ->
 		{
 			var key:Int = inputKeybinds.indexOf(keyCode);
 
@@ -366,8 +366,8 @@ class Gameplay extends MusicBeatState
 			while (null != SONG.noteData[Math.floor(currentNoteId)])
 			{
 				// Avoid redundant array access
-				var note:(Array<(Float)>) = SONG.noteData[Math.floor(currentNoteId)];
-				var time:(Float) = note[0];
+				var note:Array<Float> = SONG.noteData[Math.floor(currentNoteId)];
+				var time:Float = note[0];
 
 				if (Conductor.songPosition < time - (1950.0 / songSpeed))
 					break;
@@ -774,7 +774,7 @@ class Gameplay extends MusicBeatState
 	}
 
 	public static var strumlines:Int = 2;
-	public function generateStrumline(player:Int = 0):Void
+	inline public function generateStrumline(player:Int = 0):Void
 	{
 		for (i in 0...4)
 		{
@@ -826,7 +826,7 @@ class Gameplay extends MusicBeatState
 		lastBeatHit = curBeat;
 
 		if (!renderMode)
-			notes.members.sort((a:(Note), b:(Note)) -> Std.int(a.strumTime - b.strumTime));
+			notes.members.sort((a:Note, b:Note) -> Std.int(a.strumTime - b.strumTime));
 	}
 
 	public function dance(beat:Int):Void
@@ -867,9 +867,9 @@ class Gameplay extends MusicBeatState
 			hudCameraZoomTween.cancel();
 
 		FlxG.camera.zoom += value1;
-		gameCameraZoomTween = zoomTweenFunction(FlxG.camera, defaultCamZoom);
+		gameCameraZoomTween = inline zoomTweenFunction(FlxG.camera, defaultCamZoom);
 		hudCamera.zoom += value2;
-		hudCameraZoomTween = zoomTweenFunction(hudCamera, 1);
+		hudCameraZoomTween = inline zoomTweenFunction(hudCamera, 1);
 	}
 
 	private function startCountdown():Void
@@ -963,7 +963,7 @@ class Gameplay extends MusicBeatState
 	inline private function zoomTweenFunction(cam:FlxCamera, amount:Float = 1):FlxTween
 		return FlxTween.tween(cam, {zoom: amount}, 1.3, {ease: FlxEase.expoOut});
 
-	function set_defaultCamZoom(value:Float):Float
+	inline function set_defaultCamZoom(value:Float):Float
 	{
 		if (null != gameCameraZoomTween)
 			gameCameraZoomTween.cancel();
@@ -972,7 +972,7 @@ class Gameplay extends MusicBeatState
 		return defaultCamZoom = value;
 	}
 
-	function startCharacterPos(char:Character, gfCheck:Bool = false)
+	inline function startCharacterPos(char:Character, gfCheck:Bool = false)
 	{
 		if (gfCheck && char.curCharacter.startsWith('gf')) // IF DAD IS GIRLFRIEND, HE GOES TO HER POSITION
 		{
@@ -1017,14 +1017,14 @@ class Gameplay extends MusicBeatState
 
 	// Real input system!!
 
-	public var inputKeybinds:Array<(Int)> = [];
+	public var inputKeybinds:Array<Int> = [];
 
 	private var holdArray(default, null):Array<Bool> = [false, false, false, false];
 
-	private var onKeyDown:((Int), (Int))->(Void);
-	private var onKeyUp:((Int), (Int))->(Void);
+	private var onKeyDown:(Int, Int)->(Void);
+	private var onKeyUp:(Int, Int)->(Void);
 
-	overload extern inline private function fastNoteFilter(array:Array<(Note)>, f:(Note)->(Bool)):Array<(Note)>
+	inline private function fastNoteFilter(array:Array<Note>, f:(Note)->Bool):Array<Note>
 		return [for (i in 0...array.length) { var a:Note = array[i]; if (f(a)) a; }];
 
 	// Preferences stuff (Also for scripting)
@@ -1083,7 +1083,7 @@ class Gameplay extends MusicBeatState
 	private var newNote:(Note)->(Void);
 
 	// Used for recycling
-	private var setupNoteData:(Array<(Float)>)->(Void);
+	private var setupNoteData:(Array<Float>)->(Void);
 
 	public var onNoteHit:(Note)->(Void);
 
