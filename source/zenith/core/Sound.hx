@@ -52,7 +52,8 @@ class Sound extends FlxBasic
 		stage = new Sprite();
 		stage.visible = visible = false;
 
-		ID = -1;
+		if (!sys.FileSystem.exists(sourceFile))
+			return;
 
 		source = new AudioSource(AudioBuffer.fromVorbisFile(VorbisFile.fromFile(sourceFile)));
 

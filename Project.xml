@@ -45,7 +45,7 @@
 	<!-- _______________________________ Libraries ______________________________ -->
 
 	<!--Emitter-->
-	<haxelib name="emitter" />
+	<haxelib name="Emitter" />
 
 	<!--Flixel-->
 	<haxelib name="flixel" />

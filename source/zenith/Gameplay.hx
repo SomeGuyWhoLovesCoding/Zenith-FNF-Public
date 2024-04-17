@@ -757,10 +757,9 @@ class Gameplay extends MusicBeatState
 		add(inst);
 		inst.volume = renderMode ? 0.0 : 1.0;
 
-		trace('Loading voices audio file...');
-
 		if (SONG.info.needsVoices)
 		{
+			trace('Loading voices audio file...');
 			voices = new Sound(Paths.voices(SONG.song), null);
 			add(voices);
 			voices.volume = inst.volume;
@@ -775,7 +774,7 @@ class Gameplay extends MusicBeatState
 	}
 
 	public static var strumlines:Int = 2;
-	inline public function generateStrumline(player:Int = 0):Void
+	public function generateStrumline(player:Int = 0):Void
 	{
 		for (i in 0...4)
 		{
@@ -868,9 +867,9 @@ class Gameplay extends MusicBeatState
 			hudCameraZoomTween.cancel();
 
 		FlxG.camera.zoom += value1;
-		gameCameraZoomTween = inline zoomTweenFunction(FlxG.camera, defaultCamZoom);
+		gameCameraZoomTween = zoomTweenFunction(FlxG.camera, defaultCamZoom);
 		hudCamera.zoom += value2;
-		hudCameraZoomTween = inline zoomTweenFunction(hudCamera, 1);
+		hudCameraZoomTween = zoomTweenFunction(hudCamera, 1);
 	}
 
 	private function startCountdown():Void
@@ -964,7 +963,7 @@ class Gameplay extends MusicBeatState
 	inline private function zoomTweenFunction(cam:FlxCamera, amount:Float = 1):FlxTween
 		return FlxTween.tween(cam, {zoom: amount}, 1.3, {ease: FlxEase.expoOut});
 
-	inline function set_defaultCamZoom(value:Float):Float
+	function set_defaultCamZoom(value:Float):Float
 	{
 		if (null != gameCameraZoomTween)
 			gameCameraZoomTween.cancel();
@@ -973,7 +972,7 @@ class Gameplay extends MusicBeatState
 		return defaultCamZoom = value;
 	}
 
-	inline function startCharacterPos(char:Character, gfCheck:Bool = false)
+	function startCharacterPos(char:Character, gfCheck:Bool = false)
 	{
 		if (gfCheck && char.curCharacter.startsWith('gf')) // IF DAD IS GIRLFRIEND, HE GOES TO HER POSITION
 		{
@@ -1025,7 +1024,7 @@ class Gameplay extends MusicBeatState
 	private var onKeyDown:(Int, Int)->(Void);
 	private var onKeyUp:(Int, Int)->(Void);
 
-	inline private function fastNoteFilter(array:Array<Note>, f:(Note)->Bool):Array<Note>
+	overload extern inline private function fastNoteFilter(array:Array<(Note)>, f:(Note)->Bool):Array<(Note)>
 		return [for (i in 0...array.length) { var a:Note = array[i]; if (f(a)) a; }];
 
 	// Preferences stuff (Also for scripting)
