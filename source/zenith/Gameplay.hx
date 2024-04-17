@@ -325,7 +325,7 @@ class Gameplay extends MusicBeatState
 				if (strum.animation.curAnim.name != 'confirm')
 					strum.playAnim('pressed');
 
-				var hittable:Note = fastNoteFilter(notes.members, n -> (!n.wasHit && !n.tooLate) && (null != n.strum /* Null check */ && n.strum.playerStrum && n.noteData == key) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7)[0];
+				var hittable:Note = fastNoteFilter(notes.members, n -> (!n.wasHit && !n.tooLate) && (Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && (null != n.strum /* Null check */ && n.strum.playerStrum && n.strum.noteData == key)))[0];
 
 				if (null != hittable)
 					events.emit(SignalEvent.NOTE_HIT, hittable);
