@@ -10,11 +10,13 @@ Flixel Addons: ``haxelib install flixel-addons``
 
 Flixel UI: ``haxelib install flixel-ui``
 
-Lime: ``haxelib install lime`
+Lime: ``haxelib install lime``
 
 Openfl: ``haxelib install openfl``
 
-Emitter: ``haxelib git Emitter https://github.com/Dimensionscape/Emitter``
+Emitter: ``haxelib git Emitter https://github.com/Dimensionscape/Emitter.git``
+
+Linc Soloud: ``haxelib git linc_soloud https://github.com/jeremyfa/linc_soloud.git``
 
 To compile on hasklink, [read this.](https://haxe.org/manual/target-hl-getting-started.html)
 
