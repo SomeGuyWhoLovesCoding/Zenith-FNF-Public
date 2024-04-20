@@ -26,8 +26,8 @@ class StrumNote extends FlxSprite
 		noteData = data;
 		player = plr;
 
-		frames = @:privateAccess Paths.strumNoteAnimationHolder.frames;
-		animation.copyFrom(@:privateAccess Paths.strumNoteAnimationHolder.animation);
+		frames = Paths.strumNoteAnimationHolder.frames;
+		animation.copyFrom(Paths.strumNoteAnimationHolder.animation);
 
 		pixelPerfectPosition = false;
 
@@ -52,6 +52,37 @@ class StrumNote extends FlxSprite
 		}
 
 		playAnim('static'); // Wow, am I really a dumbass?
+	}
+
+	override function draw():Void
+	{
+		for (camera in cameras)
+		{
+			if ((!visible || alpha == 0.0) || (!camera.visible || !camera.exists || !isOnScreen(camera)) || (null == _frame || _frame.type == flixel.graphics.frames.FlxFrame.FlxFrameType.EMPTY))
+				continue;
+
+			_frame.prepareMatrix(_matrix, flixel.graphics.frames.FlxFrame.FlxFrameAngle.ANGLE_0, checkFlipX(), checkFlipY());
+			_matrix.translate(-origin.x, -origin.y);
+			_matrix.scale(scale.x, scale.y);
+
+			if (bakedRotationAngle <= 0)
+			{
+				updateTrig();
+
+				if (angle != 0.0)
+					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
+			}
+
+			getScreenPosition(_point, camera).subtractPoint(offset);
+			_point.add(origin.x, origin.y);
+			_matrix.translate(_point.x, _point.y);
+
+			camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
+
+			#if FLX_DEBUG
+			FlxBasic.visibleCount++;
+			#end
+		}
 	}
 
 	public var playAnim:(String)->(Void);

@@ -1,9 +1,7 @@
 package zenith.system;
 
-import flixel.animation.FlxAnimationController;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.frames.FlxAtlasFrames;
-
 import openfl.display.BitmapData;
 import openfl.media.Sound;
 
@@ -16,41 +14,36 @@ class Paths
 
 	// Notes
 
-	private static var strumNoteAnimationHolder:FlxSprite;
-	private static var noteAnimationHolder:FlxSprite;
-	private static var noteFrame:FlxFrame;
-	private static var holdPieceFrame:FlxFrame;
-	private static var holdEndFrame:FlxFrame;
+	public static var strumNoteAnimationHolder:FlxSprite = null;
+	public static var noteAnimationHolder:FlxSprite = null;
+	public static var noteFrame:FlxFrame = null;
+	public static var holdPieceFrame:FlxFrame = null;
+	public static var holdEndFrame:FlxFrame = null;
 
-	//public static var soundChannel:SoundChannel;
-
+	// Do this to be able to just copy over the note animations and not reallocate it
 	public static function initNoteShit():Void
 	{
-		// Do this to be able to just copy over the note animations and not reallocate it
+		strumNoteAnimationHolder = new FlxSprite();
+		strumNoteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular/Strums');
+		strumNoteAnimationHolder.animation.addByPrefix('static', 'static', 0, false);
+		strumNoteAnimationHolder.animation.addByPrefix('pressed', 'press', 12, false);
+		strumNoteAnimationHolder.animation.addByPrefix('confirm', 'confirm', 24, false);
 
-		try
-		{
-			strumNoteAnimationHolder = new FlxSprite();
-			strumNoteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular/Strums');
-			strumNoteAnimationHolder.animation.addByPrefix('static', 'static', 0, false);
-			strumNoteAnimationHolder.animation.addByPrefix('pressed', 'press', 12, false);
-			strumNoteAnimationHolder.animation.addByPrefix('confirm', 'confirm', 24, false);
+		noteAnimationHolder = new FlxSprite();
+		noteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular/Notes');
 
-			noteAnimationHolder = new FlxSprite();
-			noteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular/Notes');
-			noteFrame = noteAnimationHolder.frames.frames[2];
-			holdPieceFrame = noteAnimationHolder.frames.frames[1];
-			holdEndFrame = noteAnimationHolder.frames.frames[0];
-		}
-		catch (e:haxe.Exception)
-		{
-			trace(e.message);
-			trace(e.stack);
-		}
+		noteFrame = noteAnimationHolder.frames.frames[2];
+		holdPieceFrame = noteAnimationHolder.frames.frames[1];
+		holdEndFrame = noteAnimationHolder.frames.frames[0];
+
+		noteAnimationHolder.visible = strumNoteAnimationHolder.visible = noteAnimationHolder.active = strumNoteAnimationHolder.active = false;
 	}
 
-	public static var bitmapDataCache:Map<String, BitmapData> = new Map<String, BitmapData>();
-	inline static public function image(key:String):BitmapData
+	inline public static function font(key:String, ext:String = "ttf"):String
+		return '$ASSET_PATH/fonts/$key.$ext';
+
+	private static var bitmapDataCache:Map<String, BitmapData> = new Map<String, BitmapData>();
+	public static function image(key:String):BitmapData
 	{
 		var imagePath:String = '$ASSET_PATH/images/$key.png';
 
@@ -66,20 +59,17 @@ class Paths
 		return null;
 	}
 
-	public static var soundCache:Map<String, Sound> = new Map<String, Sound>();
-	public static function __soundHelper(key:String):Sound
+	private static var soundCache:Map<String, Sound> = new Map<String, Sound>();
+	private static function __soundHelper(key:String):Sound
 	{
 		var soundPath:String = '$ASSET_PATH/$key.$SOUND_EXT';
 
 		if (sys.FileSystem.exists(soundPath))
 		{
-			if (soundCache.exists(soundPath))
-				return soundCache.get(soundPath);
-			else
-			{
+			if (!soundCache.exists(soundPath))
 				soundCache.set(soundPath, Sound.fromFile(soundPath));
-				return soundCache.get(soundPath);
-			}
+
+			return soundCache.get(soundPath);
 		}
 
 		trace('Sound file "$soundPath" doesn\'t exist.');

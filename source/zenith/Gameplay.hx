@@ -109,131 +109,123 @@ class Gameplay extends MusicBeatState
 
 	override function create():Void
 	{
-		onGameplayCreate = () ->
+		initRender();
+
+		Paths.initNoteShit(); // Do NOT remove this or the game will crash
+
+		instance = this;
+
+		// Preferences stuff
+
+		downScroll = SaveData.contents.preferences.downScroll;
+		hideHUD = SaveData.contents.preferences.hideHUD;
+		noCharacters = SaveData.contents.preferences.noCharacters;
+
+		// Reset gameplay stuff
+		FlxG.fixedTimestep = startedCountdown = songEnded = false;
+		songSpeed = 1.0;
+
+		persistentUpdate = persistentDraw = true;
+
+		gameCamera = new FlxCamera();
+		hudCameraBelow = new FlxCamera();
+		hudCamera = new FlxCamera();
+		loadingScreenCamera = new FlxCamera();
+
+		gameCamera.bgColor.alpha = hudCameraBelow.bgColor.alpha = hudCamera.bgColor.alpha = loadingScreenCamera.bgColor.alpha = 0;
+
+		FlxG.cameras.reset(gameCamera);
+		FlxG.cameras.add(hudCameraBelow, false);
+		FlxG.cameras.add(hudCamera, false);
+		FlxG.cameras.add(loadingScreenCamera, false);
+
+		camFollowPos = new FlxObject(0, 0, 1, 1);
+		camFollowPos.pixelPerfectPosition = false;
+
+		FlxG.cameras.setDefaultDrawTarget(gameCamera, true);
+
+		FlxG.camera.follow(camFollowPos, LOCKON, 1);
+		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
+
+		#if !hl
+		var songName:String = Sys.args()[0];
+
+		if (null == Sys.args()[0]) // What?
+			songName = 'test';
+
+		var songDifficulty:String = '-' + Sys.args()[1];
+
+		if (null == Sys.args()[1]) // What?
+			songDifficulty = '';
+		#else
+		var songName:String = 'test';
+		var songDifficulty:String = '';
+		#end
+
+		var timeStamp:Float = haxe.Timer.stamp();
+
+		try
 		{
-			initRender();
+			generateSong(songName, songDifficulty);
 
-			Paths.initNoteShit(); // Do NOT remove this or the game will crash
+			strums = new FlxTypedGroup<StrumNote>();
+			add(strums);
 
-			instance = this;
+			for (i in 0...strumlines)
+				generateStrumline(i);
 
-			// Preferences stuff
+			notes = new FlxTypedGroup<Note>();
+			add(notes);
 
-			downScroll = SaveData.contents.preferences.downScroll;
-			hideHUD = SaveData.contents.preferences.hideHUD;
-			noCharacters = SaveData.contents.preferences.noCharacters;
-
-			// Reset gameplay stuff
-			FlxG.fixedTimestep = startedCountdown = songEnded = false;
-			songSpeed = 1.0;
-
-			persistentUpdate = persistentDraw = true;
-
-			gameCamera = new FlxCamera();
-			hudCameraBelow = new FlxCamera();
-			hudCamera = new FlxCamera();
-			loadingScreenCamera = new FlxCamera();
-
-			gameCamera.bgColor.alpha = hudCameraBelow.bgColor.alpha = hudCamera.bgColor.alpha = loadingScreenCamera.bgColor.alpha = 0;
-
-			FlxG.cameras.reset(gameCamera);
-			FlxG.cameras.add(hudCameraBelow, false);
-			FlxG.cameras.add(hudCamera, false);
-			FlxG.cameras.add(loadingScreenCamera, false);
-
-			camFollowPos = new FlxObject(0, 0, 1, 1);
-			camFollowPos.pixelPerfectPosition = false;
-
-			FlxG.cameras.setDefaultDrawTarget(gameCamera, true);
-
-			FlxG.camera.follow(camFollowPos, LOCKON, 1);
-			FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
-
-			#if !hl
-			var songName:String = Sys.args()[0];
-
-			if (null == Sys.args()[0]) // What?
-				songName = 'test';
-
-			var songDifficulty:String = '-' + Sys.args()[1];
-
-			if (null == Sys.args()[1]) // What?
-				songDifficulty = '';
-			#else
-			var songName:String = 'test';
-			var songDifficulty:String = '';
-			#end
-
-			var timeStamp:Float = haxe.Timer.stamp();
-
-			try
+			if (!hideHUD)
 			{
-				generateSong(songName, songDifficulty);
+				hudGroup = new HUDGroup();
+				add(hudGroup);
 
-				strums = new FlxTypedGroup<StrumNote>();
-				add(strums);
-
-				for (i in 0...strumlines)
-					generateStrumline(i);
-
-				notes = new FlxTypedGroup<Note>();
-				add(notes);
-
-				if (!hideHUD)
-				{
-					hudGroup = new HUDGroup();
-					add(hudGroup);
-
-					@:privateAccess hudGroup.reloadHealthBar();
-					hudGroup.cameras = [hudCamera];
-				}
-
-				strums.cameras = notes.cameras = [hudCamera];
-
-				trace('Loading finished! Took ${Utils.formatTime((haxe.Timer.stamp() - timeStamp) * 1000.0, true, true)} to load.');
-
-				if (!noCharacters)
-				{
-					camFollowPos.setPosition(
-						gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0],
-						gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1]
-					);
-
-					moveCamera(dad);
-				}
-
-				generatedMusic = true;
-				startCountdown();
+				@:privateAccess hudGroup.reloadHealthBar();
+				hudGroup.cameras = [hudCamera];
 			}
-			catch (e:haxe.Exception)
+
+			strums.cameras = notes.cameras = [hudCamera];
+
+			trace('Loading finished! Took ${Utils.formatTime((haxe.Timer.stamp() - timeStamp) * 1000.0, true, true)} to load.');
+
+			if (!noCharacters)
 			{
-				if (renderMode)
-					FlxG.autoPause = true;
+				camFollowPos.setPosition(
+					gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0],
+					gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1]
+				);
 
-				trace(e.stack);
-
-				FlxG.switchState(new WelcomeState(e.message));
+				moveCamera(dad);
 			}
+
+			generatedMusic = true;
+			startCountdown();
 		}
+		catch (e:haxe.Exception)
+		{
+			if (renderMode)
+				FlxG.autoPause = true;
 
-		events.on(SignalEvent.GAMEPLAY_CREATE, onGameplayCreate);
-		events.emit(SignalEvent.GAMEPLAY_CREATE);
-		events.off(SignalEvent.GAMEPLAY_CREATE, onGameplayCreate);
+			trace(e.stack);
+
+			FlxG.switchState(new WelcomeState(e.message));
+		}
 
 		super.create();
 
-		newNote = (note:Note) ->
+		newNote = (note:(Note)) ->
 		{
-			note.pixelPerfectPosition = note.active = false;
-
-			note._frame = @:privateAccess Paths.noteFrame;
-
 			note._flashRect.x = note._flashRect.y = 0;
+			note._frame = Paths.noteFrame;
+
 			if (null != note._frame)
 			{
 				note._flashRect.width = note.frameWidth = Std.int(note._frame.sourceSize.x);
 				note._flashRect.height = note.frameHeight = Std.int(note._frame.sourceSize.y);
 			}
+
 			note._halfSize.x = 0.5 * note.frameWidth;
 			note._halfSize.y = 0.5 * note.frameHeight;
 
@@ -242,13 +234,13 @@ class Gameplay extends MusicBeatState
 			note.height = Math.abs(note.scale.y) * note.frameHeight;
 			note.offset.x = -0.5 * (note.width - note.frameWidth);
 			note.offset.y = -0.5 * (note.height - note.frameHeight);
-			note.origin.x =	note.frameWidth * 0.5;
+			note.origin.x = note.frameWidth * 0.5;
 			note.origin.y = note.frameHeight * 0.5;
 		}
 
-		setupNoteData = (chartNoteData:Array<Float>) ->
+		setupNoteData = (chartNoteData:(Array<(Float)>)) ->
 		{
-			var note:Note = notes.recycle(Note);
+			var note:(Note) = inline notes.recycle((Note));
 
 			note.y = -2000;
 			note.wasHit = note.tooLate = false;
@@ -265,7 +257,7 @@ class Gameplay extends MusicBeatState
 			note.angle = NoteBase.angleArray[note.noteData];
 		}
 
-		onNoteHit = (note:Note) ->
+		onNoteHit = (note:(Note)) ->
 		{
 			note.strum.playAnim('confirm');
 
@@ -295,7 +287,7 @@ class Gameplay extends MusicBeatState
 			note.exists = false;
 		}
 
-		onNoteMiss = (note:Note) ->
+		onNoteMiss = (note:(Note)) ->
 		{
 			note.tooLate = true;
 
@@ -319,13 +311,13 @@ class Gameplay extends MusicBeatState
 
 			if (-1 != key && !cpuControlled && generatedMusic && !holdArray[key])
 			{
-				var strum:StrumNote = strums.members[key + (4 * Std.int(Math.max(strumlines - 1, 1)))];
+				var strum:(StrumNote) = strums.members[key + (4 * Std.int(Math.max(strumlines - 1, 1)))];
 
 				// For some reason the strum note still plays the press animation even when a note is hit sometimes, so here's a solution to it.
 				if (strum.animation.curAnim.name != 'confirm')
 					strum.playAnim('pressed');
 
-				var hittable:Note = fastNoteFilter(notes.members, n -> (!n.wasHit && !n.tooLate) && (Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && (null != n.strum /* Null check */ && n.strum.playerStrum && n.strum.noteData == key)))[0];
+				var hittable:(Note) = fastNoteFilter(notes.members, n -> (!n.wasHit && !n.tooLate) && (Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && (null != n.strum /* Null check */ && n.strum.playerStrum && n.strum.noteData == key)))[0];
 
 				if (null != hittable)
 					events.emit(SignalEvent.NOTE_HIT, hittable);
@@ -342,7 +334,7 @@ class Gameplay extends MusicBeatState
 			{
 				holdArray[key] = false;
 
-				var strum:StrumNote = strums.members[key + (4 * Std.int(Math.max(strumlines - 1, 1)))];
+				var strum:(StrumNote) = strums.members[key + (4 * Std.int(Math.max(strumlines - 1, 1)))];
 
 				if (strum.animation.curAnim.name == 'confirm' ||
 					strum.animation.curAnim.name == 'pressed')
@@ -366,7 +358,7 @@ class Gameplay extends MusicBeatState
 			while (null != SONG.noteData[Math.floor(currentNoteId)])
 			{
 				// Avoid redundant array access
-				var note:Array<Float> = SONG.noteData[Math.floor(currentNoteId)];
+				var note:Array<(Float)> = SONG.noteData[Math.floor(currentNoteId)];
 				var time:Float = note[0];
 
 				if (Conductor.songPosition < time - (1950.0 / songSpeed))
@@ -380,7 +372,7 @@ class Gameplay extends MusicBeatState
 
 			for (i in 0...notes.members.length)
 			{
-				var note:Note = notes.members[i];
+				var note:(Note) = notes.members[i];
 				if (note.exists)
 				{
 					note.distance = 0.45 * (Conductor.songPosition - note.strumTime) * (songSpeed * note.multSpeed);
@@ -409,7 +401,7 @@ class Gameplay extends MusicBeatState
 
 			if (renderMode)
 			{
-				notes.members.sort((b:Note, a:Note) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
+				notes.members.sort((b:(Note), a:(Note)) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
 				pipeFrame();
 
 				if (Conductor.songPosition - (20.0 + SONG.info.offset) >= songLength && !songEnded)
@@ -443,7 +435,6 @@ class Gameplay extends MusicBeatState
 	var initialStrumHeight:Float; // Because for some reason, on downscroll, the sustain note changes y offset when its strum plays the confirm anim LOL
 	var currentNoteId:Float = 0.0;
 
-	public var onGameplayCreate:()->(Void);
 	public var onGameplayUpdate:(Float)->(Void);
 
 	// Song events for hscript
@@ -650,7 +641,15 @@ class Gameplay extends MusicBeatState
 	{
 		trace('Parsing chart data from song json...');
 
-		SONG = Song.loadFromJson(name + '/' + name + diff);
+		// Chart preloader
+		var preloadName:String = name + (diff != '' ? '-$diff' : '');
+		if (ChartPreloader.container.exists(preloadName))
+		{
+			trace('Nvm we found the data in ChartPreloader - YIPPEE!!!');
+			SONG = ChartPreloader.container.get(preloadName);
+		}
+		else
+			SONG = Song.loadFromJson(name + '/' + name + diff);
 
 		trace('Loaded ${SONG.noteData.length} notes! Now time to load more stuff here...');
 
@@ -753,8 +752,8 @@ class Gameplay extends MusicBeatState
 		trace('Loading instrumental audio file...');
 
 		inst = new FlxSound().loadEmbedded(Paths.inst(SONG.song));
-
-		add(inst);
+		inst.onComplete = endSong;
+		FlxG.sound.list.add(inst);
 		inst.volume = renderMode ? 0.0 : 1.0;
 		inst.looped = false;
 
@@ -762,7 +761,7 @@ class Gameplay extends MusicBeatState
 		{
 			trace('Loading voices audio file...');
 			voices = new FlxSound().loadEmbedded(Paths.voices(SONG.song));
-			add(voices);
+			FlxG.sound.list.add(voices);
 			voices.volume = inst.volume;
 			voices.looped = inst.looped;
 		}
@@ -828,7 +827,7 @@ class Gameplay extends MusicBeatState
 		lastBeatHit = curBeat;
 
 		if (!renderMode)
-			notes.members.sort((a:Note, b:Note) -> Std.int(a.strumTime - b.strumTime));
+			notes.members.sort((a:(Note), b:(Note)) -> Std.int(a.strumTime - b.strumTime));
 	}
 
 	public function dance(beat:Int):Void
@@ -1026,7 +1025,7 @@ class Gameplay extends MusicBeatState
 	private var onKeyDown:(Int, Int)->(Void);
 	private var onKeyUp:(Int, Int)->(Void);
 
-	inline private function fastNoteFilter(array:Array<Note>, f:(Note)->Bool):Array<Note>
+	inline private function fastNoteFilter(array:Array<(Note)>, f:(Note)->(Bool)):Array<Note>
 		return [for (i in 0...array.length) { var a:Note = array[i]; if (f(a)) a; }];
 
 	// Preferences stuff (Also for scripting)
@@ -1038,7 +1037,7 @@ class Gameplay extends MusicBeatState
 		// Strumline
 		for (i in 0...strums.members.length)
 		{
-			var strum:StrumNote = strums.members[i];
+			var strum:(StrumNote) = strums.members[i];
 
 			if (strum.player == whichStrum || whichStrum == -1)
 			{
@@ -1085,7 +1084,7 @@ class Gameplay extends MusicBeatState
 	private var newNote:(Note)->(Void);
 
 	// Used for recycling
-	private var setupNoteData:(Array<Float>)->(Void);
+	private var setupNoteData:(Array<(Float)>)->(Void);
 
 	public var onNoteHit:(Note)->(Void);
 
@@ -1105,6 +1104,8 @@ class Gameplay extends MusicBeatState
 		{
 			#if cpp
 			cpp.vm.Gc.enable(true);
+			#elseif hl
+			hl.Gc.enable(true);
 			#end
 			cpuControlled = true;
 			process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '$videoFramerate', '-i', '-', '-c:v', videoEncoder, Sys.getCwd().replace('\\', '/') + outputPath]);
@@ -1125,6 +1126,8 @@ class Gameplay extends MusicBeatState
 		{
 			#if cpp
 			cpp.vm.Gc.enable(false);
+			#elseif hl
+			hl.Gc.enable(false);
 			#end
 			process.stdin.close();
 			process.close();

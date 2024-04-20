@@ -1,7 +1,5 @@
 package zenith.data;
 
-import zenith.data.Section;
-
 using StringTools;
 
 typedef SongInfo =

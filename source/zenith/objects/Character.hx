@@ -65,15 +65,11 @@ class Character extends FlxSprite
 	public var healthColorArray:Array<Int> = [255, 0, 0];
 
 	public static var DEFAULT_CHARACTER:String = 'bf'; //In case a character is missing, it will use BF on its place
-	public function new(x:Float, y:Float, ?character:String = 'bf', ?isPlayer:Bool = false)
+	public function new(x:Float, y:Float, character:String = 'bf', isPlayer:Bool = false)
 	{
 		super(x, y);
 
-		#if (haxe >= "4.0.0")
-		animOffsets = new Map();
-		#else
-		animOffsets = new Map<String, Array<Dynamic>>();
-		#end
+		animOffsets = new Map<String, Array<Float>>();
 		curCharacter = character;
 		this.isPlayer = isPlayer;
 
@@ -89,7 +85,7 @@ class Character extends FlxSprite
 		frames = Paths.getSparrowAtlas(json.image);
 		imageFile = json.image;
 
-		if(json.scale != 1) {
+		if(json.scale != 1.0) {
 			jsonScale = json.scale;
 			setGraphicSize(Std.int(width * jsonScale));
 			updateHitbox();
@@ -112,19 +108,20 @@ class Character extends FlxSprite
 		antialiasing = !noAntialiasing && SaveData.contents.preferences.antialiasing;
 
 		animationsArray = json.animations;
-		if(null != animationsArray && animationsArray.length > 0) {
+		if (animationsArray != null && animationsArray.length > 0)
+		{
 			for (i in 0...animationsArray.length)
 			{
 				var anim:AnimArray = animationsArray[i];
 				var animLoop:Bool = !!anim.loop; //Bruh
 
-				if(null != anim.indices && anim.indices.length > 0)
-					animation.addByIndices(anim.anim, anim.name, anim.indices, "", anim.fps, animLoop);
+				if (anim.indices != null && anim.indices.length > 0)
+					animation.addByIndices('' + anim.anim, '' + anim.name, anim.indices, "", anim.fps, animLoop);
 				else
-					animation.addByPrefix(anim.anim, anim.name, anim.fps, animLoop);
+					animation.addByPrefix('' + anim.anim, '' + anim.name, anim.fps, animLoop);
 
-				if(null != anim.offsets && anim.offsets.length > 1)
-					addOffset(anim.anim, anim.offsets[0], anim.offsets[1]);
+				if(anim.offsets != null && anim.offsets.length > 1)
+					addOffset('' + anim.anim, anim.offsets[0], anim.offsets[1]);
 			}
 		}
 		else
@@ -142,9 +139,9 @@ class Character extends FlxSprite
 
 	override function update(elapsed:Float)
 	{
-		if(!debugMode && null != animation.curAnim)
+		if (!debugMode && animation.curAnim != null)
 		{
-			if(specialAnim && animation.curAnim.finished)
+			if (specialAnim && animation.curAnim.finished)
 			{
 				specialAnim = false;
 				dance();
@@ -170,7 +167,7 @@ class Character extends FlxSprite
 				}
 			}
 
-			if(animation.curAnim.finished && null != animation.getByName(animation.curAnim.name + '-loop'))
+			if(animation.curAnim.finished && animation.getByName(animation.curAnim.name + '-loop') != null)
 				playAnim(animation.curAnim.name + '-loop');
 		}
 
@@ -184,10 +181,16 @@ class Character extends FlxSprite
 	 */
 	public function dance()
 	{
-		if ((!debugMode && !skipDance && !specialAnim) && danceIdle)
-			playAnim(((danced = !danced) ? 'danceRight' : 'danceLeft') + idleSuffix);
-		else if (null != animation.getByName('idle' + idleSuffix))
-			playAnim('idle' + idleSuffix);
+		if (danceIdle && (!debugMode && !skipDance && !specialAnim))
+		{
+			danced = !danced;
+			playAnim((danced ? 'danceRight' : 'danceLeft') + idleSuffix);
+		}
+		else
+		{
+			if (animation.getByName('idle' + idleSuffix) != null)
+				playAnim('idle' + idleSuffix);
+		}
 	}
 
 	public function playAnim(AnimName:String, special:Bool = false):Void
@@ -198,7 +201,7 @@ class Character extends FlxSprite
 
 		var daOffset:Array<Float> = animOffsets.get(AnimName);
 
-		if (null != daOffset)
+		if (daOffset != null)
 		{
 			offset.x = daOffset[0];
 			offset.y = daOffset[1];
@@ -222,7 +225,7 @@ class Character extends FlxSprite
 	private var settingCharacterUp:Bool = true;
 	public function recalculateDanceIdle() {
 		var lastDanceIdle:Bool = danceIdle;
-		danceIdle = (null != animation.getByName('danceLeft' + idleSuffix) && null != animation.getByName('danceRight' + idleSuffix));
+		danceIdle = (animation.getByName('danceLeft' + idleSuffix) != null && animation.getByName('danceRight' + idleSuffix) != null);
 
 		if(settingCharacterUp)
 			danceEveryNumBeats = (danceIdle ? 1 : 2);

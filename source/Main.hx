@@ -47,6 +47,12 @@ class Main extends Sprite
 	{
 		super();
 
+		#if cpp
+		cpp.vm.Gc.enable(false);
+		#elseif hl
+		hl.Gc.enable(false);
+		#end
+
 		var backend = lime.app.Application.current.__backend;
 
 		NativeCFFI.lime_joystick_event_manager_register(joystick = () -> {/**/}, backend.joystickEventInfo);
