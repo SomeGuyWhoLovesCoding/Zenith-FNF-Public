@@ -249,7 +249,7 @@ class Gameplay extends MusicBeatState
 			note.noteData = Std.int(chartNoteData[1]);
 			note.sustainLength = chartNoteData[2];
 			note.lane = Std.int(chartNoteData[3]);
-			note.multiplier = chartNoteData[4];
+			note.multiplier = Std.int(chartNoteData[4]);
 
 			note.strum = strums.members[note.noteData + (4 * note.lane)];
 
@@ -261,7 +261,7 @@ class Gameplay extends MusicBeatState
 		{
 			note.strum.playAnim('confirm');
 
-			var multiplier:Float = Math.floor(Math.max(note.multiplier, 1.0)); // Avoid calling math.max 4 times
+			var multiplier:Int = Std.int(Math.max(note.multiplier, 1.0)); // Avoid calling math.max 4 times
 
 			health += (0.045 * multiplier) * (note.strum.playerStrum ? 1.0 : -1.0);
 
@@ -291,7 +291,7 @@ class Gameplay extends MusicBeatState
 		{
 			note.tooLate = true;
 
-			var multiplier:Float = Math.floor(Math.max(note.multiplier, 1.0)); // Avoid calling math.max 4 times
+			var multiplier:Int = Std.int(Math.max(note.multiplier, 1.0)); // Avoid calling math.max 4 times
 
 			health -= 0.045 * multiplier;
 			score -= 100.0 * multiplier;
@@ -355,10 +355,10 @@ class Gameplay extends MusicBeatState
 
 			Conductor.songPosition += elapsed * 1000.0;
 
-			while (null != SONG.noteData[Math.floor(currentNoteId)])
+			while (null != SONG.noteData[Std.int(currentNoteId)])
 			{
 				// Avoid redundant array access
-				var note:Array<(Float)> = SONG.noteData[Math.floor(currentNoteId)];
+				var note:Array<(Float)> = SONG.noteData[Std.int(currentNoteId)];
 				var time:Float = note[0];
 
 				if (Conductor.songPosition < time - (1950.0 / songSpeed))
@@ -610,13 +610,13 @@ class Gameplay extends MusicBeatState
 				var val2:Float = Std.parseFloat(value2);
 
 				if (Math.isNaN(val1))
-					val1 = 1;
+					val1 = 1.0;
 				if (Math.isNaN(val2))
-					val2 = 0;
+					val2 = 0.0;
 
 				var newValue:Float = SONG.info.speed * val1;
 
-				if (val2 <= 0)
+				if (val2 <= 0.0)
 					songSpeed = newValue;
 				else
 					songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, val2, {ease: FlxEase.quintOut});
@@ -868,9 +868,9 @@ class Gameplay extends MusicBeatState
 			hudCameraZoomTween.cancel();
 
 		FlxG.camera.zoom += value1;
-		gameCameraZoomTween = inline zoomTweenFunction(FlxG.camera, defaultCamZoom);
+		gameCameraZoomTween = zoomTweenFunction(FlxG.camera, defaultCamZoom);
 		hudCamera.zoom += value2;
-		hudCameraZoomTween = inline zoomTweenFunction(hudCamera, 1);
+		hudCameraZoomTween = zoomTweenFunction(hudCamera, 1);
 	}
 
 	private function startCountdown():Void
@@ -1125,9 +1125,9 @@ class Gameplay extends MusicBeatState
 		if (renderMode)
 		{
 			#if cpp
-			cpp.vm.Gc.enable(false);
+			cpp.vm.Gc.enable(!Main.DISABLE_GC);
 			#elseif hl
-			hl.Gc.enable(false);
+			hl.Gc.enable(!Main.DISABLE_GC);
 			#end
 			process.stdin.close();
 			process.close();

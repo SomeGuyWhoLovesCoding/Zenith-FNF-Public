@@ -43,14 +43,18 @@ class Main extends Sprite
 	private var joystick:()->(Void);
 	private var keyboard:()->(Void);
 
+	inline static public var DISABLE_GC:Bool = false; // Good luck
+
 	public function new()
 	{
 		super();
 
+		openfl.Lib.current.stage.quality = stage.quality = LOW;
+
 		#if cpp
-		cpp.vm.Gc.enable(false);
+		cpp.vm.Gc.enable(!DISABLE_GC);
 		#elseif hl
-		hl.Gc.enable(false);
+		hl.Gc.enable(!DISABLE_GC);
 		#end
 
 		var backend = lime.app.Application.current.__backend;
@@ -122,8 +126,6 @@ class Main extends Sprite
 				}
 			}
 		}, backend.keyEventInfo);
-
-		openfl.Lib.current.stage.quality = stage.quality = LOW;
 
 		// Before adding ``game``, create the transition
 
