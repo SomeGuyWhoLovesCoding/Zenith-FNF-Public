@@ -16,12 +16,19 @@ class MusicBeatState extends FlxState
 
 	override function create():Void
 	{
-		if (!SaveData.contents.preferences.persistentGraphics)
-			openfl.system.System.gc();
-
 		Main.startTransition(false);
 
 		super.create();
+
+		if (!SaveData.contents.preferences.persistentGraphics)
+		{
+			openfl.system.System.gc();
+			#if cpp
+			cpp.vm.Gc.run(true);
+			#elseif hl
+			hl.Gc.run(true);
+			#end
+		}
 	}
 
 	override function update(elapsed:Float):Void
