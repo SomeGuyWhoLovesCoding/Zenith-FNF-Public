@@ -226,8 +226,8 @@ class TitleScreen extends MusicBeatState
 			if (null != FlxG.sound.music.fadeTween)
 				FlxG.sound.music.fadeTween.cancel();
 
-			FlxG.sound.music.volume = 1;
-			FlxG.sound.music.time = Conductor.crochet * 16;
+			FlxG.sound.music.volume = 1.0;
+			FlxG.sound.music.time = Conductor.crochet * 16.0;
 		}
 
 		deleteTitleText();
@@ -242,7 +242,7 @@ class TitleScreen extends MusicBeatState
 		if (null != cameraZoomTween)
 			cameraZoomTween.cancel();
 
-		cameraZoomTween = FlxTween.tween(FlxG.camera, {zoom: 1}, Conductor.crochet * 0.001, {ease: FlxEase.quintOut});
+		cameraZoomTween = FlxTween.tween(FlxG.camera, {zoom: 1.0}, Conductor.crochet * 0.001, {ease: FlxEase.quintOut});
 	}
 
 	public static var alreadyPressedEnter:Bool = false;

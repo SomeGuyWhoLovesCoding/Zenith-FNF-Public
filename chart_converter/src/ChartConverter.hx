@@ -107,7 +107,7 @@ class ChartConverter
 						songNotes[0],
 						Std.int(songNotes[1] % 4),
 						songNotes[2],
-						section.mustHitSection || songNotes[1] < 4 ? result.info.strumlines - 1 : 0,
+						section.mustHitSection || songNotes[1] > 3 ? result.info.strumlines - 1 : 0,
 						0
 					]);
 			}
