@@ -217,6 +217,7 @@ class Gameplay extends MusicBeatState
 
 		newNote = (note:(Note)) ->
 		{
+			note.scale.x = note.scale.y = 0.7;
 			note._flashRect.x = note._flashRect.y = 0;
 			note._frame = Paths.noteFrame;
 
@@ -229,7 +230,6 @@ class Gameplay extends MusicBeatState
 			note._halfSize.x = 0.5 * note.frameWidth;
 			note._halfSize.y = 0.5 * note.frameHeight;
 
-			note.scale.x = note.scale.y = 0.7;
 			note.width = Math.abs(note.scale.x) * note.frameWidth;
 			note.height = Math.abs(note.scale.y) * note.frameHeight;
 			note.offset.x = -0.5 * (note.width - note.frameWidth);
@@ -240,7 +240,7 @@ class Gameplay extends MusicBeatState
 
 		setupNoteData = (chartNoteData:(Array<(Float)>)) ->
 		{
-			var note:(Note) = inline notes.recycle((Note));
+			var note:(Note) = notes.recycle((Note));
 
 			note.y = -2000;
 			note.wasHit = note.tooLate = false;
@@ -311,13 +311,13 @@ class Gameplay extends MusicBeatState
 
 			if (-1 != key && !cpuControlled && generatedMusic && !holdArray[key])
 			{
-				var strum:(StrumNote) = strums.members[key + (4 * Std.int(Math.max(strumlines - 1, 1)))];
+				var strum:(StrumNote) = strums.members[key + (4 * (strumlines - 1))];
 
 				// For some reason the strum note still plays the press animation even when a note is hit sometimes, so here's a solution to it.
 				if (strum.animation.curAnim.name != 'confirm')
 					strum.playAnim('pressed');
 
-				var hittable:(Note) = fastNoteFilter(notes.members, n -> (!n.wasHit && !n.tooLate) && (Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && (null != n.strum /* Null check */ && n.strum.playerStrum && n.strum.noteData == key)))[0];
+				var hittable:(Note) = fastNoteFilter(notes.members, n -> (!n.wasHit && !n.tooLate) && (Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && (n.strum.playerStrum && n.strum.noteData == key)))[0];
 
 				if (null != hittable)
 					events.emit(SignalEvent.NOTE_HIT, hittable);
@@ -334,7 +334,7 @@ class Gameplay extends MusicBeatState
 			{
 				holdArray[key] = false;
 
-				var strum:(StrumNote) = strums.members[key + (4 * Std.int(Math.max(strumlines - 1, 1)))];
+				var strum:(StrumNote) = strums.members[key + (4 * (strumlines - 1))];
 
 				if (strum.animation.curAnim.name == 'confirm' ||
 					strum.animation.curAnim.name == 'pressed')

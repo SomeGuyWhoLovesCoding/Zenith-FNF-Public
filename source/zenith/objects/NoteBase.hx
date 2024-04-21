@@ -1,7 +1,5 @@
 package zenith.objects;
 
-using StringTools;
-
 class NoteBase extends FlxSprite
 {
 	public var strumTime:Float = 0.0;
@@ -12,7 +10,7 @@ class NoteBase extends FlxSprite
 
 	public var strum:StrumNote;
 
-	public var multSpeed:Float = 1;
+	public var multSpeed:Float = 1.0;
 	public var distance:Float = 0.0;
 
 	public var offsetX:Int = 0;
@@ -50,7 +48,7 @@ class NoteBase extends FlxSprite
 			_point.add(origin.x, origin.y);
 			_matrix.translate(_point.x, _point.y);
 
-			inline camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
+			camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
 
 			#if FLX_DEBUG
 			FlxBasic.visibleCount++;
