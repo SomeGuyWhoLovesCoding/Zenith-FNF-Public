@@ -64,18 +64,49 @@ class Character extends FlxSprite
 	public var originalFlipX:Bool = false;
 	public var healthColorArray:Array<Int> = [255, 0, 0];
 
+	public var onDraw:()->(Void);
+
 	public static var DEFAULT_CHARACTER:String = 'bf'; //In case a character is missing, it will use BF on its place
-	public function new(x:Float, y:Float, character:String = 'bf', isPlayer:Bool = false)
+	public function new(x:Float = 0.0, y:Float = 0.0, character:String = 'bf', isPlayer:Bool = false)
 	{
 		super(x, y);
+
+		onDraw = () ->
+		{
+			for (camera in cameras)
+			{
+				if ((visible && alpha != 0.0) || (camera.visible && camera.exists && isOnScreen(camera)) && (null != _frame && _frame.type != flixel.graphics.frames.FlxFrame.FlxFrameType.EMPTY))
+				{
+					_frame.prepareMatrix(_matrix, flixel.graphics.frames.FlxFrame.FlxFrameAngle.ANGLE_0, checkFlipX(), checkFlipY());
+					inline _matrix.translate(-origin.x, -origin.y);
+					inline _matrix.scale(scale.x, scale.y);
+
+					if (bakedRotationAngle <= 0)
+					{
+						inline updateTrig();
+
+						if (angle != 0.0)
+							inline _matrix.rotateWithTrig(_cosAngle, _sinAngle);
+					}
+
+					getScreenPosition(_point, camera).subtractPoint(offset);
+					_point.add(origin.x, origin.y);
+					inline _matrix.translate(_point.x, _point.y);
+
+					camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
+
+					#if FLX_DEBUG
+					FlxBasic.visibleCount++;
+					#end
+				}
+			}
+		}
 
 		animOffsets = new Map<String, Array<Float>>();
 		curCharacter = character;
 		this.isPlayer = isPlayer;
 
-		var characterPath:String = 'characters/' + curCharacter + '.json';
-
-		var path:String = Paths.ASSET_PATH + '/' + characterPath;
+		var path:String = Paths.ASSET_PATH + '/characters/' + curCharacter + '.json';
 
 		if (!FileSystem.exists(path))
 			path = Paths.ASSET_PATH + '/characters/' + DEFAULT_CHARACTER + '.json'; //If a character couldn't be found, change him to BF just to prevent a crash
@@ -172,6 +203,11 @@ class Character extends FlxSprite
 		}
 
 		super.update(elapsed);
+	}
+
+	override function draw():Void
+	{
+		onDraw();
 	}
 
 	public var danced:Bool = false;

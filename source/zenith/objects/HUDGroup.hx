@@ -13,12 +13,45 @@ class HUDGroup extends FlxSpriteGroup
 	public var scoreTxt:FlxText;
 	public var timeTxt:FlxText;
 
+	public var onDraw:()->(Void);
+
 	public function new():Void
 	{
 		super();
 
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
+
+		onDraw = () ->
+		{
+			for (camera in cameras)
+			{
+				if ((visible && alpha != 0.0) || (camera.visible && camera.exists && isOnScreen(camera)) && (null != _frame && _frame.type != flixel.graphics.frames.FlxFrame.FlxFrameType.EMPTY))
+				{
+					_frame.prepareMatrix(_matrix, flixel.graphics.frames.FlxFrame.FlxFrameAngle.ANGLE_0, checkFlipX(), checkFlipY());
+					inline _matrix.translate(-origin.x, -origin.y);
+					inline _matrix.scale(scale.x, scale.y);
+
+					if (bakedRotationAngle <= 0)
+					{
+						inline updateTrig();
+
+						if (angle != 0.0)
+							inline _matrix.rotateWithTrig(_cosAngle, _sinAngle);
+					}
+
+					getScreenPosition(_point, camera).subtractPoint(offset);
+					_point.add(origin.x, origin.y);
+					inline _matrix.translate(_point.x, _point.y);
+
+					camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
+
+					#if FLX_DEBUG
+					FlxBasic.visibleCount++;
+					#end
+				}
+			}
+		}
 
 		oppIcon = new HealthIcon(Gameplay.instance.dad.healthIcon);
 		plrIcon = new HealthIcon(Gameplay.instance.bf.healthIcon, true);
@@ -87,5 +120,10 @@ class HUDGroup extends FlxSpriteGroup
 		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
 
 		super.update(elapsed);
+	}
+
+	override function draw():Void
+	{
+		onDraw();
 	}
 }

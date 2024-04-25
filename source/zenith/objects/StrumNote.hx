@@ -6,8 +6,11 @@ class StrumNote extends FlxSprite
 {
 	public var noteData:Int = 0;
 	public var player:Int = 0;
-	public var scrollMult:Float = 1;
+	public var scrollMult:Float = 1.0;
 	public var playerStrum(default, set):Bool = false;
+
+	public var colorArray:Array<Int> = [0xffc941d5, 0xff00ffff, 0xff0ffb3e, 0xfffa3e3e];
+	public var angleArray:Array<Float> = [0.0, -90.0, 90.0, 180.0];
 
 	inline function set_playerStrum(value:Bool):Bool
 	{
@@ -31,13 +34,13 @@ class StrumNote extends FlxSprite
 
 		pixelPerfectPosition = false;
 
-		angle = NoteBase.angleArray[noteData];
+		angle = angleArray[noteData];
 
 		scale.x = scale.y = 0.7;
 
 		playAnim = (anim:String) ->
 		{
-			color = anim == 'static' ? 0xffffffff : NoteBase.colorArray[noteData];
+			color = anim == 'static' ? 0xffffffff : colorArray[noteData];
 
 			(animation.curAnim = animation._animations.get(anim))._frameTimer = animation.curAnim.curFrame = 0;
 			animation.curAnim.finished = animation.curAnim.paused = !(active = anim != 'static');
@@ -58,30 +61,30 @@ class StrumNote extends FlxSprite
 	{
 		for (camera in cameras)
 		{
-			if ((!visible || alpha == 0.0) || (!camera.visible || !camera.exists || !isOnScreen(camera)) || (null == _frame || _frame.type == flixel.graphics.frames.FlxFrame.FlxFrameType.EMPTY))
-				continue;
-
-			_frame.prepareMatrix(_matrix, flixel.graphics.frames.FlxFrame.FlxFrameAngle.ANGLE_0, checkFlipX(), checkFlipY());
-			_matrix.translate(-origin.x, -origin.y);
-			_matrix.scale(scale.x, scale.y);
-
-			if (bakedRotationAngle <= 0)
+			if ((visible && alpha != 0.0) || (camera.visible && camera.exists && isOnScreen(camera)) && (null != _frame && _frame.type != flixel.graphics.frames.FlxFrame.FlxFrameType.EMPTY))
 			{
-				updateTrig();
-
-				if (angle != 0.0)
-					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
+				_frame.prepareMatrix(_matrix, flixel.graphics.frames.FlxFrame.FlxFrameAngle.ANGLE_0, checkFlipX(), checkFlipY());
+				inline _matrix.translate(-origin.x, -origin.y);
+				inline _matrix.scale(scale.x, scale.y);
+	
+				if (bakedRotationAngle <= 0)
+				{
+					inline updateTrig();
+	
+					if (angle != 0.0)
+						inline _matrix.rotateWithTrig(_cosAngle, _sinAngle);
+				}
+	
+				getScreenPosition(_point, camera).subtractPoint(offset);
+				_point.add(origin.x, origin.y);
+				inline _matrix.translate(_point.x, _point.y);
+	
+				camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
+	
+				#if FLX_DEBUG
+				FlxBasic.visibleCount++;
+				#end
 			}
-
-			getScreenPosition(_point, camera).subtractPoint(offset);
-			_point.add(origin.x, origin.y);
-			_matrix.translate(_point.x, _point.y);
-
-			camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
-
-			#if FLX_DEBUG
-			FlxBasic.visibleCount++;
-			#end
 		}
 	}
 

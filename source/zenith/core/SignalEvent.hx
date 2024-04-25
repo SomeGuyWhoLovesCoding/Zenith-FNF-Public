@@ -17,7 +17,6 @@ class SignalEvent
 
 	// Gameplay
 
-	inline static public var NOTE_NEW:SignalType.SignalType1<(Note)->(Void), (Note)> = "note_new";
 	inline static public var NOTE_SETUP:SignalType.SignalType1<(Array<(Float)>)->(Void), (Array<(Float)>)> = "note_setup";
 	inline static public var NOTE_HIT:SignalType.SignalType1<(Note)->(Void), (Note)> = "note_hit";
 	inline static public var NOTE_MISS:SignalType.SignalType1<(Note)->(Void), (Note)> = "note_miss";
