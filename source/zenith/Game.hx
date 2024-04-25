@@ -36,37 +36,12 @@ class Game extends FlxGame
 		trace('Game initialized.');
 	}
 
-	override public function create(_:openfl.events.Event):Void
-	{
-		super.create((_ : openfl.events.Event));
-	}
-
 	override public function onEnterFrame(_:openfl.events.Event):Void
 	{
 		super.onEnterFrame((_ : openfl.events.Event));
 		Main.updateMain(FlxG.elapsed);
 	}
 
-	private var delta:Float;
-	override function updateElapsed():Void
-	{
-		var timestamp:Float = timeStamp();
-		_elapsedMS = timestamp - delta;
-		super.updateElapsed();
-		delta = timestamp;
-	}
-
 	inline public function setFramerate(fps:Int):Float
 		return frameRate = fps;
-
-	inline function timeStamp():Float
-	{
-		#if cpp
-		return untyped __global__.__time_stamp() * 1000.0;
-		#elseif sys
-		return Sys.time() * 1000.0;
-		#else
-		return 1000.0 / FlxG.updateFramerate;
-		#end
-	}
 }
