@@ -22,7 +22,6 @@ class SustainNoteTest extends FlxState
 
 		sustainNote = new SustainNote();
 		//sustainNote.x = sustainNote.y = 400.0;
-		sustainNote.scale.x = sustainNote.scale.y = 0.7;
 		sustainNote.length = 200.0;
 		add(sustainNote);
 
@@ -77,10 +76,13 @@ class SustainNote extends FlxSprite
 	public function new():Void
 	{
 		super();
+		scale.x = scale.y = 0.7;
 		moves = active = false;
 		_frame = Paths.sustainNoteFrame;
 		frameWidth = Std.int(_frame.frame.width);
 		frameHeight = Std.int(_frame.frame.height);
+		offset.x = -0.5 * ((frameWidth * 0.7) - frameWidth);
+		origin.x = frameWidth * 0.5;
 		origin.y = offset.y = 0.0;
 	}
 
@@ -128,8 +130,6 @@ class SustainNote extends FlxSprite
 
 	override function draw():Void
 	{
-		offset.x = -0.5 * (width - frameWidth);
-		origin.x = frameWidth * 0.5;
 		super.draw();
 	}
 
