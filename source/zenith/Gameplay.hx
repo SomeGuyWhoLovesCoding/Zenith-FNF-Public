@@ -221,21 +221,16 @@ class Gameplay extends MusicBeatState
 			note._flashRect.x = note._flashRect.y = 0;
 			note._frame = Paths.noteFrame;
 
-			if (null != note._frame)
-			{
-				note._flashRect.width = note.frameWidth = Std.int(note._frame.sourceSize.x);
-				note._flashRect.height = note.frameHeight = Std.int(note._frame.sourceSize.y);
-			}
+			note._flashRect.width = note.frameWidth = Std.int(note._frame.sourceSize.x);
+			note._flashRect.height = note.frameHeight = Std.int(note._frame.sourceSize.y);
 
-			note._halfSize.x = 0.5 * note.frameWidth;
-			note._halfSize.y = 0.5 * note.frameHeight;
+			note.origin.x = note._halfSize.x = 0.5 * note.frameWidth;
+			note.origin.y = note._halfSize.y = 0.5 * note.frameHeight;
 
 			note.width = Math.abs(note.scale.x) * note.frameWidth;
 			note.height = Math.abs(note.scale.y) * note.frameHeight;
 			note.offset.x = -0.5 * (note.width - note.frameWidth);
 			note.offset.y = -0.5 * (note.height - note.frameHeight);
-			note.origin.x = note.frameWidth * 0.5;
-			note.origin.y = note.frameHeight * 0.5;
 		}
 
 		setupNoteData = (chartNoteData:(Array<(Float)>)) ->
