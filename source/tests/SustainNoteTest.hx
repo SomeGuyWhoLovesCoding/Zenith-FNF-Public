@@ -21,7 +21,7 @@ class SustainNoteTest extends FlxState
 		FlxG.cameras.bgColor = 0xFF999999;
 
 		sustainNote = new SustainNote();
-		sustainNote.x = sustainNote.y = 400.0;
+		//sustainNote.x = sustainNote.y = 400.0;
 		sustainNote.scale.x = sustainNote.scale.y = 0.7;
 		sustainNote.length = 200.0;
 		add(sustainNote);
@@ -79,8 +79,9 @@ class SustainNote extends FlxSprite
 		super();
 		moves = active = false;
 		_frame = Paths.holdEndFrame;
-		origin.x = -(frameWidth = Std.int(_frame.frame.width)) * 0.25;
-		origin.y = -(frameHeight = Std.int(_frame.frame.height)) * 0.25;
+		offset.y = origin.y = 0.0;
+		origin.x = (frameWidth = Std.int(_frame.frame.width)) * 0.5;
+        frameHeight = Std.int(_frame.frame.height);
 	}
 
 	// Do NOT remove these overriden functions! They are determined by downscroll.
@@ -104,23 +105,23 @@ class SustainNote extends FlxSprite
 		if (newRect == null)
 			newRect = FlxRect.get();
 
-		if (camera == null)
-			camera = FlxG.camera;
-
-		inline newRect.setPosition(x, y);
-
 		if (_frame == null)
 			return inline newRect.getRotatedBounds(angle, _scaledOrigin, newRect);
 
-		inline _scaledOrigin.set(origin.x * scale.x, origin.y * scale.y);
+		if (camera == null)
+			camera = FlxG.camera;
+
+		newRect.x = x;
+        newRect.y = y;
+
+		_scaledOrigin.x = origin.x * scale.x;
+        _scaledOrigin.y = origin.y * scale.y;
 
 		newRect.x += (-Std.int(camera.scroll.x * scrollFactor.x) - offset.x + origin.x - _scaledOrigin.x);
 		newRect.y += (-Std.int(camera.scroll.y * scrollFactor.y) - offset.y + origin.y - _scaledOrigin.y);
 
-		if (isPixelPerfectRender(camera))
-			inline newRect.floor();
-
-		newRect.setSize(_frame.frame.width * Math.abs(scale.x), _frame.frame.height * Math.abs(scale.y));
+		newRect.width = _frame.frame.width * Math.abs(scale.x);
+        newRect.height = _frame.frame.height * Math.abs(scale.y);
 
 		return inline newRect.getRotatedBounds(angle, _scaledOrigin, newRect);
 	}

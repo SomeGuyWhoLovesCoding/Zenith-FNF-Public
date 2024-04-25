@@ -2,7 +2,7 @@ package zenith;
 
 class Game extends FlxGame
 {
-	private final initState:Class<flixel.FlxState> = Gameplay;
+	private final initState:Class<flixel.FlxState> = tests.SustainNoteTest;
 
 	public static var volume:Float = 1.0;
 	public static var muted:Bool = false;

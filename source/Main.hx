@@ -163,7 +163,7 @@ class Main extends Sprite
 		{
 			if (skipTransIn)
 			{
-				transitionY = 720;
+				transitionY = 720.0;
 
 				if (null != _callback)
 					_callback();
@@ -181,7 +181,7 @@ class Main extends Sprite
 		{
 			if (skipTransOut)
 			{
-				transitionY = 720;
+				transitionY = 720.0;
 				skipTransOut = false;
 				return;
 			}
@@ -202,6 +202,9 @@ class Main extends Sprite
 		if (@:privateAccess FlxG.game._lostFocus && FlxG.autoPause)
 			return;
 
+		// Framerate rework
+		fps += fps > (1.0 / elapsed) - 1.0 ? -1.0 : 1.0;
+
 		if (null != volumeTxt)
 		{
 			volumeTxt.y = (FlxG.height * FlxG.scaleMode.scale.y) - 20;
@@ -211,12 +214,10 @@ class Main extends Sprite
 
 		if (null != fpsTxt)
 		{
-			fps = inline Math.min(inline flixel.math.FlxMath.lerp(fps, 1.0 / elapsed, 0.01), 1000.0);
-
 			if (fpsMax < fps)
 				fpsMax = fps;
 
-			fpsTxt.text = 'FPS: ' + Std.int(fps) + ' (MAX: ' + Std.int(fpsMax) + ')\nMEM: ' + flixel.util.FlxStringUtil.formatBytes(#if neko neko.vm.Gc.stats().heap #elseif hl hl.Gc.stats().currentMemory #elseif cpp cpp.vm.Gc.memInfo(3) #end);
+			fpsTxt.text = 'FPS: ' + fps + ' (MAX: ' + fpsMax + ')\nMEM: ' + flixel.util.FlxStringUtil.formatBytes(#if hl hl.Gc.stats().currentMemory #elseif cpp cpp.vm.Gc.memInfo(3) #end);
 		}
 
 		transition.y = transitionY;
