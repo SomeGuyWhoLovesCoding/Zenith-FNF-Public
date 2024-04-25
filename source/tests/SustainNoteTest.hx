@@ -1,5 +1,3 @@
-// WIP
-
 package tests;
 
 import flixel.graphics.frames.FlxFrame;
