@@ -78,10 +78,10 @@ class SustainNote extends FlxSprite
 	{
 		super();
 		moves = active = false;
-		_frame = Paths.holdEndFrame;
-		offset.y = origin.y = 0.0;
-		origin.x = (frameWidth = Std.int(_frame.frame.width)) * 0.5;
-        frameHeight = Std.int(_frame.frame.height);
+		_frame = Paths.sustainNoteFrame;
+		frameWidth = Std.int(_frame.frame.width);
+		frameHeight = Std.int(_frame.frame.height);
+		origin.y = offset.y = 0.0;
 	}
 
 	// Do NOT remove these overriden functions! They are determined by downscroll.
@@ -112,22 +112,24 @@ class SustainNote extends FlxSprite
 			camera = FlxG.camera;
 
 		newRect.x = x;
-        newRect.y = y;
+		newRect.y = y;
 
 		_scaledOrigin.x = origin.x * scale.x;
-        _scaledOrigin.y = origin.y * scale.y;
+		_scaledOrigin.y = origin.y * scale.y;
 
 		newRect.x += (-Std.int(camera.scroll.x * scrollFactor.x) - offset.x + origin.x - _scaledOrigin.x);
 		newRect.y += (-Std.int(camera.scroll.y * scrollFactor.y) - offset.y + origin.y - _scaledOrigin.y);
 
 		newRect.width = _frame.frame.width * Math.abs(scale.x);
-        newRect.height = _frame.frame.height * Math.abs(scale.y);
+		newRect.height = _frame.frame.height * Math.abs(scale.y);
 
 		return inline newRect.getRotatedBounds(angle, _scaledOrigin, newRect);
 	}
 
 	override function draw():Void
 	{
+		offset.x = -0.5 * (width - frameWidth);
+		origin.x = frameWidth * 0.5;
 		super.draw();
 	}
 

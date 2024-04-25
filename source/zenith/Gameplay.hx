@@ -219,7 +219,7 @@ class Gameplay extends MusicBeatState
 		{
 			note.scale.x = note.scale.y = 0.7;
 			note._flashRect.x = note._flashRect.y = 0;
-			note._frame = Paths.noteFrame;
+			note._frame = Paths.regularNoteFrame;
 
 			note._flashRect.width = note.frameWidth = Std.int(note._frame.sourceSize.x);
 			note._flashRect.height = note.frameHeight = Std.int(note._frame.sourceSize.y);

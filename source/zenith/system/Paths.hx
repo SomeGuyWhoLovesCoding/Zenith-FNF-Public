@@ -16,9 +16,8 @@ class Paths
 
 	public static var strumNoteAnimationHolder:FlxSprite = null;
 	public static var noteAnimationHolder:FlxSprite = null;
-	public static var noteFrame:FlxFrame = null;
-	public static var holdPieceFrame:FlxFrame = null;
-	public static var holdEndFrame:FlxFrame = null;
+	public static var regularNoteFrame:FlxFrame = null;
+	public static var sustainNoteFrame:FlxFrame = null;
 
 	// Do this to be able to just copy over the note animations and not reallocate it
 	public static function initNoteShit():Void
@@ -32,11 +31,11 @@ class Paths
 		noteAnimationHolder = new FlxSprite();
 		noteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular/Notes');
 
-		noteFrame = noteAnimationHolder.frames.frames[2];
-		holdPieceFrame = noteAnimationHolder.frames.frames[1];
-		holdEndFrame = noteAnimationHolder.frames.frames[0];
+		regularNoteFrame = noteAnimationHolder.frames.frames[0];
+		sustainNoteFrame = noteAnimationHolder.frames.frames[1];
 
-		noteAnimationHolder.visible = strumNoteAnimationHolder.visible = noteAnimationHolder.active = strumNoteAnimationHolder.active = false;
+		strumNoteAnimationHolder.destroy();
+		noteAnimationHolder.destroy();
 	}
 
 	inline public static function font(key:String, ext:String = "ttf"):String
