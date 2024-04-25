@@ -2,7 +2,7 @@ package zenith;
 
 class Game extends FlxGame
 {
-	private final initState:Class<FlxState> = tests.SustainNoteTest;
+	private final initState:Class<flixel.FlxState> = Gameplay;
 
 	public static var volume:Float = 1.0;
 	public static var muted:Bool = false;
@@ -47,26 +47,6 @@ class Game extends FlxGame
 		Main.updateMain(FlxG.elapsed);
 	}
 
-	private var delta:Float;
-	override function updateElapsed():Void
-	{
-		var timestamp:Float = timeStamp();
-		_elapsedMS = timestamp - delta;
-		super.updateElapsed();
-		delta = timestamp;
-	}
-
 	inline public function setFramerate(fps:Int):Float
 		return frameRate = fps;
-
-	inline function timeStamp():Float
-	{
-		#if cpp
-		return untyped __global__.__time_stamp() * 1000.0;
-		#elseif sys
-		return Sys.time() * 1000.0;
-		#else
-		return 1000.0 / FlxG.updateFramerate;
-		#end
-	}
 }
