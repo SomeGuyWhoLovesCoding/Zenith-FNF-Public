@@ -3,6 +3,7 @@ package zenith;
 import flixel.group.FlxGroup;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
+import flixel.math.FlxAngle;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 import flixel.text.FlxText;
@@ -46,12 +47,12 @@ class Gameplay extends MusicBeatState
 	public var curSong:String = 'test';
 	public var curStage:String = 'stage';
 
-	public var BF_X:Float = 770;
-	public var BF_Y:Float = 100;
-	public var DAD_X:Float = 100;
-	public var DAD_Y:Float = 100;
-	public var GF_X:Float = 400;
-	public var GF_Y:Float = 130;
+	public var BF_X:Float = 770.0;
+	public var BF_Y:Float = 100.0;
+	public var DAD_X:Float = 100.0;
+	public var DAD_Y:Float = 100.0;
+	public var GF_X:Float = 400.0;
+	public var GF_Y:Float = 130.0;
 
 	public var bfGroup:FlxSpriteGroup;
 	public var dadGroup:FlxSpriteGroup;
@@ -215,29 +216,6 @@ class Gameplay extends MusicBeatState
 
 		super.create();
 
-		newNote = (note:(Note)) ->
-		{
-			note.scale.x = note.scale.y = 0.7;
-			note._flashRect.x = note._flashRect.y = 0;
-			note._frame = Paths.noteFrame;
-
-			if (null != note._frame)
-			{
-				note._flashRect.width = note.frameWidth = Std.int(note._frame.sourceSize.x);
-				note._flashRect.height = note.frameHeight = Std.int(note._frame.sourceSize.y);
-			}
-
-			note._halfSize.x = 0.5 * note.frameWidth;
-			note._halfSize.y = 0.5 * note.frameHeight;
-
-			note.width = Math.abs(note.scale.x) * note.frameWidth;
-			note.height = Math.abs(note.scale.y) * note.frameHeight;
-			note.offset.x = -0.5 * (note.width - note.frameWidth);
-			note.offset.y = -0.5 * (note.height - note.frameHeight);
-			note.origin.x = note.frameWidth * 0.5;
-			note.origin.y = note.frameHeight * 0.5;
-		}
-
 		setupNoteData = (chartNoteData:(Array<(Float)>)) ->
 		{
 			var note:(Note) = notes.recycle((Note));
@@ -253,8 +231,8 @@ class Gameplay extends MusicBeatState
 
 			note.strum = strums.members[note.noteData + (4 * note.lane)];
 
-			note.color = NoteBase.colorArray[note.noteData];
-			note.angle = NoteBase.angleArray[note.noteData];
+			note.color = note.strum.colorArray[note.strum.noteData];
+			note.angle = note.strum.angleArray[note.strum.noteData];
 		}
 
 		onNoteHit = (note:(Note)) ->
@@ -317,7 +295,7 @@ class Gameplay extends MusicBeatState
 				if (strum.animation.curAnim.name != 'confirm')
 					strum.playAnim('pressed');
 
-				var hittable:(Note) = fastNoteFilter(notes.members, n -> (!n.wasHit && !n.tooLate) && (Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && (n.strum.playerStrum && n.strum.noteData == key)))[0];
+				var hittable:(Note) = fastNoteFilter(notes.members, n -> n.exists && (!n.wasHit && !n.tooLate) && (Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && (n.strum.playerStrum && n.strum.noteData == key)))[0];
 
 				if (null != hittable)
 					events.emit(SignalEvent.NOTE_HIT, hittable);
@@ -353,7 +331,7 @@ class Gameplay extends MusicBeatState
 
 			health = FlxMath.bound(health, 0.0, (Gameplay.hideHUD || Gameplay.noCharacters) ? 2.0 : hudGroup.healthBar.maxValue);
 
-			Conductor.songPosition += elapsed * 1000.0;
+			Conductor.songPosition = FlxMath.lerp(Conductor.songPosition, inst.time, 0.05);
 
 			while (null != SONG.noteData[Std.int(currentNoteId)])
 			{
@@ -375,9 +353,10 @@ class Gameplay extends MusicBeatState
 				var note:(Note) = notes.members[i];
 				if (note.exists)
 				{
+					var dir:Float = FlxAngle.asRadians(note.direction - 90);
 					note.distance = 0.45 * (Conductor.songPosition - note.strumTime) * (songSpeed * note.multSpeed);
-					note.x = note.strum.x + note.offsetX;
-					note.y = (note.strum.y + note.offsetY) + (-note.strum.scrollMult * note.distance);
+					note.x = note.strum.x + note.offsetX + (-Math.abs(note.strum.scrollMult) * note.distance) * FlxMath.fastCos(dir);
+					note.y = (note.strum.y + note.offsetY) + (note.strum.scrollMult * note.distance) * FlxMath.fastSin(dir);
 
 					if (Conductor.songPosition >= note.strumTime + (750 / songSpeed)) // Remove them if they're offscreen
 						note.exists = false;
@@ -409,7 +388,6 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		events.on(SignalEvent.NOTE_NEW, newNote);
 		events.on(SignalEvent.NOTE_SETUP, setupNoteData);
 		events.on(SignalEvent.NOTE_HIT, onNoteHit);
 		events.on(SignalEvent.NOTE_MISS, onNoteMiss);
@@ -797,17 +775,6 @@ class Gameplay extends MusicBeatState
 		if (!startedCountdown || songEnded)
 			return;
 
-		if (!renderMode && (null != inst || null != voices))
-		{
-			var off:Float = Conductor.songPosition + SONG.info.offset;
-			if ((inst.time < off - 20.0 || inst.time > off + 20.0)
-				|| (voices.time < off - 20.0 || voices.time > off + 20.0))
-			{
-				Conductor.songPosition = inst.time - SONG.info.offset;
-				voices.time = Std.int(Conductor.songPosition) + SONG.info.offset;
-			}
-		}
-
 		if(curStep == lastStepHit)
 			return;
 
@@ -1069,7 +1036,6 @@ class Gameplay extends MusicBeatState
 	{
 		stopRender();
 
-		events.off(SignalEvent.NOTE_NEW, newNote);
 		events.off(SignalEvent.NOTE_SETUP, setupNoteData);
 		events.off(SignalEvent.NOTE_HIT, onNoteHit);
 		events.off(SignalEvent.NOTE_MISS, onNoteMiss);
@@ -1080,8 +1046,6 @@ class Gameplay extends MusicBeatState
 
 		super.destroy();
 	}
-
-	private var newNote:(Note)->(Void);
 
 	// Used for recycling
 	private var setupNoteData:(Array<(Float)>)->(Void);
