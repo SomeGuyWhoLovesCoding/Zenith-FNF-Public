@@ -27,7 +27,7 @@ class StrumNote extends FlxSprite
 		player = plr;
 
 		frames = Paths.strumNoteAnimationHolder.frames;
-		animation.copyFrom(Paths.strumNoteAnimationHolder.animation);
+		inline animation.copyFrom(Paths.strumNoteAnimation);
 
 		pixelPerfectPosition = false;
 
@@ -39,8 +39,8 @@ class StrumNote extends FlxSprite
 		{
 			color = anim == 'static' ? 0xffffffff : NoteBase.colorArray[noteData];
 
-			(animation.curAnim = animation._animations.get(anim))._frameTimer = animation.curAnim.curFrame = 0;
-			animation.curAnim.finished = animation.curAnim.paused = !(active = anim != 'static');
+			inline animation.play(anim, true); // Don't touch this lol
+			active = anim != 'static';
 
 			// Broken down version of updateHitbox(), basically inlining manually
 			width = Math.abs(scale.x) * frameWidth;

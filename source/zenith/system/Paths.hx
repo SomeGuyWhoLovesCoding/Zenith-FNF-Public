@@ -1,5 +1,6 @@
 package zenith.system;
 
+import flixel.animation.FlxAnimationController;
 import flixel.graphics.frames.FlxFrame;
 import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.display.BitmapData;
@@ -19,6 +20,8 @@ class Paths
 	public static var regularNoteFrame:FlxFrame = null;
 	public static var sustainNoteFrame:FlxFrame = null;
 
+	public static var strumNoteAnimation:FlxAnimationController;
+
 	// Do this to be able to just copy over the note animations and not reallocate it
 	public static function initNoteShit():Void
 	{
@@ -28,12 +31,15 @@ class Paths
 		strumNoteAnimationHolder.animation.addByPrefix('pressed', 'press', 12, false);
 		strumNoteAnimationHolder.animation.addByPrefix('confirm', 'confirm', 24, false);
 
+		strumNoteAnimation = strumNoteAnimationHolder.animation;
+
 		noteAnimationHolder = new FlxSprite();
 		noteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular/Notes');
 
 		regularNoteFrame = noteAnimationHolder.frames.frames[0];
 		sustainNoteFrame = noteAnimationHolder.frames.frames[1];
 
+		// Free up memory
 		strumNoteAnimationHolder.destroy();
 		noteAnimationHolder.destroy();
 	}

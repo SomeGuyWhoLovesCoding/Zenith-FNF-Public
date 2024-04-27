@@ -11,7 +11,7 @@ using StringTools;
 
 // Don't delete these
 @:access(flixel.FlxG.elapsed)
-@:access(flixel.FlxSprite)
+@:access(zenith.objects.NoteBase)
 class Gameplay extends MusicBeatState
 {
 	public var strums:FlxTypedGroup<StrumNote>;
@@ -217,7 +217,6 @@ class Gameplay extends MusicBeatState
 
 		newNote = (note:(Note)) ->
 		{
-			note.scale.x = note.scale.y = 0.7;
 			note._flashRect.x = note._flashRect.y = 0;
 			note._frame = Paths.regularNoteFrame;
 

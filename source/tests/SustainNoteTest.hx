@@ -4,8 +4,6 @@ import flixel.graphics.frames.FlxFrame;
 import flixel.math.FlxRect;
 import lime.ui.KeyCode;
 
-@:access(flixel.FlxSprite)
-
 class SustainNoteTest extends FlxState
 {
 	var sustainNote:SustainNote;
@@ -25,6 +23,18 @@ class SustainNoteTest extends FlxState
 
 		Game.onKeyDown.on(SignalEvent.KEY_DOWN, (code:Int, modifier:Int) ->
 		{
+			if (code == KeyCode.A)
+				sustainNote.x -= 5.0;
+
+			if (code == KeyCode.S)
+				sustainNote.y += 5.0;
+
+			if (code == KeyCode.W)
+				sustainNote.y -= 5.0;
+
+			if (code == KeyCode.D)
+				sustainNote.x += 5.0;
+
 			if (code == KeyCode.DOWN)
 				sustainNote.length += 10.0;
 
@@ -45,7 +55,7 @@ class SustainNoteTest extends FlxState
 
 // You must set the ``length`` first to display, even when adding the object to the game
 
-class SustainNote extends FlxSprite
+class SustainNote extends NoteBase
 {
 	public var length(default, set):Float;
 
@@ -74,8 +84,7 @@ class SustainNote extends FlxSprite
 	public function new():Void
 	{
 		super();
-		scale.x = scale.y = 0.7;
-		moves = active = false;
+		active = false;
 		_frame = Paths.sustainNoteFrame;
 		frameWidth = Std.int(_frame.frame.width);
 		frameHeight = Std.int(_frame.frame.height);
@@ -83,14 +92,6 @@ class SustainNote extends FlxSprite
 		origin.x = frameWidth * 0.5;
 		origin.y = offset.y = 0.0;
 	}
-
-	// Do NOT remove these overriden functions! They are determined by downscroll.
-
-	override function set_flipX(fX:Bool):Bool
-		return false;
-
-	override function set_flipY(fY:Bool):Bool
-		return false;
 
 	/**
 	 * Calculates the smallest globally aligned bounding box that encompasses this sprite's graphic as it
@@ -124,16 +125,6 @@ class SustainNote extends FlxSprite
 		newRect.height = _frame.frame.height * Math.abs(scale.y);
 
 		return inline newRect.getRotatedBounds(angle, _scaledOrigin, newRect);
-	}
-
-	override function draw():Void
-	{
-		super.draw();
-	}
-
-	override function set_clipRect(rect:FlxRect):FlxRect
-	{
-		return clipRect = rect;
 	}
 
 	override function set_height(value:Float):Float
