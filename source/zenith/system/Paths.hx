@@ -20,28 +20,22 @@ class Paths
 	public static var regularNoteFrame:FlxFrame = null;
 	public static var sustainNoteFrame:FlxFrame = null;
 
-	public static var strumNoteAnimation:FlxAnimationController;
+	public static var strumNoteAtlas:FlxAtlasFrames;
 
 	// Do this to be able to just copy over the note animations and not reallocate it
 	public static function initNoteShit():Void
 	{
 		strumNoteAnimationHolder = new FlxSprite();
-		strumNoteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular/Strums');
-		strumNoteAnimationHolder.animation.addByPrefix('static', 'static', 0, false);
-		strumNoteAnimationHolder.animation.addByPrefix('pressed', 'press', 12, false);
-		strumNoteAnimationHolder.animation.addByPrefix('confirm', 'confirm', 24, false);
-
-		strumNoteAnimation = strumNoteAnimationHolder.animation;
+		strumNoteAnimationHolder.frames = strumNoteAtlas = getSparrowAtlas('noteskins/Regular/Strums');
+		inline strumNoteAnimationHolder.animation.addByPrefix('static', 'static', 0, false);
+		inline strumNoteAnimationHolder.animation.addByPrefix('pressed', 'press', 12, false);
+		inline strumNoteAnimationHolder.animation.addByPrefix('confirm', 'confirm', 24, false);
 
 		noteAnimationHolder = new FlxSprite();
 		noteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular/Notes');
 
 		regularNoteFrame = noteAnimationHolder.frames.frames[0];
 		sustainNoteFrame = noteAnimationHolder.frames.frames[1];
-
-		// Free up memory
-		strumNoteAnimationHolder.destroy();
-		noteAnimationHolder.destroy();
 	}
 
 	inline public static function font(key:String, ext:String = "ttf"):String

@@ -11,7 +11,7 @@ using StringTools;
 
 // Don't delete these
 @:access(flixel.FlxG.elapsed)
-@:access(flixel.FlxSprite)
+@:access(zenith.objects.StaticSprite)
 class Gameplay extends MusicBeatState
 {
 	public var strums:FlxTypedGroup<StrumNote>;
@@ -164,73 +164,49 @@ class Gameplay extends MusicBeatState
 
 		var timeStamp:Float = haxe.Timer.stamp();
 
-		try
+		generateSong(songName, songDifficulty);
+
+		strums = new FlxTypedGroup<StrumNote>();
+		add(strums);
+
+		for (i in 0...strumlines)
+			generateStrumline(i);
+
+		notes = new FlxTypedGroup<Note>();
+		add(notes);
+
+		if (!hideHUD)
 		{
-			generateSong(songName, songDifficulty);
+			hudGroup = new HUDGroup();
+			add(hudGroup);
 
-			strums = new FlxTypedGroup<StrumNote>();
-			add(strums);
-
-			for (i in 0...strumlines)
-				generateStrumline(i);
-
-			notes = new FlxTypedGroup<Note>();
-			add(notes);
-
-			if (!hideHUD)
-			{
-				hudGroup = new HUDGroup();
-				add(hudGroup);
-
-				@:privateAccess hudGroup.reloadHealthBar();
-				hudGroup.cameras = [hudCamera];
-			}
-
-			strums.cameras = notes.cameras = [hudCamera];
-
-			trace('Loading finished! Took ${Utils.formatTime((haxe.Timer.stamp() - timeStamp) * 1000.0, true, true)} to load.');
-
-			if (!noCharacters)
-			{
-				camFollowPos.setPosition(
-					gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0],
-					gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1]
-				);
-
-				moveCamera(dad);
-			}
-
-			generatedMusic = true;
-			startCountdown();
+			@:privateAccess hudGroup.reloadHealthBar();
+			hudGroup.cameras = [hudCamera];
 		}
-		catch (e:haxe.Exception)
+
+		strums.cameras = notes.cameras = [hudCamera];
+
+		trace('Loading finished! Took ${Utils.formatTime((haxe.Timer.stamp() - timeStamp) * 1000.0, true, true)} to load.');
+
+		if (!noCharacters)
 		{
-			if (renderMode)
-				FlxG.autoPause = true;
+			camFollowPos.setPosition(
+				gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0],
+				gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1]
+			);
 
-			trace(e.stack);
-
-			FlxG.switchState(new WelcomeState(e.message));
+			moveCamera(dad);
 		}
+
+		generatedMusic = true;
+		startCountdown();
 
 		super.create();
 
 		newNote = (note:(Note)) ->
 		{
 			note.scale.x = note.scale.y = 0.7;
-			note._flashRect.x = note._flashRect.y = 0;
 			note._frame = Paths.regularNoteFrame;
-
-			note._flashRect.width = note.frameWidth = Std.int(note._frame.sourceSize.x);
-			note._flashRect.height = note.frameHeight = Std.int(note._frame.sourceSize.y);
-
-			note.origin.x = note._halfSize.x = 0.5 * note.frameWidth;
-			note.origin.y = note._halfSize.y = 0.5 * note.frameHeight;
-
-			note.width = Math.abs(note.scale.x) * note.frameWidth;
-			note.height = Math.abs(note.scale.y) * note.frameHeight;
-			note.offset.x = -0.5 * (note.width - note.frameWidth);
-			note.offset.y = -0.5 * (note.height - note.frameHeight);
 		}
 
 		setupNoteData = (chartNoteData:(Array<(Float)>)) ->

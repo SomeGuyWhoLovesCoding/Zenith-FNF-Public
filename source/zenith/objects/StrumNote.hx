@@ -6,7 +6,7 @@ class StrumNote extends FlxSprite
 {
 	public var noteData:Int = 0;
 	public var player:Int = 0;
-	public var scrollMult:Float = 1;
+	public var scrollMult:Float = 1.0;
 	public var playerStrum(default, set):Bool = false;
 
 	inline function set_playerStrum(value:Bool):Bool
@@ -26,8 +26,8 @@ class StrumNote extends FlxSprite
 		noteData = data;
 		player = plr;
 
-		frames = Paths.strumNoteAnimationHolder.frames;
-		animation.copyFrom(Paths.strumNoteAnimationHolder.animation);
+		frames = Paths.strumNoteAtlas;
+		inline animation.copyFrom(Paths.strumNoteAnimationHolder.animation);
 
 		pixelPerfectPosition = false;
 
@@ -39,8 +39,8 @@ class StrumNote extends FlxSprite
 		{
 			color = anim == 'static' ? 0xffffffff : NoteBase.colorArray[noteData];
 
-			(animation.curAnim = animation._animations.get(anim))._frameTimer = animation.curAnim.curFrame = 0;
-			animation.curAnim.finished = animation.curAnim.paused = !(active = anim != 'static');
+			inline animation.play(anim, true);
+			active = anim != 'static';
 
 			// Broken down version of updateHitbox(), basically inlining manually
 			width = Math.abs(scale.x) * frameWidth;
@@ -70,14 +70,14 @@ class StrumNote extends FlxSprite
 				updateTrig();
 
 				if (angle != 0.0)
-					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
+					inline _matrix.rotateWithTrig(_cosAngle, _sinAngle);
 			}
 
 			getScreenPosition(_point, camera).subtractPoint(offset);
 			_point.add(origin.x, origin.y);
 			_matrix.translate(_point.x, _point.y);
 
-			camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
+			inline camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
 
 			#if FLX_DEBUG
 			FlxBasic.visibleCount++;

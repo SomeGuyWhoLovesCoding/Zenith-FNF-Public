@@ -4,9 +4,16 @@ import openfl.display.Sprite;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
 import openfl.geom.Matrix;
+
 import lime._internal.backend.native.NativeCFFI;
+import haxe.CallStack;
+
+
+import openfl.events.UncaughtErrorEvent;
 
 import lime.ui.*;
+
+using StringTools;
 
 typedef Transitioning =
 {
@@ -26,6 +33,7 @@ typedef TransitioningInfo =
 @:access(lime._internal.backend.native.NativeApplication)
 @:access(lime._internal.backend.native.NativeCFFI)
 
+// Crash handler from psych btw
 class Main extends Sprite
 {
 	private static final transitioning:Transitioning = {_in: null, _out: null};
@@ -44,6 +52,7 @@ class Main extends Sprite
 	private var keyboard:()->(Void);
 
 	inline static public var DISABLE_GC:Bool = false; // Good luck
+	inline static public var MAJOR_GC:Bool = true;
 
 	public function new()
 	{
@@ -53,8 +62,12 @@ class Main extends Sprite
 
 		#if cpp
 		cpp.vm.Gc.enable(!DISABLE_GC);
+		if (MAJOR_GC)
+			cpp.vm.Gc.compact();
 		#elseif hl
 		hl.Gc.enable(!DISABLE_GC);
+		if (MAJOR_GC)
+			hl.Gc.flags = hl.Gc.GcFlag.ForceMajor;
 		#end
 
 		var backend = lime.app.Application.current.__backend;
@@ -155,6 +168,39 @@ class Main extends Sprite
 		volumeTxt.selectable = fpsTxt.selectable = false;
 		volumeTxt.width = fpsTxt.width = FlxG.width;
 		volumeTxt.alpha = 0.0;
+
+		#if debug
+		// Code was entirely made by sqirra-rng for their fnf engine named "Izzy Engine", big props to them!!!
+		// very cool person for real they don't get enough credit for their work
+		openfl.Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, (e:UncaughtErrorEvent) ->
+		{
+			var errMsg:String = "";
+			var path:String;
+			var callStack:Array<StackItem> = CallStack.exceptionStack(true);
+			var dateNow:String = Date.now().toString();
+
+			dateNow = dateNow.replace(" ", "_");
+			dateNow = dateNow.replace(":", "'");
+
+			for (stackItem in callStack)
+			{
+				switch (stackItem)
+				{
+					case FilePos(s, file, line, column):
+						errMsg += file + " (line " + line + ")\n";
+					default:
+						Sys.println(stackItem);
+				}
+			}
+
+			errMsg += "\nUncaught Error: " + e.error + "\nPlease report this error to the GitHub page: https://github.com/ShadowMario/FNF-PsychEngine\n\n> Crash Handler written by: sqirra-rng";
+
+			Sys.println(errMsg);
+
+			lime.app.Application.current.window.alert(errMsg, "Error!");
+			Sys.exit(1);
+		});
+		#end
 	}
 
 	public static function startTransition(_transIn:Bool = false, _callback:Void->Void = null):Void
@@ -195,19 +241,19 @@ class Main extends Sprite
 
 	private static var transitionY:Float = 0.0;
 
-	private static var fps:Float = 60.0;
-	private static var fpsMax:Float = 60.0;
+	private static var fps:Int = 60;
+	private static var fpsMax:Int = 60;
 	public static function updateMain(elapsed:Float):Void
 	{
 		if (@:privateAccess FlxG.game._lostFocus && FlxG.autoPause)
 			return;
 
 		// Framerate rework
-		fps += fps > (1.0 / elapsed) - 1.0 ? -1.0 : 1.0;
+		fps += fps > Math.round(1 / elapsed) ? -1 : 1;
 
 		if (null != volumeTxt)
 		{
-			volumeTxt.y = (FlxG.height * FlxG.scaleMode.scale.y) - 20;
+			volumeTxt.y = (FlxG.height * FlxG.scaleMode.scale.y) - 20.0;
 			volumeTxt.text = (FlxG.sound.muted ? 0.0 : Std.int(FlxG.sound.volume * 100.0)) + '%';
 			volumeTxt.alpha -= elapsed * 2.0;
 		}
@@ -217,7 +263,7 @@ class Main extends Sprite
 			if (fpsMax < fps)
 				fpsMax = fps;
 
-			fpsTxt.text = 'FPS: ' + fps + ' (MAX: ' + fpsMax + ')\nMEM: ' + flixel.util.FlxStringUtil.formatBytes(#if hl hl.Gc.stats().currentMemory #elseif cpp cpp.vm.Gc.memInfo(3) #end);
+			fpsTxt.text = 'FPS: ' + fps + ' (MAX: ' + fpsMax + ')\nMEM: ' + inline flixel.util.FlxStringUtil.formatBytes(#if hl (inline hl.Gc.stats()).currentMemory #elseif cpp inline cpp.vm.Gc.memInfo(3) #end);
 		}
 
 		transition.y = transitionY;

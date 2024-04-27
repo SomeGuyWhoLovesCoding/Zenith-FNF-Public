@@ -196,8 +196,7 @@ class Character extends FlxSprite
 	public function playAnim(AnimName:String, special:Bool = false):Void
 	{
 		specialAnim = special;
-		(animation.curAnim = animation._animations.get(AnimName))._frameTimer = animation.curAnim.curFrame = 0;
-		animation.curAnim.finished = animation.curAnim.paused = false;
+		inline animation.play(AnimName, true);
 
 		var daOffset:Array<Float> = animOffsets.get(AnimName);
 
@@ -207,7 +206,7 @@ class Character extends FlxSprite
 			offset.y = daOffset[1];
 		}
 		else
-			offset.x = offset.y = 0;
+			offset.x = offset.y = 0.0;
 
 		if (curCharacter.startsWith('gf'))
 		{
