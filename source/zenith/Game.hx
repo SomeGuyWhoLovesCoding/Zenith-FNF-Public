@@ -2,15 +2,17 @@ package zenith;
 
 class Game extends FlxGame
 {
-	private final initState:Class<flixel.FlxState> = Gameplay;
+	private final initState:Class<flixel.FlxState> = tests.SustainNoteTest;
 
 	public static var volume:Float = 1.0;
 	public static var muted:Bool = false;
 	public static var blockSoundKeys:Bool = false;
 
+	// Keyboard events
 	public static var onKeyDown:Emitter = new Emitter();
 	public static var onKeyUp:Emitter = new Emitter();
 
+	// Gamepad events
 	public static var onGamepadAxisMove:Emitter = new Emitter();
 	public static var onGamepadButtonDown:Emitter = new Emitter();
 	public static var onGamepadButtonUp:Emitter = new Emitter();
