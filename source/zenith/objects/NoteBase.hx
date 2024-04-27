@@ -279,7 +279,7 @@ class NoteBase extends FlxBasic
 		_flashRect2 = new Rectangle();
 		_flashPointZero = new Point();
 		offset = FlxPoint.get(0.0, 0.0);
-		origin = FlxPoint.get();
+		origin = FlxPoint.get(0.0, 0.0);
 		scale = FlxPoint.get(0.7, 0.7);
 		_halfSize = FlxPoint.get();
 		_matrix = new FlxMatrix();
