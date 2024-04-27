@@ -85,9 +85,7 @@ class SustainNote extends NoteBase
 	{
 		super();
 		active = false;
-		_frame = Paths.sustainNoteFrame;
-		frameWidth = Std.int(_frame.frame.width);
-		frameHeight = Std.int(_frame.frame.height);
+		setFrame(Paths.sustainNoteFrame);
 		offset.x = -0.5 * ((frameWidth * 0.7) - frameWidth);
 		origin.x = frameWidth * 0.5;
 		origin.y = offset.y = 0.0;

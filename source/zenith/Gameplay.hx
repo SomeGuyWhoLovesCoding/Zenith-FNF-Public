@@ -35,8 +35,6 @@ class Gameplay extends MusicBeatState
 	public static var renderMode:Bool = false;
 	public static var noCharacters:Bool = false;
 
-	private var framesCaptured(default, null):Int = 0;
-
 	// Song stuff
 	public static var SONG:Song.SwagSong;
 
@@ -206,7 +204,7 @@ class Gameplay extends MusicBeatState
 		newNote = (note:(Note)) ->
 		{
 			note.scale.x = note.scale.y = 0.7;
-			note._frame = Paths.regularNoteFrame;
+			note.setFrame(Paths.regularNoteFrame);
 		}
 
 		setupNoteData = (chartNoteData:(Array<(Float)>)) ->
@@ -232,7 +230,7 @@ class Gameplay extends MusicBeatState
 		{
 			note.strum.playAnim('confirm');
 
-			var multiplier:Int = Std.int(Math.max(note.multiplier, 1.0)); // Avoid calling math.max 4 times
+			var multiplier:Int = FlxMath.maxInt(note.multiplier, 1); // Avoid calling FlxMath.maxInt 4 times
 
 			health += (0.045 * multiplier) * (note.strum.playerStrum ? 1.0 : -1.0);
 
@@ -262,7 +260,7 @@ class Gameplay extends MusicBeatState
 		{
 			note.tooLate = true;
 
-			var multiplier:Int = Std.int(Math.max(note.multiplier, 1.0)); // Avoid calling math.max 4 times
+			var multiplier:Int = FlxMath.maxInt(note.multiplier, 1); // Avoid calling FlxMath.maxInt 4 times
 
 			health -= 0.045 * multiplier;
 			score -= 100.0 * multiplier;
@@ -326,10 +324,10 @@ class Gameplay extends MusicBeatState
 
 			Conductor.songPosition += elapsed * 1000.0;
 
-			while (null != SONG.noteData[Std.int(currentNoteId)])
+			while (null != SONG.noteData[currentNoteId])
 			{
 				// Avoid redundant array access
-				var note:Array<(Float)> = SONG.noteData[Std.int(currentNoteId)];
+				var note:Array<(Float)> = SONG.noteData[currentNoteId];
 				var time:Float = note[0];
 
 				if (Conductor.songPosition < time - (1950.0 / songSpeed))
@@ -404,7 +402,7 @@ class Gameplay extends MusicBeatState
 	}
 
 	var initialStrumHeight:Float; // Because for some reason, on downscroll, the sustain note changes y offset when its strum plays the confirm anim LOL
-	var currentNoteId:Float = 0.0;
+	var currentNoteId:Int = 0;
 
 	public var onGameplayUpdate:(Float)->(Void);
 
