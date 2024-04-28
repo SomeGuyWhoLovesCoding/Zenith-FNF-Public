@@ -2,7 +2,7 @@ package zenith;
 
 class Game extends FlxGame
 {
-	private final initState:Class<FlxState> = tests.RatingNumsTest;
+	private final initState:Class<FlxState> = WelcomeState;
 
 	public static var volume:Float = 1.0;
 	public static var muted:Bool = false;
@@ -21,15 +21,12 @@ class Game extends FlxGame
 
 	public static var frameRate(default, null):Int;
 
-	public var inputEnabled:Bool = true;
-
 	public function new():Void
 	{
 		var fps:Int = Std.int(setFramerate(SaveData.contents.preferences.fps));
 		FlxSprite.defaultAntialiasing = SaveData.contents.preferences.antialiasing;
 
 		super(0, 0, initState, fps, fps, true);
-		FlxG.fixedTimestep = false; // Get rid of flixel's mouse as the transition goes over it
 
 		lime.app.Application.current.window.onClose.add(SaveData.saveContent);
 
@@ -43,6 +40,7 @@ class Game extends FlxGame
 
 	override public function onEnterFrame(_:openfl.events.Event):Void
 	{
+		FlxG.fixedTimestep = false;
 		super.onEnterFrame((_ : openfl.events.Event));
 		Main.updateMain(FlxG.elapsed);
 	}
