@@ -67,7 +67,7 @@ class Main extends Sprite
 		#elseif hl
 		hl.Gc.enable(!DISABLE_GC);
 		if (MAJOR_GC)
-			hl.Gc.flags = hl.Gc.GcFlag.ForceMajor;
+			hl.Gc.major();
 		#end
 
 		var backend = lime.app.Application.current.__backend;
