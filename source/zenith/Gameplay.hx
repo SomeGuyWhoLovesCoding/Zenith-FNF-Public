@@ -761,6 +761,17 @@ class Gameplay extends MusicBeatState
 		if(curStep == lastStepHit)
 			return;
 
+		if ((null != inst || null != voices))
+		{
+			var off:Float = Conductor.songPosition + SONG.info.offset;
+			if ((inst.time < off - 20.0 || inst.time > off + 20.0)
+				|| (voices.time < off - 20.0 || voices.time > off + 20.0))
+			{
+				Conductor.songPosition = inst.time - SONG.info.offset;
+				voices.time = Conductor.songPosition + SONG.info.offset;
+			}
+		}
+
 		lastStepHit = curStep;
 	}
 
