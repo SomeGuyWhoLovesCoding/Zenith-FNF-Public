@@ -32,7 +32,6 @@ class Gameplay extends MusicBeatState
 	public static var cpuControlled:Bool = false;
 	public static var downScroll:Bool = true;
 	public static var hideHUD:Bool = false;
-	public static var renderMode:Bool = false;
 	public static var noCharacters:Bool = false;
 
 	// Song stuff
@@ -107,8 +106,6 @@ class Gameplay extends MusicBeatState
 
 	override function create():Void
 	{
-		initRender();
-
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
 
 		instance = this;
@@ -373,15 +370,6 @@ class Gameplay extends MusicBeatState
 							events.emit(SignalEvent.NOTE_HIT, note);
 				}
 			}
-
-			if (renderMode)
-			{
-				notes.members.sort((b:(Note), a:(Note)) -> Std.int(a.y - b.y)); // Psych engine display note sorting moment
-				pipeFrame();
-
-				if (Conductor.songPosition - (20.0 + SONG.info.offset) >= songLength && !songEnded)
-					endSong();
-			}
 		}
 
 		events.on(SignalEvent.NOTE_NEW, newNote);
@@ -398,9 +386,6 @@ class Gameplay extends MusicBeatState
 	{
 		if (!generatedMusic)
 			return;
-
-		if (renderMode)
-			FlxG.elapsed = 1.0 / videoFramerate;
 
 		super.update(elapsed);
 
@@ -729,7 +714,6 @@ class Gameplay extends MusicBeatState
 		inst = new FlxSound().loadEmbedded(Paths.inst(SONG.song));
 		inst.onComplete = endSong;
 		FlxG.sound.list.add(inst);
-		inst.volume = renderMode ? 0.0 : 1.0;
 		inst.looped = false;
 
 		if (SONG.info.needsVoices)
@@ -747,6 +731,8 @@ class Gameplay extends MusicBeatState
 		SONG.info.bpm = Math.max(SONG.info.bpm, 10.0);
 
 		Conductor.changeBPM(SONG.info.bpm);
+
+		openfl.system.System.gc();
 	}
 
 	public static var strumlines:Int = 2;
@@ -772,17 +758,6 @@ class Gameplay extends MusicBeatState
 		if (!startedCountdown || songEnded)
 			return;
 
-		if (!renderMode && (null != inst || null != voices))
-		{
-			var off:Float = Conductor.songPosition + SONG.info.offset;
-			if ((inst.time < off - 20.0 || inst.time > off + 20.0)
-				|| (voices.time < off - 20.0 || voices.time > off + 20.0))
-			{
-				Conductor.songPosition = inst.time - SONG.info.offset;
-				voices.time = Std.int(Conductor.songPosition) + SONG.info.offset;
-			}
-		}
-
 		if(curStep == lastStepHit)
 			return;
 
@@ -799,10 +774,9 @@ class Gameplay extends MusicBeatState
 
 		dance(curBeat);
 
-		lastBeatHit = curBeat;
+		notes.members.sort((a:(Note), b:(Note)) -> Std.int(a.strumTime - b.strumTime));
 
-		if (!renderMode)
-			notes.members.sort((a:(Note), b:(Note)) -> Std.int(a.strumTime - b.strumTime));
+		lastBeatHit = curBeat;
 	}
 
 	public function dance(beat:Int):Void
@@ -1044,8 +1018,6 @@ class Gameplay extends MusicBeatState
 
 	override function destroy():Void
 	{
-		stopRender();
-
 		events.off(SignalEvent.NOTE_NEW, newNote);
 		events.off(SignalEvent.NOTE_SETUP, setupNoteData);
 		events.off(SignalEvent.NOTE_HIT, onNoteHit);
@@ -1054,6 +1026,8 @@ class Gameplay extends MusicBeatState
 
 		Game.onKeyDown.off(SignalEvent.KEY_DOWN, onKeyDown);
 		Game.onKeyUp.off(SignalEvent.KEY_UP, onKeyUp);
+
+		openfl.system.System.gc();
 
 		super.destroy();
 	}
@@ -1066,50 +1040,4 @@ class Gameplay extends MusicBeatState
 	public var onNoteHit:(Note)->(Void);
 
 	public var onNoteMiss:(Note)->(Void);
-
-	// Render mode shit
-
-	private var process:sys.io.Process;
-
-	public var videoFramerate:Int = 60;
-	public var videoEncoder:String = "libx265";
-	public var outputPath:String = "output.mp4";
-
-	private function initRender():Void
-	{
-		if (renderMode && sys.FileSystem.exists(#if windows 'ffmpeg.exe' #else 'ffmpeg' #end))
-		{
-			#if cpp
-			cpp.vm.Gc.enable(true);
-			#elseif hl
-			hl.Gc.enable(true);
-			#end
-			cpuControlled = true;
-			process = new sys.io.Process('ffmpeg', ['-v', 'quiet', '-y', '-f', 'rawvideo', '-pix_fmt', 'rgba', '-s', '1280x720', '-r', '$videoFramerate', '-i', '-', '-c:v', videoEncoder, Sys.getCwd().replace('\\', '/') + outputPath]);
-			FlxG.autoPause = false;
-		}
-	}
-
-	private function pipeFrame():Void
-	{
-		var img:lime.graphics.Image = lime.app.Application.current.window.readPixels(new lime.math.Rectangle(FlxG.scaleMode.offset.x, FlxG.scaleMode.offset.y, FlxG.scaleMode.gameSize.x, FlxG.scaleMode.gameSize.y));
-		var bytes:haxe.io.Bytes = img.getPixels(new lime.math.Rectangle(0, 0, img.width, img.height));
-		process.stdin.writeBytes(bytes, 0, bytes.length);
-	}
-
-	private function stopRender():Void
-	{
-		if (renderMode)
-		{
-			#if cpp
-			cpp.vm.Gc.enable(!Main.DISABLE_GC);
-			#elseif hl
-			hl.Gc.enable(!Main.DISABLE_GC);
-			#end
-			process.stdin.close();
-			process.close();
-			process.kill();
-			FlxG.autoPause = true;
-		}
-	}
 }

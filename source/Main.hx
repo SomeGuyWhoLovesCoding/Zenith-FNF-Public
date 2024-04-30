@@ -51,24 +51,11 @@ class Main extends Sprite
 	private var joystick:()->(Void);
 	private var keyboard:()->(Void);
 
-	inline static public var DISABLE_GC:Bool = false; // Good luck
-	inline static public var MAJOR_GC:Bool = true;
-
 	public function new()
 	{
 		super();
 
 		openfl.Lib.current.stage.quality = stage.quality = LOW;
-
-		#if cpp
-		cpp.vm.Gc.enable(!DISABLE_GC);
-		if (MAJOR_GC)
-			cpp.vm.Gc.compact();
-		#elseif hl
-		hl.Gc.enable(!DISABLE_GC);
-		if (MAJOR_GC)
-			hl.Gc.major();
-		#end
 
 		var backend = lime.app.Application.current.__backend;
 
