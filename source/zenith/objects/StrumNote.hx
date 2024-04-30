@@ -39,7 +39,7 @@ class StrumNote extends FlxSprite
 		{
 			color = anim == 'static' ? 0xffffffff : NoteBase.colorArray[noteData];
 
-			inline animation.play(anim, true);
+			animation.play(anim, true);
 			active = anim != 'static';
 
 			// Broken down version of updateHitbox(), basically inlining manually
@@ -70,14 +70,14 @@ class StrumNote extends FlxSprite
 				updateTrig();
 
 				if (angle != 0.0)
-					inline _matrix.rotateWithTrig(_cosAngle, _sinAngle);
+					_matrix.rotateWithTrig(_cosAngle, _sinAngle);
 			}
 
 			getScreenPosition(_point, camera).subtractPoint(offset);
 			_point.add(origin.x, origin.y);
 			_matrix.translate(_point.x, _point.y);
 
-			inline camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
+			camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
 
 			#if FLX_DEBUG
 			FlxBasic.visibleCount++;

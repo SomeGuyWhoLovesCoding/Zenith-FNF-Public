@@ -196,7 +196,7 @@ class Character extends FlxSprite
 	public function playAnim(AnimName:String, special:Bool = false):Void
 	{
 		specialAnim = special;
-		inline animation.play(AnimName, true);
+		animation.play(AnimName, true);
 
 		var daOffset:Array<Float> = animOffsets.get(AnimName);
 

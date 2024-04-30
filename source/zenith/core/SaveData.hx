@@ -13,9 +13,9 @@ class SaveData
 			hideHUD: false,
 			noCharacters: false,
 			antialiasing: true,
-			gpuCaching: false,
-			persistentGraphics: true,
-			fps: 480
+			gpuCaching: true,
+			persistentGraphics: false,
+			fps: 60
 		},
 		controls: {
 			GAMEPLAY_BINDS: [

@@ -250,7 +250,7 @@ class StaticSprite extends FlxBasic
 	}
 
 	#if FLX_DEBUG
-	inline public function drawDebug():Void
+	public function drawDebug():Void
 	{
 		for (camera in getCamerasLegacy())
 			drawDebugOnCamera(camera);
@@ -280,7 +280,7 @@ class StaticSprite extends FlxBasic
 		gfx.drawRect(rect.x + 0.5, rect.y + 0.5, rect.width - 1.0, rect.height - 1.0);
 	}
 
-	inline function beginDrawDebug(camera:FlxCamera):Graphics
+	function beginDrawDebug(camera:FlxCamera):Graphics
 	{
 		if (FlxG.renderBlit)
 		{
@@ -541,13 +541,10 @@ class StaticSprite extends FlxBasic
 
 		onDraw = () ->
 		{
-			inline checkEmptyFrame();
+			checkEmptyFrame();
 
 			if (alpha == 0.0 || _frame.type == FlxFrameType.EMPTY)
 				return;
-
-			if (dirty) // rarely
-				calcFrame(useFramePixels);
 
 			for (camera in getCamerasLegacy())
 			{
@@ -879,29 +876,6 @@ class StaticSprite extends FlxBasic
 	}
 
 	/**
-	 * Request (or force) that the sprite update the frame before rendering.
-	 * Useful if you are doing procedural generation or other weirdness!
-	 *
-	 * @param   Force   Force the frame to redraw, even if its not flagged as necessary.
-	 */
-	public function drawFrame(Force:Bool = false):Void
-	{
-		if (FlxG.renderBlit)
-		{
-			if (Force || dirty)
-			{
-				dirty = true;
-				calcFrame();
-			}
-		}
-		else
-		{
-			dirty = true;
-			calcFrame(true);
-		}
-	}
-
-	/**
 	 * Helper function that adjusts the offset automatically to center the bounding box within the graphic.
 	 *
 	 * @param   AdjustPosition   Adjusts the actual X and Y position just once to match the offset change.
@@ -981,17 +955,6 @@ class StaticSprite extends FlxBasic
 			colorTransform.setMultipliers(1, 1, 1, 1);
 
 		dirty = true;
-	}
-
-	/**
-	 * Internal function to update the current animation frame.
-	 *
-	 * @param   force   Whether the frame should also be recalculated if we're on a non-flash target
-	 */
-	@:noCompletion
-	function calcFrame(force = false):Void
-	{
-		inline checkEmptyFrame();
 	}
 
 	/**

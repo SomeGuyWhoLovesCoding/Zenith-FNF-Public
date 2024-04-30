@@ -2,7 +2,7 @@ package zenith;
 
 class Game extends FlxGame
 {
-	private final initState:Class<FlxState> = WelcomeState;
+	private final initState:Class<FlxState> = Gameplay;
 
 	public static var volume:Float = 1.0;
 	public static var muted:Bool = false;

@@ -247,7 +247,7 @@ class Gameplay extends MusicBeatState
 
 				if (null != char)
 				{
-					char.playAnim(@:privateAccess singAnimations[note.noteData]);
+					char.playAnim(singAnimations[note.noteData]);
 					char.holdTimer = 0.0;
 				}
 			}
@@ -269,16 +269,19 @@ class Gameplay extends MusicBeatState
 
 			if (!noCharacters)
 			{
-				bf.playAnim(@:privateAccess singAnimations[note.noteData] + 'miss');
+				bf.playAnim(singAnimations[note.noteData] + 'miss');
 				bf.holdTimer = 0.0;
 			}
 		}
 
-		onKeyDown = (keyCode:Int, keyModifier:Int) ->
+		onKeyDown = (keyCode:(Int), keyModifier:(Int)) ->
 		{
+			if (cpuControlled || !generatedMusic)
+				return;
+
 			var key:Int = inputKeybinds.indexOf(keyCode);
 
-			if (-1 != key && !cpuControlled && generatedMusic && !holdArray[key])
+			if (!holdArray[key] && key != -1)
 			{
 				var strum:(StrumNote) = strums.members[key + (4 * (strumlines - 1))];
 
@@ -295,11 +298,14 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		onKeyUp = (keyCode:Int, keyModifier:Int) ->
+		onKeyUp = (keyCode:(Int), keyModifier:(Int)) ->
 		{
+			if (cpuControlled || !generatedMusic)
+				return;
+
 			var key:Int = inputKeybinds.indexOf(keyCode);
 
-			if (-1 != key && !cpuControlled && generatedMusic && holdArray[key])
+			if (holdArray[key] && key != -1)
 			{
 				holdArray[key] = false;
 
@@ -744,7 +750,7 @@ class Gameplay extends MusicBeatState
 	}
 
 	public static var strumlines:Int = 2;
-	inline public function generateStrumline(player:Int = 0):Void
+	public function generateStrumline(player:Int = 0):Void
 	{
 		for (i in 0...4)
 		{
@@ -905,7 +911,7 @@ class Gameplay extends MusicBeatState
 
 	// Camera functions
 
-	private function moveCamera(whatCharacter:Character):Void
+	private function moveCamera(whatCharacter:(Character)):Void
 	{
 		if (null != camFollowPosTween)
 			camFollowPosTween.cancel();
@@ -930,10 +936,10 @@ class Gameplay extends MusicBeatState
 		}
 	}
 
-	inline private function zoomTweenFunction(cam:FlxCamera, amount:Float = 1):FlxTween
+	private function zoomTweenFunction(cam:FlxCamera, amount:Float = 1):FlxTween
 		return FlxTween.tween(cam, {zoom: amount}, 1.3, {ease: FlxEase.expoOut});
 
-	inline function set_defaultCamZoom(value:Float):Float
+	function set_defaultCamZoom(value:Float):Float
 	{
 		if (null != gameCameraZoomTween)
 			gameCameraZoomTween.cancel();
@@ -942,7 +948,7 @@ class Gameplay extends MusicBeatState
 		return defaultCamZoom = value;
 	}
 
-	inline function startCharacterPos(char:Character, gfCheck:Bool = false)
+	function startCharacterPos(char:(Character), gfCheck:Bool = false)
 	{
 		if (gfCheck && char.curCharacter.startsWith('gf')) // IF DAD IS GIRLFRIEND, HE GOES TO HER POSITION
 		{
@@ -958,7 +964,7 @@ class Gameplay extends MusicBeatState
 		switch(type) {
 			case 0:
 				if(!bfMap.exists(newCharacter)) {
-					var newBoyfriend:Character = new Character(0, 0, newCharacter, true);
+					var newBoyfriend:(Character) = new Character(0, 0, newCharacter, true);
 					bfMap.set(newCharacter, newBoyfriend);
 					bfGroup.add(newBoyfriend);
 					startCharacterPos(newBoyfriend);
@@ -967,7 +973,7 @@ class Gameplay extends MusicBeatState
 
 			case 1:
 				if(!dadMap.exists(newCharacter)) {
-					var newDad:Character = new Character(0, 0, newCharacter);
+					var newDad:(Character) = new Character(0, 0, newCharacter);
 					dadMap.set(newCharacter, newDad);
 					dadGroup.add(newDad);
 					startCharacterPos(newDad, true);
@@ -976,7 +982,7 @@ class Gameplay extends MusicBeatState
 
 			case 2:
 				if(null != gf && !gfMap.exists(newCharacter)) {
-					var newGf:Character = new Character(0, 0, newCharacter);
+					var newGf:(Character) = new Character(0, 0, newCharacter);
 					gfMap.set(newCharacter, newGf);
 					gfGroup.add(newGf);
 					startCharacterPos(newGf);
@@ -989,12 +995,11 @@ class Gameplay extends MusicBeatState
 
 	public var inputKeybinds:Array<Int> = [];
 
-	private var holdArray(default, null):Array<Bool> = [false, false, false, false];
+	public var holdArray(default, null):Array<Bool> = [false, false, false, false];
+	public var onKeyDown:(Int, Int)->(Void);
+	public var onKeyUp:(Int, Int)->(Void);
 
-	private var onKeyDown:(Int, Int)->(Void);
-	private var onKeyUp:(Int, Int)->(Void);
-
-	inline private function fastNoteFilter(array:Array<(Note)>, f:(Note)->(Bool)):Array<Note>
+	inline public function fastNoteFilter(array:Array<(Note)>, f:(Note)->(Bool)):Array<Note>
 		return [for (i in 0...array.length) { var a:Note = array[i]; if (f(a)) a; }];
 
 	// Preferences stuff (Also for scripting)
@@ -1015,15 +1020,18 @@ class Gameplay extends MusicBeatState
 					var actualScrollMult:Float = strum.scrollMult;
 					actualScrollMult = -actualScrollMult;
 
-					if (null != strumScrollMultTweens[strums.members.indexOf(strum)])
-						strumScrollMultTweens[strums.members.indexOf(strum)].cancel();
+					var scrollTween:(FlxTween) = strumScrollMultTweens[strums.members.indexOf(strum)];
+					var yTween:(FlxTween) = strumYTweens[strums.members.indexOf(strum)];
 
-					strumScrollMultTweens[strums.members.indexOf(strum)] = FlxTween.tween(strum, {scrollMult: strum.scrollMult > 0.0 ? -1.0 : 1.0}, Math.abs(tweenLength), {ease: FlxEase.quintOut});
+					if (null != scrollTween)
+						scrollTween.cancel();
 
-					if (null != strumYTweens[strums.members.indexOf(strum)])
-						strumYTweens[strums.members.indexOf(strum)].cancel();
+					scrollTween = FlxTween.tween(strum, {scrollMult: strum.scrollMult > 0.0 ? -1.0 : 1.0}, Math.abs(tweenLength), {ease: FlxEase.quintOut});
 
-					strumYTweens[strums.members.indexOf(strum)] = FlxTween.tween(strum, {y: actualScrollMult < 0.0 ? FlxG.height - 160.0 : 60.0}, Math.abs(tweenLength), {ease: FlxEase.quintOut});
+					if (null != yTween)
+						yTween.cancel();
+
+					yTween = FlxTween.tween(strum, {y: actualScrollMult < 0.0 ? FlxG.height - 160.0 : 60.0}, Math.abs(tweenLength), {ease: FlxEase.quintOut});
 				}
 				else
 				{
