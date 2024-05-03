@@ -14,10 +14,6 @@ using StringTools;
 @:access(zenith.objects.StaticSprite)
 class Gameplay extends MusicBeatState
 {
-	// Scripting shit
-
-	public static var hscript:HScriptFile;
-
 	public var strums:FlxTypedGroup<StrumNote>;
 	public var notes:FlxTypedGroup<Note>;
 
@@ -114,11 +110,6 @@ class Gameplay extends MusicBeatState
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
 
 		instance = this;
-
-		// Scripting shit
-
-		HScriptSystem.loadScriptsFromDirectory('assets/scripts');
-		HScriptSystem.callFromAllScripts('create', []);
 
 		// Preferences stuff
 
@@ -390,8 +381,6 @@ class Gameplay extends MusicBeatState
 							events.emit(SignalEvent.NOTE_HIT, note);
 				}
 			}
-
-			HScriptSystem.callFromAllScripts('updatePost', [elapsed]);
 		}
 
 		events.on(SignalEvent.NOTE_NEW, newNote);
@@ -402,14 +391,10 @@ class Gameplay extends MusicBeatState
 
 		Game.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
 		Game.onKeyUp.on(SignalEvent.KEY_UP, onKeyUp);
-
-		HScriptSystem.callFromAllScripts('createPost', []);
 	}
 
 	override function update(elapsed:Float):Void
 	{
-		HScriptSystem.callFromAllScripts('update', [elapsed]);
-
 		if (!generatedMusic && !inCutscene)
 			return;
 
@@ -803,8 +788,6 @@ class Gameplay extends MusicBeatState
 		}
 
 		lastStepHit = curStep;
-
-		HScriptSystem.callFromAllScripts('stepHit', []);
 	}
 
 	var lastBeatHit:Int = -1;
@@ -820,8 +803,6 @@ class Gameplay extends MusicBeatState
 		notes.members.sort((a:(Note), b:(Note)) -> Std.int(a.strumTime - b.strumTime));
 
 		lastBeatHit = curBeat;
-
-		HScriptSystem.callFromAllScripts('beatHit', []);
 	}
 
 	public function dance(beat:Int):Void
@@ -1083,8 +1064,6 @@ class Gameplay extends MusicBeatState
 		openfl.system.System.gc();
 
 		super.destroy();
-
-		HScriptSystem.callFromAllScripts('destroy', []);
 	}
 
 	private var newNote:(Note)->(Void);

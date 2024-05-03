@@ -6,7 +6,7 @@ import lime.ui.KeyModifier;
 import lime.app.Application;
 import flixel.input.keyboard.FlxKey;
 
-class MusicBeatState extends FlxState
+class MusicBeatState extends State
 {
 	private var curStep:Int = 0;
 	private var curBeat:Int = 0;
@@ -19,9 +19,6 @@ class MusicBeatState extends FlxState
 		Main.startTransition(false);
 
 		super.create();
-
-		if (!SaveData.contents.preferences.persistentGraphics)
-			openfl.system.System.gc();
 	}
 
 	override function update(elapsed:Float):Void
@@ -60,26 +57,28 @@ class MusicBeatState extends FlxState
 
 	inline private function updateBeat():Void
 	{
-		curBeat = inline Std.int(curStep * 0.25);
+		curBeat = Std.int(curStep * 0.25);
 		curDecBeat = curDecStep * 0.25;
 	}
 
-	inline private function updateCurStep():Void
+	private function updateCurStep():Void
 	{
 		var lastChange:Conductor.BPMChangeEvent = Conductor.getBPMFromSeconds(Conductor.songPosition);
 
 		var shit = (Conductor.songPosition - lastChange.songTime) / lastChange.stepCrochet;
 		curDecStep = lastChange.stepTime + shit;
-		curStep = lastChange.stepTime + inline Std.int(shit);
+		curStep = lastChange.stepTime + Std.int(shit);
 	}
 
 	public function stepHit():Void
 	{
+		HScriptSystem.callFromAllScripts('stepHit', []);
 		// trace('Step: ' + curStep);
 	}
 
 	public function beatHit():Void
 	{
+		HScriptSystem.callFromAllScripts('beatHit', []);
 		// trace('Beat: ' + curBeat);
 	}
 }
