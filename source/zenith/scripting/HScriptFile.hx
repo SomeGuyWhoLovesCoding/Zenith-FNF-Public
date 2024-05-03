@@ -74,18 +74,18 @@ class HScriptFile
 
 			interp = new Interp();
 			interp.variables.set('Math', Math);
-			interp.variables.set('Conductor', null);
-			interp.variables.set('Gameplay', null);
-			interp.variables.set('SaveData', null);
+			interp.variables.set('Conductor', Conductor);
+			interp.variables.set('Gameplay', Gameplay);
+			interp.variables.set('SaveData', SaveData);
 			interp.variables.set('StringTools', StringTools);
 			interp.variables.set('Paths', Paths);
-			interp.variables.set('FlxG', null);
-			interp.variables.set('FlxSprite', null);
-			interp.variables.set('FlxCamera', null);
-			interp.variables.set('FlxTimer', null);
-			interp.variables.set('FlxTween', null);
-			interp.variables.set('FlxEase', null);
-			interp.variables.set('FlxSound', null);
+			interp.variables.set('FlxG', FlxG);
+			interp.variables.set('FlxSprite', FlxSprite);
+			interp.variables.set('FlxCamera', FlxCamera);
+			interp.variables.set('FlxTimer', FlxTimer);
+			interp.variables.set('FlxTween', flixel.tweens.FlxTween);
+			interp.variables.set('FlxEase', flixel.tweens.FlxEase);
+			interp.variables.set('FlxSound', FlxSound);
 
 			parser = new Parser();
 
