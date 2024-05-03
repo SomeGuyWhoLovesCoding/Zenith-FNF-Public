@@ -55,6 +55,9 @@ class Main extends Sprite
 	{
 		super();
 
+		HScriptSystem.init();
+		HScriptSystem.loadScriptsFromDirectory('assets/scripts');
+
 		openfl.Lib.current.stage.quality = stage.quality = LOW;
 
 		var backend = lime.app.Application.current.__backend;

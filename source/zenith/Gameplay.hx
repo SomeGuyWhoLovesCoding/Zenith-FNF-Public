@@ -14,6 +14,10 @@ using StringTools;
 @:access(zenith.objects.StaticSprite)
 class Gameplay extends MusicBeatState
 {
+	// Scripting shit
+
+	public static var hscript:HScriptFile;
+
 	public var strums:FlxTypedGroup<StrumNote>;
 	public var notes:FlxTypedGroup<Note>;
 
@@ -71,6 +75,7 @@ class Gameplay extends MusicBeatState
 	public var cameraSpeed:Float = 1.0;
 
 	public var generatedMusic:Bool = false;
+	public var inCutscene:Bool = false;
 	public var startedCountdown:Bool = false;
 	public var songEnded:Bool = false;
 
@@ -109,6 +114,11 @@ class Gameplay extends MusicBeatState
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
 
 		instance = this;
+
+		// Scripting shit
+
+		HScriptSystem.loadScriptsFromDirectory('assets/scripts');
+		HScriptSystem.callFromAllScripts('create', []);
 
 		// Preferences stuff
 
@@ -221,10 +231,14 @@ class Gameplay extends MusicBeatState
 
 			note.color = NoteBase.colorArray[note.noteData];
 			note.angle = NoteBase.angleArray[note.noteData];
+
+			HScriptSystem.callFromAllScripts('setupNoteData', [note, chartNoteData]);
 		}
 
 		onNoteHit = (note:(Note)) ->
 		{
+			HScriptSystem.callFromAllScripts('onNoteHit', [note]);
+
 			note.strum.playAnim('confirm');
 
 			var multiplier:Int = FlxMath.maxInt(note.multiplier, 1); // Avoid calling FlxMath.maxInt 4 times
@@ -255,6 +269,8 @@ class Gameplay extends MusicBeatState
 
 		onNoteMiss = (note:(Note)) ->
 		{
+			HScriptSystem.callFromAllScripts('onNoteMiss', [note]);
+
 			note.tooLate = true;
 
 			var multiplier:Int = FlxMath.maxInt(note.multiplier, 1); // Avoid calling FlxMath.maxInt 4 times
@@ -273,6 +289,8 @@ class Gameplay extends MusicBeatState
 
 		onKeyDown = (keyCode:(Int), keyModifier:(Int)) ->
 		{
+			HScriptSystem.callFromAllScripts('onKeyDown', [keyCode, keyModifier]);
+
 			if (cpuControlled || !generatedMusic)
 				return;
 
@@ -297,6 +315,8 @@ class Gameplay extends MusicBeatState
 
 		onKeyUp = (keyCode:(Int), keyModifier:(Int)) ->
 		{
+			HScriptSystem.callFromAllScripts('onKeyUp', [keyCode, keyModifier]);
+
 			if (cpuControlled || !generatedMusic)
 				return;
 
@@ -370,6 +390,8 @@ class Gameplay extends MusicBeatState
 							events.emit(SignalEvent.NOTE_HIT, note);
 				}
 			}
+
+			HScriptSystem.callFromAllScripts('updatePost', [elapsed]);
 		}
 
 		events.on(SignalEvent.NOTE_NEW, newNote);
@@ -380,11 +402,15 @@ class Gameplay extends MusicBeatState
 
 		Game.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
 		Game.onKeyUp.on(SignalEvent.KEY_UP, onKeyUp);
+
+		HScriptSystem.callFromAllScripts('createPost', []);
 	}
 
 	override function update(elapsed:Float):Void
 	{
-		if (!generatedMusic)
+		HScriptSystem.callFromAllScripts('update', [elapsed]);
+
+		if (!generatedMusic && !inCutscene)
 			return;
 
 		super.update(elapsed);
@@ -595,6 +621,8 @@ class Gameplay extends MusicBeatState
 						songLength = v1 * 1000.0;
 				}
 		}
+
+		HScriptSystem.callFromAllScripts('triggerEvent', [eventName, value1, value2]);
 	}
 
 	private function generateSong(name:String, diff:String):Void
@@ -732,6 +760,8 @@ class Gameplay extends MusicBeatState
 
 		Conductor.changeBPM(SONG.info.bpm);
 
+		HScriptSystem.callFromAllScripts('generateSong', [name, diff]);
+
 		openfl.system.System.gc();
 	}
 
@@ -773,6 +803,8 @@ class Gameplay extends MusicBeatState
 		}
 
 		lastStepHit = curStep;
+
+		HScriptSystem.callFromAllScripts('stepHit', []);
 	}
 
 	var lastBeatHit:Int = -1;
@@ -788,6 +820,8 @@ class Gameplay extends MusicBeatState
 		notes.members.sort((a:(Note), b:(Note)) -> Std.int(a.strumTime - b.strumTime));
 
 		lastBeatHit = curBeat;
+
+		HScriptSystem.callFromAllScripts('beatHit', []);
 	}
 
 	public function dance(beat:Int):Void
@@ -859,6 +893,8 @@ class Gameplay extends MusicBeatState
 
 			dance(swagCounter++);
 		}, 5);
+
+		HScriptSystem.callFromAllScripts('startCountdown', []);
 	}
 
 	private function startSong():Void
@@ -876,6 +912,8 @@ class Gameplay extends MusicBeatState
 			voices.play();
 
 		startedCountdown = true;
+
+		HScriptSystem.callFromAllScripts('startSong', []);
 	}
 
 	public function endSong():Void
@@ -892,6 +930,8 @@ class Gameplay extends MusicBeatState
 			hudGroup.timeTxt.visible = false;
 
 		switchState(new WelcomeState());
+
+		HScriptSystem.callFromAllScripts('endSong', []);
 	}
 
 	// Camera functions
@@ -919,9 +959,11 @@ class Gameplay extends MusicBeatState
 				}, 1.3 * cameraSpeed, {ease: FlxEase.expoOut});
 			}
 		}
+
+		HScriptSystem.callFromAllScripts('moveCamera', [whatCharacter]);
 	}
 
-	private function zoomTweenFunction(cam:FlxCamera, amount:Float = 1):FlxTween
+	private function zoomTweenFunction(cam:(FlxCamera), amount:Float = 1):FlxTween
 		return FlxTween.tween(cam, {zoom: amount}, 1.3, {ease: FlxEase.expoOut});
 
 	function set_defaultCamZoom(value:Float):Float
@@ -1041,6 +1083,8 @@ class Gameplay extends MusicBeatState
 		openfl.system.System.gc();
 
 		super.destroy();
+
+		HScriptSystem.callFromAllScripts('destroy', []);
 	}
 
 	private var newNote:(Note)->(Void);

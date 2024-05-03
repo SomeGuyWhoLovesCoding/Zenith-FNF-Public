@@ -5,6 +5,7 @@ import zenith.core.*;
 import zenith.data.*;
 import zenith.menus.*;
 import zenith.objects.*;
+import zenith.scripting.*;
 import zenith.submenus.*;
 import zenith.system.*;
 
