@@ -56,7 +56,6 @@ class Main extends Sprite
 		super();
 
 		HScriptSystem.init();
-		HScriptSystem.loadScriptsFromDirectory('assets/scripts');
 
 		openfl.Lib.current.stage.quality = stage.quality = LOW;
 

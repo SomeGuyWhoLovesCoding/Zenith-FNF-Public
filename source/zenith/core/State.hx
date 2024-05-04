@@ -30,6 +30,8 @@ class State extends FlxState
 
 		super.destroy();
 
+		openfl.system.System.gc();
+
 		HScriptSystem.callFromAllScripts('destroyPost', []);
 	}
 }

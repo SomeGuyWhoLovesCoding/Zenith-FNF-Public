@@ -27,9 +27,9 @@ class Paths
 	{
 		strumNoteAnimationHolder = new FlxSprite();
 		strumNoteAnimationHolder.frames = strumNoteAtlas = getSparrowAtlas('noteskins/Regular/Strums');
-		inline strumNoteAnimationHolder.animation.addByPrefix('static', 'static', 0, false);
-		inline strumNoteAnimationHolder.animation.addByPrefix('pressed', 'press', 12, false);
-		inline strumNoteAnimationHolder.animation.addByPrefix('confirm', 'confirm', 24, false);
+		strumNoteAnimationHolder.animation.addByPrefix('static', 'static', 0, false);
+		strumNoteAnimationHolder.animation.addByPrefix('pressed', 'press', 12, false);
+		strumNoteAnimationHolder.animation.addByPrefix('confirm', 'confirm', 24, false);
 
 		noteAnimationHolder = new FlxSprite();
 		noteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular/Notes');

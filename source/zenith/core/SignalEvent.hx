@@ -21,6 +21,9 @@ class SignalEvent
 	inline static public var NOTE_SETUP:SignalType.SignalType1<(Array<(Float)>)->(Void), (Array<(Float)>)> = "note_setup";
 	inline static public var NOTE_HIT:SignalType.SignalType1<(Note)->(Void), (Note)> = "note_hit";
 	inline static public var NOTE_MISS:SignalType.SignalType1<(Note)->(Void), (Note)> = "note_miss";
+	inline static public var NOTE_HOLD:SignalType.SignalType1<(SustainNote)->(Void), (SustainNote)> = "note_hold";
+	inline static public var SUSTAIN_NEW:SignalType.SignalType1<(SustainNote)->(Void), (SustainNote)> = "sustain_new";
+	inline static public var SUSTAIN_SETUP:SignalType.SignalType1<(Array<(Float)>)->(Void), (Array<(Float)>)> = "sustain_setup";
 	inline static public var GAMEPLAY_CREATE:SignalType.SignalType<()->(Void)> = "gameplay_create";
 	inline static public var GAMEPLAY_UPDATE:SignalType.SignalType1<(Float)->(Void), (Float)> = "gameplay_update";
 }

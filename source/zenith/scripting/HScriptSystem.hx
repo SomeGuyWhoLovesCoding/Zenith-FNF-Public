@@ -55,22 +55,25 @@ class HScriptSystem
 	{
 		try
 		{
-			var directory:Array<String> = sys.FileSystem.readDirectory(sourcePath);
-
-			for (i in 0...directory.length)
+			if (sys.FileSystem.exists(sourcePath))
 			{
-				var scriptPath:String = directory[i];
-				var path:String = sourcePath + '/' + scriptPath;
+				var directory:Array<String> = sys.FileSystem.readDirectory(sourcePath);
 
-				if (StringTools.endsWith(path, '.hx'))
+				for (i in 0...directory.length)
 				{
-					loadScript(path, StringTools.replace(scriptPath, '.hx', ''), true, sourcePath); // You MUST get the script's filename itself
+					var scriptPath:String = directory[i];
+					var path:String = sourcePath + '/' + scriptPath;
+	
+					if (StringTools.endsWith(path, '.hx'))
+					{
+						loadScript(path, StringTools.replace(scriptPath, '.hx', ''), true, sourcePath); // You MUST get the script's filename itself
+					}
 				}
+	
+				#if debug
+				trace('HScripts loaded from directory "$sourcePath"');
+				#end
 			}
-
-			#if debug
-			trace('HScripts loaded from directory "$sourcePath"');
-			#end
 		}
 		catch (e:haxe.Exception)
 		{

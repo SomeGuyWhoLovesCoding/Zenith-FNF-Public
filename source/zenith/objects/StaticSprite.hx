@@ -315,7 +315,7 @@ class StaticSprite extends FlxBasic
 	{
 		_flashRect.x = _flashRect.y = 0;
 
-		_flashRect.width = frameWidth = Std.int((_frame = frame).sourceSize.x);
+		_flashRect.width = frameWidth = Std.int((_frame = frame.copyTo(null)).sourceSize.x);
 		_flashRect.height = frameHeight = Std.int(_frame.sourceSize.y);
 
 		origin.x = _halfSize.x = 0.5 * frameWidth;

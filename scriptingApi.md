@@ -50,15 +50,27 @@ You should see something like this: "assets/scripts/script.hx"
 
 ``endSong()``: This function is called when the song has ended.
 
-``onKeyDown(keyCode, keyModifier)``: This function is called when pressing down a key.
+``onKeyDown(keyCode, keyModifier)``: This function is called when pressing down a key. (This is only available in-game)
 
-``onKeyUp(keyCode, keyModifier)``: This function is called when releasing a key.
+``onKeyUp(keyCode, keyModifier)``: This function is called when releasing a key. (This is only available in-game)
 
 ``onNoteHit(note)``: This function is called when hitting a note.
 
 ``onHold(sustain)``: This function is called every frame when holding down a sustain note.
 
 ``onNoteMiss(note)``: This function is called when missing a note.
+
+``onHold(sustain)``: This function is called every frame when holding down a sustain note.
+
+``onNoteMiss(note)``: This function is called when missing a note.
+
+``newNote(note)``: This function is called after creating a note instance.
+
+``newSustain(sustain)``: This function is called after creating a sustain note instance.
+
+``setupNoteData(note, chartNoteData)``: This function is called when setting up the note data for recycling.
+
+``setupSustainData(sustain, chartNoteData)``: This function is called when setting up the sustain note data for recycling.
 
 ## Example usage
 
