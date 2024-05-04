@@ -27,7 +27,7 @@ class StrumNote extends FlxSprite
 		player = plr;
 
 		frames = Paths.strumNoteAtlas;
-		inline animation.copyFrom(Paths.strumNoteAnimationHolder.animation);
+		animation.copyFrom(Paths.strumNoteAnimationHolder.animation);
 
 		pixelPerfectPosition = false;
 

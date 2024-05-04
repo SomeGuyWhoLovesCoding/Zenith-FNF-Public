@@ -5,7 +5,7 @@ import flixel.math.FlxRect;
 class SustainNote extends NoteBase
 {
 	public var length(default, set):Float;
-	public var wasHit:Bool = false;
+	public var holding:Bool = false;
 
 	inline function set_length(len:Float):Float
 	{

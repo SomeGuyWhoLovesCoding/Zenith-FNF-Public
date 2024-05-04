@@ -50,27 +50,43 @@ You should see something like this: "assets/scripts/script.hx"
 
 ``endSong()``: This function is called when the song has ended.
 
-``onKeyDown(keyCode, keyModifier)``: This function is called when pressing down a key. (This is only available in-game)
+``triggerEvent(eventName, value1, value2, value3, value4)``: This function is called when the current event has triggered.
 
-``onKeyUp(keyCode, keyModifier)``: This function is called when releasing a key. (This is only available in-game)
+``onKeyDown(keyCode, keyModifier)``: This function is called before pressing down a key. (This is only available in-game)
 
-``onNoteHit(note)``: This function is called when hitting a note.
+``onKeyDownPost(keyCode, keyModifier)``: This function is called after pressing down a key. (This is only available in-game)
 
-``onHold(sustain)``: This function is called every frame when holding down a sustain note.
+``onKeyUp(keyCode, keyModifier)``: This function is called before releasing a key. (This is only available in-game)
 
-``onNoteMiss(note)``: This function is called when missing a note.
+``onKeyUpPost(keyCode, keyModifier)``: This function is called after releasing a key. (This is only available in-game)
 
-``onHold(sustain)``: This function is called every frame when holding down a sustain note.
+``onNoteHit(note)``: This function is called before hitting a note.
 
-``onNoteMiss(note)``: This function is called when missing a note.
+``onNoteHitPost(note)``: This function is called after hitting a note.
+
+``onNoteMiss(note)``: This function is called before missing a note.
+
+``onNoteMissPost(note)``: This function is called after missing a note.
+
+``onHold(sustain)``: This function is called every frame before holding down a sustain note.
+
+``onHoldPost(sustain)``: This function is called every frame after holding down a sustain note.
+
+``onRelease(noteData)``: This function is called before releasing a sustain note.
+
+``onReleasePost(noteData)``: This function is called after releasing a sustain note.
 
 ``newNote(note)``: This function is called after creating a note instance.
 
 ``newSustain(sustain)``: This function is called after creating a sustain note instance.
 
-``setupNoteData(note, chartNoteData)``: This function is called when setting up the note data for recycling.
+``setupNoteData(note, chartNoteData)``: This function is called before setting up the note data for recycling.
 
-``setupSustainData(sustain, chartNoteData)``: This function is called when setting up the sustain note data for recycling.
+``setupNoteDataPost(note, chartNoteData)``: This function is called after setting up the note data for recycling.
+
+``setupSustainData(sustain, chartNoteData)``: This function is called before setting up the sustain note data for recycling.
+
+``setupSustainDataPost(sustain, chartNoteData)``: This function is called after setting up the sustain note data for recycling.
 
 ## Example usage
 

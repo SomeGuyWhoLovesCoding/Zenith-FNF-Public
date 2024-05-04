@@ -209,8 +209,6 @@ class Gameplay extends MusicBeatState
 			note.scale.x = note.scale.y = 0.7;
 			note.setFrame(Paths.regularNoteFrame);
 
-			note.alpha = 0.5;
-
 			HScriptSystem.callFromAllScripts('newNote', [note]);
 		}
 
@@ -221,6 +219,9 @@ class Gameplay extends MusicBeatState
 
 			var note:(Note) = notes.recycle((Note));
 
+			HScriptSystem.callFromAllScripts('setupNoteData', [note, chartNoteData]);
+
+			note.alpha = 1.0;
 			note.y = -2000;
 			note.wasHit = note.tooLate = false;
 
@@ -235,10 +236,10 @@ class Gameplay extends MusicBeatState
 			note.color = NoteBase.colorArray[note.noteData];
 			note.angle = NoteBase.angleArray[note.noteData];
 
-			if (note.sustainLength >= 20.0) // Don't spawn too short sustain notes
+			if (note.sustainLength >= 32.0) // Don't spawn too short sustain notes
 				events.emit(SignalEvent.SUSTAIN_SETUP, chartNoteData);
 
-			HScriptSystem.callFromAllScripts('setupNoteData', [note, chartNoteData]);
+			HScriptSystem.callFromAllScripts('setupNoteDataPost', [note, chartNoteData]);
 		}
 
 		newSustain = (sustain:(SustainNote)) ->
@@ -257,19 +258,21 @@ class Gameplay extends MusicBeatState
 		{
 			var sustain:(SustainNote) = sustains.recycle((SustainNote));
 
+			HScriptSystem.callFromAllScripts('setupSustainData', [sustain, chartNoteData]);
+
+			sustain.alpha = 0.6; // Definitive alpha, default
 			sustain.y = -2000;
-			sustain.wasHit = false;
 
 			sustain.strumTime = chartNoteData[0];
 			sustain.noteData = Std.int(chartNoteData[1]);
-			sustain.length = chartNoteData[2];
+			sustain.length = chartNoteData[2] - 32.0;
 			sustain.lane = Std.int(chartNoteData[3]);
 
 			sustain.strum = strums.members[sustain.noteData + (4 * sustain.lane)];
 
 			sustain.color = NoteBase.colorArray[sustain.noteData];
 
-			HScriptSystem.callFromAllScripts('setupSustainData', [sustain, chartNoteData]);
+			HScriptSystem.callFromAllScripts('setupSustainDataPost', [sustain, chartNoteData]);
 		}
 
 		onNoteHit = (note:(Note)) ->
@@ -300,8 +303,9 @@ class Gameplay extends MusicBeatState
 				}
 			}
 
-			note.wasHit = true;
-			note.exists = false;
+			note.wasHit = !(note.exists = false);
+
+			HScriptSystem.callFromAllScripts('onNoteHitPost', [note]);
 		}
 
 		onNoteMiss = (note:(Note)) ->
@@ -309,6 +313,7 @@ class Gameplay extends MusicBeatState
 			HScriptSystem.callFromAllScripts('onNoteMiss', [note]);
 
 			note.tooLate = true;
+			note.alpha = 0.6;
 
 			var multiplier:Int = FlxMath.maxInt(note.multiplier, 1); // Avoid calling FlxMath.maxInt 4 times
 
@@ -322,6 +327,8 @@ class Gameplay extends MusicBeatState
 				bf.playAnim(singAnimations[note.noteData] + 'miss');
 				bf.holdTimer = 0.0;
 			}
+
+			HScriptSystem.callFromAllScripts('onNoteMissPost', [note]);
 		}
 
 		onHold = (sustain:(SustainNote)) ->
@@ -330,7 +337,7 @@ class Gameplay extends MusicBeatState
 
 			sustain.strum.playAnim('confirm');
 
-			health += 0.05 * (sustain.strum.playerStrum ? 1.0 : -1.0);
+			health += 0.00125 * (sustain.strum.playerStrum ? 1.0 : -1.0);
 
 			if (!noCharacters)
 			{
@@ -343,7 +350,26 @@ class Gameplay extends MusicBeatState
 				}
 			}
 
-			sustain.wasHit = true;
+			sustain.holding = true;
+
+			HScriptSystem.callFromAllScripts('onHoldPost', [sustain]);
+		}
+
+		onRelease = (noteData:(Int)) ->
+		{
+			HScriptSystem.callFromAllScripts('onRelease', [noteData]);
+
+			score -= 100.0;
+			misses++;
+			accuracy_right++;
+
+			if (!noCharacters)
+			{
+				bf.playAnim(singAnimations[noteData] + 'miss');
+				bf.holdTimer = 0.0;
+			}
+
+			HScriptSystem.callFromAllScripts('onReleasePost', [noteData]);
 		}
 
 		onKeyDown = (keyCode:(Int), keyModifier:(Int)) ->
@@ -361,12 +387,19 @@ class Gameplay extends MusicBeatState
 			if (strum.animation.curAnim.name != 'confirm')
 				strum.playAnim('pressed');
 
-			var hittable:(Note) = fastNoteFilter(notes.members, n -> (!n.wasHit && !n.tooLate) && (Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && (n.strum.playerStrum && n.strum.noteData == key)))[0];
+			var hittable:(Note) = [for (i in 0...notes.members.length)
+			{
+				var n:(Note) = notes.members[i];
+				if ((!n.wasHit && !n.tooLate) && (Math.abs(Conductor.songPosition - n.strumTime) < 166.7 && (n.strum.playerStrum && n.strum.noteData == key)))
+					n;
+			}][0];
 
 			if (null != hittable)
 				events.emit(SignalEvent.NOTE_HIT, hittable);
 
 			holdArray[key] = true;
+
+			HScriptSystem.callFromAllScripts('onKeyDownPost', [keyCode, keyModifier]);
 		}
 
 		onKeyUp = (keyCode:(Int), keyModifier:(Int)) ->
@@ -385,6 +418,8 @@ class Gameplay extends MusicBeatState
 				strum.playAnim('static');
 
 			holdArray[key] = false;
+
+			HScriptSystem.callFromAllScripts('onKeyUpPost', [keyCode, keyModifier]);
 		}
 
 		onGameplayUpdate = (elapsed:Float) ->
@@ -419,7 +454,7 @@ class Gameplay extends MusicBeatState
 				if (note.exists)
 				{
 					var dir:Float = FlxAngle.asRadians(note.direction - 90.0);
-					note.distance = 0.45 * (Conductor.songPosition - note.strumTime) * (songSpeed * note.multSpeed);
+					note.distance = 0.45 * (Conductor.songPosition - note.strumTime) * songSpeed;
 					note.x = note.strum.x + note.offsetX + (-Math.abs(note.strum.scrollMult) * note.distance) * FlxMath.fastCos(dir);
 					note.y = note.strum.y + note.offsetY + (note.strum.scrollMult * note.distance) * FlxMath.fastSin(dir);
 
@@ -434,8 +469,10 @@ class Gameplay extends MusicBeatState
 							if (Conductor.songPosition >= note.strumTime)
 								events.emit(SignalEvent.NOTE_HIT, note);
 
-						if (Conductor.songPosition >= note.strumTime + (Conductor.stepCrochet * 2.0) && (!note.wasHit && !note.tooLate))
+						if (Conductor.songPosition >= note.strumTime + (200.0 / songSpeed) && (!note.wasHit && !note.tooLate))
+						{
 							events.emit(SignalEvent.NOTE_MISS, note);
+						}
 					}
 					else
 						if (Conductor.songPosition >= note.strumTime)
@@ -449,27 +486,36 @@ class Gameplay extends MusicBeatState
 				if (sustains.exists)
 				{
 					var dir:Float = FlxAngle.asRadians(sustain.direction - 90.0);
-					sustain.distance = 0.45 * (Conductor.songPosition - sustain.strumTime) * (songSpeed/* * sustain.multSpeed*/);
+					sustain.distance = 0.45 * (Conductor.songPosition - sustain.strumTime) * songSpeed;
 					sustain.x = (sustain.strum.x + sustain.offsetX + (-Math.abs(sustain.strum.scrollMult) * sustain.distance) * FlxMath.fastCos(dir)) +
 						((initialStrumWidth - (sustain.frameWidth * sustain.scale.x)) * 0.5);
 					sustain.y = (sustain.strum.y + sustain.offsetY + (sustain.strum.scrollMult * sustain.distance) * FlxMath.fastSin(dir)) +
 						(initialStrumHeight * 0.5);
 
-					if (Conductor.songPosition >= (sustain.strumTime + sustain.length) + (750.0 / songSpeed)) // Remove them if they're offscreen
-						sustain.exists = false;
-
 					// For hold input
 
-					if (holdArray[sustain.noteData] || !sustain.strum.playerStrum)
+					if (Conductor.songPosition >= (sustain.strumTime + sustain.length) + (750.0 / songSpeed))
+						sustain.holding = sustain.exists = false;
+
+					// I guess this is alright
+					// But... It could be better though
+					if (sustain.strum.playerStrum)
 					{
-						if (Conductor.songPosition >= sustain.strumTime && Conductor.songPosition <= sustain.strumTime + sustain.length)
-							events.emit(SignalEvent.NOTE_HOLD, sustain);
+						if (Conductor.songPosition >= sustain.strumTime && Conductor.songPosition <= (sustain.strumTime + sustain.length) - 32.0)
+						{
+							if (holdArray[sustain.noteData])
+								events.emit(SignalEvent.NOTE_HOLD, sustain);
+							else
+								if (sustain.holding)
+								{
+									events.emit(SignalEvent.NOTE_RELEASE, sustain.noteData);
+									sustain.holding = sustain.exists = false;
+								}
+						}
 					}
 					else
-					{
-						if (sustain.wasHit)
-							sustain.exists = false;
-					}
+						if (Conductor.songPosition >= sustain.strumTime && Conductor.songPosition <= (sustain.strumTime + sustain.length) - Conductor.stepCrochet)
+							events.emit(SignalEvent.NOTE_HOLD, sustain);
 				}
 			}
 		}
@@ -478,6 +524,8 @@ class Gameplay extends MusicBeatState
 		events.on(SignalEvent.NOTE_SETUP, setupNoteData);
 		events.on(SignalEvent.NOTE_HIT, onNoteHit);
 		events.on(SignalEvent.NOTE_MISS, onNoteMiss);
+		events.on(SignalEvent.NOTE_HOLD, onHold);
+		events.on(SignalEvent.NOTE_RELEASE, onRelease);
 		events.on(SignalEvent.SUSTAIN_NEW, newSustain);
 		events.on(SignalEvent.SUSTAIN_SETUP, setupSustainData);
 		events.on(SignalEvent.GAMEPLAY_UPDATE, onGameplayUpdate);
@@ -503,7 +551,7 @@ class Gameplay extends MusicBeatState
 	public var onGameplayUpdate:(Float)->(Void);
 
 	// Song events for hscript
-	public function triggerEvent(eventName:String, value1:String, value2:String)
+	public function triggerEvent(eventName:String, value1:String, value2:String, value3:String, value4:String)
 	{
 		switch (eventName)
 		{
@@ -701,7 +749,7 @@ class Gameplay extends MusicBeatState
 				}
 		}
 
-		HScriptSystem.callFromAllScripts('triggerEvent', [eventName, value1, value2]);
+		HScriptSystem.callFromAllScripts('triggerEvent', [eventName, value1, value2, value3, value4]);
 	}
 
 	private function generateSong(name:String, diff:String):Void
@@ -895,7 +943,11 @@ class Gameplay extends MusicBeatState
 
 		dance(curBeat);
 
+		if (curBeat % 4 == 0)
+			addCameraZoom();
+
 		notes.members.sort((a:(Note), b:(Note)) -> Std.int(a.strumTime - b.strumTime));
+		sustains.members.sort((a:(SustainNote), b:(SustainNote)) -> Std.int(a.strumTime - b.strumTime)); // For checking if a sustain note has been released
 
 		lastBeatHit = curBeat;
 	}
@@ -1102,9 +1154,6 @@ class Gameplay extends MusicBeatState
 	public var onKeyDown:(Int, Int)->(Void);
 	public var onKeyUp:(Int, Int)->(Void);
 
-	inline public function fastNoteFilter(array:Array<(Note)>, f:(Note)->(Bool)):Array<Note>
-		return [for (i in 0...array.length) { var a:Note = array[i]; if (f(a)) a; }];
-
 	// Preferences stuff (Also for scripting)
 
 	var strumYTweens(default, null):Array<FlxTween> = [];
@@ -1151,6 +1200,8 @@ class Gameplay extends MusicBeatState
 		events.off(SignalEvent.NOTE_SETUP, setupNoteData);
 		events.off(SignalEvent.NOTE_HIT, onNoteHit);
 		events.off(SignalEvent.NOTE_MISS, onNoteMiss);
+		events.off(SignalEvent.NOTE_HOLD, onHold);
+		events.off(SignalEvent.NOTE_RELEASE, onRelease);
 		events.off(SignalEvent.SUSTAIN_NEW, newSustain);
 		events.off(SignalEvent.SUSTAIN_SETUP, setupSustainData);
 		events.off(SignalEvent.GAMEPLAY_UPDATE, onGameplayUpdate);
@@ -1170,4 +1221,5 @@ class Gameplay extends MusicBeatState
 	public var onNoteHit:(Note)->(Void);
 	public var onNoteMiss:(Note)->(Void);
 	public var onHold:(SustainNote)->(Void);
+	public var onRelease:(Int)->(Void);
 }
