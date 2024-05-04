@@ -4,6 +4,8 @@ import sys.io.File;
 import sys.FileSystem;
 import haxe.Json;
 
+import flixel.math.FlxRect;
+
 using StringTools;
 
 typedef CharacterFile = {
@@ -34,6 +36,11 @@ typedef AnimArray = {
 @:access(flixel.animation.FlxAnimation)
 class Character extends FlxSprite
 {
+	override function set_clipRect(rect:FlxRect):FlxRect
+	{
+		return clipRect = rect;
+	}
+
 	public var animOffsets:Map<String, Array<Float>>;
 	public var debugMode:Bool = false;
 
