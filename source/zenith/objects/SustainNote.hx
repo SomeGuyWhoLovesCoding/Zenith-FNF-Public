@@ -34,7 +34,7 @@ class SustainNote extends NoteBase
 	{
 		if (null != _frame)
 		{
-			_frame.frame.height = (1 - (_frame.frame.y = -length * ((null != Gameplay.SONG ? Gameplay.SONG.info.speed : 1.0) / 1.55555555) /* What? */)) + frameHeight;
+			_frame.frame.height = (1 - (_frame.frame.y = -length * ((null != Gameplay.SONG ? Gameplay.SONG.info.speed : 1.0) * 0.6428571428571431) /* What? */)) + frameHeight;
 			height = _frame.frame.height * Math.abs(scale.y);
 		}
 		super.draw();
