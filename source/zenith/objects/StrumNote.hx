@@ -1,5 +1,7 @@
 package zenith.objects;
 
+import flixel.math.FlxRect;
+
 @:access(flixel.animation.FlxAnimationController)
 @:access(flixel.animation.FlxAnimation)
 class StrumNote extends FlxSprite
@@ -86,4 +88,9 @@ class StrumNote extends FlxSprite
 	}
 
 	public var playAnim:(String)->(Void);
+
+	override function set_clipRect(rect:FlxRect):FlxRect
+	{
+		return clipRect = rect;
+	}
 }

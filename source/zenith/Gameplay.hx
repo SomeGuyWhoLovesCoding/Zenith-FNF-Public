@@ -35,6 +35,7 @@ class Gameplay extends MusicBeatState
 	public static var downScroll:Bool = true;
 	public static var hideHUD:Bool = false;
 	public static var noCharacters:Bool = false;
+	public static var stillCharacters:Bool = false;
 
 	// Song stuff
 	public static var SONG:Song.SwagSong;
@@ -118,6 +119,7 @@ class Gameplay extends MusicBeatState
 		downScroll = SaveData.contents.preferences.downScroll;
 		hideHUD = SaveData.contents.preferences.hideHUD;
 		noCharacters = SaveData.contents.preferences.noCharacters;
+		stillCharacters = SaveData.contents.preferences.stillCharacters;
 
 		// Reset gameplay stuff
 		FlxG.fixedTimestep = startedCountdown = songEnded = false;
@@ -214,7 +216,7 @@ class Gameplay extends MusicBeatState
 
 		setupNoteData = (chartNoteData:(Array<(Float)>)) ->
 		{
-			if (chartNoteData[0] <= 0.0) // Don't spawn a note with negative time
+			if (chartNoteData[0] < 0.0) // Don't spawn a note with negative time
 				return;
 
 			var note:(Note) = notes.recycle((Note));
@@ -236,7 +238,7 @@ class Gameplay extends MusicBeatState
 			note.color = NoteBase.colorArray[note.noteData];
 			note.angle = NoteBase.angleArray[note.noteData];
 
-			if (note.sustainLength >= 32.0) // Don't spawn too short sustain notes
+			if (note.sustainLength > 32.0) // Don't spawn too short sustain notes
 				events.emit(SignalEvent.SUSTAIN_SETUP, chartNoteData);
 
 			HScriptSystem.callFromAllScripts('setupNoteDataPost', [note, chartNoteData]);
@@ -262,6 +264,7 @@ class Gameplay extends MusicBeatState
 
 			sustain.alpha = 0.6; // Definitive alpha, default
 			sustain.y = -2000;
+			sustain.holding = sustain.missed = false;
 
 			sustain.strumTime = chartNoteData[0];
 			sustain.noteData = Std.int(chartNoteData[1]);
@@ -345,7 +348,19 @@ class Gameplay extends MusicBeatState
 
 				if (null != char)
 				{
-					char.playAnim(singAnimations[sustain.noteData]);
+					if (Gameplay.stillCharacters)
+						char.playAnim(singAnimations[sustain.noteData]);
+					else
+					{
+						// This shit is similar to amazing engine's character hold fix, but better
+
+						if (char.animation.curAnim.name.endsWith('miss'))
+							char.playAnim(singAnimations[sustain.noteData]);
+	
+						if (char.animation.curAnim.curFrame > (char.stillCharacterFrame == -1 ? char.animation.curAnim.frames.length : char.stillCharacterFrame))
+							char.animation.curAnim.curFrame = (char.stillCharacterFrame == -1 ? char.animation.curAnim.frames.length - 2 : char.stillCharacterFrame - 1);
+					}
+
 					char.holdTimer = 0.0;
 				}
 			}
@@ -495,13 +510,11 @@ class Gameplay extends MusicBeatState
 					// For hold input
 
 					if (Conductor.songPosition >= (sustain.strumTime + sustain.length) + (750.0 / songSpeed))
-						sustain.holding = sustain.exists = false;
+						sustain.holding = sustain.missed = sustain.exists = false;
 
-					// I guess this is alright
-					// But... It could be better though
 					if (sustain.strum.playerStrum)
 					{
-						if (Conductor.songPosition >= sustain.strumTime && Conductor.songPosition <= (sustain.strumTime + sustain.length) - 32.0)
+						if (!sustain.missed && Conductor.songPosition >= sustain.strumTime && Conductor.songPosition <= (sustain.strumTime + sustain.length) - Conductor.stepCrochet)
 						{
 							if (holdArray[sustain.noteData])
 								events.emit(SignalEvent.NOTE_HOLD, sustain);
@@ -509,7 +522,8 @@ class Gameplay extends MusicBeatState
 								if (sustain.holding)
 								{
 									events.emit(SignalEvent.NOTE_RELEASE, sustain.noteData);
-									sustain.holding = sustain.exists = false;
+									sustain.missed = !(sustain.holding = false);
+									sustain.alpha = 0.3;
 								}
 						}
 					}
@@ -764,7 +778,7 @@ class Gameplay extends MusicBeatState
 			SONG = ChartPreloader.container.get(preloadName);
 		}
 		else
-			SONG = Song.loadFromJson(name + '/' + name + diff);
+			ChartPreloader.container.set(preloadName, SONG = Song.loadFromJson(name + '/' + name + diff));
 
 		trace('Loaded ${SONG.noteData.length} notes! Now time to load more stuff here...');
 
@@ -777,6 +791,8 @@ class Gameplay extends MusicBeatState
 
 		curSong = SONG.song;
 		songSpeed = SONG.info.speed;
+
+		trace(songSpeed);
 
 		curStage = SONG.info.stage;
 

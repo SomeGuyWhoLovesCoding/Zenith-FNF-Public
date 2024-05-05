@@ -12,6 +12,7 @@ class SaveData
 			ghostTapping: false,
 			hideHUD: false,
 			noCharacters: false,
+			stillCharacters: true,
 			antialiasing: true,
 			gpuCaching: true,
 			persistentGraphics: false,
@@ -68,6 +69,7 @@ typedef PreferencesData =
 	var ghostTapping:Bool;
 	var hideHUD:Bool;
 	var noCharacters:Bool;
+	var stillCharacters:Bool;
 	var antialiasing:Bool;
 	var gpuCaching:Bool;
 	var persistentGraphics:Bool;

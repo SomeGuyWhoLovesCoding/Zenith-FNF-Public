@@ -4,15 +4,9 @@ import flixel.math.FlxRect;
 
 class SustainNote extends NoteBase
 {
-	public var length(default, set):Float;
+	public var length:Float = 0.0;
 	public var holding:Bool = false;
-
-	inline function set_length(len:Float):Float
-	{
-		_frame.frame.height = (1 - (_frame.frame.y = -(length = len))) + frameHeight;
-		height = _frame.frame.height * Math.abs(scale.y);
-		return len;
-	}
+	public var missed:Bool = false;
 
 	override function set_direction(dir:Float):Float
 	{
@@ -34,6 +28,16 @@ class SustainNote extends NoteBase
 		// The absolute fastest way to display sustain notes
 		if (null != Gameplay.instance.events)
 			Gameplay.instance.events.emit(SignalEvent.SUSTAIN_NEW, this);
+	}
+
+	override function draw():Void
+	{
+		if (null != _frame)
+		{
+			_frame.frame.height = (1 - (_frame.frame.y = -length * ((null != Gameplay.SONG ? Gameplay.SONG.info.speed : 1.0) / 1.55555555) /* What? */)) + frameHeight;
+			height = _frame.frame.height * Math.abs(scale.y);
+		}
+		super.draw();
 	}
 
 	/**
@@ -68,6 +72,12 @@ class SustainNote extends NoteBase
 		newRect.height = _frame.frame.height * Math.abs(scale.y);
 
 		return newRect.getRotatedBounds(angle, _scaledOrigin, newRect);
+	}
+
+	override function set_width(value:Float):Float
+	{
+		visible = value > 0.0;
+		return width = value;
 	}
 
 	override function set_height(value:Float):Float

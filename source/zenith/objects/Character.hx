@@ -21,6 +21,8 @@ typedef CharacterFile = {
 	var flip_x:Bool;
 	var no_antialiasing:Bool;
 	var healthbar_colors:Array<Int>;
+
+	var stillCharacterFrame:Null<Int>;
 }
 
 typedef AnimArray = {
@@ -70,6 +72,7 @@ class Character extends FlxSprite
 	public var noAntialiasing:Bool = false;
 	public var originalFlipX:Bool = false;
 	public var healthColorArray:Array<Int> = [255, 0, 0];
+	public var stillCharacterFrame:Int = -1;
 
 	public static var DEFAULT_CHARACTER:String = 'bf'; //In case a character is missing, it will use BF on its place
 	public function new(x:Float, y:Float, character:String = 'bf', isPlayer:Bool = false)
@@ -111,6 +114,9 @@ class Character extends FlxSprite
 
 		if(json.healthbar_colors != null && json.healthbar_colors.length > 2)
 			healthColorArray = json.healthbar_colors;
+
+		if(json.stillCharacterFrame != null)
+			stillCharacterFrame = json.stillCharacterFrame;
 
 		antialiasing = !noAntialiasing && SaveData.contents.preferences.antialiasing;
 
@@ -203,6 +209,7 @@ class Character extends FlxSprite
 	public function playAnim(AnimName:String, special:Bool = false):Void
 	{
 		specialAnim = special;
+
 		animation.play(AnimName, true);
 
 		var daOffset:Array<Float> = animOffsets.get(AnimName);
