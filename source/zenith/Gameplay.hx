@@ -778,7 +778,7 @@ class Gameplay extends MusicBeatState
 			SONG = ChartPreloader.container.get(preloadName);
 		}
 		else
-			ChartPreloader.container.set(preloadName, SONG = Song.loadFromJson(name + '/' + name + diff));
+			SONG = Song.loadFromJson(name + '/' + name + diff);
 
 		trace('Loaded ${SONG.noteData.length} notes! Now time to load more stuff here...');
 
