@@ -252,7 +252,7 @@ class StaticSprite extends FlxBasic
 	#if FLX_DEBUG
 	public function drawDebug():Void
 	{
-		for (camera in getCamerasLegacy())
+		for (camera in cameras)
 			drawDebugOnCamera(camera);
 	}
 
@@ -546,7 +546,7 @@ class StaticSprite extends FlxBasic
 			if (alpha == 0.0 || _frame.type == FlxFrameType.EMPTY)
 				return;
 
-			for (camera in getCamerasLegacy())
+			for (camera in cameras)
 			{
 				if (!camera.visible || !camera.exists || !isOnScreen(camera))
 					continue;
@@ -855,7 +855,7 @@ class StaticSprite extends FlxBasic
 	{
 		if (_frame == null)
 			loadGraphic("flixel/images/logo/default.png");
-		else if (graphic != null && graphic.isDestroyed)
+		else if (graphic != null)
 		{
 			// switch graphic but log and preserve size
 			final width = this.width;
@@ -931,7 +931,7 @@ class StaticSprite extends FlxBasic
 	 * @param   alphaOffset       The offset for alpha transparency channel value, in the range from `-255` to `255`.
 	 */
 	public function setColorTransform(redMultiplier = 1.0, greenMultiplier = 1.0, blueMultiplier = 1.0, alphaMultiplier = 1.0,
-			redOffset = 0.0, greenOffset = 0.0, blueOffset = 0.0, alphaOffset = 0.0):Void
+			redOffset = 0, greenOffset = 0, blueOffset = 0, alphaOffset = 0):Void
 	{
 		color = FlxColor.fromRGBFloat(redMultiplier, greenMultiplier, blueMultiplier).to24Bit();
 		alpha = alphaMultiplier;
@@ -1099,11 +1099,11 @@ class StaticSprite extends FlxBasic
 		{
 			// If new graphic is not null, increase its use count
 			if (value != null)
-				value.incrementUseCount();
+				value.useCount++;
 			
 			// If old graphic is not null, decrease its use count
 			if (graphic != null)
-				graphic.decrementUseCount();
+				graphic.useCount--;
 			
 			graphic = value;
 		}

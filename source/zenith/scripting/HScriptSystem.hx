@@ -4,7 +4,7 @@ import hscript.*;
 
 class HScriptSystem
 {
-	static var list:Map<String, HScriptFile>;
+	static public var list:Map<String, HScriptFile>;
 
 	static public function init():Void
 	{

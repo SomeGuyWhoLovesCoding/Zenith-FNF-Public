@@ -211,17 +211,39 @@ class Gameplay extends MusicBeatState
 			note.scale.x = note.scale.y = 0.7;
 			note.setFrame(Paths.regularNoteFrame);
 
-			HScriptSystem.callFromAllScripts('newNote', [note]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('newNote'))
+						(scriptList.get(script).interp.variables.get('newNote'))(note);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 		}
 
 		setupNoteData = (chartNoteData:(Array<(Float)>)) ->
 		{
-			if (chartNoteData[0] < 0.0) // Don't spawn a note with negative time
+			if (chartNoteData[0] < 0.0 || chartNoteData[3] < 0) // Don't spawn a note with negative time
 				return;
 
 			var note:(Note) = notes.recycle((Note));
 
-			HScriptSystem.callFromAllScripts('setupNoteData', [note, chartNoteData]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('setupNoteData'))
+						(scriptList.get(script).interp.variables.get('setupNoteData'))(note, chartNoteData);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 
 			note.alpha = 1.0;
 			note.y = -2000;
@@ -241,7 +263,18 @@ class Gameplay extends MusicBeatState
 			if (note.sustainLength > 32.0) // Don't spawn too short sustain notes
 				events.emit(SignalEvent.SUSTAIN_SETUP, chartNoteData);
 
-			HScriptSystem.callFromAllScripts('setupNoteDataPost', [note, chartNoteData]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('setupNoteDataPost'))
+						(scriptList.get(script).interp.variables.get('setupNoteDataPost'))(note, chartNoteData);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 		}
 
 		newSustain = (sustain:(SustainNote)) ->
@@ -253,14 +286,36 @@ class Gameplay extends MusicBeatState
 			sustain.origin.x = sustain.frameWidth * 0.5;
 			sustain.origin.y = sustain.offset.y = 0.0;
 
-			HScriptSystem.callFromAllScripts('newSustain', [sustain]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('newSustain'))
+						(scriptList.get(script).interp.variables.get('newSustain'))(sustain);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 		}
 
 		setupSustainData = (chartNoteData:(Array<(Float)>)) ->
 		{
 			var sustain:(SustainNote) = sustains.recycle((SustainNote));
 
-			HScriptSystem.callFromAllScripts('setupSustainData', [sustain, chartNoteData]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('setupSustainData'))
+						(scriptList.get(script).interp.variables.get('setupSustainData'))(sustain, chartNoteData);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 
 			sustain.alpha = 0.6; // Definitive alpha, default
 			sustain.y = -2000;
@@ -275,12 +330,34 @@ class Gameplay extends MusicBeatState
 
 			sustain.color = NoteBase.colorArray[sustain.noteData];
 
-			HScriptSystem.callFromAllScripts('setupSustainDataPost', [sustain, chartNoteData]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('setupSustainDataPost'))
+						(scriptList.get(script).interp.variables.get('setupSustainDataPost'))(sustain, chartNoteData);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 		}
 
 		onNoteHit = (note:(Note)) ->
 		{
-			HScriptSystem.callFromAllScripts('onNoteHit', [note]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('onNoteHit'))
+						(scriptList.get(script).interp.variables.get('onNoteHit'))(note);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 
 			note.strum.playAnim('confirm');
 
@@ -308,12 +385,34 @@ class Gameplay extends MusicBeatState
 
 			note.wasHit = !(note.exists = false);
 
-			HScriptSystem.callFromAllScripts('onNoteHitPost', [note]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('onNoteHitPost'))
+						(scriptList.get(script).interp.variables.get('onNoteHitPost'))(note);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 		}
 
 		onNoteMiss = (note:(Note)) ->
 		{
-			HScriptSystem.callFromAllScripts('onNoteMiss', [note]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('onNoteMiss'))
+						(scriptList.get(script).interp.variables.get('onNoteMiss'))(note);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 
 			note.tooLate = true;
 			note.alpha = 0.6;
@@ -331,12 +430,34 @@ class Gameplay extends MusicBeatState
 				bf.holdTimer = 0.0;
 			}
 
-			HScriptSystem.callFromAllScripts('onNoteMissPost', [note]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('onNoteMissPost'))
+						(scriptList.get(script).interp.variables.get('onNoteMissPost'))(note);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 		}
 
 		onHold = (sustain:(SustainNote)) ->
 		{
-			HScriptSystem.callFromAllScripts('onHold', [sustain]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('onHold'))
+						(scriptList.get(script).interp.variables.get('onHold'))(sustain);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 
 			sustain.strum.playAnim('confirm');
 
@@ -367,12 +488,34 @@ class Gameplay extends MusicBeatState
 
 			sustain.holding = true;
 
-			HScriptSystem.callFromAllScripts('onHoldPost', [sustain]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('onHoldPost'))
+						(scriptList.get(script).interp.variables.get('onHoldPost'))(sustain);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 		}
 
 		onRelease = (noteData:(Int)) ->
 		{
-			HScriptSystem.callFromAllScripts('onRelease', [noteData]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('onRelease'))
+						(scriptList.get(script).interp.variables.get('onRelease'))(noteData);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 
 			score -= 100.0;
 			misses++;
@@ -384,12 +527,34 @@ class Gameplay extends MusicBeatState
 				bf.holdTimer = 0.0;
 			}
 
-			HScriptSystem.callFromAllScripts('onReleasePost', [noteData]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('onReleasePost'))
+						(scriptList.get(script).interp.variables.get('onReleasePost'))(noteData);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 		}
 
 		onKeyDown = (keyCode:(Int), keyModifier:(Int)) ->
 		{
-			HScriptSystem.callFromAllScripts('onKeyDown', [keyCode, keyModifier]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('onKeyDown'))
+						(scriptList.get(script).interp.variables.get('onKeyDown'))(keyCode, keyModifier);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 
 			var key:Int = inputKeybinds.indexOf(keyCode);
 
@@ -414,12 +579,34 @@ class Gameplay extends MusicBeatState
 
 			holdArray[key] = true;
 
-			HScriptSystem.callFromAllScripts('onKeyDownPost', [keyCode, keyModifier]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('onKeyDownPost'))
+						(scriptList.get(script).interp.variables.get('onKeyDownPost'))(keyCode, keyModifier);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 		}
 
 		onKeyUp = (keyCode:(Int), keyModifier:(Int)) ->
 		{
-			HScriptSystem.callFromAllScripts('onKeyUp', [keyCode, keyModifier]);
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('onKeyUp'))
+						(scriptList.get(script).interp.variables.get('onKeyUp'))(keyCode, keyModifier);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 
 			var key:Int = inputKeybinds.indexOf(keyCode);
 
@@ -434,7 +621,19 @@ class Gameplay extends MusicBeatState
 
 			holdArray[key] = false;
 
-			HScriptSystem.callFromAllScripts('onKeyUpPost', [keyCode, keyModifier]);
+			
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('onKeyUpPost'))
+						(scriptList.get(script).interp.variables.get('onKeyUpPost'))(keyCode, keyModifier);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
 		}
 
 		onGameplayUpdate = (elapsed:Float) ->
@@ -763,7 +962,18 @@ class Gameplay extends MusicBeatState
 				}
 		}
 
-		HScriptSystem.callFromAllScripts('triggerEvent', [eventName, value1, value2, value3, value4]);
+		for (script in scriptList.keys())
+		{
+			try
+			{
+				if (scriptList.get(script).interp.variables.exists('triggerEvent'))
+					(scriptList.get(script).interp.variables.get('triggerEvent'))(eventName, value1, value2, value3, value4);
+			}
+			catch (e)
+			{
+				HScriptSystem.error(e);
+			}
+		}
 	}
 
 	private function generateSong(name:String, diff:String):Void
@@ -903,7 +1113,18 @@ class Gameplay extends MusicBeatState
 
 		Conductor.changeBPM(SONG.info.bpm);
 
-		HScriptSystem.callFromAllScripts('generateSong', [name, diff]);
+		for (script in scriptList.keys())
+		{
+			try
+			{
+				if (scriptList.get(script).interp.variables.exists('generateSong'))
+					(scriptList.get(script).interp.variables.get('generateSong'))(name, diff);
+			}
+			catch (e)
+			{
+				HScriptSystem.error(e);
+			}
+		}
 
 		openfl.system.System.gc();
 	}
@@ -1038,7 +1259,18 @@ class Gameplay extends MusicBeatState
 			dance(swagCounter++);
 		}, 5);
 
-		HScriptSystem.callFromAllScripts('startCountdown', []);
+		for (script in scriptList.keys())
+		{
+			try
+			{
+				if (scriptList.get(script).interp.variables.exists('startCountdown'))
+					(scriptList.get(script).interp.variables.get('startCountdown'))();
+			}
+			catch (e)
+			{
+				HScriptSystem.error(e);
+			}
+		}
 	}
 
 	private function startSong():Void
@@ -1057,7 +1289,18 @@ class Gameplay extends MusicBeatState
 
 		startedCountdown = true;
 
-		HScriptSystem.callFromAllScripts('startSong', []);
+		for (script in scriptList.keys())
+		{
+			try
+			{
+				if (scriptList.get(script).interp.variables.exists('startSong'))
+					(scriptList.get(script).interp.variables.get('startSong'))();
+			}
+			catch (e)
+			{
+				HScriptSystem.error(e);
+			}
+		}
 	}
 
 	public function endSong():Void
@@ -1075,7 +1318,18 @@ class Gameplay extends MusicBeatState
 
 		switchState(new WelcomeState());
 
-		HScriptSystem.callFromAllScripts('endSong', []);
+		for (script in scriptList.keys())
+		{
+			try
+			{
+				if (scriptList.get(script).interp.variables.exists('endSong'))
+					(scriptList.get(script).interp.variables.get('endSong'))();
+			}
+			catch (e)
+			{
+				HScriptSystem.error(e);
+			}
+		}
 	}
 
 	// Camera functions
@@ -1104,7 +1358,18 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		HScriptSystem.callFromAllScripts('moveCamera', [whatCharacter]);
+		for (script in scriptList.keys())
+		{
+			try
+			{
+				if (scriptList.get(script).interp.variables.exists('moveCamera'))
+					(scriptList.get(script).interp.variables.get('moveCamera'))(whatCharacter);
+			}
+			catch (e)
+			{
+				HScriptSystem.error(e);
+			}
+		}
 	}
 
 	private function zoomTweenFunction(cam:(FlxCamera), amount:Float = 1):FlxTween

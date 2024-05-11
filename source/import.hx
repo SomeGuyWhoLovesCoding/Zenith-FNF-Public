@@ -12,13 +12,17 @@ import zenith.system.*;
 // Flixel
 
 import flixel.*;
-import flixel.sound.FlxSound;
+import flixel.system.FlxSound;
 import flixel.util.*;
 import flixel.ui.*;
 
 // Signals
 
 import emitter.signals.*;
+
+// HScript
+
+import zenith.scripting.HScriptSystem.list in scriptList;
 
 #if !debug
 @:noDebug

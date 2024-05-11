@@ -8,30 +8,97 @@ class State extends FlxState
 	{
 		// Scripting shit
 		HScriptSystem.loadScriptsFromDirectory('assets/scripts');
-		HScriptSystem.callFromAllScripts('create', []);
+
+		for (script in scriptList.keys())
+		{
+			try
+			{
+				if (scriptList.get(script).interp.variables.exists('create'))
+					(scriptList.get(script).interp.variables.get('create'))();
+			}
+			catch (e)
+			{
+				HScriptSystem.error(e);
+			}
+		}
 
 		super.create();
 
-		HScriptSystem.callFromAllScripts('createPost', []);
+		for (script in scriptList.keys())
+		{
+			try
+			{
+				if (scriptList.get(script).interp.variables.exists('createPost'))
+					(scriptList.get(script).interp.variables.get('createPost'))();
+			}
+			catch (e)
+			{
+				HScriptSystem.error(e);
+			}
+		}
 	}
 
 	override function update(elapsed:Float):Void
 	{
-		HScriptSystem.callFromAllScripts('update', [elapsed]);
+		for (script in scriptList.keys())
+		{
+			try
+			{
+				if (scriptList.get(script).interp.variables.exists('update'))
+					(scriptList.get(script).interp.variables.get('update'))(elapsed);
+			}
+			catch (e)
+			{
+				HScriptSystem.error(e);
+			}
+		}
 
 		super.update(elapsed);
 
-		HScriptSystem.callFromAllScripts('updatePost', [elapsed]);
+		for (script in scriptList.keys())
+		{
+			try
+			{
+				if (scriptList.get(script).interp.variables.exists('updatePost'))
+					(scriptList.get(script).interp.variables.get('updatePost'))(elapsed);
+			}
+			catch (e)
+			{
+				HScriptSystem.error(e);
+			}
+		}
 	}
 
 	override function destroy():Void
 	{
-		HScriptSystem.callFromAllScripts('destroy', []);
+		for (script in scriptList.keys())
+		{
+			try
+			{
+				if (scriptList.get(script).interp.variables.exists('destroy'))
+					(scriptList.get(script).interp.variables.get('destroy'))();
+			}
+			catch (e)
+			{
+				HScriptSystem.error(e);
+			}
+		}
 
 		super.destroy();
 
-		openfl.system.System.gc();
+		for (script in scriptList.keys())
+		{
+			try
+			{
+				if (scriptList.get(script).interp.variables.exists('destroyPost'))
+					(scriptList.get(script).interp.variables.get('destroyPost'))();
+			}
+			catch (e)
+			{
+				HScriptSystem.error(e);
+			}
+		}
 
-		HScriptSystem.callFromAllScripts('destroyPost', []);
+		openfl.system.System.gc();
 	}
 }
