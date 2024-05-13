@@ -164,6 +164,12 @@ class Gameplay extends MusicBeatState
 
 		var timeStamp:Float = haxe.Timer.stamp();
 
+		#if sys
+		var bkgw = new lime.system.BackgroundWorker();
+		bkgw.doWork.add((code:Int) ->
+		{
+		#end
+
 		generateSong(songName, songDifficulty);
 
 		sustains = new FlxTypedGroup<SustainNote>();
@@ -203,6 +209,12 @@ class Gameplay extends MusicBeatState
 
 		generatedMusic = true;
 		startCountdown();
+
+		#if sys
+		});
+
+		bkgw.run();
+		#end
 
 		super.create();
 

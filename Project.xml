@@ -2,10 +2,6 @@
 <project xmlns="http://lime.software/project/1.0.2" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://lime.software/project/1.0.2 http://lime.software/xsd/project-1.0.2.xsd">
 
-	<haxelib name="flixel" version="5.1.0" />
-	<haxelib name="flixel-addons" version="3.0.2" />
-	<openfl version="9.2.1" />
-
 	<!-- _________________________ Application Settings _________________________ -->
 
 	<app title="Friday Night Funkin: Zenith" file="Zenith-FNF" main="Main" version="1.0" company="VeryExcited" />
@@ -48,6 +44,9 @@
 	<assets path="logo.png" />
 
 	<!-- _______________________________ Libraries ______________________________ -->
+
+	<haxelib name="flixel" />
+	<haxelib name="flixel-addons" />
 
 	<!--Emitter-->
 	<haxelib name="Emitter" />
