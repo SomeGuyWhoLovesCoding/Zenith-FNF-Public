@@ -41,7 +41,14 @@ class StrumNote extends FlxSprite
 		{
 			color = anim == 'static' ? 0xffffffff : NoteBase.colorArray[noteData];
 
+			// I swear to fucking god bro, I'll find a solution to this for HXCPP_CHECK_POINTER
+			#if HXCPP_CHECK_POINTER
 			animation.play(anim, true);
+			#else
+			animation.curAnim = animation._animations.get(anim);
+			animation.curAnim._frameTimer = animation.curAnim.curFrame = 0;
+			animation.curAnim.finished = animation.curAnim.paused = !(active = anim != 'static');
+			#end
 			active = anim != 'static';
 
 			// Broken down version of updateHitbox(), basically inlining manually

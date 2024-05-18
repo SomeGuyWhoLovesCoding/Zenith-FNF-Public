@@ -17,6 +17,7 @@ class SaveData
 			antialiasing: true,
 			multithreading: false,
 			gpuCaching: true,
+			vsync: {adaptive: false, enabled: false},
 			persistentGraphics: false,
 			fps: 60
 		},
@@ -71,6 +72,7 @@ typedef GraphicsData =
 	var antialiasing:Bool;
 	var multithreading:Bool;
 	var gpuCaching:Bool;
+	var vsync:{adaptive:Bool, enabled:Bool};
 	var persistentGraphics:Bool;
 	var fps:Int;
 }

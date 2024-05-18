@@ -26,7 +26,7 @@ class Game extends FlxGame
 
 	public function new():Void
 	{
-		var fps:Int = Std.int(setFramerate(SaveData.contents.graphics.fps));
+		var fps = Std.int(setFramerate(SaveData.contents.graphics.fps));
 
 		FlxSprite.defaultAntialiasing = SaveData.contents.graphics.antialiasing;
 
@@ -41,11 +41,24 @@ class Game extends FlxGame
 
 	override public function onEnterFrame(_:openfl.events.Event):Void
 	{
-		FlxG.fixedTimestep = false;
-		super.onEnterFrame(_);
+		super.onEnterFrame((_ : openfl.events.Event));
 		Main.updateMain(FlxG.elapsed);
 	}
 
-	inline public function setFramerate(fps:Int):Float
+	override function updateElapsed():Void
+	{
+		if (Main.VSYNC.ENABLED)
+			FlxG.elapsed = 1.0 / frameRate;
+		else
+		{
+			FlxG.elapsed = FlxG.timeScale * (_elapsedMS * 0.001); // variable timestep
+
+			var max = FlxG.maxElapsed * FlxG.timeScale;
+			if (FlxG.elapsed > max)
+				FlxG.elapsed = max;
+		}
+	}
+
+	inline public function setFramerate(fps:Int):Int
 		return frameRate = fps;
 }

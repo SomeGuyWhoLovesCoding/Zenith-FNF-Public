@@ -210,7 +210,13 @@ class Character extends FlxSprite
 	{
 		specialAnim = special;
 
+		#if HXCPP_CHECK_POINTER
 		animation.play(AnimName, true);
+		#else
+		animation.curAnim = animation._animations.get(AnimName);
+		animation.curAnim._frameTimer = animation.curAnim.curFrame = 0;
+		animation.curAnim.finished = animation.curAnim.paused = false;
+		#end
 
 		var daOffset:Array<Float> = animOffsets.get(AnimName);
 

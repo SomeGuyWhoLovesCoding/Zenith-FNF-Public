@@ -7,8 +7,6 @@ import openfl.geom.Matrix;
 
 import lime._internal.backend.native.NativeCFFI;
 import haxe.CallStack;
-
-
 import openfl.events.UncaughtErrorEvent;
 
 import lime.ui.*;
@@ -51,6 +49,7 @@ class Main extends Sprite
 	private var gamepad:()->(Void);
 
 	static public var ENABLE_MULTITHREADING:Bool = false;
+	static public var VSYNC = {ADAPTIVE: false, ENABLED: false};
 
 	public function new()
 	{
@@ -144,6 +143,8 @@ class Main extends Sprite
 		SaveData.reloadSave();
 		flixel.graphics.FlxGraphic.defaultPersist = SaveData.contents.graphics.persistentGraphics;
 		ENABLE_MULTITHREADING = SaveData.contents.graphics.multithreading;
+		VSYNC.ADAPTIVE = SaveData.contents.graphics.vsync.adaptive;
+		VSYNC.ENABLED = SaveData.contents.graphics.vsync.enabled;
 
 		addChild(game = new Game());
 		addChild(transition);
