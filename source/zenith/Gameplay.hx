@@ -703,8 +703,8 @@ class Gameplay extends MusicBeatState
 		events.on(SignalEvent.SUSTAIN_SETUP, setupSustainData);
 		events.on(SignalEvent.GAMEPLAY_UPDATE, onGameplayUpdate);
 
-		Game.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
-		Game.onKeyUp.on(SignalEvent.KEY_UP, onKeyUp);
+		Game.instance.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
+		Game.instance.onKeyUp.on(SignalEvent.KEY_UP, onKeyUp);
 	}
 
 	override function update(elapsed:Float):Void
@@ -1937,8 +1937,8 @@ class Gameplay extends MusicBeatState
 		events.off(SignalEvent.SUSTAIN_SETUP, setupSustainData);
 		events.off(SignalEvent.GAMEPLAY_UPDATE, onGameplayUpdate);
 
-		Game.onKeyDown.off(SignalEvent.KEY_DOWN, onKeyDown);
-		Game.onKeyUp.off(SignalEvent.KEY_UP, onKeyUp);
+		Game.instance.onKeyDown.off(SignalEvent.KEY_DOWN, onKeyDown);
+		Game.instance.onKeyUp.off(SignalEvent.KEY_UP, onKeyUp);
 
 		super.destroy();
 	}

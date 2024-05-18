@@ -1,23 +1,26 @@
 package zenith;
 
+@:access(flixel.FlxG.elapsed)
 class Game extends FlxGame
 {
-	private final initState:Class<FlxState> = Gameplay;
+	final initState:Class<FlxState> = Gameplay;
 
-	public static var volume:Float = 1.0;
-	public static var muted:Bool = false;
-	public static var blockSoundKeys:Bool = false;
+	public var volume:Float = 1.0;
+	public var muted:Bool = false;
+	public var blockSoundKeys:Bool = false;
 
 	// Keyboard events
-	public static var onKeyDown:Emitter = new Emitter();
-	public static var onKeyUp:Emitter = new Emitter();
+	public var onKeyDown:Emitter = new Emitter();
+	public var onKeyUp:Emitter = new Emitter();
 
 	// Gamepad events
-	public static var onGamepadAxisMove:Emitter = new Emitter();
-	public static var onGamepadButtonDown:Emitter = new Emitter();
-	public static var onGamepadButtonUp:Emitter = new Emitter();
-	public static var onGamepadConnect:Emitter = new Emitter();
-	public static var onGamepadDisconnect:Emitter = new Emitter();
+	public var onGamepadAxisMove:Emitter = new Emitter();
+	public var onGamepadButtonDown:Emitter = new Emitter();
+	public var onGamepadButtonUp:Emitter = new Emitter();
+	public var onGamepadConnect:Emitter = new Emitter();
+	public var onGamepadDisconnect:Emitter = new Emitter();
+
+	public static var instance:Game = null;
 
 	public static var frameRate(default, null):Int;
 
@@ -32,18 +35,20 @@ class Game extends FlxGame
 		lime.app.Application.current.window.onClose.add(SaveData.saveContent);
 
 		trace('Game initialized.');
-	}
 
-	override public function create(_:openfl.events.Event):Void
-	{
-		super.create((_ : openfl.events.Event));
+		instance = this;
 	}
 
 	override public function onEnterFrame(_:openfl.events.Event):Void
 	{
 		FlxG.fixedTimestep = false;
-		super.onEnterFrame((_ : openfl.events.Event));
+		super.onEnterFrame(_);
 		Main.updateMain(FlxG.elapsed);
+	}
+
+	override function updateElapsed():Void
+	{
+		FlxG.elapsed = 1.0 / frameRate;
 	}
 
 	inline public function setFramerate(fps:Int):Float
