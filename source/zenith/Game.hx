@@ -3,7 +3,7 @@ package zenith;
 @:access(flixel.FlxG.elapsed)
 class Game extends FlxGame
 {
-	final initState:Class<FlxState> = Gameplay;
+	final initState:Class<FlxState> = TitleScreen;
 
 	public var volume:Float = 1.0;
 	public var muted:Bool = false;
