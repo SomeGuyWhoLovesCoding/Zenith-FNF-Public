@@ -46,11 +46,6 @@ class Game extends FlxGame
 		Main.updateMain(FlxG.elapsed);
 	}
 
-	override function updateElapsed():Void
-	{
-		FlxG.elapsed = 1.0 / frameRate;
-	}
-
 	inline public function setFramerate(fps:Int):Float
 		return frameRate = fps;
 }
