@@ -14,8 +14,12 @@ class MusicBeatState extends State
 	private var curDecStep:Float = 0.0;
 	private var curDecBeat:Float = 0.0;
 
+	static public var instance:MusicBeatState;
+
 	override function create():Void
 	{
+		instance = this;
+
 		Main.startTransition(false);
 
 		super.create();

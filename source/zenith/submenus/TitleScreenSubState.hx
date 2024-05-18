@@ -7,7 +7,7 @@ using StringTools;
 class TitleScreenSubState extends FlxSubState
 {
 	var textSelection:FlxText;
-	var textSelectionArray:Array<String> = ["Main Menu", "Options"];
+	var textSelectionArray:Array<String> = ["Main Menu", "Settings"];
 
 	var curSelected:Int = 0;
 
@@ -19,7 +19,7 @@ class TitleScreenSubState extends FlxSubState
 
 		instance = this;
 
-		textSelection = new FlxText(0, FlxG.height - 200, 0, 'Main Menu   Options', 24);
+		textSelection = new FlxText(0, FlxG.height - 200, 0, 'Main Menu       Settings', 24);
 		textSelection.font = Paths.font('vcr');
 		textSelection.screenCenter(X);
 		add(textSelection);
@@ -53,6 +53,16 @@ class TitleScreenSubState extends FlxSubState
 
 	public function sendSignalEnter():Void
 	{
-		trace('Test $curSelected');
+		//trace('Test $curSelected');
+
+		if (curSelected == 0)
+		{
+			MusicBeatState.instance.switchState(new MainMenu());
+		}
+
+		if (curSelected == 1)
+		{
+			//MusicBeatState.instance.switchState(new SettingsMenu());
+		}
 	}
 }

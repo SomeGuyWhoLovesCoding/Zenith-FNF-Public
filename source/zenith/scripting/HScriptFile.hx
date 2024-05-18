@@ -87,6 +87,15 @@ class HScriptFile
 			interp.variables.set('FlxEase', flixel.tweens.FlxEase);
 			interp.variables.set('FlxSound', FlxSound);
 
+			// Menus and shit you can modify
+			interp.variables.set('TitleScreen', TitleScreen);
+			interp.variables.set('TitleScreen', TitleScreen);
+			interp.variables.set('MainMenu', MainMenu);
+			//interp.variables.set('FreeplayMenu', FreeplayMenu);
+			//interp.variables.set('AchievementsMenu', AchievementsMenu);
+			//interp.variables.set('CreditsMenu', CreditsMenu);
+			//interp.variables.set('SettingsMenu', SettingsMenu);
+
 			parser = new Parser();
 
 			interp.execute(parser.parseString(stringCode = sys.io.File.getContent(path), key = sourceKey));

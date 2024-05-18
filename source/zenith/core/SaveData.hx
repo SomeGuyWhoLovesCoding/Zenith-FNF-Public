@@ -45,7 +45,8 @@ class SaveData
 		if (sys.FileSystem.exists('savedata.sav'))
 		{
 			var contentStr:String = sys.io.File.getContent('savedata.sav');
-			contents = (contentStr != '' ? (Json.parse(contentStr) : SaveFile) : contents);
+			if (contentStr != '')
+				contents = (Json.parse(contentStr) : SaveFile);
 		}
 		else
 			sys.io.File.saveContent('savedata.sav', '');

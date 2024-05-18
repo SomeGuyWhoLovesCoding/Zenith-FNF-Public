@@ -6,6 +6,9 @@ class State extends FlxState
 {
 	override function create():Void
 	{
+		if (SaveData.contents.graphics.persistentGraphics)
+			openfl.system.System.gc();
+
 		// Scripting shit
 		HScriptSystem.loadScriptsFromDirectory('assets/scripts');
 
@@ -13,6 +16,7 @@ class State extends FlxState
 		{
 			try
 			{
+				scriptList.get(script).interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
 				if (scriptList.get(script).interp.variables.exists('create'))
 					(scriptList.get(script).interp.variables.get('create'))();
 			}
@@ -99,6 +103,7 @@ class State extends FlxState
 			}
 		}
 
-		openfl.system.System.gc();
+		if (SaveData.contents.graphics.persistentGraphics)
+			openfl.system.System.gc();
 	}
 }

@@ -17,22 +17,25 @@ typedef TitleConfigurations =
 
 class TitleScreen extends MusicBeatState
 {
-	public var introTexts:Array<Array<String>> = [ // 2 dimenstional string array
+	public var introTexts:Array<Array<String>> = [
 		['Just a nice little walk', 'to the park', 'Yay!!!'],
 		['Beep boop', 'Boop bah boop', 'Bee'],
 		['What\'s up!', 'How\'s it going?', 'Are you tired?'],
-		['What da dog doin?', '', '']
+		['What da dog doin?', '', ''],
+		['Finally', 'finished', 'this']
 	];
 
 	public var titleBG:FlxBackdrop;
 	public var titleImage:FlxSprite;
 
-	public static var titleConfig:TitleConfigurations;
-
-	public static var initialized:Bool = false;
+	static public var titleConfig:TitleConfigurations;
+	static public var initialized:Bool = false;
+	static public var instance:TitleScreen;
 
 	override public function create():Void
 	{
+		instance = this;
+
 		Main.skipTransOut = persistentDraw = persistentUpdate = true;
 
 		// Initialize the title configurations before starting the intro
@@ -44,7 +47,7 @@ class TitleScreen extends MusicBeatState
 		loadTitleScreenShit();
 		titleBG.visible = titleImage.visible = initialized;
 
-		onKeyDown = (keyCode:Int, keyModifier:Int) ->
+		onKeyDown = (keyCode:(Int), keyModifier:(Int)) ->
 		{
 			if (SaveData.contents.controls.ACCEPT == keyCode)
 			{
@@ -92,7 +95,7 @@ class TitleScreen extends MusicBeatState
 
 	private function loadTitleScreenShit():Void
 	{
-		var titleScreenFile:String = '${Paths.ASSET_PATH}/music/menus/title.ogg'; // Avoid usage of string interpolation twice
+		var titleScreenFile:String = '${Paths.ASSET_PATH}/music/menus/title.ogg';
 
 		if (!sys.FileSystem.exists(titleScreenFile))
 		{
@@ -106,6 +109,11 @@ class TitleScreen extends MusicBeatState
 			FlxG.sound.music.fadeIn(4, 0, 0.7);
 
 			Conductor.changeBPM(titleConfig.bpm);
+		}
+		else
+		{
+			FlxG.camera.flash(0xFFFFFFFF, 0.75, null, true);
+			FlxG.camera.zoom = 1.0085;
 		}
 
 		titleBG = new FlxBackdrop(Paths.image(titleConfig.titleBG));
@@ -124,21 +132,21 @@ class TitleScreen extends MusicBeatState
 			cameraZoomTween.cancel();
 
 		FlxG.camera.zoom = 1.0085;
-		cameraZoomTween = FlxTween.tween(FlxG.camera, {zoom: 1}, Conductor.crochet * 0.00175, {ease: FlxEase.quintOut});
+		cameraZoomTween = FlxTween.tween(FlxG.camera, {zoom: 1.0}, Conductor.crochet * 0.00175, {ease: FlxEase.quintOut});
 
-		titleBG.antialiasing = titleImage.antialiasing = true;
+		if (!initialized)
+		{
+			tempIntroText = introTexts[FlxG.random.int(0, introTexts.length - 1)];
 
-		if (initialized)
-			return;
+			titleText = new FlxText(0, 0, 0, '', 36);
+			titleText.font = Paths.font('vcr');
+			titleText.alignment = "center";
+			titleText.screenCenter();
+			titleText.antialiasing = SaveData.contents.graphics.antialiasing;
+			add(titleText);
+		}
 
-		tempIntroText = introTexts[FlxG.random.int(0, introTexts.length - 1)];
-
-		titleText = new FlxText(0, 0, 0, '', 36);
-		titleText.font = Paths.font('vcr');
-		titleText.alignment = "center";
-		titleText.screenCenter();
-		titleText.antialiasing = true;
-		add(titleText);
+		titleBG.antialiasing = titleImage.antialiasing = SaveData.contents.graphics.antialiasing;
 	}
 
 	override public function update(elapsed:Float):Void
@@ -188,8 +196,8 @@ class TitleScreen extends MusicBeatState
 		}
 	}
 
-	var titleText:FlxText;
-	private inline function makeTitleText(text:String):Void
+	public var titleText:FlxText;
+	private function makeTitleText(text:String):Void
 	{
 		if (null != titleText)
 		{
@@ -198,7 +206,7 @@ class TitleScreen extends MusicBeatState
 		}
 	}
 
-	private inline function addTitleText(text:String):Void
+	private function addTitleText(text:String):Void
 	{
 		if (null != titleText && text != '' /* For intro text 4 */)
 		{
@@ -207,7 +215,7 @@ class TitleScreen extends MusicBeatState
 		}
 	}
 
-	private inline function deleteTitleText():Void
+	private function deleteTitleText():Void
 	{
 		if (null != titleText)
 		{
@@ -218,9 +226,6 @@ class TitleScreen extends MusicBeatState
 
 	private function skipIntro(skipIntroMusicInstantly:Bool = false):Void
 	{
-		if (initialized)
-			return;
-
 		if (skipIntroMusicInstantly)
 		{
 			if (null != FlxG.sound.music.fadeTween)
@@ -232,9 +237,8 @@ class TitleScreen extends MusicBeatState
 
 		deleteTitleText();
 		remove(titleText);
-		initialized = true;
 
-		titleBG.visible = titleImage.visible = true;
+		titleBG.visible = titleImage.visible = initialized = true;
 
 		FlxG.camera.flash(0xFFFFFFFF, 0.75, null, true);
 		FlxG.camera.zoom = 1.0085;
@@ -245,7 +249,7 @@ class TitleScreen extends MusicBeatState
 		cameraZoomTween = FlxTween.tween(FlxG.camera, {zoom: 1.0}, Conductor.crochet * 0.001, {ease: FlxEase.quintOut});
 	}
 
-	public static var alreadyPressedEnter:Bool = false;
+	static public var alreadyPressedEnter:Bool = false;
 
-	private var onKeyDown:(Int, Int)->(Void);
+	private var onKeyDown:((Int), (Int))->(Void);
 }

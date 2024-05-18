@@ -1395,6 +1395,8 @@ class Gameplay extends MusicBeatState
 			}
 
 			startCountdown();
+
+			openfl.system.System.gc(); // Free up inactive memory
 		}
 	}
 

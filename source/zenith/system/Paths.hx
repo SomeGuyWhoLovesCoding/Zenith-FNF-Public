@@ -41,17 +41,13 @@ class Paths
 	inline public static function font(key:String, ext:String = "ttf"):String
 		return '$ASSET_PATH/fonts/$key.$ext';
 
-	private static var bitmapDataCache:Map<String, BitmapData> = new Map<String, BitmapData>();
 	public static function image(key:String):BitmapData
 	{
 		var imagePath:String = '$ASSET_PATH/images/$key.png';
 
 		if (sys.FileSystem.exists(imagePath))
 		{
-			if (!bitmapDataCache.exists(imagePath)) // Create a new FlxGraphic and add its bitmap data to the cache
-				bitmapDataCache.set(imagePath, Utils.toTexture(FlxG.bitmap.add(BitmapData.fromFile(imagePath), true, imagePath).bitmap));
-
-			return bitmapDataCache.get(imagePath);
+			return Utils.toTexture(FlxG.bitmap.add(BitmapData.fromFile(imagePath), true, imagePath).bitmap); // Fuck it. Let's just leave it there until I find out a way to remake the bitmap caching system.
 		}
 
 		trace("Image file \"" + imagePath + "\" doesn't exist.");

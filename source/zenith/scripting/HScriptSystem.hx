@@ -11,7 +11,7 @@ class HScriptSystem
 		list = new Map<String, HScriptFile>();
 	}
 
-	inline static public function reloadAllScripts():Void
+	static public function reloadAllScripts():Void
 	{
 		for (key in list.keys())
 		{
@@ -19,7 +19,7 @@ class HScriptSystem
 		}
 	}
 
-	inline static public function loadScript(sourcePath:String, key:String, fromDirectory:Bool = false, directoryName:String = ""):Void
+	static public function loadScript(sourcePath:String, key:String, fromDirectory:Bool = false, directoryName:String = ""):Void
 	{
 		// If the script already exists, overwrite it with the new contents
 		if (list.exists(key))
@@ -34,7 +34,7 @@ class HScriptSystem
 		}
 	}
 
-	inline static public function removeScript(key:String):Void
+	static public function removeScript(key:String):Void
 	{
 		// If the script is already removed, don't destroy it again
 
@@ -51,7 +51,7 @@ class HScriptSystem
 		}
 	}
 
-	inline static public function loadScriptsFromDirectory(sourcePath:String):Void
+	static public function loadScriptsFromDirectory(sourcePath:String):Void
 	{
 		try
 		{
@@ -63,13 +63,13 @@ class HScriptSystem
 				{
 					var scriptPath:String = directory[i];
 					var path:String = sourcePath + '/' + scriptPath;
-	
+
 					if (StringTools.endsWith(path, '.hx'))
 					{
 						loadScript(path, StringTools.replace(scriptPath, '.hx', ''), true, sourcePath); // You MUST get the script's filename itself
 					}
 				}
-	
+
 				#if debug
 				trace('HScripts loaded from directory "$sourcePath"');
 				#end
@@ -81,7 +81,7 @@ class HScriptSystem
 		}
 	}
 
-	inline static public function removeScriptsFromDirectory(sourcePath:String):Void
+	static public function removeScriptsFromDirectory(sourcePath:String):Void
 	{
 		try
 		{
@@ -110,7 +110,7 @@ class HScriptSystem
 		return list.get(key);
 	}
 
-	inline static public function reloadScript(key:String):Void
+	static public function reloadScript(key:String):Void
 	{
 		var file = getScript(key);
 
@@ -127,7 +127,7 @@ class HScriptSystem
 		}
 	}
 
-	inline static public function callFromAllScripts(func:String, args:Array<Dynamic>):Void
+	static public function callFromAllScripts(func:String, args:Array<Dynamic>):Void
 	{
 		for (key in list.keys())
 		{
