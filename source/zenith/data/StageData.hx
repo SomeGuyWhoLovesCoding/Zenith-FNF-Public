@@ -11,14 +11,14 @@ typedef StageFile =
 	var defaultZoom:Float;
 	var isPixelStage:Bool;
 
-	var boyfriend:Array<Dynamic>;
-	var girlfriend:Array<Dynamic>;
-	var opponent:Array<Dynamic>;
+	var boyfriend:Array<Int>;
+	var girlfriend:Array<Int>;
+	var opponent:Array<Int>;
 	var hide_girlfriend:Bool;
 
-	var camera_boyfriend:Array<Float>;
-	var camera_opponent:Array<Float>;
-	var camera_girlfriend:Array<Float>;
+	var camera_boyfriend:Array<Int>;
+	var camera_opponent:Array<Int>;
+	var camera_girlfriend:Array<Int>;
 	var camera_speed:Null<Float>;
 }
 
@@ -28,29 +28,25 @@ class StageData
 	public static function loadDirectory(SONG:SwagSong):Void
 	{
 		var stage:String = '';
+
 		if (null != SONG.info.stage)
 			stage = SONG.info.stage;
-		else if (null != SONG.song)
+		
+		switch (Paths.formatToSongPath(SONG.song.toLowerCase()))
 		{
-			switch (Paths.formatToSongPath(SONG.song.toLowerCase()))
-			{
-				case 'spookeez' | 'south' | 'monster':
-					stage = 'spooky';
-				default:
-					stage = 'stage';
-			}
-		} else
-			stage = 'stage';
+			case 'spookeez' | 'south' | 'monster':
+				stage = 'spooky';
+			default:
+				stage = 'stage';
+		}
 	}
 
 	public static function getStageFile(stage:String):StageFile
 	{
 		var rawJson:String = null;
 		var path:String = Paths.ASSET_PATH + '/stages/' + stage + '.json';
+		var contents:String = sys.io.File.getContent(path);
 
-		if (sys.FileSystem.exists(path))
-			return cast Json.parse(sys.io.File.getContent(path));
-		else
-			return null;
+		return sys.FileSystem.exists(path) ? cast Json.parse(contents) : null;
 	}
 }

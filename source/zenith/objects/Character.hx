@@ -118,7 +118,7 @@ class Character extends FlxSprite
 		if(json.stillCharacterFrame != null)
 			stillCharacterFrame = json.stillCharacterFrame;
 
-		antialiasing = !noAntialiasing && SaveData.contents.preferences.antialiasing;
+		antialiasing = !noAntialiasing && SaveData.contents.graphics.antialiasing;
 
 		animationsArray = json.animations;
 		if (animationsArray != null && animationsArray.length > 0)

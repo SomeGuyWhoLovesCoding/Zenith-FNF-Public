@@ -11,9 +11,11 @@ class SaveData
 			smoothHealth: true,
 			ghostTapping: false,
 			hideHUD: false,
-			noCharacters: false,
 			stillCharacters: true,
+		},
+		graphics: {
 			antialiasing: true,
+			multithreading: false,
 			gpuCaching: true,
 			persistentGraphics: false,
 			fps: 60
@@ -55,22 +57,19 @@ class SaveData
 	}
 }
 
-typedef SaveFile =
-{
-	var preferences:PreferencesData;
-	var controls:ControlsData;
-	var extraData:Dynamic;
-}
-
 typedef PreferencesData =
 {
 	var downScroll:Bool;
 	var smoothHealth:Bool;
 	var ghostTapping:Bool;
 	var hideHUD:Bool;
-	var noCharacters:Bool;
 	var stillCharacters:Bool;
+}
+
+typedef GraphicsData =
+{
 	var antialiasing:Bool;
+	var multithreading:Bool;
 	var gpuCaching:Bool;
 	var persistentGraphics:Bool;
 	var fps:Int;
@@ -87,4 +86,12 @@ typedef ControlsData =
 	var BACK:Int;
 	var RESET:Int;
 	var CONTROL:Int;
+}
+
+typedef SaveFile =
+{
+	var preferences:PreferencesData;
+	var graphics:GraphicsData;
+	var controls:ControlsData;
+	var extraData:Dynamic;
 }

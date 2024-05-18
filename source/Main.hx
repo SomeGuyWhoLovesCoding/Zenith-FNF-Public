@@ -36,20 +36,22 @@ typedef TransitioningInfo =
 // Crash handler from psych btw
 class Main extends Sprite
 {
-	private static final transitioning:Transitioning = {_in: null, _out: null};
+	static private final transitioning:Transitioning = {_in: null, _out: null};
 
-	public static var game:Game;
-	public static var transition:Sprite;
+	static public var game:Game;
+	static public var transition:Sprite;
 
-	public static var fpsTxt:TextField;
-	public static var volumeTxt:TextField;
+	static public var fpsTxt:TextField;
+	static public var volumeTxt:TextField;
 
-	public static var skipTransIn:Bool = false;
-	public static var skipTransOut:Bool = false;
+	static public var skipTransIn:Bool = false;
+	static public var skipTransOut:Bool = false;
 
 	private var gamepad:()->(Void);
 	private var joystick:()->(Void);
 	private var keyboard:()->(Void);
+
+	static public var ENABLE_MULTITHREADING:Bool = false;
 
 	public function new()
 	{
@@ -141,7 +143,8 @@ class Main extends Sprite
 		transition.x = -transition.width * 0.5;
 
 		SaveData.reloadSave();
-		flixel.graphics.FlxGraphic.defaultPersist = SaveData.contents.preferences.persistentGraphics;
+		flixel.graphics.FlxGraphic.defaultPersist = SaveData.contents.graphics.persistentGraphics;
+		ENABLE_MULTITHREADING = SaveData.contents.graphics.multithreading;
 
 		addChild(game = new Game());
 		addChild(transition);
@@ -192,7 +195,7 @@ class Main extends Sprite
 		#end
 	}
 
-	public static function startTransition(_transIn:Bool = false, _callback:Void->Void = null):Void
+	static public function startTransition(_transIn:Bool = false, _callback:Void->Void = null):Void
 	{
 		if (_transIn)
 		{
@@ -228,11 +231,11 @@ class Main extends Sprite
 		}
 	}
 
-	private static var transitionY:Float = 0.0;
+	static private var transitionY:Float = 0.0;
 
-	private static var fps:Int = 60;
-	private static var fpsMax:Int = 60;
-	public static function updateMain(elapsed:Float):Void
+	static private var fps:Int = 60;
+	static private var fpsMax:Int = 60;
+	static public function updateMain(elapsed:Float):Void
 	{
 		if (@:privateAccess FlxG.game._lostFocus && FlxG.autoPause)
 			return;

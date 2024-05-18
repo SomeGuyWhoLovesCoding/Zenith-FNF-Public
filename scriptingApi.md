@@ -44,6 +44,12 @@ You should see something like this: "assets/scripts/script.hx"
 
 ### Gameplay-wise
 
+``createStage(songName, songDifficulty)``: This function is called before the song's stage is created.
+
+``createStagePost(songName, songDifficulty)``: This function is called after the song's characters are created. Useful for creating close objects on the stage.
+
+``generateSong(songName, songDifficulty)``: This function is called after the song is loaded.
+
 ``startCountdown()``: This function is called when the countdown has started.
 
 ``startSong()``: This function is called when the countdown has ended.

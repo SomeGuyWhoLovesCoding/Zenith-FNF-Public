@@ -23,13 +23,12 @@ class Game extends FlxGame
 
 	public function new():Void
 	{
-		var fps:Int = Std.int(setFramerate(SaveData.contents.preferences.fps));
+		var fps:Int = Std.int(setFramerate(SaveData.contents.graphics.fps));
 
-		FlxSprite.defaultAntialiasing = SaveData.contents.preferences.antialiasing;
+		FlxSprite.defaultAntialiasing = SaveData.contents.graphics.antialiasing;
 
 		super(0, 0, initState, fps, fps, true);
 
-		lime.app.Application.current.window.frameRate = fps / 1.041666666666667;
 		lime.app.Application.current.window.onClose.add(SaveData.saveContent);
 
 		trace('Game initialized.');
