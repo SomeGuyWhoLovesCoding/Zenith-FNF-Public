@@ -1126,23 +1126,15 @@ class Gameplay extends MusicBeatState
 			trace('Parsing chart data from song json...');
 
 			var preloadName:String = curSong + (curDifficulty != '' ? '-$curDifficulty' : '');
-			try
-			{
-				// Chart preloader
-				if (ChartPreloader.container.exists(preloadName))
-				{
-					trace('Nvm we found the data in ChartPreloader - YIPPEE!!!');
-					SONG = ChartPreloader.container.get(preloadName);
-				}
-				else
-					SONG = Song.loadFromJson(curSong + '/' + curSong + curDifficulty);
 
-				threadsCompleted++;
-			}
-			catch (e)
+			// Chart preloader
+			if (ChartPreloader.container.exists(preloadName))
 			{
-				trace('Chart file "$preloadName" doesn\'t exist.');
+				trace('Nvm we found the data in ChartPreloader - YIPPEE!!!');
+				SONG = ChartPreloader.container.get(preloadName);
 			}
+			else
+				SONG = Song.loadFromJson(curSong + '/' + curSong + curDifficulty);
 
 			trace('Loaded ${SONG.noteData.length} notes! Now time to load more stuff here...');
 
