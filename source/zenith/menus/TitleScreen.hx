@@ -82,14 +82,14 @@ class TitleScreen extends MusicBeatState
 			}
 		}
 
-		Game.instance.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
+		Main.game.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
 
 		super.create();
 	}
 
 	override function destroy():Void
 	{
-		Game.instance.onKeyDown.off(SignalEvent.KEY_DOWN, onKeyDown);
+		Main.game.onKeyDown.off(SignalEvent.KEY_DOWN, onKeyDown);
 		super.destroy();
 	}
 

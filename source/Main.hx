@@ -4,12 +4,10 @@ import openfl.display.Sprite;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
 import openfl.geom.Matrix;
-
 import lime._internal.backend.native.NativeCFFI;
-import haxe.CallStack;
-import openfl.events.UncaughtErrorEvent;
-
-import lime.ui.*;
+import lime.ui.Window;
+import lime.ui.KeyCode;
+import lime.ui.Gamepad;
 
 using StringTools;
 
@@ -27,11 +25,10 @@ typedef TransitioningInfo =
 // Keep these
 @:access(lime.app.Application)
 @:access(lime.ui.Gamepad)
-@:access(lime.ui.Joystick)
 @:access(lime._internal.backend.native.NativeApplication)
 @:access(lime._internal.backend.native.NativeCFFI)
+@:access(zenith.Game)
 
-// Crash handler from psych btw
 class Main extends Sprite
 {
 	static private final transitioning:Transitioning = {_in: null, _out: null};
@@ -57,6 +54,36 @@ class Main extends Sprite
 
 		HScriptSystem.init();
 
+		// Before adding ``game``, create the transition
+
+		var transitionMatrix:Matrix = new Matrix();
+		transitionMatrix.createGradientBox(2560, 2880, Math.PI * 0.5);
+
+		transition = new Sprite();
+		transition.graphics.beginGradientFill(LINEAR, [0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000], [0, 1, 1, 0], [127, 157, 225, 255], transitionMatrix);
+		transition.graphics.drawRect(0, 0, 2560, 2880);
+		transition.graphics.endFill();
+		transition.x = -transition.width * 0.5;
+
+		SaveData.reloadSave();
+
+		addChild(game = new Game());
+		addChild(transition);
+
+		fpsTxt = new TextField();
+		fpsTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFFFFFF, true);
+		addChild(fpsTxt);
+
+		volumeTxt = new TextField();
+		volumeTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFF0000, true);
+		addChild(volumeTxt);
+
+		volumeTxt.selectable = fpsTxt.selectable = false;
+		volumeTxt.width = fpsTxt.width = FlxG.width;
+		volumeTxt.alpha = 0.0;
+
+		game.updateElapsed();
+
 		openfl.Lib.current.stage.quality = stage.quality = LOW;
 
 		var backend = lime.app.Application.current.__backend;
@@ -66,11 +93,11 @@ class Main extends Sprite
 			var keyEventInfo = backend.keyEventInfo;
 
 			if (keyEventInfo.type == cast 1)
-				Game.instance.onKeyUp.emit(SignalEvent.KEY_UP, Std.int(keyEventInfo.keyCode), keyEventInfo.modifier);
+				game.onKeyUp.emit(SignalEvent.KEY_UP, Std.int(keyEventInfo.keyCode), keyEventInfo.modifier);
 
 			if (keyEventInfo.type == cast 0)
 			{
-				Game.instance.onKeyDown.emit(SignalEvent.KEY_DOWN, Std.int(keyEventInfo.keyCode), keyEventInfo.modifier);
+				game.onKeyDown.emit(SignalEvent.KEY_DOWN, Std.int(keyEventInfo.keyCode), keyEventInfo.modifier);
 
 				if (keyEventInfo.keyCode == KeyCode.F11)
 				{
@@ -78,7 +105,7 @@ class Main extends Sprite
 					window.fullscreen = !window.fullscreen;
 				}
 
-				if (null != FlxG.sound && !Game.instance.blockSoundKeys)
+				if (null != FlxG.sound && !game.blockSoundKeys)
 				{
 					if (keyEventInfo.keyCode == KeyCode.EQUALS)
 					{
@@ -106,93 +133,35 @@ class Main extends Sprite
 			var gamepadEventInfo = backend.gamepadEventInfo;
 
 			if (gamepadEventInfo.type == cast 0)
-				Game.instance.onGamepadAxisMove.emit(SignalEvent.GAMEPAD_AXIS_MOVE, gamepadEventInfo.axis, gamepadEventInfo.axisValue);
+				game.onGamepadAxisMove.emit(SignalEvent.GAMEPAD_AXIS_MOVE, gamepadEventInfo.axis, gamepadEventInfo.axisValue);
 
 			if (gamepadEventInfo.type == cast 1)
-				Game.instance.onGamepadButtonDown.emit(SignalEvent.GAMEPAD_BUTTON_DOWN, gamepadEventInfo.button);
+				game.onGamepadButtonDown.emit(SignalEvent.GAMEPAD_BUTTON_DOWN, gamepadEventInfo.button);
 
 			if (gamepadEventInfo.type == cast 2)
-				Game.instance.onGamepadButtonUp.emit(SignalEvent.GAMEPAD_BUTTON_UP, gamepadEventInfo.button);
+				game.onGamepadButtonUp.emit(SignalEvent.GAMEPAD_BUTTON_UP, gamepadEventInfo.button);
 
 			if (gamepadEventInfo.type == cast 3)
 			{
 				Gamepad.__connect(gamepadEventInfo.id);
-				Game.instance.onGamepadConnect.emit(SignalEvent.GAMEPAD_CONNECT, gamepadEventInfo.id);
+				game.onGamepadConnect.emit(SignalEvent.GAMEPAD_CONNECT, gamepadEventInfo.id);
 			}
 
 			if (gamepadEventInfo.type == cast 4)
 			{
 				Gamepad.__disconnect(gamepadEventInfo.id);
-				Game.instance.onGamepadDisconnect.emit(SignalEvent.GAMEPAD_DISCONNECT, gamepadEventInfo.id);
+				game.onGamepadDisconnect.emit(SignalEvent.GAMEPAD_DISCONNECT, gamepadEventInfo.id);
 			}
 		}, backend.gamepadEventInfo);
 
 		NativeCFFI.lime_joystick_event_manager_register(null, backend.joystickEventInfo);
 
-		// Before adding ``game``, create the transition
+		game.updateElapsed();
 
-		var transitionMatrix:Matrix = new Matrix();
-		transitionMatrix.createGradientBox(2560, 2880, Math.PI * 0.5);
-
-		transition = new Sprite();
-		transition.graphics.beginGradientFill(LINEAR, [0xFF000000, 0xFF000000, 0xFF000000, 0xFF000000], [0, 1, 1, 0], [127, 157, 225, 255], transitionMatrix);
-		transition.graphics.drawRect(0, 0, 2560, 2880);
-		transition.graphics.endFill();
-		transition.x = -transition.width * 0.5;
-
-		SaveData.reloadSave();
 		flixel.graphics.FlxGraphic.defaultPersist = SaveData.contents.graphics.persistentGraphics;
 		ENABLE_MULTITHREADING = SaveData.contents.graphics.multithreading;
 		VSYNC.ADAPTIVE = SaveData.contents.graphics.vsync.adaptive;
 		VSYNC.ENABLED = SaveData.contents.graphics.vsync.enabled;
-
-		addChild(game = new Game());
-		addChild(transition);
-
-		fpsTxt = new TextField();
-		fpsTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFFFFFF, true);
-		addChild(fpsTxt);
-
-		volumeTxt = new TextField();
-		volumeTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFF0000, true);
-		addChild(volumeTxt);
-
-		volumeTxt.selectable = fpsTxt.selectable = false;
-		volumeTxt.width = fpsTxt.width = FlxG.width;
-		volumeTxt.alpha = 0.0;
-
-		#if debug
-		// Code was entirely made by sqirra-rng for their fnf engine named "Izzy Engine", big props to them!!!
-		// very cool person for real they don't get enough credit for their work
-		openfl.Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(UncaughtErrorEvent.UNCAUGHT_ERROR, (e:UncaughtErrorEvent) ->
-		{
-			var errMsg:String = "";
-			var path:String;
-			var callStack:Array<StackItem> = CallStack.exceptionStack(true);
-			var dateNow:String = Date.now().toString();
-
-			dateNow = dateNow.replace(" ", "_");
-			dateNow = dateNow.replace(":", "'");
-
-			for (stackItem in callStack)
-			{
-				switch (stackItem)
-				{
-					case FilePos(s, file, line, column):
-						errMsg += file + " (line " + line + ")\n";
-					default:
-						Sys.println(stackItem);
-				}
-			}
-
-			errMsg += "\nUncaught Error: " + e.error + "\nPlease report this error to the GitHub page: https://github.com/ShadowMario/FNF-PsychEngine\n\n> Crash Handler written by: sqirra-rng";
-
-			Sys.println(errMsg);
-
-			lime.app.Application.current.window.alert(errMsg, "Error!");
-			Sys.exit(1);
-		});
-		#end
 	}
 
 	static public function startTransition(_transIn:Bool = false, _callback:Void->Void = null):Void

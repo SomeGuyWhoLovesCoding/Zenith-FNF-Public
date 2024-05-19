@@ -1,109 +1,135 @@
 package zenith.core;
 
-// FlxState with HScript functionality
+// FlxState with crash handling and HScript functionality
+
+@:access(zenith.Game)
 
 class State extends FlxState
 {
 	override function create():Void
 	{
-		if (SaveData.contents.graphics.persistentGraphics)
-			openfl.system.System.gc();
-
-		// Scripting shit
-		HScriptSystem.loadScriptsFromDirectory('assets/scripts');
-
-		for (script in scriptList.keys())
+		try
 		{
-			try
+			Main.game.updateElapsed();
+
+			if (SaveData.contents.graphics.persistentGraphics)
+				openfl.system.System.gc();
+
+			HScriptSystem.loadScriptsFromDirectory('assets/scripts');
+
+			for (script in scriptList.keys())
 			{
-				scriptList.get(script).interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
-				if (scriptList.get(script).interp.variables.exists('create'))
-					(scriptList.get(script).interp.variables.get('create'))();
+				try
+				{
+					scriptList.get(script).interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
+					if (scriptList.get(script).interp.variables.exists('create'))
+						(scriptList.get(script).interp.variables.get('create'))();
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
 			}
-			catch (e)
+
+			super.create();
+
+			for (script in scriptList.keys())
 			{
-				HScriptSystem.error(e);
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('createPost'))
+						(scriptList.get(script).interp.variables.get('createPost'))();
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
 			}
+
+			Main.game.updateElapsed();
 		}
-
-		super.create();
-
-		for (script in scriptList.keys())
+		catch (e)
 		{
-			try
-			{
-				if (scriptList.get(script).interp.variables.exists('createPost'))
-					(scriptList.get(script).interp.variables.get('createPost'))();
-			}
-			catch (e)
-			{
-				HScriptSystem.error(e);
-			}
+			throw e;
 		}
 	}
 
 	override function update(elapsed:Float):Void
 	{
-		for (script in scriptList.keys())
+		try
 		{
-			try
+			for (script in scriptList.keys())
 			{
-				if (scriptList.get(script).interp.variables.exists('update'))
-					(scriptList.get(script).interp.variables.get('update'))(elapsed);
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('update'))
+						(scriptList.get(script).interp.variables.get('update'))(elapsed);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
 			}
-			catch (e)
+
+			super.update(elapsed);
+
+			for (script in scriptList.keys())
 			{
-				HScriptSystem.error(e);
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('updatePost'))
+						(scriptList.get(script).interp.variables.get('updatePost'))(elapsed);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
 			}
 		}
-
-		super.update(elapsed);
-
-		for (script in scriptList.keys())
+		catch (e)
 		{
-			try
-			{
-				if (scriptList.get(script).interp.variables.exists('updatePost'))
-					(scriptList.get(script).interp.variables.get('updatePost'))(elapsed);
-			}
-			catch (e)
-			{
-				HScriptSystem.error(e);
-			}
+			throw e;
 		}
 	}
 
 	override function destroy():Void
 	{
-		for (script in scriptList.keys())
+		try
 		{
-			try
+			for (script in scriptList.keys())
 			{
-				if (scriptList.get(script).interp.variables.exists('destroy'))
-					(scriptList.get(script).interp.variables.get('destroy'))();
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('destroy'))
+						(scriptList.get(script).interp.variables.get('destroy'))();
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
 			}
-			catch (e)
+
+			super.destroy();
+
+			for (script in scriptList.keys())
 			{
-				HScriptSystem.error(e);
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists('destroyPost'))
+						(scriptList.get(script).interp.variables.get('destroyPost'))();
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
 			}
+
+			if (SaveData.contents.graphics.persistentGraphics)
+				openfl.system.System.gc();
 		}
-
-		super.destroy();
-
-		for (script in scriptList.keys())
+		catch (e)
 		{
-			try
-			{
-				if (scriptList.get(script).interp.variables.exists('destroyPost'))
-					(scriptList.get(script).interp.variables.get('destroyPost'))();
-			}
-			catch (e)
-			{
-				HScriptSystem.error(e);
-			}
+			throw e;
 		}
-
-		if (SaveData.contents.graphics.persistentGraphics)
-			openfl.system.System.gc();
 	}
 }

@@ -3,7 +3,7 @@ package zenith;
 @:access(flixel.FlxG.elapsed)
 class Game extends FlxGame
 {
-	final initState:Class<FlxState> = TitleScreen;
+	final initState:Class<FlxState> = Gameplay;
 
 	public var volume:Float = 1.0;
 	public var muted:Bool = false;
@@ -20,23 +20,26 @@ class Game extends FlxGame
 	public var onGamepadConnect:Emitter = new Emitter();
 	public var onGamepadDisconnect:Emitter = new Emitter();
 
-	public static var instance:Game = null;
-
 	public static var frameRate(default, null):Int;
 
+	// The updateElapsed calls in the constructor are for extra frame accuracy btw
 	public function new():Void
 	{
 		var fps = Std.int(setFramerate(SaveData.contents.graphics.fps));
+
+		updateElapsed();
 
 		FlxSprite.defaultAntialiasing = SaveData.contents.graphics.antialiasing;
 
 		super(0, 0, initState, fps, fps, true);
 
+		updateElapsed();
+
 		lime.app.Application.current.window.onClose.add(SaveData.saveContent);
 
 		trace('Game initialized.');
 
-		instance = this;
+		updateElapsed();
 	}
 
 	override public function onEnterFrame(_:openfl.events.Event):Void

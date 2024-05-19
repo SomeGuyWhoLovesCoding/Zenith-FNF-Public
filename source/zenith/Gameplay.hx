@@ -703,8 +703,8 @@ class Gameplay extends MusicBeatState
 		events.on(SignalEvent.SUSTAIN_SETUP, setupSustainData);
 		events.on(SignalEvent.GAMEPLAY_UPDATE, onGameplayUpdate);
 
-		Game.instance.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
-		Game.instance.onKeyUp.on(SignalEvent.KEY_UP, onKeyUp);
+		Main.game.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
+		Main.game.onKeyUp.on(SignalEvent.KEY_UP, onKeyUp);
 	}
 
 	override function update(elapsed:Float):Void
@@ -851,11 +851,11 @@ class Gameplay extends MusicBeatState
 					}
 				}
 
+				openfl.system.System.gc(); // Free up inactive memory
+
 				startCountdown();
 
 				threadsCompleted = -3;
-
-				openfl.system.System.gc(); // Free up inactive memory
 			}
 		}
 
@@ -1394,9 +1394,9 @@ class Gameplay extends MusicBeatState
 				}
 			}
 
-			startCountdown();
-
 			openfl.system.System.gc(); // Free up inactive memory
+
+			startCountdown();
 		}
 	}
 
@@ -1941,8 +1941,8 @@ class Gameplay extends MusicBeatState
 		events.off(SignalEvent.SUSTAIN_SETUP, setupSustainData);
 		events.off(SignalEvent.GAMEPLAY_UPDATE, onGameplayUpdate);
 
-		Game.instance.onKeyDown.off(SignalEvent.KEY_DOWN, onKeyDown);
-		Game.instance.onKeyUp.off(SignalEvent.KEY_UP, onKeyUp);
+		Main.game.onKeyDown.off(SignalEvent.KEY_DOWN, onKeyDown);
+		Main.game.onKeyUp.off(SignalEvent.KEY_UP, onKeyUp);
 
 		super.destroy();
 	}
