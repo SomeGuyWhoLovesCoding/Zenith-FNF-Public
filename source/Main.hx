@@ -67,6 +67,11 @@ class Main extends Sprite
 
 		SaveData.reloadSave();
 
+		flixel.graphics.FlxGraphic.defaultPersist = SaveData.contents.graphics.persistentGraphics;
+		ENABLE_MULTITHREADING = SaveData.contents.graphics.multithreading;
+		VSYNC.ADAPTIVE = SaveData.contents.graphics.vsync.adaptive;
+		VSYNC.ENABLED = SaveData.contents.graphics.vsync.enabled;
+
 		addChild(game = new Game());
 		addChild(transition);
 
@@ -157,11 +162,6 @@ class Main extends Sprite
 		NativeCFFI.lime_joystick_event_manager_register(null, backend.joystickEventInfo);
 
 		game.updateElapsed();
-
-		flixel.graphics.FlxGraphic.defaultPersist = SaveData.contents.graphics.persistentGraphics;
-		ENABLE_MULTITHREADING = SaveData.contents.graphics.multithreading;
-		VSYNC.ADAPTIVE = SaveData.contents.graphics.vsync.adaptive;
-		VSYNC.ENABLED = SaveData.contents.graphics.vsync.enabled;
 	}
 
 	static public function startTransition(_transIn:Bool = false, _callback:Void->Void = null):Void

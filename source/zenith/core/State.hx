@@ -12,7 +12,7 @@ class State extends FlxState
 		{
 			Main.game.updateElapsed();
 
-			if (SaveData.contents.graphics.persistentGraphics)
+			if (!SaveData.contents.graphics.persistentGraphics)
 				openfl.system.System.gc();
 
 			HScriptSystem.loadScriptsFromDirectory('assets/scripts');
@@ -124,7 +124,7 @@ class State extends FlxState
 				}
 			}
 
-			if (SaveData.contents.graphics.persistentGraphics)
+			if (!SaveData.contents.graphics.persistentGraphics)
 				openfl.system.System.gc();
 		}
 		catch (e)
