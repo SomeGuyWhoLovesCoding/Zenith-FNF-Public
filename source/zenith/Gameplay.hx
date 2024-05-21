@@ -421,7 +421,7 @@ class Gameplay extends MusicBeatState
 
 			sustain.strum.playAnim('confirm');
 
-			health += 0.00125 * (sustain.strum.playerStrum ? 1.0 : -1.0);
+			health += 0.00275 * (sustain.strum.playerStrum ? 1.0 : -1.0);
 
 			if (!noCharacters)
 			{

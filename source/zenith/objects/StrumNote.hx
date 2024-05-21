@@ -1,6 +1,7 @@
 package zenith.objects;
 
 import flixel.math.FlxRect;
+import flixel.animation.FlxAnimation;
 
 @:access(flixel.animation.FlxAnimationController)
 @:access(flixel.animation.FlxAnimation)
@@ -21,6 +22,12 @@ class StrumNote extends FlxSprite
 		return playerStrum = value;
 	}
 
+	// Easter egg moment
+
+	public var PRESS_ANIM:FlxAnimation = null;
+	public var CONFIRM_ANIM:FlxAnimation = null;
+	public var STATIC_ANIM:FlxAnimation = null;
+
 	public function new(data:Int, plr:Int)
 	{
 		super();
@@ -30,6 +37,10 @@ class StrumNote extends FlxSprite
 
 		frames = Paths.strumNoteAtlas;
 		animation.copyFrom(Paths.strumNoteAnimationHolder.animation);
+
+		PRESS_ANIM = animation._animations.get('pressed');
+		CONFIRM_ANIM = animation._animations.get('confirm');
+		STATIC_ANIM = animation._animations.get('static');
 
 		pixelPerfectPosition = false;
 
@@ -45,7 +56,15 @@ class StrumNote extends FlxSprite
 			#if HXCPP_CHECK_POINTER
 			animation.play(anim, true);
 			#else
-			animation.curAnim = animation._animations.get(anim);
+			if (anim == 'pressed')
+				animation.curAnim = PRESS_ANIM;
+
+			if (anim == 'confirm')
+				animation.curAnim = CONFIRM_ANIM;
+
+			if (anim == 'static')
+				animation.curAnim = STATIC_ANIM;
+
 			animation.curAnim._frameTimer = animation.curAnim.curFrame = 0;
 			animation.curAnim.finished = animation.curAnim.paused = !(active = anim != 'static');
 			#end
