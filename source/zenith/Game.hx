@@ -27,39 +27,25 @@ class Game extends FlxGame
 	{
 		var fps = Std.int(setFramerate(SaveData.contents.graphics.fps));
 
-		updateElapsed();
-
 		FlxSprite.defaultAntialiasing = SaveData.contents.graphics.antialiasing;
 
 		super(0, 0, initState, fps, fps, true);
 
-		updateElapsed();
-
 		lime.app.Application.current.window.onClose.add(SaveData.saveContent);
 
 		trace('Game initialized.');
-
-		updateElapsed();
-	}
-
-	override public function onEnterFrame(_:openfl.events.Event):Void
-	{
-		super.onEnterFrame((_ : openfl.events.Event));
-		Main.updateMain(FlxG.elapsed);
 	}
 
 	override function updateElapsed():Void
 	{
-		if (Main.VSYNC.ENABLED)
-			FlxG.elapsed = 1.0 / frameRate;
-		else
-		{
-			FlxG.elapsed = FlxG.timeScale * (_elapsedMS * 0.001); // variable timestep
+		FlxG.elapsed = FlxG.timeScale * (_elapsedMS * 0.001); // variable timestep
 
-			var max = FlxG.maxElapsed * FlxG.timeScale;
-			if (FlxG.elapsed > max)
-				FlxG.elapsed = max;
-		}
+		/*if (Main.VSYNC.ENABLED)
+		{
+			lime.app.Application.current.window.setVsync(FlxG.elapsed > 1.0 / frameRate || Main.VSYNC.ADAPTIVE);
+		}*/
+
+		Main.updateMain(FlxG.elapsed);
 	}
 
 	inline public function setFramerate(fps:Int):Int
