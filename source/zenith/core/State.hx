@@ -2,12 +2,16 @@ package zenith.core;
 
 // FlxState with crash handling and HScript functionality
 
+@:access(zenith.Game)
+
 class State extends FlxState
 {
 	override function create():Void
 	{
 		try
 		{
+			Main.game.updateElapsed();
+
 			if (!SaveData.contents.graphics.persistentGraphics)
 				openfl.system.System.gc();
 
@@ -41,6 +45,8 @@ class State extends FlxState
 					HScriptSystem.error(e);
 				}
 			}
+
+			Main.game.updateElapsed();
 		}
 		catch (e)
 		{
