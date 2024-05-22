@@ -1125,6 +1125,8 @@ class Gameplay extends MusicBeatState
 		}
 		else
 		{
+			FlxG.maxElapsed = FlxG.elapsed;
+
 			trace('Parsing chart data from song json...');
 
 			var preloadName:String = curSong + (curDifficulty != '' ? '-$curDifficulty' : '');
@@ -1397,6 +1399,8 @@ class Gameplay extends MusicBeatState
 			openfl.system.System.gc(); // Free up inactive memory
 
 			startCountdown();
+
+			FlxG.maxElapsed = 0.1;
 		}
 	}
 
