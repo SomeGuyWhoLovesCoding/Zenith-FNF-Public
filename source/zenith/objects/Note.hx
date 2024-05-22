@@ -2,7 +2,7 @@ package zenith.objects;
 
 class Note extends NoteBase
 {
-	public var sustainLength:Float = 0.0;
+	public var sustainLength:Int = 0;
 	public var wasHit:Bool = false;
 	public var tooLate:Bool = false;
 

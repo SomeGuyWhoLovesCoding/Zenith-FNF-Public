@@ -1,4 +1,4 @@
-Hey there, welcome to this repository.
+This engine offers ultra performant, cross-platform, and very clean gameplay in mind and has global scripting support, a brand new chart editor, and minimal screen tearing when not on vsync. **WARNING: Won't be fully compatible with MacOS, as it's still untested!!!**
 
 **We recommend you to use latest Haxe.**
 
@@ -17,7 +17,3 @@ Openfl: ``haxelib install openfl``
 Emitter: ``haxelib git Emitter https://github.com/Dimensionscape/Emitter.git``
 
 To compile on hasklink, [read this.](https://haxe.org/manual/target-hl-getting-started.html)
-
-# Frequently asked questions
-
-**WARNING: This FNF Engine won't fully be compatible with HashLink, as it's still a WIP!**

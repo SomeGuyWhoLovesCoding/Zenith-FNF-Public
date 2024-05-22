@@ -27,7 +27,6 @@ typedef TransitioningInfo =
 @:access(lime.ui.Gamepad)
 @:access(lime._internal.backend.native.NativeApplication)
 @:access(lime._internal.backend.native.NativeCFFI)
-@:access(zenith.Game)
 
 class Main extends Sprite
 {
@@ -86,8 +85,6 @@ class Main extends Sprite
 		volumeTxt.selectable = fpsTxt.selectable = false;
 		volumeTxt.width = fpsTxt.width = FlxG.width;
 		volumeTxt.alpha = 0.0;
-
-		game.updateElapsed();
 
 		openfl.Lib.current.stage.quality = stage.quality = LOW;
 
@@ -160,8 +157,6 @@ class Main extends Sprite
 		}, backend.gamepadEventInfo);
 
 		NativeCFFI.lime_joystick_event_manager_register(null, backend.joystickEventInfo);
-
-		game.updateElapsed();
 	}
 
 	static public function startTransition(_transIn:Bool = false, _callback:Void->Void = null):Void
