@@ -1,6 +1,6 @@
 This engine offers ultra performant, cross-platform, and very clean gameplay experience in mind and has global scripting support, a brand new chart editor, and minimal screen tearing when not on vsync. **WARNING: Won't be fully compatible with MacOS, as it's still untested!!!**
 
-**We recommend you to use Haxe 4.2.0 and greater.**
+**We recommend you to use Haxe 4.2+**
 
 # Libraries needed to compile this engine
 
