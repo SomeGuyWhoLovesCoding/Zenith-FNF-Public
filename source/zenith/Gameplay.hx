@@ -625,8 +625,6 @@ class Gameplay extends MusicBeatState
 			hudCameraBelow.alpha = hudCamera.alpha;
 			hudCameraBelow.zoom = hudCamera.zoom;
 
-			health = FlxMath.bound(health, 0.0, (Gameplay.hideHUD || Gameplay.noCharacters) ? 2.0 : hudGroup.healthBar.maxValue);
-
 			Conductor.songPosition += elapsed * 1000.0;
 
 			processSpawning();
@@ -794,7 +792,7 @@ class Gameplay extends MusicBeatState
 			case 'Hey!':
 				if (!noCharacters)
 				{
-					var value:Int = 2;
+					var value = 2;
 					switch (value1.toLowerCase().trim())
 					{
 						case 'bf' | 'boyfriend' | '0':
@@ -803,7 +801,7 @@ class Gameplay extends MusicBeatState
 							value = 1;
 					}
 
-					var time:Float = Std.parseFloat(value2);
+					var time = Std.parseFloat(value2);
 					if (Math.isNaN(time) || time <= 0)
 						time = 0.6;
 
@@ -830,7 +828,7 @@ class Gameplay extends MusicBeatState
 				}
 
 			case 'Set GF Speed':
-				var value:Int = Std.parseInt(value1);
+				var value = Std.parseInt(value1);
 				if (Math.isNaN(value) || value < 1)
 					value = 1;
 
@@ -839,8 +837,8 @@ class Gameplay extends MusicBeatState
 			case 'Add Camera Zoom':
 				if (FlxG.camera.zoom < 1.35)
 				{
-					var camZoom:Float = Std.parseFloat(value1);
-					var hudZoom:Float = Std.parseFloat(value2);
+					var camZoom = Std.parseFloat(value1);
+					var hudZoom = Std.parseFloat(value2);
 
 					if (Math.isNaN(camZoom))
 						camZoom = 0.015;
@@ -861,7 +859,7 @@ class Gameplay extends MusicBeatState
 			case 'Play Animation':
 				if (!noCharacters)
 				{
-					var char:Character = dad;
+					var char = dad;
 					switch (value2.toLowerCase().trim())
 					{
 						case 'bf' | 'boyfriend':
@@ -869,7 +867,7 @@ class Gameplay extends MusicBeatState
 						case 'gf' | 'girlfriend':
 							char = gf;
 						default:
-							var val2:Int = Std.parseInt(value2);
+							var val2: = Std.parseInt(value2);
 							if (Math.isNaN(val2))
 								val2 = 0;
 
@@ -887,7 +885,7 @@ class Gameplay extends MusicBeatState
 			case 'Change Character':
 				if (!noCharacters)
 				{
-					var charType:Int = 0;
+					var charType = 0;
 					switch (value1.toLowerCase().trim())
 					{
 						case 'gf' | 'girlfriend':
@@ -908,7 +906,7 @@ class Gameplay extends MusicBeatState
 								if(!bfMap.exists(value2))
 									addCharacterToList(value2, charType);
 
-								var lastAlpha:Float = bf.alpha;
+								var lastAlpha = bf.alpha;
 								bf.alpha = 0.001;
 								bf = bfMap.get(value2);
 								bf.alpha = lastAlpha;
@@ -921,8 +919,8 @@ class Gameplay extends MusicBeatState
 								if(!dadMap.exists(value2))
 									addCharacterToList(value2, charType);
 
-								var wasGf:Bool = dad.curCharacter.startsWith('gf');
-								var lastAlpha:Float = dad.alpha;
+								var wasGf = dad.curCharacter.startsWith('gf');
+								var lastAlpha = dad.alpha;
 								dad.alpha = 0.001;
 								dad = dadMap.get(value2);
 
@@ -941,7 +939,7 @@ class Gameplay extends MusicBeatState
 									if(!gfMap.exists(value2))
 										addCharacterToList(value2, charType);
 
-									var lastAlpha:Float = gf.alpha;
+									var lastAlpha = gf.alpha;
 									gf.alpha = 0.001;
 									gf = gfMap.get(value2);
 									gf.alpha = lastAlpha;
@@ -955,15 +953,15 @@ class Gameplay extends MusicBeatState
 				if (null != songSpeedTween)
 					songSpeedTween.cancel();
 
-				var val1:Float = Std.parseFloat(value1);
-				var val2:Float = Std.parseFloat(value2);
+				var val1 = Std.parseFloat(value1);
+				var val2 = Std.parseFloat(value2);
 
 				if (Math.isNaN(val1))
 					val1 = 1.0;
 				if (Math.isNaN(val2))
 					val2 = 0.0;
 
-				var newValue:Float = SONG.info.speed * val1;
+				var newValue = SONG.info.speed * val1;
 
 				if (val2 <= 0.0)
 					songSpeed = newValue;
@@ -979,7 +977,7 @@ class Gameplay extends MusicBeatState
 				if (!Math.isNaN(v1))
 				{
 					if (value2 == 'true')
-						songLengthTween = FlxTween.tween(this, {songLength: v1 * 1000.0}, 1, {ease: FlxEase.quintOut});
+						songLengthTween = FlxTween.tween(this, {songLength: v1 * 1000.0}, 1.0, {ease: FlxEase.quintOut});
 					else
 						songLength = v1 * 1000.0;
 				}
