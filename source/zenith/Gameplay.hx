@@ -107,7 +107,7 @@ class Gameplay extends MusicBeatState
 
 	private var singAnimations(default, null):Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
 
-	static public var instance:Gameplay;
+	static public var instance:Gameplay = null;
 
 	public var events:Emitter = new Emitter();
 
@@ -782,7 +782,7 @@ class Gameplay extends MusicBeatState
 	var initialStrumHeight:Float = 112.0;
 	var currentNoteId:Int = 0;
 
-	public var onGameplayUpdate:(Float)->(Void);
+	public var onGameplayUpdate:(Float)->(Void) = null;
 
 	// Song events for hscript
 	public function triggerEvent(eventName:String, value1:String, value2:String, value3:String, value4:String)
@@ -1738,8 +1738,8 @@ class Gameplay extends MusicBeatState
 	// The extra 5 values are used to check if a key is just pressed for extra keys aswell
 	public var holdArray(default, null):Array<Bool> = [false, false, false, false, false, false, false, false, false];
 
-	public var onKeyDown:(Int, Int)->(Void);
-	public var onKeyUp:(Int, Int)->(Void);
+	public var onKeyDown:((Int), (Int))->(Void) = null;
+	public var onKeyUp:((Int), (Int))->(Void) = null;
 
 	// Preferences stuff (Also for scripting)
 
@@ -1798,22 +1798,22 @@ class Gameplay extends MusicBeatState
 		super.destroy();
 	}
 
-	private var newNote:(Note)->(Void);
-	private var newSustain:(SustainNote)->(Void);
+	private var newNote:(Note)->(Void) = null;
+	private var newSustain:(SustainNote)->(Void) = null;
 
-	private var setupNoteData:(Array<(Float)>)->(Void);
-	private var setupSustainData:(Array<(Float)>)->(Void);
+	private var setupNoteData:(Array<(Float)>)->(Void) = null;
+	private var setupSustainData:(Array<(Float)>)->(Void) = null;
 
-	public var onNoteHit:(Note)->(Void);
-	public var onNoteMiss:(Note)->(Void);
-	public var onHold:(SustainNote)->(Void);
-	public var onRelease:(Int)->(Void);
+	public var onNoteHit:(Note)->(Void) = null;
+	public var onNoteMiss:(Note)->(Void) = null;
+	public var onHold:(SustainNote)->(Void) = null;
+	public var onRelease:(Int)->(Void) = null;
 
-	var handleNoteHit:(Int)->(Void);
-	var handleNoteRelease:(Int)->(Void);
-	var sortShit:()->(Void);
+	var handleNoteHit:(Int)->(Void) = null;
+	var handleNoteRelease:(Int)->(Void) = null;
+	var sortShit:()->(Void) = null;
 
-	var updateNotes:()->(Void);
-	var updateSustains:()->(Void);
-	var processSpawning:()->(Void);
+	var updateNotes:()->(Void) = null;
+	var updateSustains:()->(Void) = null;
+	var processSpawning:()->(Void) = null;
 }

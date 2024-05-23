@@ -2,6 +2,8 @@ package zenith.core;
 
 // FlxState with crash handling and HScript functionality
 
+@:access(flixel.FlxCamera)
+
 class State extends FlxState
 {
 	override function create():Void
@@ -37,6 +39,34 @@ class State extends FlxState
 			FlxG.maxElapsed = 0.1;
 			throw e;
 		}
+
+		updateMembers = (elapsed:Float) ->
+		{
+			for (basic in members)
+			{
+				if (basic != null && basic.exists && basic.active)
+				{
+					basic.update(elapsed);
+				}
+			}
+		}
+
+		drawMembers = () ->
+		{
+			final oldDefaultCameras = FlxCamera._defaultCameras;
+			if (_cameras != null)
+			{
+				FlxCamera._defaultCameras = _cameras;
+			}
+
+			for (basic in members)
+			{
+				if (basic != null && basic.exists && basic.visible)
+					basic.draw();
+			}
+
+			FlxCamera._defaultCameras = oldDefaultCameras;
+		}
 	}
 
 	override function update(elapsed:Float):Void
@@ -47,7 +77,7 @@ class State extends FlxState
 			Main.optUtils.scriptCallFloat('update', elapsed);
 			#end
 
-			super.update(elapsed);
+			updateMembers(elapsed);
 
 			#if SCRIPTING_ALLOWED
 			Main.optUtils.scriptCallFloat('updatePost', elapsed);
@@ -57,6 +87,11 @@ class State extends FlxState
 		{
 			throw e;
 		}
+	}
+
+	override function draw():Void
+	{
+		drawMembers();
 	}
 
 	override function destroy():Void
@@ -85,4 +120,7 @@ class State extends FlxState
 			throw e;
 		}
 	}
+
+	var updateMembers:(Float)->(Void);
+	var drawMembers:()->(Void);
 }

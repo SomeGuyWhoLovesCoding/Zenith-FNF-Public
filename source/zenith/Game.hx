@@ -1,6 +1,5 @@
 package zenith;
 
-@:access(flixel.FlxG.elapsed)
 class Game extends FlxGame
 {
 	final initState:Class<FlxState> = Gameplay;
@@ -22,7 +21,6 @@ class Game extends FlxGame
 
 	public static var frameRate(default, null):Int;
 
-	// The updateElapsed calls in the constructor are for extra frame accuracy btw
 	public function new():Void
 	{
 		var fps = Std.int(setFramerate(SaveData.contents.graphics.fps));
