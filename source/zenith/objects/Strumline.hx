@@ -160,7 +160,7 @@ class Strumline extends FlxBasic
 
 		for (i in 0...members.length)
 		{
-			members[i].scale.set(scale);
+			members[i].scale.set(scale, scale);
 		}
 	}
 
