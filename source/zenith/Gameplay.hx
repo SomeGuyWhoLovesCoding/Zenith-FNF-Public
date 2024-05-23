@@ -867,7 +867,7 @@ class Gameplay extends MusicBeatState
 						case 'gf' | 'girlfriend':
 							char = gf;
 						default:
-							var val2: = Std.parseInt(value2);
+							var val2 = Std.parseInt(value2);
 							if (Math.isNaN(val2))
 								val2 = 0;
 
