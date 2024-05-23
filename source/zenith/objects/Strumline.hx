@@ -2,7 +2,22 @@ package zenith.objects;
 
 class Strumline extends FlxBasic
 {
-	public var keys:Int = 4;
+	public var keys(default, set):Int;
+
+	function set_keys(value:Int):Int
+	{
+		clear();
+
+		for (i in 0...value)
+		{
+			var strumNote = new StrumNote(i, lane = startingLane);
+			strumNote.scale.x = strumNote.scale.y = scale;
+			strumNote.playable = playable;
+			members[i] = strumNote;
+		}
+		return keys = value;
+	}
+
 	public var lane:Int = 0;
 	public var player:Bool = false;
 	public var downScroll:Bool = false;
@@ -27,10 +42,14 @@ class Strumline extends FlxBasic
 
 	function set_alpha(value:Float):Float
 	{
-		for (i in 0...keys)
+		if (members.length == 0)
+			return alpha;
+
+		for (i in 0...members.length)
 		{
 			members[i].alpha = value;
 		}
+
 		return alpha = value;
 	}
 
@@ -40,24 +59,23 @@ class Strumline extends FlxBasic
 
 	public var scale(default, null):Float = 0.7;
 
-	public function new(keys:Int, startingLane:Int = 0, playable:Bool = false):Void
+	public function new(startingKeys:Int = 4, startingLane:Int = 0, playable:Bool = false):Void
 	{
 		super();
 
-		for (i in 0...keys)
-		{
-			var strumNote = new StrumNote(i, lane = startingLane);
-			strumNote.scale.x = strumNote.scale.y = scale;
-			strumNote.playable = playable;
-			members[i] = strumNote;
-		}
+		keys = startingKeys;
 
-		move(x = 50.0 + ((FlxG.width * 0.55875138) * lane), y = 50.0); // Default strumline position
+		// Default strumline positions
+		x = 50.0 + ((FlxG.width * 0.55875138) * lane);
+		y = 50.0;
 	}
 
 	override function update(elapsed:Float)
 	{
-		for (i in 0...keys)
+		if (members.length == 0)
+			return;
+
+		for (i in 0...members.length)
 		{
 			var member = members[i];
 			if (member.exists && member.active)
@@ -69,7 +87,10 @@ class Strumline extends FlxBasic
 
 	override function draw():Void
 	{
-		for (i in 0...keys)
+		if (members.length == 0)
+			return;
+
+		for (i in 0...members.length)
 		{
 			var member = members[i];
 			if (member.exists && member.visible && member.alpha != 0.0)
@@ -81,7 +102,10 @@ class Strumline extends FlxBasic
 
 	public function move(x:Float, y:Float):Void
 	{
-		for (i in 0...keys)
+		if (members.length == 0)
+			return;
+
+		for (i in 0...members.length)
 		{
 			members[i].setPosition(x + (gap * i), y);
 		}
@@ -95,19 +119,22 @@ class Strumline extends FlxBasic
 
 	public function setScale(newScale:Float = 0.7):Void
 	{
+		if (members.length == 0)
+			return;
+
 		scale = newScale;
-		for (i in 0...keys)
+
+		for (i in 0...members.length)
 		{
 			members[i].scale.set(scale);
 		}
 	}
 
-	public function setDownscroll(ds:Bool):Void
+	public function clear():Void
 	{
-		for (i in 0...keys)
+		while (members.length != 0)
 		{
-			var member = members[i];
-			member.scrollMult = -member.scrollMult;
+			members.pop().destroy();
 		}
 	}
 }
