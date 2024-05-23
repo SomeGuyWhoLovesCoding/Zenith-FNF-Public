@@ -1,11 +1,5 @@
 package zenith.system;
 
-import openfl.Lib;
-import lime.ui.KeyCode;
-import lime.ui.KeyModifier;
-import lime.app.Application;
-import flixel.input.keyboard.FlxKey;
-
 class MusicBeatState extends State
 {
 	private var curStep:Int = 0;
@@ -77,18 +71,7 @@ class MusicBeatState extends State
 	public function stepHit():Void
 	{
 		#if SCRIPTING_ALLOWED
-		for (script in scriptList.keys())
-		{
-			try
-			{
-				if (scriptList.get(script).interp.variables.exists('stepHit'))
-					(scriptList.get(script).interp.variables.get('stepHit'))();
-			}
-			catch (e)
-			{
-				HScriptSystem.error(e);
-			}
-		}
+		Main.optUtils.scriptCallInt('stepHit', curStep);
 		#end
 		// trace('Step: ' + curStep);
 	}
@@ -96,18 +79,7 @@ class MusicBeatState extends State
 	public function beatHit():Void
 	{
 		#if SCRIPTING_ALLOWED
-		for (script in scriptList.keys())
-		{
-			try
-			{
-				if (scriptList.get(script).interp.variables.exists('beatHit'))
-					(scriptList.get(script).interp.variables.get('beatHit'))();
-			}
-			catch (e)
-			{
-				HScriptSystem.error(e);
-			}
-		}
+		Main.optUtils.scriptCallInt('beatHit', curBeat);
 		#end
 		// trace('Beat: ' + curBeat);
 	}
