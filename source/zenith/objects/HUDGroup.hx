@@ -42,7 +42,7 @@ class HUDGroup extends FlxSpriteGroup
 				Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000.0) * 0.01 + '%');
 
 			#if SCRIPTING_ALLOWED
-			Main.optUtils.call('onUpdateScore');
+			Main.optUtils.scriptCall('onUpdateScore');
 			#end
 		}
 

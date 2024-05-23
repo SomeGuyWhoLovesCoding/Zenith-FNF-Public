@@ -11,14 +11,14 @@ class Strumline extends FlxBasic
 			var member = members[i];
 			if (member == null)
 			{
-				var strumNote = new StrumNote(i, lane = startingLane);
+				var strumNote = new StrumNote(i, lane);
 				strumNote.scale.x = strumNote.scale.y = scale;
 				members[i] = strumNote;
 			}
 			else
 			{
-				member.angle = member.angleArray[member.noteData];
-				member.color = member.colorArray[member.noteData];
+				member.angle = NoteBase.angleArray[member.noteData];
+				member.color = NoteBase.colorArray[member.noteData];
 			}
 		}
 		return keys = value;
@@ -148,7 +148,7 @@ class Strumline extends FlxBasic
 	public function setGap(newGap:Float = 160.0):Void
 	{
 		gap = newGap;
-		move(x, y);
+		moveX(x);
 	}
 
 	public function setScale(newScale:Float = 0.7):Void

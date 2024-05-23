@@ -462,6 +462,109 @@ class Gameplay extends MusicBeatState
 			sustains.members.sort((a:(SustainNote), b:(SustainNote)) -> Std.int(a.strumTime - b.strumTime));
 		}
 
+		updateNotes = () ->
+		{
+			for (i in 0...notes.members.length)
+			{
+				var note:(Note) = notes.members[i];
+				if (note.exists)
+				{
+					var dir:Float = FlxAngle.asRadians(note.direction - 90.0);
+					note.distance = 0.45 * (Conductor.songPosition - note.strumTime) * songSpeed;
+					note.x = note.strum.x + note.offsetX + (-Math.abs(note.strum.scrollMult) * note.distance) * FlxMath.fastCos(dir);
+					note.y = note.strum.y + note.offsetY + (note.strum.scrollMult * note.distance) * FlxMath.fastSin(dir);
+
+					if (Conductor.songPosition >= note.strumTime + (750.0 / songSpeed)) // Remove them if they're offscreen
+						note.exists = false;
+
+					// For note hits
+
+					if (note.strum.playable)
+					{
+						if (cpuControlled)
+						{
+							if (Conductor.songPosition >= note.strumTime)
+							{
+								events.emit(SignalEvent.NOTE_HIT, note);
+							}
+						}
+
+						if (Conductor.songPosition >= note.strumTime + (200.0 / songSpeed) && (!note.wasHit && !note.tooLate))
+						{
+							events.emit(SignalEvent.NOTE_MISS, note);
+						}
+					}
+					else
+					{
+						if (Conductor.songPosition >= note.strumTime)
+						{
+							events.emit(SignalEvent.NOTE_HIT, note);
+						}
+					}
+				}
+			}
+		}
+
+		updateSustains = () ->
+		{
+			for (i in 0...sustains.members.length)
+			{
+				var sustain:(SustainNote) = sustains.members[i];
+				if (sustains.exists)
+				{
+					var dir:Float = FlxAngle.asRadians(sustain.direction - 90.0);
+					sustain.distance = 0.45 * (Conductor.songPosition - sustain.strumTime) * songSpeed;
+
+					sustain.x = (sustain.strum.x + sustain.offsetX + (-Math.abs(sustain.strum.scrollMult) * sustain.distance) * FlxMath.fastCos(dir)) +
+						((initialStrumWidth - (sustain.frameWidth * sustain.scale.x)) * 0.5);
+
+					sustain.y = (sustain.strum.y + sustain.offsetY + (sustain.strum.scrollMult * sustain.distance) * FlxMath.fastSin(dir)) +
+						(initialStrumHeight * 0.5);
+
+					// For hold input
+
+					if (Conductor.songPosition >= (sustain.strumTime + sustain.length) + (750.0 / songSpeed))
+						sustain.holding = sustain.missed = sustain.exists = false;
+
+					if (sustain.strum.playable)
+					{
+						if (!sustain.missed && Conductor.songPosition <= (sustain.strumTime + sustain.length) - (Conductor.stepCrochet * 0.875) &&
+							!sustain.missed && Conductor.songPosition >= sustain.strumTime)
+						{
+							if (holdArray[sustain.noteData])
+							{
+								events.emit(SignalEvent.NOTE_HOLD, sustain);
+							}
+						}
+					}
+					else
+					{
+						if (Conductor.songPosition <= (sustain.strumTime + sustain.length) - (Conductor.stepCrochet * 0.875) &&
+							Conductor.songPosition >= sustain.strumTime)
+						{
+							events.emit(SignalEvent.NOTE_HOLD, sustain);
+						}
+					}
+				}
+			}
+		}
+
+		processSpawning = () ->
+		{
+			while (null != SONG.noteData[currentNoteId])
+			{
+				// Avoid redundant array access
+				var note = SONG.noteData[currentNoteId];
+
+				if (Conductor.songPosition < note[0] - (1950.0 / songSpeed))
+					break;
+
+				events.emit(SignalEvent.NOTE_SETUP, note);
+
+				currentNoteId++;
+			}
+		}
+
 		onKeyDown = (keyCode:(Int), keyModifier:(Int)) ->
 		{
 			#if SCRIPTING_ALLOWED
@@ -526,99 +629,9 @@ class Gameplay extends MusicBeatState
 
 			Conductor.songPosition += elapsed * 1000.0;
 
-			while (null != SONG.noteData[currentNoteId])
-			{
-				// Avoid redundant array access
-				var note:Array<(Float)> = SONG.noteData[currentNoteId];
-
-				if (Conductor.songPosition < note[0] - (1950.0 / songSpeed))
-					break;
-
-				events.emit(SignalEvent.NOTE_SETUP, note);
-
-				currentNoteId++;
-			}
-
-			for (i in 0...notes.members.length)
-			{
-				var note:(Note) = notes.members[i];
-				if (note.exists)
-				{
-					var dir:Float = FlxAngle.asRadians(note.direction - 90.0);
-					note.distance = 0.45 * (Conductor.songPosition - note.strumTime) * songSpeed;
-					note.x = note.strum.x + note.offsetX + (-Math.abs(note.strum.scrollMult) * note.distance) * FlxMath.fastCos(dir);
-					note.y = note.strum.y + note.offsetY + (note.strum.scrollMult * note.distance) * FlxMath.fastSin(dir);
-
-					if (Conductor.songPosition >= note.strumTime + (750.0 / songSpeed)) // Remove them if they're offscreen
-						note.exists = false;
-
-					// For note hits
-
-					if (note.strum.playable)
-					{
-						if (cpuControlled)
-						{
-							if (Conductor.songPosition >= note.strumTime)
-							{
-								events.emit(SignalEvent.NOTE_HIT, note);
-							}
-						}
-
-						if (Conductor.songPosition >= note.strumTime + (200.0 / songSpeed) && (!note.wasHit && !note.tooLate))
-						{
-							events.emit(SignalEvent.NOTE_MISS, note);
-						}
-					}
-					else
-					{
-						if (Conductor.songPosition >= note.strumTime)
-						{
-							events.emit(SignalEvent.NOTE_HIT, note);
-						}
-					}
-				}
-			}
-
-			for (i in 0...sustains.members.length)
-			{
-				var sustain:(SustainNote) = sustains.members[i];
-				if (sustains.exists)
-				{
-					var dir:Float = FlxAngle.asRadians(sustain.direction - 90.0);
-					sustain.distance = 0.45 * (Conductor.songPosition - sustain.strumTime) * songSpeed;
-
-					sustain.x = (sustain.strum.x + sustain.offsetX + (-Math.abs(sustain.strum.scrollMult) * sustain.distance) * FlxMath.fastCos(dir)) +
-						((initialStrumWidth - (sustain.frameWidth * sustain.scale.x)) * 0.5);
-
-					sustain.y = (sustain.strum.y + sustain.offsetY + (sustain.strum.scrollMult * sustain.distance) * FlxMath.fastSin(dir)) +
-						(initialStrumHeight * 0.5);
-
-					// For hold input
-
-					if (Conductor.songPosition >= (sustain.strumTime + sustain.length) + (750.0 / songSpeed))
-						sustain.holding = sustain.missed = sustain.exists = false;
-
-					if (sustain.strum.playable)
-					{
-						if (!sustain.missed && Conductor.songPosition <= (sustain.strumTime + sustain.length) - (Conductor.stepCrochet * 0.875) &&
-							!sustain.missed && Conductor.songPosition >= sustain.strumTime)
-						{
-							if (holdArray[sustain.noteData])
-							{
-								events.emit(SignalEvent.NOTE_HOLD, sustain);
-							}
-						}
-					}
-					else
-					{
-						if (Conductor.songPosition <= (sustain.strumTime + sustain.length) - (Conductor.stepCrochet * 0.875) &&
-							Conductor.songPosition >= sustain.strumTime)
-						{
-							events.emit(SignalEvent.NOTE_HOLD, sustain);
-						}
-					}
-				}
-			}
+			processSpawning();
+			updateNotes();
+			updateSustains();
 		}
 
 		events.on(SignalEvent.NOTE_NEW, newNote);
@@ -1801,4 +1814,8 @@ class Gameplay extends MusicBeatState
 	var handleNoteHit:(Int)->(Void);
 	var handleNoteRelease:(Int)->(Void);
 	var sortShit:()->(Void);
+
+	var updateNotes:()->(Void);
+	var updateSustains:()->(Void);
+	var processSpawning:()->(Void);
 }
