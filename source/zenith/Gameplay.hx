@@ -176,18 +176,7 @@ class Gameplay extends MusicBeatState
 			note.setFrame(Paths.regularNoteFrame);
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('newNote'))
-						(scriptList.get(script).interp.variables.get('newNote'))(note);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCallNote('newNote', note);
 			#end
 		}
 
@@ -259,18 +248,7 @@ class Gameplay extends MusicBeatState
 			sustain.origin.y = sustain.offset.y = 0.0;
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('newSustain'))
-						(scriptList.get(script).interp.variables.get('newSustain'))(sustain);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCallSustain('newSustain', sustain);
 			#end
 		}
 
@@ -325,18 +303,7 @@ class Gameplay extends MusicBeatState
 		onNoteHit = (note:(Note)) ->
 		{
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('onNoteHit'))
-						(scriptList.get(script).interp.variables.get('onNoteHit'))(note);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCallNote('onNoteHit', note);
 			#end
 
 			note.strum.playAnim('confirm');
@@ -366,18 +333,7 @@ class Gameplay extends MusicBeatState
 			note.wasHit = !(note.exists = false);
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('onNoteHitPost'))
-						(scriptList.get(script).interp.variables.get('onNoteHitPost'))(note);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCallNote('onNoteHitPost', note);
 			#end
 
 			hudGroup.updateScoreText();
@@ -386,18 +342,7 @@ class Gameplay extends MusicBeatState
 		onNoteMiss = (note:(Note)) ->
 		{
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('onNoteMiss'))
-						(scriptList.get(script).interp.variables.get('onNoteMiss'))(note);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCallNote('onNoteMiss', note);
 			#end
 
 			note.tooLate = true;
@@ -417,18 +362,7 @@ class Gameplay extends MusicBeatState
 			}
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('onNoteMissPost'))
-						(scriptList.get(script).interp.variables.get('onNoteMissPost'))(note);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCallNote('onNoteMissPost', note);
 			#end
 
 			hudGroup.updateScoreText();
@@ -437,18 +371,7 @@ class Gameplay extends MusicBeatState
 		onHold = (sustain:(SustainNote)) ->
 		{
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('onHold'))
-						(scriptList.get(script).interp.variables.get('onHold'))(sustain);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCallSustain('onHold', sustain);
 			#end
 
 			sustain.strum.playAnim('confirm');
@@ -483,36 +406,14 @@ class Gameplay extends MusicBeatState
 			sustain.holding = true;
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('onHoldPost'))
-						(scriptList.get(script).interp.variables.get('onHoldPost'))(sustain);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCallSustain('onHoldPost', sustain);
 			#end
 		}
 
 		onRelease = (noteData:(Int)) ->
 		{
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('onRelease'))
-						(scriptList.get(script).interp.variables.get('onRelease'))(noteData);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCallInt('onRelease', noteData);
 			#end
 
 			health -= 0.045;
@@ -524,18 +425,7 @@ class Gameplay extends MusicBeatState
 			}
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('onReleasePost'))
-						(scriptList.get(script).interp.variables.get('onReleasePost'))(noteData);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCallInt('onReleasePost', noteData);
 			#end
 		}
 
@@ -575,18 +465,7 @@ class Gameplay extends MusicBeatState
 		onKeyDown = (keyCode:(Int), keyModifier:(Int)) ->
 		{
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('onKeyDown'))
-						(scriptList.get(script).interp.variables.get('onKeyDown'))(keyCode, keyModifier);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCall2Ints('onKeyDown', keyCode, keyModifier);
 			#end
 
 			var key:Int = inputKeybinds.indexOf(keyCode);
@@ -604,36 +483,14 @@ class Gameplay extends MusicBeatState
 			holdArray[key] = true;
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('onKeyDownPost'))
-						(scriptList.get(script).interp.variables.get('onKeyDownPost'))(keyCode, keyModifier);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCall2Ints('onKeyDownPost', keyCode, keyModifier);
 			#end
 		}
 
 		onKeyUp = (keyCode:(Int), keyModifier:(Int)) ->
 		{
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('onKeyUp'))
-						(scriptList.get(script).interp.variables.get('onKeyUp'))(keyCode, keyModifier);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCall2Ints('onKeyUp', keyCode, keyModifier);
 			#end
 
 			var key:Int = inputKeybinds.indexOf(keyCode);
@@ -652,18 +509,7 @@ class Gameplay extends MusicBeatState
 			holdArray[key] = false;
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('onKeyUpPost'))
-						(scriptList.get(script).interp.variables.get('onKeyUpPost'))(keyCode, keyModifier);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCall2Ints('onKeyUpPost', keyCode, keyModifier);
 			#end
 		}
 
@@ -808,18 +654,7 @@ class Gameplay extends MusicBeatState
 				// Finish off stage creation and add characters finally
 
 				#if SCRIPTING_ALLOWED
-				for (script in scriptList.keys())
-				{
-					try
-					{
-						if (scriptList.get(script).interp.variables.exists('createStage'))
-							(scriptList.get(script).interp.variables.get('createStage'))(curSong, curDifficulty);
-					}
-					catch (e)
-					{
-						HScriptSystem.error(e);
-					}
-				}
+				Main.optUtils.scriptCall2Strings('createStage', curSong, curDifficulty);
 				#end
 
 				threadsCompleted = -2;
@@ -868,18 +703,7 @@ class Gameplay extends MusicBeatState
 				startCharacterPos(bf, false);
 
 				#if SCRIPTING_ALLOWED
-				for (script in scriptList.keys())
-				{
-					try
-					{
-						if (scriptList.get(script).interp.variables.exists('createStagePost'))
-							(scriptList.get(script).interp.variables.get('createStagePost'))(curSong, curDifficulty);
-					}
-					catch (e)
-					{
-						HScriptSystem.error(e);
-					}
-				}
+				Main.optUtils.scriptCall2Strings('createStagePost', curSong, curDifficulty);
 				#end
 
 				// Now time to load the UI and shit
@@ -924,19 +748,7 @@ class Gameplay extends MusicBeatState
 				generatedMusic = true;
 
 				#if SCRIPTING_ALLOWED
-				for (script in scriptList.keys())
-				{
-					try
-					{
-						scriptList.get(script).interp.variables.set('loadTime', timeTakenToLoad);
-						if (scriptList.get(script).interp.variables.exists('generateSong'))
-							(scriptList.get(script).interp.variables.get('generateSong'))(curSong, curDifficulty);
-					}
-					catch (e)
-					{
-						HScriptSystem.error(e);
-					}
-				}
+				Main.optUtils.scriptCall2Strings('generateSong', curSong, curDifficulty);
 				#end
 
 				openfl.system.System.gc(); // Free up inactive memory
@@ -1161,18 +973,7 @@ class Gameplay extends MusicBeatState
 		}
 
 		#if SCRIPTING_ALLOWED
-		for (script in scriptList.keys())
-		{
-			try
-			{
-				if (scriptList.get(script).interp.variables.exists('triggerEvent'))
-					(scriptList.get(script).interp.variables.get('triggerEvent'))(eventName, value1, value2, value3, value4);
-			}
-			catch (e)
-			{
-				HScriptSystem.error(e);
-			}
-		}
+		Main.optUtils.scriptCallEvent('triggerEvent', eventName, value1, value2, value3, value4);
 		#end
 	}
 
@@ -1371,18 +1172,7 @@ class Gameplay extends MusicBeatState
 			// Finish off stage creation and add characters finally
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('createStage'))
-						(scriptList.get(script).interp.variables.get('createStage'))(curSong, curDifficulty);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCall2Strings('createStage', curSong, curDifficulty);
 			#end
 
 			threadsCompleted = -2;
@@ -1423,18 +1213,7 @@ class Gameplay extends MusicBeatState
 			startCharacterPos(bf, false);
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('createStagePost'))
-						(scriptList.get(script).interp.variables.get('createStagePost'))(curSong, curDifficulty);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCall2Strings('createStagePost', curSong, curDifficulty);
 			#end
 
 			// Now time to load the UI and shit
@@ -1479,19 +1258,7 @@ class Gameplay extends MusicBeatState
 			generatedMusic = true;
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					scriptList.get(script).interp.variables.set('loadTime', timeTakenToLoad);
-					if (scriptList.get(script).interp.variables.exists('generateSong'))
-						(scriptList.get(script).interp.variables.get('generateSong'))(curSong, curDifficulty);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCall2Strings('generateSong', curSong, curDifficulty);
 			#end
 
 			openfl.system.System.gc(); // Free up inactive memory
@@ -1808,18 +1575,7 @@ class Gameplay extends MusicBeatState
 		}, 5);
 
 		#if SCRIPTING_ALLOWED
-		for (script in scriptList.keys())
-		{
-			try
-			{
-				if (scriptList.get(script).interp.variables.exists('startCountdown'))
-					(scriptList.get(script).interp.variables.get('startCountdown'))();
-			}
-			catch (e)
-			{
-				HScriptSystem.error(e);
-			}
-		}
+		Main.optUtils.scriptCall('startCountdown');
 		#end
 	}
 
@@ -1840,18 +1596,7 @@ class Gameplay extends MusicBeatState
 		startedCountdown = true;
 
 		#if SCRIPTING_ALLOWED
-		for (script in scriptList.keys())
-		{
-			try
-			{
-				if (scriptList.get(script).interp.variables.exists('startSong'))
-					(scriptList.get(script).interp.variables.get('startSong'))();
-			}
-			catch (e)
-			{
-				HScriptSystem.error(e);
-			}
-		}
+		Main.optUtils.scriptCall('startSong');
 		#end
 	}
 
@@ -1871,18 +1616,7 @@ class Gameplay extends MusicBeatState
 		switchState(new WelcomeState());
 
 		#if SCRIPTING_ALLOWED
-		for (script in scriptList.keys())
-		{
-			try
-			{
-				if (scriptList.get(script).interp.variables.exists('endSong'))
-					(scriptList.get(script).interp.variables.get('endSong'))();
-			}
-			catch (e)
-			{
-				HScriptSystem.error(e);
-			}
-		}
+		Main.optUtils.scriptCall('endSong');
 		#end
 	}
 

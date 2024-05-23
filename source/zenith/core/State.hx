@@ -13,39 +13,21 @@ class State extends FlxState
 			if (!SaveData.contents.graphics.persistentGraphics)
 				openfl.system.System.gc();
 
+			#if SCRIPTING_ALLOWED
 			HScriptSystem.loadScriptsFromDirectory('assets/scripts');
 
-			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
-				try
-				{
-					scriptList.get(script).interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
-					if (scriptList.get(script).interp.variables.exists('create'))
-						(scriptList.get(script).interp.variables.get('create'))();
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
+				scriptList.get(script).interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
 			}
+
+			Main.optUtils.scriptCall('create');
 			#end
 
 			super.create();
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('createPost'))
-						(scriptList.get(script).interp.variables.get('createPost'))();
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCall('createPost');
 			#end
 
 			FlxG.maxElapsed = 0.1;
@@ -62,35 +44,13 @@ class State extends FlxState
 		try
 		{
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('update'))
-						(scriptList.get(script).interp.variables.get('update'))(elapsed);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCallFloat('update', elapsed);
 			#end
 
 			super.update(elapsed);
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('updatePost'))
-						(scriptList.get(script).interp.variables.get('updatePost'))(elapsed);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCallFloat('updatePost', elapsed);
 			#end
 		}
 		catch (e)
@@ -105,35 +65,13 @@ class State extends FlxState
 		try
 		{
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('destroy'))
-						(scriptList.get(script).interp.variables.get('destroy'))();
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCall('destroy');
 			#end
 
 			super.destroy();
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('destroyPost'))
-						(scriptList.get(script).interp.variables.get('destroyPost'))();
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCall('destroyPost');
 			#end
 
 			if (!SaveData.contents.graphics.persistentGraphics)

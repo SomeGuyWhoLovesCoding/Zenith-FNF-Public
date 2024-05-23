@@ -30,6 +30,8 @@ typedef TransitioningInfo =
 
 class Main extends Sprite
 {
+	static public var optUtils:OptimizationUtils;
+
 	static private final transitioning:Transitioning = {_in: null, _out: null};
 
 	static public var game:Game;
@@ -51,7 +53,12 @@ class Main extends Sprite
 	{
 		super();
 
+		optUtils = Type.createEmptyInstance(OptimizationUtils);
+		optUtils.initScriptOpts();
+
+		#if SCRIPTING_ALLOWED
 		HScriptSystem.init();
+		#end
 
 		// Before adding ``game``, create the transition
 
