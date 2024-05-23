@@ -7,11 +7,11 @@ import flixel.math.FlxMath;
 
 class HUDGroup extends FlxSpriteGroup
 {
-	public var oppIcon:HealthIcon;
-	public var plrIcon:HealthIcon;
-	public var healthBar:HealthBar;
-	public var scoreTxt:FlxText;
-	public var timeTxt:FlxText;
+	public var oppIcon:HealthIcon = null;
+	public var plrIcon:HealthIcon = null;
+	public var healthBar:HealthBar = null;
+	public var scoreTxt:FlxText = null;
+	public var timeTxt:FlxText = null;
 
 	public function new():Void
 	{

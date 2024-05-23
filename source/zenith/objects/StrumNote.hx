@@ -14,7 +14,7 @@ class StrumNote extends FlxSprite
 
 	inline function set_playable(value:Bool):Bool
 	{
-		animation.finishCallback = value ? null : (anim:String) ->
+		animation.finishCallback = value ? null : (anim:(String)) ->
 		{
 			if (anim == 'confirm' && (!playable || Gameplay.cpuControlled))
 				playAnim('static');
