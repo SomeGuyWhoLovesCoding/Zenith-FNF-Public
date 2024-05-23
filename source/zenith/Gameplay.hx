@@ -728,6 +728,9 @@ class Gameplay extends MusicBeatState
 				for (i in 0...strumlineCount)
 					generateStrumline(i);
 
+				if (downScroll)
+					changeDownScroll();
+
 				notes = new FlxTypedGroup<Note>();
 				add(notes);
 
@@ -1748,33 +1751,35 @@ class Gameplay extends MusicBeatState
 	public function changeDownScroll(whichStrum:Int = -1, tween:Bool = false, tweenLength:Float = 1.0):Void
 	{
 		// Strumline
-		var strumline = strumlines.members[whichStrum];
-		for (strum in strumline.members)
+		for (strumline in strumlines.members)
 		{
-			if (strum.player == whichStrum || whichStrum == -1)
+			for (strum in strumline.members)
 			{
-				if (tween && tweenLength != 0.0)
+				if (strum.player == whichStrum || whichStrum == -1)
 				{
-					var actualScrollMult = strum.scrollMult;
-					actualScrollMult = -actualScrollMult;
+					if (tween && tweenLength != 0.0)
+					{
+						var actualScrollMult = strum.scrollMult;
+						actualScrollMult = -actualScrollMult;
 
-					var scrollTween = strumScrollMultTweens.get(strum);
-					var yTween = strumYTweens.get(strum);
+						var scrollTween = strumScrollMultTweens.get(strum);
+						var yTween = strumYTweens.get(strum);
 
-					if (null != scrollTween)
-						scrollTween.cancel();
+						if (null != scrollTween)
+							scrollTween.cancel();
 
-					strumScrollMultTweens.set(strum, FlxTween.tween(strum, {scrollMult: strum.scrollMult > 0.0 ? -1.0 : 1.0}, Math.abs(tweenLength), {ease: FlxEase.quintOut}));
+						strumScrollMultTweens.set(strum, FlxTween.tween(strum, {scrollMult: strum.scrollMult > 0.0 ? -1.0 : 1.0}, Math.abs(tweenLength), {ease: FlxEase.quintOut}));
 
-					if (null != yTween)
-						yTween.cancel();
+						if (null != yTween)
+							yTween.cancel();
 
-					strumYTweens.set(strum, FlxTween.tween(strum, {y: actualScrollMult < 0.0 ? FlxG.height - 160.0 : 60.0}, Math.abs(tweenLength), {ease: FlxEase.quintOut}));
-				}
-				else
-				{
-					strum.scrollMult = -strum.scrollMult;
-					strum.y = strum.scrollMult < 0.0 ? FlxG.height - 160.0 : 60.0;
+						strumYTweens.set(strum, FlxTween.tween(strum, {y: actualScrollMult < 0.0 ? FlxG.height - 160.0 : 60.0}, Math.abs(tweenLength), {ease: FlxEase.quintOut}));
+					}
+					else
+					{
+						strum.scrollMult = -strum.scrollMult;
+						strum.y = strum.scrollMult < 0.0 ? FlxG.height - 160.0 : 60.0;
+					}
 				}
 			}
 		}
