@@ -79,6 +79,40 @@ class Character extends FlxSprite
 	{
 		super(x, y);
 
+		playAnim = (AnimName:String, special:Bool = false) ->
+		{
+			specialAnim = special;
+
+			#if HXCPP_CHECK_POINTER
+			animation.play(AnimName, true);
+			#else
+			animation.curAnim = animation._animations.get(AnimName);
+			animation.curAnim._frameTimer = animation.curAnim.curFrame = 0;
+			animation.curAnim.finished = animation.curAnim.paused = false;
+			#end
+
+			var daOffset = animOffsets.get(AnimName);
+
+			if (daOffset != null)
+			{
+				offset.x = animOffsets.get(AnimName)[0];
+				offset.y = animOffsets.get(AnimName)[1];
+			}
+			else
+				offset.x = offset.y = 0.0;
+
+			if (curCharacter.startsWith('gf'))
+			{
+				if (AnimName == 'singLEFT')
+					danced = true;
+				else if (AnimName == 'singRIGHT')
+					danced = false;
+
+				if (AnimName == 'singUP' || AnimName == 'singDOWN')
+					danced = !danced;
+			}
+		}
+
 		animOffsets = new Map<String, Array<Float>>();
 		curCharacter = character;
 		this.isPlayer = isPlayer;
@@ -206,39 +240,7 @@ class Character extends FlxSprite
 		}
 	}
 
-	public function playAnim(AnimName:String, special:Bool = false):Void
-	{
-		specialAnim = special;
-
-		#if HXCPP_CHECK_POINTER
-		animation.play(AnimName, true);
-		#else
-		animation.curAnim = animation._animations.get(AnimName);
-		animation.curAnim._frameTimer = animation.curAnim.curFrame = 0;
-		animation.curAnim.finished = animation.curAnim.paused = false;
-		#end
-
-		var daOffset:Array<Float> = animOffsets.get(AnimName);
-
-		if (daOffset != null)
-		{
-			offset.x = daOffset[0];
-			offset.y = daOffset[1];
-		}
-		else
-			offset.x = offset.y = 0.0;
-
-		if (curCharacter.startsWith('gf'))
-		{
-			if (AnimName == 'singLEFT')
-				danced = true;
-			else if (AnimName == 'singRIGHT')
-				danced = false;
-
-			if (AnimName == 'singUP' || AnimName == 'singDOWN')
-				danced = !danced;
-		}
-	}
+	public var playAnim:((String), (?Bool))->(Void);
 
 	public var danceEveryNumBeats:Int = 2;
 	private var settingCharacterUp:Bool = true;
@@ -262,9 +264,9 @@ class Character extends FlxSprite
 		settingCharacterUp = false;
 	}
 
-	inline public function addOffset(name:String, x:Float = 0, y:Float = 0)
+	public function addOffset(name:String, x:Float = 0, y:Float = 0)
 		animOffsets[name] = [x, y];
 
-	inline public function quickAnimAdd(name:String, anim:String)
+	public function quickAnimAdd(name:String, anim:String)
 		animation.addByPrefix(name, anim, 24, false);
 }

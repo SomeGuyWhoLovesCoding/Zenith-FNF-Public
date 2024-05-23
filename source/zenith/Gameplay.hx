@@ -361,6 +361,8 @@ class Gameplay extends MusicBeatState
 				bf.holdTimer = 0.0;
 			}
 
+			handleNoteRelease(note.noteData);
+
 			#if SCRIPTING_ALLOWED
 			Main.optUtils.scriptCallNote('onNoteMissPost', note);
 			#end
@@ -446,7 +448,7 @@ class Gameplay extends MusicBeatState
 		{
 			for (s in sustains.members)
 			{
-				if ((s.strum.playable && s.noteData == key) && (s.holding && !s.missed) &&
+				if ((s.strum.playable && !s.missed && s.noteData == key) && Conductor.songPosition >= s.strumTime &&
 					Conductor.songPosition <= (s.strumTime + s.length) - (Conductor.stepCrochet * 0.875))
 				{
 					events.emit(SignalEvent.NOTE_RELEASE, s.noteData);
@@ -528,8 +530,8 @@ class Gameplay extends MusicBeatState
 
 					if (sustain.strum.playable)
 					{
-						if (!sustain.missed && Conductor.songPosition <= (sustain.strumTime + sustain.length) - (Conductor.stepCrochet * 0.875) &&
-							!sustain.missed && Conductor.songPosition >= sustain.strumTime)
+						if (Conductor.songPosition >= sustain.strumTime && !sustain.missed &&
+							Conductor.songPosition <= (sustain.strumTime + sustain.length) - (Conductor.stepCrochet * 0.875))
 						{
 							if (holdArray[sustain.noteData])
 							{
