@@ -10,16 +10,16 @@ class StrumNote extends FlxSprite
 	public var noteData:Int = 0;
 	public var player:Int = 0;
 	public var scrollMult:Float = 1.0;
-	public var playerStrum(default, set):Bool = false;
+	public var playable(default, set):Bool = false;
 
-	inline function set_playerStrum(value:Bool):Bool
+	inline function set_playable(value:Bool):Bool
 	{
 		animation.finishCallback = value ? null : (anim:String) ->
 		{
-			if (anim == 'confirm' && (!playerStrum || Gameplay.cpuControlled))
+			if (anim == 'confirm' && (!playable || Gameplay.cpuControlled))
 				playAnim('static');
 		}
-		return playerStrum = value;
+		return playable = value;
 	}
 
 	// Easter egg moment

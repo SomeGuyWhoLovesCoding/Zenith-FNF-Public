@@ -76,13 +76,39 @@ class MusicBeatState extends State
 
 	public function stepHit():Void
 	{
-		HScriptSystem.callFromAllScripts('stepHit', []);
+		#if SCRIPTING_ALLOWED
+		for (script in scriptList.keys())
+		{
+			try
+			{
+				if (scriptList.get(script).interp.variables.exists('stepHit'))
+					(scriptList.get(script).interp.variables.get('stepHit'))();
+			}
+			catch (e)
+			{
+				HScriptSystem.error(e);
+			}
+		}
+		#end
 		// trace('Step: ' + curStep);
 	}
 
 	public function beatHit():Void
 	{
-		HScriptSystem.callFromAllScripts('beatHit', []);
+		#if SCRIPTING_ALLOWED
+		for (script in scriptList.keys())
+		{
+			try
+			{
+				if (scriptList.get(script).interp.variables.exists('beatHit'))
+					(scriptList.get(script).interp.variables.get('beatHit'))();
+			}
+			catch (e)
+			{
+				HScriptSystem.error(e);
+			}
+		}
+		#end
 		// trace('Beat: ' + curBeat);
 	}
 }

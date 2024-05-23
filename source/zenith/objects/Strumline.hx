@@ -40,7 +40,7 @@ class Strumline extends FlxBasic
 
 	public var scale(default, null):Float = 0.7;
 
-	public function new(keys:Int, startingLane:Int = 0, playerStrum:Bool = false):Void
+	public function new(keys:Int, startingLane:Int = 0, playable:Bool = false):Void
 	{
 		super();
 
@@ -48,7 +48,7 @@ class Strumline extends FlxBasic
 		{
 			var strumNote = new StrumNote(i, lane = startingLane);
 			strumNote.scale.x = strumNote.scale.y = scale;
-			strumNote.playerStrum = playerStrum;
+			strumNote.playable = playable;
 			members[i] = strumNote;
 		}
 

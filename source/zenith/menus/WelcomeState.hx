@@ -5,7 +5,7 @@ import flixel.text.FlxText;
 
 // Don't mind this
 
-class WelcomeState extends MusicBeatState
+class WelcomeState extends State
 {
 	var exceptionString:String = 'No Error';
 
@@ -48,17 +48,5 @@ class WelcomeState extends MusicBeatState
 
 		bkdr.antialiasing = txt.antialiasing = txt2.antialiasing = true;
 		txt.moves = txt2.moves = false;
-	}
-
-	override function update(elapsed:Float):Void
-	{
-		super.update(elapsed);
-
-		/*if (FlxG.keys.justPressed.SPACE)
-		{
-			//Main.skipTransIn = true;
-			resetState();
-			//trace('a');
-		}*/
 	}
 }

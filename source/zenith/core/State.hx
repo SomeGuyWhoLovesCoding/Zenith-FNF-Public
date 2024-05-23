@@ -15,6 +15,7 @@ class State extends FlxState
 
 			HScriptSystem.loadScriptsFromDirectory('assets/scripts');
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -28,9 +29,11 @@ class State extends FlxState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 
 			super.create();
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -43,6 +46,7 @@ class State extends FlxState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 
 			FlxG.maxElapsed = 0.1;
 		}
@@ -57,6 +61,7 @@ class State extends FlxState
 	{
 		try
 		{
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -69,9 +74,11 @@ class State extends FlxState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 
 			super.update(elapsed);
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -84,6 +91,7 @@ class State extends FlxState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 		}
 		catch (e)
 		{
@@ -96,6 +104,7 @@ class State extends FlxState
 		FlxG.maxElapsed = FlxG.elapsed;
 		try
 		{
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -108,9 +117,11 @@ class State extends FlxState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 
 			super.destroy();
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -123,6 +134,7 @@ class State extends FlxState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 
 			if (!SaveData.contents.graphics.persistentGraphics)
 				openfl.system.System.gc();

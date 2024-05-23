@@ -49,7 +49,7 @@ class HUDGroup extends FlxSpriteGroup
 		oppIcon.pixelPerfectPosition = plrIcon.pixelPerfectPosition = healthBar.pixelPerfectPosition = scoreTxt.pixelPerfectPosition = timeTxt.pixelPerfectPosition = false;
 	}
 
-	private function reloadHealthBar():Void
+	function reloadHealthBar():Void
 	{
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
@@ -73,9 +73,6 @@ class HUDGroup extends FlxSpriteGroup
 
 		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0.0, healthBar.maxValue), SaveData.contents.preferences.smoothHealth ? 0.08 : 1.0);
 
-		scoreTxt.text = 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ' + (Gameplay.instance.accuracy_right == 0.0 ? '???' :
-			Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000.0) * 0.01 + '%');
-
 		if (Gameplay.instance.startedCountdown)
 		{
 			if (timeTxt.alpha != 1)
@@ -87,5 +84,26 @@ class HUDGroup extends FlxSpriteGroup
 		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
 
 		super.update(elapsed);
+	}
+
+	function updateScoreText():Void
+	{
+		scoreTxt.text = 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ' + (Gameplay.instance.accuracy_right == 0.0 ? '???' :
+			Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000.0) * 0.01 + '%');
+
+		#if SCRIPTING_ALLOWED
+		for (script in scriptList.keys())
+		{
+			try
+			{
+				if (scriptList.get(script).interp.variables.exists('onUpdateScoreText'))
+					(scriptList.get(script).interp.variables.get('onUpdateScoreText'))();
+			}
+			catch (e)
+			{
+				HScriptSystem.error(e);
+			}
+		}
+		#end
 	}
 }

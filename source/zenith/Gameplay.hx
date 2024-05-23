@@ -13,6 +13,8 @@ import sys.thread.Mutex;
 
 using StringTools;
 
+@:access(zenith.objects.HUDGroup)
+
 class Gameplay extends MusicBeatState
 {
 	public var strumlines:FlxTypedGroup<Strumline>;
@@ -173,6 +175,7 @@ class Gameplay extends MusicBeatState
 			note.scale.x = note.scale.y = 0.7;
 			note.setFrame(Paths.regularNoteFrame);
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -185,6 +188,7 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 		}
 
 		setupNoteData = (chartNoteData:(Array<(Float)>)) ->
@@ -194,6 +198,7 @@ class Gameplay extends MusicBeatState
 
 			var note:(Note) = notes.recycle((Note));
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -206,6 +211,7 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 
 			note.alpha = 1.0;
 			note.y = -2000.0;
@@ -227,6 +233,7 @@ class Gameplay extends MusicBeatState
 				events.emit(SignalEvent.SUSTAIN_SETUP, chartNoteData);
 			}
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -239,6 +246,7 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 		}
 
 		newSustain = (sustain:(SustainNote)) ->
@@ -250,6 +258,7 @@ class Gameplay extends MusicBeatState
 			sustain.origin.x = sustain.frameWidth * 0.5;
 			sustain.origin.y = sustain.offset.y = 0.0;
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -262,12 +271,14 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 		}
 
 		setupSustainData = (chartNoteData:(Array<(Float)>)) ->
 		{
 			var sustain:(SustainNote) = sustains.recycle((SustainNote));
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -280,6 +291,7 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 
 			sustain.alpha = 0.6; // Definitive alpha, default
 			sustain.y = -2000;
@@ -294,6 +306,7 @@ class Gameplay extends MusicBeatState
 
 			sustain.color = NoteBase.colorArray[sustain.noteData];
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -306,10 +319,12 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 		}
 
 		onNoteHit = (note:(Note)) ->
 		{
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -322,14 +337,15 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 
 			note.strum.playAnim('confirm');
 
 			var multiplier:Int = FlxMath.maxInt(note.multiplier, 1); // Avoid calling FlxMath.maxInt 4 times
 
-			health += (0.045 * multiplier) * (note.strum.playerStrum ? 1.0 : -1.0);
+			health += (0.045 * multiplier) * (note.strum.playable ? 1.0 : -1.0);
 
-			if (note.strum.playerStrum)
+			if (note.strum.playable)
 			{
 				score += 350.0 * multiplier;
 				accuracy_left += (Math.abs(note.strumTime - Conductor.songPosition) > 83.35 ? 0.75 : 1.0) * multiplier;
@@ -338,7 +354,7 @@ class Gameplay extends MusicBeatState
 
 			if (!noCharacters)
 			{
-				var char:Character = (note.strum.playerStrum ? bf : (note.gfNote ? gf : dad));
+				var char:Character = (note.strum.playable ? bf : (note.gfNote ? gf : dad));
 
 				if (null != char)
 				{
@@ -349,6 +365,7 @@ class Gameplay extends MusicBeatState
 
 			note.wasHit = !(note.exists = false);
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -361,10 +378,14 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
+
+			hudGroup.updateScoreText();
 		}
 
 		onNoteMiss = (note:(Note)) ->
 		{
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -377,6 +398,7 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 
 			note.tooLate = true;
 			note.alpha = 0.6;
@@ -394,6 +416,7 @@ class Gameplay extends MusicBeatState
 				bf.holdTimer = 0.0;
 			}
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -406,10 +429,14 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
+
+			hudGroup.updateScoreText();
 		}
 
 		onHold = (sustain:(SustainNote)) ->
 		{
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -422,14 +449,15 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 
 			sustain.strum.playAnim('confirm');
 
-			health += 0.00275 * (sustain.strum.playerStrum ? 1.0 : -1.0);
+			health += 0.00275 * (sustain.strum.playable ? 1.0 : -1.0);
 
 			if (!noCharacters)
 			{
-				var char:Character = (sustain.strum.playerStrum ? bf : (sustain.gfNote ? gf : dad));
+				var char:Character = (sustain.strum.playable ? bf : (sustain.gfNote ? gf : dad));
 
 				if (null != char)
 				{
@@ -454,6 +482,7 @@ class Gameplay extends MusicBeatState
 
 			sustain.holding = true;
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -466,10 +495,12 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 		}
 
 		onRelease = (noteData:(Int)) ->
 		{
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -482,6 +513,7 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 
 			health -= 0.045;
 
@@ -491,6 +523,7 @@ class Gameplay extends MusicBeatState
 				bf.holdTimer = 0.0;
 			}
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -503,10 +536,39 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
+		}
+
+		handleNoteHit = (key:(Int)) ->
+		{
+			for (n in notes.members)
+			{
+				if ((n.strum.playable && n.noteData == key) &&
+					(!n.wasHit && !n.tooLate) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7)
+				{
+					events.emit(SignalEvent.NOTE_HIT, n);
+					break;
+				}
+			}
+		}
+
+		handleNoteRelease = (key:(Int)) ->
+		{
+			for (s in sustains.members)
+			{
+				if ((s.strum.playable && s.noteData == key) && (s.holding && !s.missed) &&
+					Conductor.songPosition <= (s.strumTime + s.length) - (Conductor.stepCrochet * 0.875))
+				{
+					events.emit(SignalEvent.NOTE_RELEASE, s.noteData);
+					s.missed = !(s.holding = false);
+					s.alpha = 0.3;
+				}
+			}
 		}
 
 		onKeyDown = (keyCode:(Int), keyModifier:(Int)) ->
 		{
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -519,10 +581,11 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 
 			var key:Int = inputKeybinds.indexOf(keyCode);
 
-			if (cpuControlled || !generatedMusic || holdArray[key] || key == -1)
+			if (cpuControlled || key == -1 || !generatedMusic || holdArray[key])
 				return;
 			
 			var strum:(StrumNote) = strumlines.members[strumlines.members.length-1].members[key];
@@ -530,18 +593,11 @@ class Gameplay extends MusicBeatState
 			if (strum.animation.curAnim.name != 'confirm')
 				strum.playAnim('pressed');
 
-			var hittable:(Note) = [for (n in notes.members)
-			{
-				if ((!n.wasHit && !n.tooLate) && (Math.abs(Conductor.songPosition - n.strumTime) < 166.7 &&
-					(n.strum.playerStrum && n.strum.noteData == key)))
-					n;
-			}][0];
-
-			if (null != hittable)
-				events.emit(SignalEvent.NOTE_HIT, hittable);
+			handleNoteHit(key);
 
 			holdArray[key] = true;
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -554,10 +610,12 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 		}
 
 		onKeyUp = (keyCode:(Int), keyModifier:(Int)) ->
 		{
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -570,10 +628,11 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 
 			var key:Int = inputKeybinds.indexOf(keyCode);
 
-			if (cpuControlled || !generatedMusic || !holdArray[key] || key == -1)
+			if (cpuControlled || key == -1 || !generatedMusic || !holdArray[key])
 				return;
 
 			var strum:(StrumNote) = strumlines.members[strumlines.members.length-1].members[key];
@@ -582,20 +641,11 @@ class Gameplay extends MusicBeatState
 				strum.animation.curAnim.name == 'pressed')
 				strum.playAnim('static');
 
-			for (s in sustains.members)
-			{
-				if (s.strum.noteData == key && (s.holding && !s.missed) &&
-					Conductor.songPosition <= (s.strumTime + s.length) - (Conductor.stepCrochet * 0.875))
-				{
-					events.emit(SignalEvent.NOTE_RELEASE, s.noteData);
-					s.missed = true;
-					s.holding = false;
-					s.alpha = 0.3;
-				}
-			}
+			handleNoteRelease(key);
 
 			holdArray[key] = false;
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -608,6 +658,7 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 		}
 
 		onGameplayUpdate = (elapsed:Float) ->
@@ -651,7 +702,7 @@ class Gameplay extends MusicBeatState
 
 					// For note hits
 
-					if (note.strum.playerStrum)
+					if (note.strum.playable)
 					{
 						if (cpuControlled)
 						{
@@ -695,7 +746,7 @@ class Gameplay extends MusicBeatState
 					if (Conductor.songPosition >= (sustain.strumTime + sustain.length) + (750.0 / songSpeed))
 						sustain.holding = sustain.missed = sustain.exists = false;
 
-					if (sustain.strum.playerStrum)
+					if (sustain.strum.playable)
 					{
 						if (!sustain.missed && Conductor.songPosition <= (sustain.strumTime + sustain.length) - (Conductor.stepCrochet * 0.875) &&
 							!sustain.missed && Conductor.songPosition >= sustain.strumTime)
@@ -750,6 +801,7 @@ class Gameplay extends MusicBeatState
 			{
 				// Finish off stage creation and add characters finally
 
+				#if SCRIPTING_ALLOWED
 				for (script in scriptList.keys())
 				{
 					try
@@ -762,6 +814,7 @@ class Gameplay extends MusicBeatState
 						HScriptSystem.error(e);
 					}
 				}
+				#end
 
 				threadsCompleted = -2;
 
@@ -808,6 +861,7 @@ class Gameplay extends MusicBeatState
 				startCharacterPos(dad, true);
 				startCharacterPos(bf, false);
 
+				#if SCRIPTING_ALLOWED
 				for (script in scriptList.keys())
 				{
 					try
@@ -820,6 +874,7 @@ class Gameplay extends MusicBeatState
 						HScriptSystem.error(e);
 					}
 				}
+				#end
 
 				// Now time to load the UI and shit
 
@@ -840,7 +895,7 @@ class Gameplay extends MusicBeatState
 					hudGroup = new HUDGroup();
 					add(hudGroup);
 
-					@:privateAccess hudGroup.reloadHealthBar();
+					hudGroup.reloadHealthBar();
 					hudGroup.cameras = [hudCamera];
 				}
 
@@ -862,6 +917,7 @@ class Gameplay extends MusicBeatState
 
 				generatedMusic = true;
 
+				#if SCRIPTING_ALLOWED
 				for (script in scriptList.keys())
 				{
 					try
@@ -875,6 +931,7 @@ class Gameplay extends MusicBeatState
 						HScriptSystem.error(e);
 					}
 				}
+				#end
 
 				openfl.system.System.gc(); // Free up inactive memory
 
@@ -1061,7 +1118,7 @@ class Gameplay extends MusicBeatState
 							}
 					}
 				}
-				@:privateAccess hudGroup.reloadHealthBar();
+				hudGroup.reloadHealthBar();
 
 			case 'Change Scroll Speed':
 				if (null != songSpeedTween)
@@ -1097,6 +1154,7 @@ class Gameplay extends MusicBeatState
 				}
 		}
 
+		#if SCRIPTING_ALLOWED
 		for (script in scriptList.keys())
 		{
 			try
@@ -1109,6 +1167,7 @@ class Gameplay extends MusicBeatState
 				HScriptSystem.error(e);
 			}
 		}
+		#end
 	}
 
 	var lock = new Mutex();
@@ -1305,6 +1364,7 @@ class Gameplay extends MusicBeatState
 
 			// Finish off stage creation and add characters finally
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -1317,6 +1377,7 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 
 			threadsCompleted = -2;
 
@@ -1355,6 +1416,7 @@ class Gameplay extends MusicBeatState
 			startCharacterPos(dad, true);
 			startCharacterPos(bf, false);
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -1367,6 +1429,7 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 
 			// Now time to load the UI and shit
 
@@ -1387,7 +1450,7 @@ class Gameplay extends MusicBeatState
 				hudGroup = new HUDGroup();
 				add(hudGroup);
 
-				@:privateAccess hudGroup.reloadHealthBar();
+				hudGroup.reloadHealthBar();
 				hudGroup.cameras = [hudCamera];
 			}
 
@@ -1409,6 +1472,7 @@ class Gameplay extends MusicBeatState
 
 			generatedMusic = true;
 
+			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
 			{
 				try
@@ -1422,6 +1486,7 @@ class Gameplay extends MusicBeatState
 					HScriptSystem.error(e);
 				}
 			}
+			#end
 
 			openfl.system.System.gc(); // Free up inactive memory
 
@@ -1610,16 +1675,16 @@ class Gameplay extends MusicBeatState
 	}
 
 	static public var strumlineCount:Int = 2;
-	static public var playerStrumlineConfiguration:Array<Bool> = [false, true];
+	static public var playablelineConfiguration:Array<Bool> = [false, true];
 	public function generateStrumline(player:Int = 0):Void
 	{
 		// If the array's length is not above or equal to the strumline count, compensate for it
-		while (playerStrumlineConfiguration.length <= strumlineCount)
+		while (playablelineConfiguration.length <= strumlineCount)
 		{
-			playerStrumlineConfiguration.push(false);
+			playablelineConfiguration.push(false);
 		}
 
-		var strumline = new Strumline(4, player, playerStrumlineConfiguration[player]);
+		var strumline = new Strumline(4, player, playablelineConfiguration[player]);
 		strumlines.add(strumline);
 	}
 
@@ -1737,6 +1802,7 @@ class Gameplay extends MusicBeatState
 			dance(swagCounter++);
 		}, 5);
 
+		#if SCRIPTING_ALLOWED
 		for (script in scriptList.keys())
 		{
 			try
@@ -1749,6 +1815,7 @@ class Gameplay extends MusicBeatState
 				HScriptSystem.error(e);
 			}
 		}
+		#end
 	}
 
 	private function startSong():Void
@@ -1767,6 +1834,7 @@ class Gameplay extends MusicBeatState
 
 		startedCountdown = true;
 
+		#if SCRIPTING_ALLOWED
 		for (script in scriptList.keys())
 		{
 			try
@@ -1779,6 +1847,7 @@ class Gameplay extends MusicBeatState
 				HScriptSystem.error(e);
 			}
 		}
+		#end
 	}
 
 	public function endSong():Void
@@ -1796,6 +1865,7 @@ class Gameplay extends MusicBeatState
 
 		switchState(new WelcomeState());
 
+		#if SCRIPTING_ALLOWED
 		for (script in scriptList.keys())
 		{
 			try
@@ -1808,6 +1878,7 @@ class Gameplay extends MusicBeatState
 				HScriptSystem.error(e);
 			}
 		}
+		#end
 	}
 
 	// Camera functions
@@ -1836,6 +1907,7 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
+		#if SCRIPTING_ALLOWED
 		for (script in scriptList.keys())
 		{
 			try
@@ -1848,6 +1920,7 @@ class Gameplay extends MusicBeatState
 				HScriptSystem.error(e);
 			}
 		}
+		#end
 	}
 
 	private function zoomTweenFunction(cam:(FlxCamera), amount:Float = 1):FlxTween
@@ -1985,4 +2058,7 @@ class Gameplay extends MusicBeatState
 	public var onNoteMiss:(Note)->(Void);
 	public var onHold:(SustainNote)->(Void);
 	public var onRelease:(Int)->(Void);
+
+	var handleNoteHit:(Int)->(Void);
+	var handleNoteRelease:(Int)->(Void);
 }
