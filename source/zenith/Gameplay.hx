@@ -566,6 +566,12 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
+		sortShit = () ->
+		{
+			notes.members.sort((a:(Note), b:(Note)) -> Std.int(a.strumTime - b.strumTime));
+			sustains.members.sort((a:(SustainNote), b:(SustainNote)) -> Std.int(a.strumTime - b.strumTime));
+		}
+
 		onKeyDown = (keyCode:(Int), keyModifier:(Int)) ->
 		{
 			#if SCRIPTING_ALLOWED
@@ -1726,8 +1732,7 @@ class Gameplay extends MusicBeatState
 		if (curBeat % 4 == 0)
 			addCameraZoom();
 
-		notes.members.sort((a:(Note), b:(Note)) -> Std.int(a.strumTime - b.strumTime));
-		sustains.members.sort((a:(SustainNote), b:(SustainNote)) -> Std.int(a.strumTime - b.strumTime)); // For checking if a sustain note has been released
+		sortShit();
 
 		lastBeatHit = curBeat;
 	}
@@ -2061,4 +2066,5 @@ class Gameplay extends MusicBeatState
 
 	var handleNoteHit:(Int)->(Void);
 	var handleNoteRelease:(Int)->(Void);
+	var sortShit:()->(Void);
 }
