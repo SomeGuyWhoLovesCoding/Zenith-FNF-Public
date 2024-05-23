@@ -6,6 +6,8 @@ class State extends FlxState
 {
 	override function create():Void
 	{
+		FlxG.maxElapsed = FlxG.elapsed;
+
 		try
 		{
 			if (!SaveData.contents.graphics.persistentGraphics)
@@ -41,9 +43,12 @@ class State extends FlxState
 					HScriptSystem.error(e);
 				}
 			}
+
+			FlxG.maxElapsed = 0.1;
 		}
 		catch (e)
 		{
+			FlxG.maxElapsed = 0.1;
 			throw e;
 		}
 	}
@@ -88,6 +93,7 @@ class State extends FlxState
 
 	override function destroy():Void
 	{
+		FlxG.maxElapsed = FlxG.elapsed;
 		try
 		{
 			for (script in scriptList.keys())
@@ -120,9 +126,12 @@ class State extends FlxState
 
 			if (!SaveData.contents.graphics.persistentGraphics)
 				openfl.system.System.gc();
+
+			FlxG.maxElapsed = 0.1;
 		}
 		catch (e)
 		{
+			FlxG.maxElapsed = 0.1;
 			throw e;
 		}
 	}
