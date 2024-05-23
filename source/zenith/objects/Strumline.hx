@@ -6,14 +6,20 @@ class Strumline extends FlxBasic
 
 	function set_keys(value:Int):Int
 	{
-		clear();
-
 		for (i in 0...value)
 		{
-			var strumNote = new StrumNote(i, lane = startingLane);
-			strumNote.scale.x = strumNote.scale.y = scale;
-			strumNote.playable = playable;
-			members[i] = strumNote;
+			var member = members[i];
+			if (member == null)
+			{
+				var strumNote = new StrumNote(i, lane = startingLane);
+				strumNote.scale.x = strumNote.scale.y = scale;
+				members[i] = strumNote;
+			}
+			else
+			{
+				member.angle = member.angleArray[member.noteData];
+				member.color = member.colorArray[member.noteData];
+			}
 		}
 		return keys = value;
 	}
@@ -26,7 +32,7 @@ class Strumline extends FlxBasic
 
 	function set_x(value:Float):Float
 	{
-		move(value, y);
+		moveX(value);
 		return x = value;
 	}
 
@@ -34,7 +40,7 @@ class Strumline extends FlxBasic
 
 	function set_y(value:Float):Float
 	{
-		move(x, value);
+		moveY(value);
 		return y = value;
 	}
 
@@ -59,11 +65,28 @@ class Strumline extends FlxBasic
 
 	public var scale(default, null):Float = 0.7;
 
-	public function new(startingKeys:Int = 4, startingLane:Int = 0, playable:Bool = false):Void
+	public var playable(default, set):Bool;
+
+	function set_playable(value:Bool):Bool
+	{
+		if (members.length == 0)
+			return playable;
+
+		for (i in 0...members.length)
+		{
+			members[i].playable = value;
+		}
+
+		return playable = value;
+	}
+
+	public function new(keys:Int = 4, lane:Int = 0, playable:Bool = false):Void
 	{
 		super();
 
-		keys = startingKeys;
+		this.keys = keys;
+		this.lane = lane;
+		this.playable = playable;
 
 		// Default strumline positions
 		x = 50.0 + ((FlxG.width * 0.55875138) * lane);
@@ -100,14 +123,25 @@ class Strumline extends FlxBasic
 		}
 	}
 
-	public function move(x:Float, y:Float):Void
+	public function moveX(x:Float):Void
 	{
 		if (members.length == 0)
 			return;
 
 		for (i in 0...members.length)
 		{
-			members[i].setPosition(x + (gap * i), y);
+			members[i].x = x + (gap * i);
+		}
+	}
+
+	public function moveY(y:Float):Void
+	{
+		if (members.length == 0)
+			return;
+
+		for (i in 0...members.length)
+		{
+			members[i].y = y;
 		}
 	}
 
