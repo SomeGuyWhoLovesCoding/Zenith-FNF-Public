@@ -36,6 +36,16 @@ class HUDGroup extends FlxSpriteGroup
 		scoreTxt.setBorderStyle(OUTLINE, 0xFF000000);
 		add(scoreTxt);
 
+		updateScoreText = () ->
+		{
+			scoreTxt.text = 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ' + (Gameplay.instance.accuracy_right == 0.0 ? '???' :
+				Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000.0) * 0.01 + '%');
+
+			#if SCRIPTING_ALLOWED
+			Main.optUtils.call('onUpdateScore');
+			#end
+		}
+
 		timeTxt = new FlxText(0, Gameplay.downScroll ? FlxG.height - 42 : 8, 0, '???', 30);
 		timeTxt.setBorderStyle(OUTLINE, 0xFF000000);
 		timeTxt.alpha = 0;
@@ -86,24 +96,5 @@ class HUDGroup extends FlxSpriteGroup
 		super.update(elapsed);
 	}
 
-	function updateScoreText():Void
-	{
-		scoreTxt.text = 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ' + (Gameplay.instance.accuracy_right == 0.0 ? '???' :
-			Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000.0) * 0.01 + '%');
-
-		#if SCRIPTING_ALLOWED
-		for (script in scriptList.keys())
-		{
-			try
-			{
-				if (scriptList.get(script).interp.variables.exists('onUpdateScoreText'))
-					(scriptList.get(script).interp.variables.get('onUpdateScoreText'))();
-			}
-			catch (e)
-			{
-				HScriptSystem.error(e);
-			}
-		}
-		#end
-	}
+	public var updateScoreText:()->(Void);
 }
