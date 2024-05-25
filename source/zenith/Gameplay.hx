@@ -17,12 +17,12 @@ using StringTools;
 
 class Gameplay extends MusicBeatState
 {
-	public var strumlines:FlxTypedGroup<Strumline>;
-	public var notes:FlxTypedGroup<Note>;
-	public var sustains:FlxTypedGroup<SustainNote>;
+	public var strumlines:FlxTypedGroup<Strumline> = null;
+	public var notes:FlxTypedGroup<Note> = null;
+	public var sustains:FlxTypedGroup<SustainNote> = null;
 
 	// Health stuff
-	private var hudGroup(default, null):HUDGroup;
+	private var hudGroup(default, null):HUDGroup = null;
 	public var health:Float = 1.0;
 
 	// Score text stuff
@@ -40,7 +40,7 @@ class Gameplay extends MusicBeatState
 	static public var stillCharacters:Bool = false;
 
 	// Song stuff
-	static public var SONG:Song.SwagSong;
+	static public var SONG:Song.SwagSong = null;
 
 	// Gameplay stuff
 
@@ -56,9 +56,9 @@ class Gameplay extends MusicBeatState
 	public var GF_X:Int = 400;
 	public var GF_Y:Int = 130;
 
-	public var bfGroup:FlxSpriteGroup;
-	public var dadGroup:FlxSpriteGroup;
-	public var gfGroup:FlxSpriteGroup;
+	public var bfGroup:FlxSpriteGroup = null;
+	public var dadGroup:FlxSpriteGroup = null;
+	public var gfGroup:FlxSpriteGroup = null;
 
 	// This is used to precache characters before loading in the song, like the change character event.
 	public var bfMap:Map<String, Character> = new Map<String, Character>();
@@ -69,8 +69,8 @@ class Gameplay extends MusicBeatState
 	public var opponentCameraOffset:Array<Int> = [0, 0];
 	public var girlfriendCameraOffset:Array<Int> = [0, 0];
 
-	public var songSpeedTween(default, null):FlxTween;
-	public var songLengthTween(default, null):FlxTween;
+	public var songSpeedTween(default, null):FlxTween = null;
+	public var songLengthTween(default, null):FlxTween = null;
 
 	public var songSpeed:Float = 1.0;
 	public var songLength:Float = 0.0;
@@ -83,27 +83,25 @@ class Gameplay extends MusicBeatState
 
 	public var gfSpeed:Int = 1;
 
-	public var inst:FlxSound;
-	public var voices:FlxSound;
+	public var inst:FlxSound = null;
+	public var voices:FlxSound = null;
 
-	public var gf:Character;
-	public var dad:Character;
-	public var bf:Character;
+	public var gf:Character = null;
+	public var dad:Character = null;
+	public var bf:Character = null;
 
-	public var gameCamera:FlxCamera;
-	public var hudCameraBelow:FlxCamera;
-	public var hudCamera:FlxCamera;
-	public var loadingScreenCamera:FlxCamera;
+	public var gameCamera:FlxCamera = null;
+	public var hudCameraBelow:FlxCamera = null;
+	public var hudCamera:FlxCamera = null;
+	public var loadingScreenCamera:FlxCamera = null;
 
-	public var gameCameraZoomTween(default, null):FlxTween;
-	public var hudCameraZoomTween(default, null):FlxTween;
+	public var gameCameraZoomTween(default, null):FlxTween = null;
+	public var hudCameraZoomTween(default, null):FlxTween = null;
 
 	public var defaultCamZoom(default, set):Float;
 
-	public var camFollowPos:FlxObject;
-	public var camFollowPosTween(default, null):FlxTween;
-
-	private var keybinds(default, null):Array<flixel.input.keyboard.FlxKey> = [A, S, UP, RIGHT];
+	public var camFollowPos:FlxObject = null;
+	public var camFollowPosTween(default, null):FlxTween = null;
 
 	private var singAnimations(default, null):Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
 
@@ -620,6 +618,8 @@ class Gameplay extends MusicBeatState
 
 		onGameplayUpdate = (elapsed:Float) ->
 		{
+			health = FlxMath.bound(health, 0.0, hudGroup.healthBar.maxValue);
+
 			// Don't remove this.
 			hudCameraBelow.x = hudCamera.x;
 			hudCameraBelow.y = hudCamera.y;
@@ -1525,25 +1525,25 @@ class Gameplay extends MusicBeatState
 		if (!noCharacters)
 		{
 			if (null != gf
+				&& !gf.stunned
 				&& 0 == beat % Math.round(gfSpeed * gf.danceEveryNumBeats)
 				&& null != gf.animation.curAnim
-				&& !gf.animation.curAnim.name.startsWith("sing")
-				&& !gf.stunned)
+				&& !gf.animation.curAnim.name.startsWith("sing"))
 				gf.dance();
 
 			if (null != dad
+				&& !dad.stunned
 				&& 0 == beat % dad.danceEveryNumBeats
 				&& null != dad.animation.curAnim
 				&& !dad.animation.curAnim.name.startsWith('sing')
-				&& !dad.stunned
 				&& dad.animation.curAnim.finished)
 				dad.dance();
 
 			if (null != bf
+				&& !bf.stunned
 				&& 0 == beat % bf.danceEveryNumBeats
 				&& null != bf.animation.curAnim
 				&& !bf.animation.curAnim.name.startsWith('sing')
-				&& !bf.stunned
 				&& bf.animation.curAnim.finished)
 				bf.dance();
 		}

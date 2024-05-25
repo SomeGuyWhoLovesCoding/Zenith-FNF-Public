@@ -113,6 +113,25 @@ class Character extends FlxSprite
 			}
 		}
 
+		updateAnim = (elapsed:Float) ->
+		{
+			animation.update(elapsed);
+		}
+
+		dance = () ->
+		{
+			if (danceIdle && (!debugMode && !skipDance && !specialAnim))
+			{
+				danced = !danced;
+				playAnim((danced ? 'danceRight' : 'danceLeft') + idleSuffix);
+			}
+			else
+			{
+				if (animation.getByName('idle' + idleSuffix) != null)
+					playAnim('idle' + idleSuffix);
+			}
+		}
+
 		animOffsets = new Map<String, Array<Float>>();
 		curCharacter = character;
 		this.isPlayer = isPlayer;
@@ -188,6 +207,9 @@ class Character extends FlxSprite
 	{
 		if (!debugMode && animation.curAnim != null)
 		{
+			if (animation.curAnim.finished && animation.getByName(animation.curAnim.name + '-loop') != null)
+				playAnim(animation.curAnim.name + '-loop');
+
 			if (specialAnim && animation.curAnim.finished)
 			{
 				specialAnim = false;
@@ -197,7 +219,7 @@ class Character extends FlxSprite
 			if (animation.curAnim.name.startsWith('sing'))
 				holdTimer += elapsed;
 
-			if (holdTimer >= Conductor.stepCrochet * 0.00105 * singDuration)
+			if (holdTimer >= Conductor.stepCrochet * singDuration * 0.001)
 			{
 				dance();
 				holdTimer = 0;
@@ -213,32 +235,20 @@ class Character extends FlxSprite
 					dance();
 				}
 			}
-
-			if(animation.curAnim.finished && animation.getByName(animation.curAnim.name + '-loop') != null)
-				playAnim(animation.curAnim.name + '-loop');
 		}
 
-		super.update(elapsed);
+		updateAnim(elapsed);
+
+		#if FLX_DEBUG
+		FlxBasic.activeCount++;
+		#end
 	}
+
+	var updateAnim:(Float)->(Void);
 
 	public var danced:Bool = false;
 
-	/**
-	 * FOR GF DANCING SHIT
-	 */
-	public function dance()
-	{
-		if (danceIdle && (!debugMode && !skipDance && !specialAnim))
-		{
-			danced = !danced;
-			playAnim((danced ? 'danceRight' : 'danceLeft') + idleSuffix);
-		}
-		else
-		{
-			if (animation.getByName('idle' + idleSuffix) != null)
-				playAnim('idle' + idleSuffix);
-		}
-	}
+	public var dance:()->(Void);
 
 	public var playAnim:((String), (?Bool))->(Void);
 

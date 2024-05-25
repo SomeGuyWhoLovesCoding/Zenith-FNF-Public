@@ -91,8 +91,8 @@ class HUDGroup extends FlxSpriteGroup
 
 		if (Gameplay.instance.startedCountdown)
 		{
-			if (timeTxt.alpha != 1)
-				timeTxt.alpha += elapsed * 6;
+			if (timeTxt.alpha != 1.0)
+				timeTxt.alpha += elapsed * 6.0;
 			timeTxt.text = Utils.formatTime(Gameplay.instance.songLength - Conductor.songPosition, true, true);
 		}
 
