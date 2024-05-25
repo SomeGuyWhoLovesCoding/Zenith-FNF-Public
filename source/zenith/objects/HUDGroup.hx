@@ -46,6 +46,12 @@ class HUDGroup extends FlxSpriteGroup
 			#end
 		}
 
+		updateIcons = () ->
+		{
+			plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;
+			oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
+		}
+
 		timeTxt = new FlxText(0, Gameplay.downScroll ? FlxG.height - 42 : 8, 0, '???', 30);
 		timeTxt.setBorderStyle(OUTLINE, 0xFF000000);
 		timeTxt.alpha = 0;
@@ -90,11 +96,11 @@ class HUDGroup extends FlxSpriteGroup
 			timeTxt.text = Utils.formatTime(Gameplay.instance.songLength - Conductor.songPosition, true, true);
 		}
 
-		plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;
-		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
+		updateIcons();
 
 		super.update(elapsed);
 	}
 
-	public var updateScoreText:()->(Void);
+	public var updateScoreText:() -> (Void);
+	public var updateIcons:() -> (Void);
 }
