@@ -61,7 +61,6 @@
 	<haxedef name="FLX_NO_TOUCH" />
 	<haxedef name="FLX_NO_GAMEPAD" />
 	<haxedef name="FLX_NO_MOUSE" />
-	<haxedef name="FLX_NO_POINT_POOL" />
 
 	<!--Disable the Flixel core focus lost screen-->
 	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />

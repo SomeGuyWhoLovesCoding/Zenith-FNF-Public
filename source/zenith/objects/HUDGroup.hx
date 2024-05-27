@@ -5,6 +5,8 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.math.FlxMath;
 
+@:access(zenith.Gameplay)
+
 class HUDGroup extends FlxSpriteGroup
 {
 	public var oppIcon:HealthIcon = null;

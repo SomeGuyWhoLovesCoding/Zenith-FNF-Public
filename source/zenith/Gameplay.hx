@@ -40,8 +40,8 @@ class Gameplay extends State
 		return misses = Math.ffloor(value);
 	}
 
-	public var accuracy_left(default, null):Float = 0.0;
-	public var accuracy_right(default, null):Float = 0.0;
+	var accuracy_left(default, null):Float = 0.0;
+	var accuracy_right(default, null):Float = 0.0;
 
 	// Preference stuff
 	static public var cpuControlled:Bool = false;
@@ -114,11 +114,11 @@ class Gameplay extends State
 	public var camFollowPos:FlxObject = null;
 	public var camFollowPosTween(default, null):FlxTween = null;
 
-	private var singAnimations(default, null):Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
+	var singAnimations(default, null):Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
 
 	static public var instance:Gameplay = null;
 
-	public var events:Emitter = new Emitter();
+	var e(default, null):Emitter = new Emitter();
 
 	override function create():Void
 	{
@@ -195,7 +195,7 @@ class Gameplay extends State
 				return;
 
 			var note:(Note) = notes.recycle((Note));
-			Gameplay.instance.events.emit(SignalEvent.NOTE_NEW, note);
+			Gameplay.instance.e.emit(SignalEvent.NOTE_NEW, note);
 
 			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
@@ -229,7 +229,7 @@ class Gameplay extends State
 
 			if (note.sustainLength > 32.0) // Don't spawn too short sustain notes
 			{
-				events.emit(SignalEvent.SUSTAIN_SETUP, chartNoteData);
+				e.emit(SignalEvent.SUSTAIN_SETUP, chartNoteData);
 			}
 
 			#if SCRIPTING_ALLOWED
@@ -265,7 +265,7 @@ class Gameplay extends State
 		setupSustainData = (chartNoteData:(Array<(Float)>)) ->
 		{
 			var sustain:(SustainNote) = sustains.recycle((SustainNote));
-			Gameplay.instance.events.emit(SignalEvent.SUSTAIN_NEW, sustain);
+			Gameplay.instance.e.emit(SignalEvent.SUSTAIN_NEW, sustain);
 
 			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
@@ -449,7 +449,7 @@ class Gameplay extends State
 				if ((n.strum.playable && n.noteData == key) &&
 					(!n.wasHit && !n.tooLate) && Math.abs(Main.conductor.songPosition - n.strumTime) < 166.7)
 				{
-					events.emit(SignalEvent.NOTE_HIT, n);
+					e.emit(SignalEvent.NOTE_HIT, n);
 					break;
 				}
 			}
@@ -462,7 +462,7 @@ class Gameplay extends State
 				if ((s.strum.playable && !s.missed && s.noteData == key) && Main.conductor.songPosition >= s.strumTime &&
 					Main.conductor.songPosition <= (s.strumTime + s.length) - (Main.conductor.stepCrochet * 0.875))
 				{
-					events.emit(SignalEvent.NOTE_RELEASE, s.noteData);
+					e.emit(SignalEvent.NOTE_RELEASE, s.noteData);
 					s.missed = !(s.holding = false);
 					s.alpha = 0.3;
 				}
@@ -485,7 +485,7 @@ class Gameplay extends State
 				if (Main.conductor.songPosition < note[0] - (1950.0 / songSpeed))
 					break;
 
-				events.emit(SignalEvent.NOTE_SETUP, note);
+				e.emit(SignalEvent.NOTE_SETUP, note);
 
 				currentNoteId++;
 			}
@@ -514,20 +514,20 @@ class Gameplay extends State
 						{
 							if (Main.conductor.songPosition >= note.strumTime)
 							{
-								events.emit(SignalEvent.NOTE_HIT, note);
+								e.emit(SignalEvent.NOTE_HIT, note);
 							}
 						}
 
 						if (Main.conductor.songPosition >= note.strumTime + (200.0 / songSpeed) && (!note.wasHit && !note.tooLate))
 						{
-							events.emit(SignalEvent.NOTE_MISS, note);
+							e.emit(SignalEvent.NOTE_MISS, note);
 						}
 					}
 					else
 					{
 						if (Main.conductor.songPosition >= note.strumTime)
 						{
-							events.emit(SignalEvent.NOTE_HIT, note);
+							e.emit(SignalEvent.NOTE_HIT, note);
 						}
 					}
 				}
@@ -562,7 +562,7 @@ class Gameplay extends State
 						{
 							if (holdArray[sustain.noteData])
 							{
-								events.emit(SignalEvent.NOTE_HOLD, sustain);
+								e.emit(SignalEvent.NOTE_HOLD, sustain);
 							}
 						}
 					}
@@ -571,7 +571,7 @@ class Gameplay extends State
 						if (Main.conductor.songPosition <= (sustain.strumTime + sustain.length) - (Main.conductor.stepCrochet * 0.875) &&
 							Main.conductor.songPosition >= sustain.strumTime)
 						{
-							events.emit(SignalEvent.NOTE_HOLD, sustain);
+							e.emit(SignalEvent.NOTE_HOLD, sustain);
 						}
 					}
 				}
@@ -654,15 +654,15 @@ class Gameplay extends State
 			s();
 		}
 
-		events.on(SignalEvent.NOTE_NEW, newNote);
-		events.on(SignalEvent.NOTE_SETUP, setupNoteData);
-		events.on(SignalEvent.NOTE_HIT, onNoteHit);
-		events.on(SignalEvent.NOTE_MISS, onNoteMiss);
-		events.on(SignalEvent.NOTE_HOLD, onHold);
-		events.on(SignalEvent.NOTE_RELEASE, onRelease);
-		events.on(SignalEvent.SUSTAIN_NEW, newSustain);
-		events.on(SignalEvent.SUSTAIN_SETUP, setupSustainData);
-		events.on(SignalEvent.GAMEPLAY_UPDATE, onGameplayUpdate);
+		e.on(SignalEvent.NOTE_NEW, newNote);
+		e.on(SignalEvent.NOTE_SETUP, setupNoteData);
+		e.on(SignalEvent.NOTE_HIT, onNoteHit);
+		e.on(SignalEvent.NOTE_MISS, onNoteMiss);
+		e.on(SignalEvent.NOTE_HOLD, onHold);
+		e.on(SignalEvent.NOTE_RELEASE, onRelease);
+		e.on(SignalEvent.SUSTAIN_NEW, newSustain);
+		e.on(SignalEvent.SUSTAIN_SETUP, setupSustainData);
+		e.on(SignalEvent.GAMEPLAY_UPDATE, onGameplayUpdate);
 
 		Main.game.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
 		Main.game.onKeyUp.on(SignalEvent.KEY_UP, onKeyUp);
@@ -828,7 +828,7 @@ class Gameplay extends State
 
 		super.update(elapsed);
 
-		events.emit(SignalEvent.GAMEPLAY_UPDATE, elapsed);
+		e.emit(SignalEvent.GAMEPLAY_UPDATE, elapsed);
 	}
 
 	var initialStrumWidth:Float = 112.0;
@@ -1042,9 +1042,9 @@ class Gameplay extends State
 	}
 
 	var lock = new Mutex();
-	var threadsCompleted:Int = -1;
+	var threadsCompleted = -1;
 
-	var loadingTimestamp:Float;
+	var loadingTimestamp = 0.0;
 	inline private function generateSong(name:String, diff:String):Void
 	{
 		loadingTimestamp = haxe.Timer.stamp();
@@ -1800,15 +1800,15 @@ class Gameplay extends State
 
 	override function destroy():Void
 	{
-		events.off(SignalEvent.NOTE_NEW, newNote);
-		events.off(SignalEvent.NOTE_SETUP, setupNoteData);
-		events.off(SignalEvent.NOTE_HIT, onNoteHit);
-		events.off(SignalEvent.NOTE_MISS, onNoteMiss);
-		events.off(SignalEvent.NOTE_HOLD, onHold);
-		events.off(SignalEvent.NOTE_RELEASE, onRelease);
-		events.off(SignalEvent.SUSTAIN_NEW, newSustain);
-		events.off(SignalEvent.SUSTAIN_SETUP, setupSustainData);
-		events.off(SignalEvent.GAMEPLAY_UPDATE, onGameplayUpdate);
+		e.off(SignalEvent.NOTE_NEW, newNote);
+		e.off(SignalEvent.NOTE_SETUP, setupNoteData);
+		e.off(SignalEvent.NOTE_HIT, onNoteHit);
+		e.off(SignalEvent.NOTE_MISS, onNoteMiss);
+		e.off(SignalEvent.NOTE_HOLD, onHold);
+		e.off(SignalEvent.NOTE_RELEASE, onRelease);
+		e.off(SignalEvent.SUSTAIN_NEW, newSustain);
+		e.off(SignalEvent.SUSTAIN_SETUP, setupSustainData);
+		e.off(SignalEvent.GAMEPLAY_UPDATE, onGameplayUpdate);
 
 		Main.game.onKeyDown.off(SignalEvent.KEY_DOWN, onKeyDown);
 		Main.game.onKeyUp.off(SignalEvent.KEY_UP, onKeyUp);
