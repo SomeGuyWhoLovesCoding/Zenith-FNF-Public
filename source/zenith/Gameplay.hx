@@ -114,11 +114,16 @@ class Gameplay extends State
 	public var camFollowPos:FlxObject = null;
 	public var camFollowPosTween(default, null):FlxTween = null;
 
-	var singAnimations(default, null):Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
+	static var singAnimations(default, null):Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
 
 	static public var instance:Gameplay = null;
 
 	var e(default, null):Emitter = new Emitter();
+
+	var currentNote(default, null):Note = null;
+	var spawnedNote(default, null):Note = null;
+	var currentSustain(default, null):SustainNote = null;
+	var spawnedSustain(default, null):SustainNote = null;
 
 	override function create():Void
 	{
@@ -194,8 +199,8 @@ class Gameplay extends State
 			if (chartNoteData[0] < 0.0 || chartNoteData[3] < 0) // Don't spawn a note with negative time or lane
 				return;
 
-			var note:(Note) = notes.recycle((Note));
-			Gameplay.instance.e.emit(SignalEvent.NOTE_NEW, note);
+			spawnedNote = notes.recycle((Note));
+			Gameplay.instance.e.emit(SignalEvent.NOTE_NEW, spawnedNote);
 
 			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
@@ -203,7 +208,7 @@ class Gameplay extends State
 				try
 				{
 					if (scriptList.get(script).interp.variables.exists('setupNoteData'))
-						(scriptList.get(script).interp.variables.get('setupNoteData'))(note, chartNoteData);
+						(scriptList.get(script).interp.variables.get('setupNoteData'))(spawnedNote, chartNoteData);
 				}
 				catch (e)
 				{
@@ -212,22 +217,22 @@ class Gameplay extends State
 			}
 			#end
 
-			note.alpha = 1.0;
-			note.y = -2000.0;
-			note.wasHit = note.tooLate = false;
+			spawnedNote.alpha = 1.0;
+			spawnedNote.y = -2000.0;
+			spawnedNote.wasHit = spawnedNote.tooLate = false;
 
-			note.strumTime = chartNoteData[0];
-			note.noteData = Std.int(chartNoteData[1]);
-			note.sustainLength = Std.int(chartNoteData[2]) - 32;
-			note.lane = Std.int(chartNoteData[3]) % strumlineCount;
-			note.multiplier = Std.int(chartNoteData[4]);
+			spawnedNote.strumTime = chartNoteData[0];
+			spawnedNote.noteData = Std.int(chartNoteData[1]);
+			spawnedNote.sustainLength = Std.int(chartNoteData[2]) - 32;
+			spawnedNote.lane = Std.int(chartNoteData[3]) % strumlineCount;
+			spawnedNote.multiplier = Std.int(chartNoteData[4]);
 
-			note.strum = strumlines.members[note.lane].members[note.noteData];
+			spawnedNote.strum = strumlines.members[spawnedNote.lane].members[spawnedNote.noteData];
 
-			note.color = NoteBase.colorArray[note.noteData];
-			note.angle = NoteBase.angleArray[note.noteData];
+			spawnedNote.color = NoteBase.colorArray[spawnedNote.noteData];
+			spawnedNote.angle = NoteBase.angleArray[spawnedNote.noteData];
 
-			if (note.sustainLength > 32.0) // Don't spawn too short sustain notes
+			if (spawnedNote.sustainLength > 32.0) // Don't spawn too short sustain notes
 			{
 				e.emit(SignalEvent.SUSTAIN_SETUP, chartNoteData);
 			}
@@ -238,7 +243,7 @@ class Gameplay extends State
 				try
 				{
 					if (scriptList.get(script).interp.variables.exists('setupNoteDataPost'))
-						(scriptList.get(script).interp.variables.get('setupNoteDataPost'))(note, chartNoteData);
+						(scriptList.get(script).interp.variables.get('setupNoteDataPost'))(spawnedNote, chartNoteData);
 				}
 				catch (e)
 				{
@@ -264,8 +269,8 @@ class Gameplay extends State
 
 		setupSustainData = (chartNoteData:(Array<(Float)>)) ->
 		{
-			var sustain:(SustainNote) = sustains.recycle((SustainNote));
-			Gameplay.instance.e.emit(SignalEvent.SUSTAIN_NEW, sustain);
+			spawnedSustain = sustains.recycle((SustainNote));
+			Gameplay.instance.e.emit(SignalEvent.SUSTAIN_NEW, spawnedSustain);
 
 			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
@@ -273,7 +278,7 @@ class Gameplay extends State
 				try
 				{
 					if (scriptList.get(script).interp.variables.exists('setupSustainData'))
-						(scriptList.get(script).interp.variables.get('setupSustainData'))(sustain, chartNoteData);
+						(scriptList.get(script).interp.variables.get('setupSustainData'))(spawnedSustain, chartNoteData);
 				}
 				catch (e)
 				{
@@ -282,18 +287,18 @@ class Gameplay extends State
 			}
 			#end
 
-			sustain.alpha = 0.6; // Definitive alpha, default
-			sustain.y = -2000;
-			sustain.holding = sustain.missed = false;
+			spawnedSustain.alpha = 0.6; // Definitive alpha, default
+			spawnedSustain.y = -2000;
+			spawnedSustain.holding = spawnedSustain.missed = false;
 
-			sustain.strumTime = chartNoteData[0];
-			sustain.noteData = Std.int(chartNoteData[1]);
-			sustain.length = chartNoteData[2] - 32.0;
-			sustain.lane = Std.int(chartNoteData[3]);
+			spawnedSustain.strumTime = chartNoteData[0];
+			spawnedSustain.noteData = Std.int(chartNoteData[1]);
+			spawnedSustain.length = chartNoteData[2] - 32.0;
+			spawnedSustain.lane = Std.int(chartNoteData[3]);
 
-			sustain.strum = strumlines.members[sustain.lane].members[sustain.noteData];
+			spawnedSustain.strum = strumlines.members[spawnedSustain.lane].members[spawnedSustain.noteData];
 
-			sustain.color = NoteBase.colorArray[sustain.noteData];
+			spawnedSustain.color = NoteBase.colorArray[spawnedSustain.noteData];
 
 			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
@@ -301,7 +306,7 @@ class Gameplay extends State
 				try
 				{
 					if (scriptList.get(script).interp.variables.exists('setupSustainDataPost'))
-						(scriptList.get(script).interp.variables.get('setupSustainDataPost'))(sustain, chartNoteData);
+						(scriptList.get(script).interp.variables.get('setupSustainDataPost'))(spawnedSustain, chartNoteData);
 				}
 				catch (e)
 				{
@@ -319,7 +324,7 @@ class Gameplay extends State
 
 			note.strum.playAnim('confirm');
 
-			var multiplier:Int = FlxMath.maxInt(note.multiplier, 1); // Avoid calling FlxMath.maxInt 4 times
+			var multiplier = FlxMath.maxInt(note.multiplier, 1); // Avoid calling FlxMath.maxInt 4 times
 
 			health += (0.045 * multiplier) * (note.strum.playable ? 1.0 : -1.0);
 
@@ -332,7 +337,7 @@ class Gameplay extends State
 
 			if (!noCharacters)
 			{
-				var char:Character = (note.strum.playable ? bf : (note.gfNote ? gf : dad));
+				var char = (note.strum.playable ? bf : (note.gfNote ? gf : dad));
 
 				if (null != char)
 				{
@@ -359,7 +364,7 @@ class Gameplay extends State
 			note.tooLate = true;
 			note.alpha = 0.6;
 
-			var multiplier:Int = FlxMath.maxInt(note.multiplier, 1); // Avoid calling FlxMath.maxInt 4 times
+			var multiplier = FlxMath.maxInt(note.multiplier, 1); // Avoid calling FlxMath.maxInt 4 times
 
 			health -= 0.045 * multiplier;
 			score -= 100.0 * multiplier;
@@ -393,7 +398,7 @@ class Gameplay extends State
 
 			if (!noCharacters)
 			{
-				var char:Character = (sustain.strum.playable ? bf : (sustain.gfNote ? gf : dad));
+				var char = (sustain.strum.playable ? bf : (sustain.gfNote ? gf : dad));
 
 				if (null != char)
 				{
@@ -495,39 +500,40 @@ class Gameplay extends State
 		{
 			for (i in 0...notes.members.length)
 			{
-				var note:(Note) = notes.members[i];
-				if (note.exists)
+				currentNote = notes.members[i];
+				if (currentNote.exists)
 				{
-					var dir:Float = FlxAngle.asRadians(note.direction - 90.0);
-					note.distance = 0.45 * (Main.conductor.songPosition - note.strumTime) * songSpeed;
-					note.x = note.strum.x + note.offsetX + (-Math.abs(note.strum.scrollMult) * note.distance) * FlxMath.fastCos(dir);
-					note.y = note.strum.y + note.offsetY + (note.strum.scrollMult * note.distance) * FlxMath.fastSin(dir);
+					currentNote.distance = 0.45 * (Main.conductor.songPosition - currentNote.strumTime) * songSpeed;
+					currentNote.x = currentNote.strum.x + currentNote.offsetX + (-Math.abs(currentNote.strum.scrollMult) * currentNote.distance) *
+						FlxMath.fastCos(FlxAngle.asRadians(currentNote.direction - 90.0));
+					currentNote.y = currentNote.strum.y + currentNote.offsetY + (currentNote.strum.scrollMult * currentNote.distance) *
+						FlxMath.fastSin(FlxAngle.asRadians(currentNote.direction - 90.0));
 
-					if (Main.conductor.songPosition >= note.strumTime + (750.0 / songSpeed)) // Remove them if they're offscreen
-						note.exists = false;
+					if (Main.conductor.songPosition >= currentNote.strumTime + (750.0 / songSpeed)) // Remove them if they're offscreen
+						currentNote.exists = false;
 
 					// For note hits
 
-					if (note.strum.playable)
+					if (currentNote.strum.playable)
 					{
 						if (cpuControlled)
 						{
-							if (Main.conductor.songPosition >= note.strumTime)
+							if (Main.conductor.songPosition >= currentNote.strumTime)
 							{
-								e.emit(SignalEvent.NOTE_HIT, note);
+								e.emit(SignalEvent.NOTE_HIT, currentNote);
 							}
 						}
 
-						if (Main.conductor.songPosition >= note.strumTime + (200.0 / songSpeed) && (!note.wasHit && !note.tooLate))
+						if (Main.conductor.songPosition >= currentNote.strumTime + (200.0 / songSpeed) && (!currentNote.wasHit && !currentNote.tooLate))
 						{
-							e.emit(SignalEvent.NOTE_MISS, note);
+							e.emit(SignalEvent.NOTE_MISS, currentNote);
 						}
 					}
 					else
 					{
-						if (Main.conductor.songPosition >= note.strumTime)
+						if (Main.conductor.songPosition >= currentNote.strumTime)
 						{
-							e.emit(SignalEvent.NOTE_HIT, note);
+							e.emit(SignalEvent.NOTE_HIT, currentNote);
 						}
 					}
 				}
@@ -538,40 +544,39 @@ class Gameplay extends State
 		{
 			for (i in 0...sustains.members.length)
 			{
-				var sustain:(SustainNote) = sustains.members[i];
-				if (sustains.exists)
+				currentSustain = sustains.members[i];
+				if (currentSustain.exists)
 				{
-					var dir:Float = FlxAngle.asRadians(sustain.direction - 90.0);
-					sustain.distance = 0.45 * (Main.conductor.songPosition - sustain.strumTime) * songSpeed;
+					currentSustain.distance = 0.45 * (Main.conductor.songPosition - currentSustain.strumTime) * songSpeed;
 
-					sustain.x = (sustain.strum.x + sustain.offsetX + (-Math.abs(sustain.strum.scrollMult) * sustain.distance) * FlxMath.fastCos(dir)) +
-						((initialStrumWidth - (sustain.frameWidth * sustain.scale.x)) * 0.5);
+					currentSustain.x = (currentSustain.strum.x + currentSustain.offsetX + (-Math.abs(currentSustain.strum.scrollMult) * currentSustain.distance) *
+						FlxMath.fastCos(FlxAngle.asRadians(currentSustain.direction - 90.0))) + ((initialStrumWidth - (currentSustain.frameWidth * currentSustain.scale.x)) * 0.5);
 
-					sustain.y = (sustain.strum.y + sustain.offsetY + (sustain.strum.scrollMult * sustain.distance) * FlxMath.fastSin(dir)) +
-						(initialStrumHeight * 0.5);
+					currentSustain.y = (currentSustain.strum.y + currentSustain.offsetY + (currentSustain.strum.scrollMult * currentSustain.distance) *
+						FlxMath.fastSin(FlxAngle.asRadians(currentSustain.direction - 90.0))) + (initialStrumHeight * 0.5);
 
 					// For hold input
 
-					if (Main.conductor.songPosition >= (sustain.strumTime + sustain.length) + (750.0 / songSpeed))
-						sustain.holding = sustain.missed = sustain.exists = false;
+					if (Main.conductor.songPosition >= (currentSustain.strumTime + currentSustain.length) + (750.0 / songSpeed))
+						currentSustain.holding = currentSustain.missed = currentSustain.exists = false;
 
-					if (sustain.strum.playable)
+					if (currentSustain.strum.playable)
 					{
-						if (Main.conductor.songPosition >= sustain.strumTime && !sustain.missed &&
-							Main.conductor.songPosition <= (sustain.strumTime + sustain.length) - (Main.conductor.stepCrochet * 0.875))
+						if (Main.conductor.songPosition >= currentSustain.strumTime && !currentSustain.missed &&
+							Main.conductor.songPosition <= (currentSustain.strumTime + currentSustain.length) - (Main.conductor.stepCrochet * 0.875))
 						{
-							if (holdArray[sustain.noteData])
+							if (holdArray[currentSustain.noteData])
 							{
-								e.emit(SignalEvent.NOTE_HOLD, sustain);
+								e.emit(SignalEvent.NOTE_HOLD, currentSustain);
 							}
 						}
 					}
 					else
 					{
-						if (Main.conductor.songPosition <= (sustain.strumTime + sustain.length) - (Main.conductor.stepCrochet * 0.875) &&
-							Main.conductor.songPosition >= sustain.strumTime)
+						if (Main.conductor.songPosition <= (currentSustain.strumTime + currentSustain.length) - (Main.conductor.stepCrochet * 0.875) &&
+							Main.conductor.songPosition >= currentSustain.strumTime)
 						{
-							e.emit(SignalEvent.NOTE_HOLD, sustain);
+							e.emit(SignalEvent.NOTE_HOLD, currentSustain);
 						}
 					}
 				}
@@ -584,9 +589,9 @@ class Gameplay extends State
 			Main.optUtils.scriptCall2Ints('onKeyDown', keyCode, keyModifier);
 			#end
 
-			var key:Int = inputKeybinds.indexOf(keyCode);
+			var key = inputKeybinds.indexOf(keyCode);
 
-			if (cpuControlled || key == -1 || !generatedMusic || holdArray[key])
+			if (pause || cpuControlled || key == -1 || !generatedMusic || holdArray[key])
 				return;
 			
 			var strum:(StrumNote) = strumlines.members[strumlines.members.length-1].members[key];
@@ -609,9 +614,9 @@ class Gameplay extends State
 			Main.optUtils.scriptCall2Ints('onKeyUp', keyCode, keyModifier);
 			#end
 
-			var key:Int = inputKeybinds.indexOf(keyCode);
+			var key = inputKeybinds.indexOf(keyCode);
 
-			if (cpuControlled || key == -1 || !generatedMusic || !holdArray[key])
+			if (pause || cpuControlled || key == -1 || !generatedMusic || !holdArray[key])
 				return;
 
 			var strum:(StrumNote) = strumlines.members[strumlines.members.length-1].members[key];
@@ -631,22 +636,24 @@ class Gameplay extends State
 
 		onGameplayUpdate = (elapsed:Float) ->
 		{
-			health = FlxMath.bound(health, 0.0, hudGroup.healthBar.maxValue);
-
-			// Don't remove this.
-			hudCameraBelow.x = hudCamera.x;
-			hudCameraBelow.y = hudCamera.y;
-			hudCameraBelow.angle = hudCamera.angle;
-			hudCameraBelow.alpha = hudCamera.alpha;
-			hudCameraBelow.zoom = hudCamera.zoom;
-
-			if (startedCountdown && !songEnded)
+			if (!pause)
 			{
-				Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, inst.time - SONG.info.offset, 0.1075);
-			}
-			else
-			{
-				Main.conductor.songPosition += elapsed * 1000.0;
+				health = FlxMath.bound(health, 0.0, hudGroup.healthBar.maxValue);
+
+				hudCameraBelow.x = hudCamera.x;
+				hudCameraBelow.y = hudCamera.y;
+				hudCameraBelow.angle = hudCamera.angle;
+				hudCameraBelow.alpha = hudCamera.alpha;
+				hudCameraBelow.zoom = hudCamera.zoom;
+
+				if (startedCountdown && !songEnded)
+				{
+					Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, inst.time - SONG.info.offset, 0.1075);
+				}
+				else
+				{
+					Main.conductor.songPosition += elapsed * 1000.0;
+				}
 			}
 
 			p();
@@ -1579,7 +1586,7 @@ class Gameplay extends State
 
 		inputKeybinds = SaveData.contents.controls.GAMEPLAY_BINDS;
 
-		var swagCounter:Int = 0;
+		var swagCounter = 0;
 		Main.conductor.songPosition = (-Main.conductor.crochet * 5.0) - SONG.info.offset;
 
 		new flixel.util.FlxTimer().start(Main.conductor.crochet * 0.001, (?timer) ->
@@ -1800,6 +1807,26 @@ class Gameplay extends State
 
 	override function destroy():Void
 	{
+		if (currentNote != null)
+		{
+			currentNote.destroy();
+		}
+
+		if (spawnedNote != null)
+		{
+			spawnedNote.destroy();
+		}
+
+		if (currentSustain != null)
+		{
+			currentSustain.destroy();
+		}
+
+		if (spawnedSustain != null)
+		{
+			spawnedSustain.destroy();
+		}
+
 		e.off(SignalEvent.NOTE_NEW, newNote);
 		e.off(SignalEvent.NOTE_SETUP, setupNoteData);
 		e.off(SignalEvent.NOTE_HIT, onNoteHit);
@@ -1816,16 +1843,23 @@ class Gameplay extends State
 		super.destroy();
 	}
 
-	private var newNote:(Note)->(Void) = null;
-	private var newSustain:(SustainNote)->(Void) = null;
+	var pause(default, null):Bool;
 
-	private var setupNoteData:(Array<(Float)>)->(Void) = null;
-	private var setupSustainData:(Array<(Float)>)->(Void) = null;
+	function set_pause(value:Bool):Bool
+	{
+		return pause = value;
+	}
 
-	public var onNoteHit:(Note)->(Void) = null;
-	public var onNoteMiss:(Note)->(Void) = null;
-	public var onHold:(SustainNote)->(Void) = null;
-	public var onRelease:(Int)->(Void) = null;
+	var newNote(default, null):(Note)->(Void) = null;
+	var newSustain(default, null):(SustainNote)->(Void) = null;
+
+	var setupNoteData(default, null):(Array<(Float)>)->(Void) = null;
+	var setupSustainData(default, null):(Array<(Float)>)->(Void) = null;
+
+	var onNoteHit(default, null):(Note)->(Void) = null;
+	var onNoteMiss(default, null):(Note)->(Void) = null;
+	var onHold(default, null):(SustainNote)->(Void) = null;
+	var onRelease(default, null):(Int)->(Void) = null;
 
 	// Short functions for visual
 
