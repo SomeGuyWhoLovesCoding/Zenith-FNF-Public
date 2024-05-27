@@ -26,11 +26,22 @@ class Gameplay extends MusicBeatState
 	public var health:Float = 1.0;
 
 	// Score text stuff
-	public var score:Float = 0.0;
-	public var misses:Float = 0.0;
+	public var score(default, set):Float = 0.0;
 
-	public var accuracy_left:Float = 0.0;
-	public var accuracy_right:Float = 0.0;
+	inline function set_score(value:Float):Float
+	{
+		return score = Math.ffloor(value);
+	}
+
+	public var misses(default, set):Float = 0.0;
+
+	inline function set_misses(value:Float):Float
+	{
+		return misses = Math.ffloor(value);
+	}
+
+	public var accuracy_left(default, null):Float = 0.0;
+	public var accuracy_right(default, null):Float = 0.0;
 
 	// Preference stuff
 	static public var cpuControlled:Bool = false;
