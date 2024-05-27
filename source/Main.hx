@@ -30,21 +30,22 @@ typedef TransitioningInfo =
 
 class Main extends Sprite
 {
-	static public var optUtils:OptimizationUtils;
+	static public var optUtils:OptimizationUtils = null;
+	static public var conductor:Conductor = null;
 
 	static private final transitioning:Transitioning = {_in: null, _out: null};
 
-	static public var game:Game;
-	static public var transition:Sprite;
+	static public var game:Game = null;
+	static public var transition:Sprite = null;
 
-	static public var fpsTxt:TextField;
-	static public var volumeTxt:TextField;
+	static public var fpsTxt:TextField = null;
+	static public var volumeTxt:TextField = null;
 
 	static public var skipTransIn:Bool = false;
 	static public var skipTransOut:Bool = false;
 
-	private var keyboard:()->(Void);
-	private var gamepad:()->(Void);
+	private var keyboard:()->(Void) = null;
+	private var gamepad:()->(Void) = null;
 
 	static public var ENABLE_MULTITHREADING:Bool = false;
 	static public var VSYNC = {ADAPTIVE: false, ENABLED: false};
@@ -55,6 +56,8 @@ class Main extends Sprite
 
 		optUtils = Type.createEmptyInstance(OptimizationUtils);
 		optUtils.initScriptOpts();
+
+		conductor = new Conductor();
 
 		#if SCRIPTING_ALLOWED
 		HScriptSystem.init();

@@ -15,7 +15,7 @@ using StringTools;
 
 @:access(zenith.objects.HUDGroup)
 
-class Gameplay extends MusicBeatState
+class Gameplay extends State
 {
 	public var strumlines:FlxTypedGroup<Strumline> = null;
 	public var notes:FlxTypedGroup<Note> = null;
@@ -195,6 +195,7 @@ class Gameplay extends MusicBeatState
 				return;
 
 			var note:(Note) = notes.recycle((Note));
+			Gameplay.instance.events.emit(SignalEvent.NOTE_NEW, note);
 
 			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
@@ -264,6 +265,7 @@ class Gameplay extends MusicBeatState
 		setupSustainData = (chartNoteData:(Array<(Float)>)) ->
 		{
 			var sustain:(SustainNote) = sustains.recycle((SustainNote));
+			Gameplay.instance.events.emit(SignalEvent.SUSTAIN_NEW, sustain);
 
 			#if SCRIPTING_ALLOWED
 			for (script in scriptList.keys())
@@ -324,7 +326,7 @@ class Gameplay extends MusicBeatState
 			if (note.strum.playable)
 			{
 				score += 350.0 * multiplier;
-				accuracy_left += (Math.abs(note.strumTime - Conductor.songPosition) > 83.35 ? 0.75 : 1.0) * multiplier;
+				accuracy_left += (Math.abs(note.strumTime - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0) * multiplier;
 				accuracy_right += multiplier;
 			}
 
@@ -370,7 +372,7 @@ class Gameplay extends MusicBeatState
 				bf.holdTimer = 0.0;
 			}
 
-			handleNoteRelease(note.noteData);
+			r(note.noteData);
 
 			#if SCRIPTING_ALLOWED
 			Main.optUtils.scriptCallNote('onNoteMissPost', note);
@@ -440,12 +442,12 @@ class Gameplay extends MusicBeatState
 			#end
 		}
 
-		handleNoteHit = (key:(Int)) ->
+		h = (key:(Int)) ->
 		{
 			for (n in notes.members)
 			{
 				if ((n.strum.playable && n.noteData == key) &&
-					(!n.wasHit && !n.tooLate) && Math.abs(Conductor.songPosition - n.strumTime) < 166.7)
+					(!n.wasHit && !n.tooLate) && Math.abs(Main.conductor.songPosition - n.strumTime) < 166.7)
 				{
 					events.emit(SignalEvent.NOTE_HIT, n);
 					break;
@@ -453,12 +455,12 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		handleNoteRelease = (key:(Int)) ->
+		r = (key:(Int)) ->
 		{
 			for (s in sustains.members)
 			{
-				if ((s.strum.playable && !s.missed && s.noteData == key) && Conductor.songPosition >= s.strumTime &&
-					Conductor.songPosition <= (s.strumTime + s.length) - (Conductor.stepCrochet * 0.875))
+				if ((s.strum.playable && !s.missed && s.noteData == key) && Main.conductor.songPosition >= s.strumTime &&
+					Main.conductor.songPosition <= (s.strumTime + s.length) - (Main.conductor.stepCrochet * 0.875))
 				{
 					events.emit(SignalEvent.NOTE_RELEASE, s.noteData);
 					s.missed = !(s.holding = false);
@@ -467,13 +469,29 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		sortShit = () ->
+		ss = () ->
 		{
 			notes.members.sort((a:(Note), b:(Note)) -> Std.int(a.strumTime - b.strumTime));
 			sustains.members.sort((a:(SustainNote), b:(SustainNote)) -> Std.int(a.strumTime - b.strumTime));
 		}
 
-		updateNotes = () ->
+		p = () ->
+		{
+			while (currentNoteId != SONG.noteData.length)
+			{
+				// Avoid redundant array access
+				var note = SONG.noteData[currentNoteId];
+
+				if (Main.conductor.songPosition < note[0] - (1950.0 / songSpeed))
+					break;
+
+				events.emit(SignalEvent.NOTE_SETUP, note);
+
+				currentNoteId++;
+			}
+		}
+
+		n = () ->
 		{
 			for (i in 0...notes.members.length)
 			{
@@ -481,11 +499,11 @@ class Gameplay extends MusicBeatState
 				if (note.exists)
 				{
 					var dir:Float = FlxAngle.asRadians(note.direction - 90.0);
-					note.distance = 0.45 * (Conductor.songPosition - note.strumTime) * songSpeed;
+					note.distance = 0.45 * (Main.conductor.songPosition - note.strumTime) * songSpeed;
 					note.x = note.strum.x + note.offsetX + (-Math.abs(note.strum.scrollMult) * note.distance) * FlxMath.fastCos(dir);
 					note.y = note.strum.y + note.offsetY + (note.strum.scrollMult * note.distance) * FlxMath.fastSin(dir);
 
-					if (Conductor.songPosition >= note.strumTime + (750.0 / songSpeed)) // Remove them if they're offscreen
+					if (Main.conductor.songPosition >= note.strumTime + (750.0 / songSpeed)) // Remove them if they're offscreen
 						note.exists = false;
 
 					// For note hits
@@ -494,20 +512,20 @@ class Gameplay extends MusicBeatState
 					{
 						if (cpuControlled)
 						{
-							if (Conductor.songPosition >= note.strumTime)
+							if (Main.conductor.songPosition >= note.strumTime)
 							{
 								events.emit(SignalEvent.NOTE_HIT, note);
 							}
 						}
 
-						if (Conductor.songPosition >= note.strumTime + (200.0 / songSpeed) && (!note.wasHit && !note.tooLate))
+						if (Main.conductor.songPosition >= note.strumTime + (200.0 / songSpeed) && (!note.wasHit && !note.tooLate))
 						{
 							events.emit(SignalEvent.NOTE_MISS, note);
 						}
 					}
 					else
 					{
-						if (Conductor.songPosition >= note.strumTime)
+						if (Main.conductor.songPosition >= note.strumTime)
 						{
 							events.emit(SignalEvent.NOTE_HIT, note);
 						}
@@ -516,7 +534,7 @@ class Gameplay extends MusicBeatState
 			}
 		}
 
-		updateSustains = () ->
+		s = () ->
 		{
 			for (i in 0...sustains.members.length)
 			{
@@ -524,7 +542,7 @@ class Gameplay extends MusicBeatState
 				if (sustains.exists)
 				{
 					var dir:Float = FlxAngle.asRadians(sustain.direction - 90.0);
-					sustain.distance = 0.45 * (Conductor.songPosition - sustain.strumTime) * songSpeed;
+					sustain.distance = 0.45 * (Main.conductor.songPosition - sustain.strumTime) * songSpeed;
 
 					sustain.x = (sustain.strum.x + sustain.offsetX + (-Math.abs(sustain.strum.scrollMult) * sustain.distance) * FlxMath.fastCos(dir)) +
 						((initialStrumWidth - (sustain.frameWidth * sustain.scale.x)) * 0.5);
@@ -534,13 +552,13 @@ class Gameplay extends MusicBeatState
 
 					// For hold input
 
-					if (Conductor.songPosition >= (sustain.strumTime + sustain.length) + (750.0 / songSpeed))
+					if (Main.conductor.songPosition >= (sustain.strumTime + sustain.length) + (750.0 / songSpeed))
 						sustain.holding = sustain.missed = sustain.exists = false;
 
 					if (sustain.strum.playable)
 					{
-						if (Conductor.songPosition >= sustain.strumTime && !sustain.missed &&
-							Conductor.songPosition <= (sustain.strumTime + sustain.length) - (Conductor.stepCrochet * 0.875))
+						if (Main.conductor.songPosition >= sustain.strumTime && !sustain.missed &&
+							Main.conductor.songPosition <= (sustain.strumTime + sustain.length) - (Main.conductor.stepCrochet * 0.875))
 						{
 							if (holdArray[sustain.noteData])
 							{
@@ -550,29 +568,13 @@ class Gameplay extends MusicBeatState
 					}
 					else
 					{
-						if (Conductor.songPosition <= (sustain.strumTime + sustain.length) - (Conductor.stepCrochet * 0.875) &&
-							Conductor.songPosition >= sustain.strumTime)
+						if (Main.conductor.songPosition <= (sustain.strumTime + sustain.length) - (Main.conductor.stepCrochet * 0.875) &&
+							Main.conductor.songPosition >= sustain.strumTime)
 						{
 							events.emit(SignalEvent.NOTE_HOLD, sustain);
 						}
 					}
 				}
-			}
-		}
-
-		processSpawning = () ->
-		{
-			while (null != SONG.noteData[currentNoteId])
-			{
-				// Avoid redundant array access
-				var note = SONG.noteData[currentNoteId];
-
-				if (Conductor.songPosition < note[0] - (1950.0 / songSpeed))
-					break;
-
-				events.emit(SignalEvent.NOTE_SETUP, note);
-
-				currentNoteId++;
 			}
 		}
 
@@ -592,7 +594,7 @@ class Gameplay extends MusicBeatState
 			if (strum.animation.curAnim.name != 'confirm')
 				strum.playAnim('pressed');
 
-			handleNoteHit(key);
+			h(key);
 
 			holdArray[key] = true;
 
@@ -618,7 +620,7 @@ class Gameplay extends MusicBeatState
 				strum.animation.curAnim.name == 'pressed')
 				strum.playAnim('static');
 
-			handleNoteRelease(key);
+			r(key);
 
 			holdArray[key] = false;
 
@@ -638,11 +640,18 @@ class Gameplay extends MusicBeatState
 			hudCameraBelow.alpha = hudCamera.alpha;
 			hudCameraBelow.zoom = hudCamera.zoom;
 
-			Conductor.songPosition += elapsed * 1000.0;
+			if (startedCountdown && !songEnded)
+			{
+				Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, inst.time - SONG.info.offset, 0.1075);
+			}
+			else
+			{
+				Main.conductor.songPosition += elapsed * 1000.0;
+			}
 
-			processSpawning();
-			updateNotes();
-			updateSustains();
+			p();
+			n();
+			s();
 		}
 
 		events.on(SignalEvent.NOTE_NEW, newNote);
@@ -657,6 +666,34 @@ class Gameplay extends MusicBeatState
 
 		Main.game.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
 		Main.game.onKeyUp.on(SignalEvent.KEY_UP, onKeyUp);
+
+		Main.conductor.onBeatHit = (curBeat:(Float)) ->
+		{
+			if (songEnded)
+			{
+				return;
+			}
+
+			if (curBeat > -1)
+			{
+				dance(curBeat);
+			}
+
+			ss();
+		}
+
+		Main.conductor.onMeasureHit = (curMeasure:(Float)) ->
+		{
+			if (songEnded)
+			{
+				return;
+			}
+
+			if (curMeasure > -1)
+			{
+				addCameraZoom();
+			}
+		}
 	}
 
 	override function update(elapsed:Float):Void
@@ -1062,12 +1099,8 @@ class Gameplay extends MusicBeatState
 
 			trace('Loaded ${SONG.noteData.length} notes! Now time to load more stuff here...');
 
-			Conductor.mapBPMChanges(SONG);
-
-			// What happens if you load a song with a bpm of under 10 or over 10000? Limit it.
-			SONG.info.bpm = Math.min(Math.max(SONG.info.bpm, 10.0), 10000.0);
-
-			Conductor.changeBPM(SONG.info.bpm);
+			// What happens if you load a song with a bpm of under 10? Limit it.
+			Main.conductor.bpm = SONG.info.bpm = Math.max(SONG.info.bpm, 10.0);
 
 			if (null == SONG.info.spectator) // Fix gf (for vanilla charts)
 				SONG.info.spectator = 'gf';
@@ -1303,12 +1336,8 @@ class Gameplay extends MusicBeatState
 
 		trace('Loaded ${SONG.noteData.length} notes! Now time to load more stuff here...');
 
-		Conductor.mapBPMChanges(SONG);
-
-		// What happens if you load a song with a bpm of under 10 or over 10000? Limit it.
-		SONG.info.bpm = Math.min(Math.max(SONG.info.bpm, 10.0), 10000.0);
-
-		Conductor.changeBPM(SONG.info.bpm);
+		// What happens if you load a song with a bpm of under 10? Limit it.
+		Main.conductor.bpm = SONG.info.bpm = Math.max(SONG.info.bpm, 10.0);
 
 		if (null == SONG.info.spectator) // Fix gf (for vanilla charts)
 			SONG.info.spectator = 'gf';
@@ -1488,50 +1517,7 @@ class Gameplay extends MusicBeatState
 		strumlines.add(strumline);
 	}
 
-	var lastStepHit:Int = -1;
-	override function stepHit():Void
-	{
-		super.stepHit();
-
-		if (!startedCountdown || songEnded)
-			return;
-
-		if(curStep == lastStepHit)
-			return;
-
-		if ((null != inst || null != voices))
-		{
-			var off:Float = Conductor.songPosition + SONG.info.offset;
-			if ((inst.time < off - 20.0 || inst.time > off + 20.0)
-				|| (voices.time < off - 20.0 || voices.time > off + 20.0))
-			{
-				Conductor.songPosition = inst.time - SONG.info.offset;
-				voices.time = Conductor.songPosition + SONG.info.offset;
-			}
-		}
-
-		lastStepHit = curStep;
-	}
-
-	var lastBeatHit:Int = -1;
-	override function beatHit():Void
-	{
-		super.beatHit();
-
-		if(lastBeatHit >= curBeat)
-			return;
-
-		dance(curBeat);
-
-		if (curBeat % 4 == 0)
-			addCameraZoom();
-
-		sortShit();
-
-		lastBeatHit = curBeat;
-	}
-
-	public function dance(beat:Int):Void
+	public function dance(beat:Float):Void
 	{
 		if (!noCharacters)
 		{
@@ -1563,10 +1549,20 @@ class Gameplay extends MusicBeatState
 	// For hscript
 	public function addCameraZoom(value1:Float = 0.015, value2:Float = 0.03):Void
 	{
+		if (songEnded)
+		{
+			return;
+		}
+
 		if (null != gameCameraZoomTween)
+		{
 			gameCameraZoomTween.cancel();
+		}
+
 		if (null != hudCameraZoomTween)
+		{
 			hudCameraZoomTween.cancel();
+		}
 
 		FlxG.camera.zoom += value1;
 		gameCameraZoomTween = zoomTweenFunction(FlxG.camera, defaultCamZoom);
@@ -1579,12 +1575,14 @@ class Gameplay extends MusicBeatState
 		if (songEnded)
 			return;
 
+		addCameraZoom();
+
 		inputKeybinds = SaveData.contents.controls.GAMEPLAY_BINDS;
 
 		var swagCounter:Int = 0;
-		Conductor.songPosition = (-Conductor.crochet * 5.0) - SONG.info.offset;
+		Main.conductor.songPosition = (-Main.conductor.crochet * 5.0) - SONG.info.offset;
 
-		new flixel.util.FlxTimer().start(Conductor.crochet * 0.001, (?timer) ->
+		new flixel.util.FlxTimer().start(Main.conductor.crochet * 0.001, (?timer) ->
 		{
 			switch (swagCounter)
 			{
@@ -1625,6 +1623,8 @@ class Gameplay extends MusicBeatState
 		#if SCRIPTING_ALLOWED
 		Main.optUtils.scriptCall('startSong');
 		#end
+
+		addCameraZoom();
 	}
 
 	public function endSong():Void
@@ -1827,11 +1827,12 @@ class Gameplay extends MusicBeatState
 	public var onHold:(SustainNote)->(Void) = null;
 	public var onRelease:(Int)->(Void) = null;
 
-	var handleNoteHit:(Int)->(Void) = null;
-	var handleNoteRelease:(Int)->(Void) = null;
-	var sortShit:()->(Void) = null;
+	// Short functions for visual
 
-	var updateNotes:()->(Void) = null;
-	var updateSustains:()->(Void) = null;
-	var processSpawning:()->(Void) = null;
+	var h:(Int)->(Void) = null;
+	var r:(Int)->(Void) = null;
+	var ss:()->(Void) = null;
+	var p:()->(Void) = null;
+	var n:()->(Void) = null;
+	var s:()->(Void) = null;
 }

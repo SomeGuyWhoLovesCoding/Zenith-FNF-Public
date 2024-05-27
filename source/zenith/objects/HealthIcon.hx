@@ -1,5 +1,7 @@
 package zenith.objects;
 
+import flixel.math.FlxRect;
+
 class HealthIcon extends FlxSprite
 {
 	public var isPlayer:Bool = false;
@@ -58,4 +60,14 @@ class HealthIcon extends FlxSprite
 
 	public inline function getCharacter():String
 		return char;
+
+	override function set_clipRect(rect:FlxRect):FlxRect
+	{
+		if (clipRect != null)
+		{
+			clipRect.put();
+		}
+
+		return clipRect = rect;
+	}
 }

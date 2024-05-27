@@ -25,6 +25,6 @@ class SignalEvent
 	inline static public var NOTE_RELEASE:SignalType.SignalType1<(Int)->(Void), (Int)> = "note_release";
 	inline static public var SUSTAIN_NEW:SignalType.SignalType1<(SustainNote)->(Void), (SustainNote)> = "sustain_new";
 	inline static public var SUSTAIN_SETUP:SignalType.SignalType1<(Array<(Float)>)->(Void), (Array<(Float)>)> = "sustain_setup";
-	inline static public var GAMEPLAY_CREATE:SignalType.SignalType<()->(Void)> = "gameplay_create";
+	inline static public var GAMEPLAY_CREATE:SignalType<()->(Void)> = "gameplay_create";
 	inline static public var GAMEPLAY_UPDATE:SignalType.SignalType1<(Float)->(Void), (Float)> = "gameplay_update";
 }

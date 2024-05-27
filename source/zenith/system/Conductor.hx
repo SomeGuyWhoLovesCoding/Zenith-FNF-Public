@@ -1,86 +1,109 @@
 package zenith.system;
 
-import zenith.data.Song;
-
-/**
- * ...
- * @author
- */
-
-typedef BPMChangeEvent =
-{
-	var stepTime:Int;
-	var songTime:Float;
-	var bpm:Float;
-	@:optional var stepCrochet:Float;
-}
-
-// WIP rework
-
 class Conductor
 {
-	static public var bpm:Float = 100.0;
-	static public var crochet:Float = (60.0 / bpm) * 1000.0; // beats in milliseconds
-	static public var stepCrochet:Float = crochet * 0.25; // steps in milliseconds
-	static public var songPosition:Float = 0.0;
+	var _stepPos(default, null):Float = 0.0;
+	var _beatPos(default, null):Float = 0.0;
+	var _measurePos(default, null):Float = 0.0;
 
-	static public var bpmChangeMap:Array<BPMChangeEvent> = [];
+	var _stepTracker(default, null):Float = 0.0;
+	var _beatTracker(default, null):Float = 0.0;
+	var _measureTracker(default, null):Float = 0.0;
 
-	public function new()
+	var timeOffset(default, null):Float = 0.0;
+
+	public var steps(default, set):Int = 4;
+
+	function set_steps(value:Int):Int
 	{
+		return steps = value;
 	}
 
-	static public function mapBPMChanges(song:SwagSong):Void
+	public var beats(default, set):Int = 4;
+
+	function set_beats(value:Int):Int
 	{
-		bpmChangeMap = [];
+		return beats = value;
+	}
 
-		var curBPM:Float = song.info.bpm;
-		var totalSteps:Int = 0;
-		var totalPos:Float = 0;
+	public function new(initialBpm:Float = 100.0):Void
+	{
+		bpm = initialBpm;
+	}
 
-		for (i in 0...song.bpmChanges.length)
+	inline public function changeTimeSignature(newSteps:Int = 4, newBeats:Int = 4):Void
+	{
+		steps = newSteps;
+		beats = newBeats;
+	}
+
+	public var lastBpm(default, null):Float = 100.0;
+	public var bpm(default, set):Float = 100.0;
+
+	function set_bpm(value:Float):Float
+	{
+		if (lastBpm != value)
 		{
-			var newBpm:Float = song.bpmChanges[i][0]; // Avoid redundant array access
-			if(newBpm != curBPM)
-			{
-				curBPM = newBpm;
-				var event:BPMChangeEvent = {
-					stepTime: totalSteps,
-					songTime: totalPos,
-					bpm: curBPM,
-					stepCrochet: calculateCrochet(curBPM) * 0.25
-				};
-				bpmChangeMap.push(event);
-			}
+			lastBpm = bpm;
+			//stepOffset = curStep * (lastBpm / value);
+			bpm = value;
 
-			totalSteps += 4; // What am I supposed to do?
-			totalPos += (60 / curBPM) * 250.0;
-		}
-		trace("new BPM map BUDDY " + bpmChangeMap);
-	}
-
-	static public function getBPMFromSeconds(time:Float):BPMChangeEvent
-	{
-		var lastChange:BPMChangeEvent = {
-			stepTime: 0,
-			songTime: 0,
-			bpm: bpm,
-			stepCrochet: stepCrochet
+			crochet = 60000.0 / bpm;
+			stepCrochet = crochet * 0.25;
 		}
 
-		for (i in 0...Conductor.bpmChangeMap.length)
-			if (time >= Conductor.bpmChangeMap[i].songTime)
-				lastChange = Conductor.bpmChangeMap[i];
-
-		return lastChange;
+		return value;
 	}
 
-	inline static public function calculateCrochet(bpm:Float)
-		return (60 / bpm) * 1000.0; // Don't worry if colorization breaks with no brackets, it's just vsc
+	public var songPosition(default, set):Float = 0.0;
 
-	inline static public function changeBPM(newBpm:Float)
+	function set_songPosition(value:Float):Float
 	{
-		crochet = calculateCrochet(bpm = newBpm);
-		stepCrochet = crochet * 0.25;
+		_stepTracker = Math.ffloor(rawMBTime(value) / stepCrochet);
+		_beatTracker = Math.ffloor(rawMBTime(value) / crochet);
+		_measureTracker = Math.ffloor(rawMBTime(value) / (crochet * beats));
+
+		if (onStepHit != null && _stepPos != _stepTracker)
+		{
+			#if SCRIPTING_ALLOWED
+			Main.optUtils.scriptCallFloat('onStepHit', _stepPos);
+			#end
+			onStepHit(_stepPos);
+			_stepPos = _stepTracker;
+		}
+
+		if (onBeatHit != null && _beatPos != _beatTracker)
+		{
+			#if SCRIPTING_ALLOWED
+			Main.optUtils.scriptCallFloat('onBeatHit', _beatPos);
+			#end
+			onBeatHit(_beatPos);
+			_beatPos = _beatTracker;
+		}
+
+		if (onMeasureHit != null && _measurePos != _measureTracker)
+		{
+			#if SCRIPTING_ALLOWED
+			Main.optUtils.scriptCallFloat('onMeasureHit', _measurePos);
+			#end
+			onMeasureHit(_measurePos);
+			_measurePos = _measureTracker;
+		}
+
+		return songPosition = value;
 	}
+
+	// Just for organization
+	inline function rawMBTime(pos:Float):Float
+	{
+		return pos + timeOffset;
+	}
+
+	public var crochet(default, null):Float;
+
+	public var stepCrochet(default, null):Float;
+
+	public var onStepHit:(Float)->(Void) = null;
+	public var onBeatHit:(Float)->(Void) = null;
+	public var onMeasureHit:(Float)->(Void) = null;
 }

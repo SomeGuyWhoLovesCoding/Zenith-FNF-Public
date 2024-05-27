@@ -440,7 +440,17 @@ class StaticSprite extends FlxBasic
 	 * reassign the property to update it (`sprite.clipRect = sprite.clipRect;`).
 	 * Set to `null` to discard graphic frame clipping.
 	 */
-	public var clipRect:FlxRect;
+	public var clipRect(default, set):FlxRect;
+
+	function set_clipRect(rect:FlxRect):FlxRect
+	{
+		if (clipRect != null)
+		{
+			clipRect.put();
+		}
+
+		return clipRect = rect;
+	}
 
 	/**
 	 * GLSL shader for this sprite. Avoid changing it frequently as this is a costly operation.

@@ -8,6 +8,8 @@ class State extends FlxState
 {
 	override function create():Void
 	{
+		Main.conductor.onStepHit = Main.conductor.onBeatHit = Main.conductor.onMeasureHit = null;
+
 		FlxG.maxElapsed = FlxG.elapsed;
 
 		try
@@ -123,4 +125,17 @@ class State extends FlxState
 
 	var updateMembers:(Float)->(Void);
 	var drawMembers:()->(Void);
+
+	public function switchState(nextState:FlxState)
+	{
+		Main.startTransition(true, function()
+		{
+			FlxG.switchState(nextState);
+		});
+	}
+
+	public function resetState()
+	{
+		Main.startTransition(true, FlxG.resetState);
+	}
 }

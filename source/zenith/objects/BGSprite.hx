@@ -1,7 +1,7 @@
 package zenith.objects;
 
 import flixel.FlxSprite;
-import flixel.graphics.frames.FlxAtlasFrames;
+import flixel.math.FlxRect;
 
 class BGSprite extends FlxSprite
 {
@@ -42,5 +42,15 @@ class BGSprite extends FlxSprite
 		{
 			animation.play(idleAnim, forceplay);
 		}
+	}
+
+	override function set_clipRect(rect:FlxRect):FlxRect
+	{
+		if (clipRect != null)
+		{
+			clipRect.put();
+		}
+
+		return clipRect = rect;
 	}
 }

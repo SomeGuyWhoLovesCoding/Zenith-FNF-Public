@@ -3,7 +3,7 @@ package zenith.menus;
 import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxText;
 
-class MainMenu extends MusicBeatState
+class MainMenu extends State
 {
 	public var bg:FlxSprite;
 	public var options:FlxSpriteGroup;
@@ -46,7 +46,7 @@ class MainMenu extends MusicBeatState
 
 			if (SaveData.contents.controls.BACK == keyCode)
 			{
-				MusicBeatState.instance.switchState(new TitleScreen());
+				switchState(new TitleScreen());
 			}
 
 			if (SaveData.contents.controls.UP == keyCode)

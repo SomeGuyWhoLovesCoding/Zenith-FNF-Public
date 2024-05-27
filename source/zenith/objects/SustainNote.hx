@@ -21,15 +21,6 @@ class SustainNote extends NoteBase
 		return ds;
 	}
 
-	public function new():Void
-	{
-		super();
-
-		// The absolute fastest way to display sustain notes
-		if (null != Gameplay.instance.events)
-			Gameplay.instance.events.emit(SignalEvent.SUSTAIN_NEW, this);
-	}
-
 	override function draw():Void
 	{
 		if (null != _frame)

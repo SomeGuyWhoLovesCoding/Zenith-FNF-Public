@@ -40,6 +40,11 @@ class Character extends FlxSprite
 {
 	override function set_clipRect(rect:FlxRect):FlxRect
 	{
+		if (clipRect != null)
+		{
+			clipRect.put();
+		}
+
 		return clipRect = rect;
 	}
 
@@ -219,7 +224,7 @@ class Character extends FlxSprite
 			if (animation.curAnim.name.startsWith('sing'))
 				holdTimer += elapsed;
 
-			if (holdTimer >= Conductor.stepCrochet * singDuration * 0.001)
+			if (holdTimer >= Main.conductor.stepCrochet * singDuration * 0.001)
 			{
 				dance();
 				holdTimer = 0;

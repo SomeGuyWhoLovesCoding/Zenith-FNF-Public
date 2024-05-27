@@ -117,6 +117,11 @@ class StrumNote extends FlxSprite
 
 	override function set_clipRect(rect:FlxRect):FlxRect
 	{
+		if (clipRect != null)
+		{
+			clipRect.put();
+		}
+
 		return clipRect = rect;
 	}
 }

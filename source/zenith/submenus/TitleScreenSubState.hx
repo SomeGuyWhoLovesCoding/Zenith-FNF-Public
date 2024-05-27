@@ -57,12 +57,12 @@ class TitleScreenSubState extends FlxSubState
 
 		if (curSelected == 0)
 		{
-			MusicBeatState.instance.switchState(new MainMenu());
+			TitleScreen.instance.switchState(new MainMenu());
 		}
 
 		if (curSelected == 1)
 		{
-			//MusicBeatState.instance.switchState(new SettingsMenu());
+			//TitleScreen.instance.switchState(new SettingsMenu());
 		}
 	}
 }
