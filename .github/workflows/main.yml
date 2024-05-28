@@ -72,6 +72,7 @@ jobs:
           haxelib run lime setup
           haxelib install openfl
           haxelib install flixel
+          haxelib install flixel-addons
         shell: cmd
       - name: Create Version Tag
         run: echo "${{github.run_id}}" > VERSION
@@ -103,6 +104,7 @@ jobs:
           haxelib run lime setup
           haxelib install openfl
           haxelib install flixel
+          haxelib install flixel-addons
       - name: Create Version Tag
         run: echo "${{github.run_id}}" > VERSION
       - name: Compile
