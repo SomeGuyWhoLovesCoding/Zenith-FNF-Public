@@ -36,6 +36,8 @@ jobs:
           haxelib install hxcpp > /dev/null --quiet
           haxelib install hscript
           haxelib install Emitter
+          haxelib install lime
+          haxelib run lime setup
           haxelib install openfl
           haxelib install flixel
       - name: Skip SScript setup mode
@@ -68,6 +70,8 @@ jobs:
           haxelib install hxcpp > /dev/null --quiet
           haxelib install hscript
           haxelib install Emitter
+          haxelib install lime
+          haxelib run lime setup
           haxelib install openfl
           haxelib install flixel
         shell: cmd
@@ -100,6 +104,8 @@ jobs:
           haxelib install hxcpp > /dev/null --quiet
           haxelib install hscript
           haxelib install Emitter
+          haxelib install lime
+          haxelib run lime setup
           haxelib install openfl
           haxelib install flixel
       - name: Skip SScript setup mode
