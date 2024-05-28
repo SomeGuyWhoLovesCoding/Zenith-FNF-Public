@@ -89,8 +89,7 @@ class Strumline extends FlxBasic
 		this.playable = playable;
 
 		// Default strumline positions
-		x = 50.0 + ((FlxG.width * 0.55875138) * lane);
-		y = 50.0;
+		x = (y = 60.0) + ((FlxG.width * 0.5587511111112) * lane);
 	}
 
 	override function update(elapsed:Float)
