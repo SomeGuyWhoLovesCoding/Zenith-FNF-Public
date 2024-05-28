@@ -125,6 +125,8 @@ class Gameplay extends State
 	var currentSustain(default, null):SustainNote = null;
 	var spawnedSustain(default, null):SustainNote = null;
 
+	// Test
+
 	override function create():Void
 	{
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
