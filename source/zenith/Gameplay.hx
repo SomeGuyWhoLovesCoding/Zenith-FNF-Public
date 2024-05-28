@@ -591,7 +591,7 @@ class Gameplay extends State
 
 			var key = inputKeybinds.indexOf(keyCode);
 
-			if (pause || cpuControlled || key == -1 || !generatedMusic || holdArray[key])
+			if (cpuControlled || key == -1 || !generatedMusic || holdArray[key])
 				return;
 			
 			var strum:(StrumNote) = strumlines.members[strumlines.members.length-1].members[key];
@@ -616,7 +616,7 @@ class Gameplay extends State
 
 			var key = inputKeybinds.indexOf(keyCode);
 
-			if (pause || cpuControlled || key == -1 || !generatedMusic || !holdArray[key])
+			if (cpuControlled || key == -1 || !generatedMusic || !holdArray[key])
 				return;
 
 			var strum:(StrumNote) = strumlines.members[strumlines.members.length-1].members[key];
@@ -636,24 +636,26 @@ class Gameplay extends State
 
 		onGameplayUpdate = (elapsed:Float) ->
 		{
-			if (!pause)
+			health = FlxMath.bound(health, 0.0, hudGroup.healthBar.maxValue);
+
+			hudCameraBelow.x = hudCamera.x;
+			hudCameraBelow.y = hudCamera.y;
+			hudCameraBelow.angle = hudCamera.angle;
+			hudCameraBelow.alpha = hudCamera.alpha;
+			hudCameraBelow.zoom = hudCamera.zoom;
+
+			if (Main.conductor.songPosition >= 0 && !startedCountdown)
 			{
-				health = FlxMath.bound(health, 0.0, hudGroup.healthBar.maxValue);
+				startSong();
+			}
 
-				hudCameraBelow.x = hudCamera.x;
-				hudCameraBelow.y = hudCamera.y;
-				hudCameraBelow.angle = hudCamera.angle;
-				hudCameraBelow.alpha = hudCamera.alpha;
-				hudCameraBelow.zoom = hudCamera.zoom;
-
-				if (startedCountdown && !songEnded)
-				{
-					Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, inst.time - SONG.info.offset, 0.1075);
-				}
-				else
-				{
-					Main.conductor.songPosition += elapsed * 1000.0;
-				}
+			if (startedCountdown && !songEnded)
+			{
+				Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, inst.time - SONG.info.offset, 0.1265);
+			}
+			else
+			{
+				Main.conductor.songPosition += elapsed * 1000.0;
 			}
 
 			p();
@@ -683,7 +685,7 @@ class Gameplay extends State
 
 			if (curBeat > -1)
 			{
-				dance(curBeat);
+				dance(curBeat - 1);
 			}
 
 			ss();
@@ -713,11 +715,152 @@ class Gameplay extends State
 		{
 			if (threadsCompleted == 0)
 			{
-				startOtherThreads();
-				threadsCompleted++;
+				lock = new Mutex();
+
+				// What happens if you load a song with a bpm of under 10? Limit it.
+				Main.conductor.bpm = SONG.info.bpm = Math.max(SONG.info.bpm, 10.0);
+
+				if (null == SONG.info.spectator) // Fix gf (for vanilla charts)
+					SONG.info.spectator = 'gf';
+
+				if (null == SONG.info.offset || SONG.info.offset < 0) // Fix offset
+					SONG.info.offset = 0;
+
+				strumlineCount = null == SONG.info.strumlines ? 2 : SONG.info.strumlines;
+
+				songSpeed = SONG.info.speed;
+
+				curStage = SONG.info.stage;
+
+				if (curStage == null || curStage == '') // Fix stage (For vanilla charts)
+					curStage = 'stage';
+
+				var stageData:StageData.StageFile = null;
+
+				Thread.create(() ->
+				{
+					stageData = StageData.getStageFile(curStage);
+
+					if (null == stageData) // Stage doesn't exist, create a dummy stage to prevent crashing
+					{
+						stageData = {
+							directory: "",
+							defaultZoom: 0.9,
+							isPixelStage: false,
+
+							boyfriend: [770, 100],
+							girlfriend: [400, 130],
+							opponent: [100, 100],
+							hide_girlfriend: false,
+
+							camera_boyfriend: [0, 0],
+							camera_opponent: [0, 0],
+							camera_girlfriend: [0, 0],
+							camera_speed: 1
+						};
+					}
+
+					lock.acquire();
+
+					defaultCamZoom = FlxG.camera.zoom = stageData.defaultZoom;
+
+					BF_X = stageData.boyfriend[0];
+					BF_Y = stageData.boyfriend[1];
+					GF_X = stageData.girlfriend[0];
+					GF_Y = stageData.girlfriend[1];
+					DAD_X = stageData.opponent[0];
+					DAD_Y = stageData.opponent[1];
+
+					if (null != stageData.camera_speed)
+						cameraSpeed = stageData.camera_speed;
+
+					if (null != stageData.camera_boyfriend)
+						boyfriendCameraOffset = stageData.camera_boyfriend;
+
+					if (null != stageData.camera_opponent)
+						opponentCameraOffset = stageData.camera_opponent;
+
+					if (null != stageData.camera_girlfriend)
+						girlfriendCameraOffset = stageData.camera_girlfriend;
+
+					threadsCompleted++;
+					lock.release();
+				});
+
+				Thread.create(() ->
+				{
+					gf = new Character(0, 0, SONG.info.spectator);
+					gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
+					gfGroup.add(gf);
+
+					lock.acquire();
+
+					threadsCompleted++;
+					lock.release();
+				});
+
+				Thread.create(() ->
+				{
+					dad = new Character(0, 0, SONG.info.player2);
+					dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
+					dadGroup.add(dad);
+
+					lock.acquire();
+
+					threadsCompleted++;
+					lock.release();
+				});
+
+				Thread.create(() ->
+				{
+					bf = new Character(0, 0, SONG.info.player1, true);
+					bfGroup = new FlxSpriteGroup(BF_X, BF_Y);
+					bfGroup.add(bf);
+
+					lock.acquire();
+
+					threadsCompleted++;
+					lock.release();
+				});
+
+				Thread.create(() ->
+				{
+					inst = new FlxSound();
+					inst.loadEmbedded(Paths.inst(SONG.song));
+
+					lock.acquire();
+
+					inst.onComplete = endSong;
+					FlxG.sound.list.add(inst);
+					inst.looped = false;
+
+					threadsCompleted++;
+					lock.release();
+				});
+				if (SONG.info.needsVoices)
+				{	
+					Thread.create(() ->
+					{
+						voices = new FlxSound();
+						voices.loadEmbedded(Paths.voices(SONG.song));
+
+						lock.acquire();
+
+						voices.onComplete = endSong;
+						FlxG.sound.list.add(voices);
+						voices.looped = false;
+
+						threadsCompleted++;
+						lock.release();
+					});
+				}
+				else
+				{
+					threadsCompleted++;
+				}
 			}
 
-			if (threadsCompleted == 7)
+			if (threadsCompleted == 6)
 			{
 				// Finish off stage creation and add characters finally
 
@@ -756,11 +899,11 @@ class Gameplay extends State
 						add(stageCurtains);
 					}
 
-					threadsCompleted = 8;
+					threadsCompleted = 7;
 				});
 			}
 
-			if (threadsCompleted == 8)
+			if (threadsCompleted == 7)
 			{
 				add(gfGroup);
 				add(dadGroup);
@@ -1048,7 +1191,7 @@ class Gameplay extends State
 		#end
 	}
 
-	var lock = new Mutex();
+	var lock:Mutex;
 	var threadsCompleted = -1;
 
 	var loadingTimestamp = 0.0;
@@ -1063,15 +1206,12 @@ class Gameplay extends State
 		{
 			Thread.create(() ->
 			{
-				trace('Parsing chart data from song json...');
-
 				var preloadName:String = curSong + (curDifficulty != '' ? '-$curDifficulty' : '');
 				try
 				{
 					// Chart preloader
 					if (ChartPreloader.container.exists(preloadName))
 					{
-						trace('Nvm we found the data in ChartPreloader - YIPPEE!!!');
 						SONG = ChartPreloader.container.get(preloadName);
 					}
 					else
@@ -1089,22 +1229,17 @@ class Gameplay extends State
 		{
 			FlxG.maxElapsed = FlxG.elapsed;
 
-			trace('Parsing chart data from song json...');
-
 			var preloadName:String = curSong + (curDifficulty != '' ? '-$curDifficulty' : '');
 
 			// Chart preloader
 			if (ChartPreloader.container.exists(preloadName))
 			{
-				trace('Nvm we found the data in ChartPreloader - YIPPEE!!!');
 				SONG = ChartPreloader.container.get(preloadName);
 			}
 			else
 			{
 				SONG = Song.loadFromJson(curSong + '/' + curSong + curDifficulty);
 			}
-
-			trace('Loaded ${SONG.noteData.length} notes! Now time to load more stuff here...');
 
 			// What happens if you load a song with a bpm of under 10? Limit it.
 			Main.conductor.bpm = SONG.info.bpm = Math.max(SONG.info.bpm, 10.0);
@@ -1125,8 +1260,6 @@ class Gameplay extends State
 				curStage = 'stage';
 
 			var stageData:StageData.StageFile = null;
-
-			trace('Loading stage...');
 
 			// Setup stage and character groups
 
@@ -1151,10 +1284,6 @@ class Gameplay extends State
 				};
 			}
 
-			trace('Done loading stage!');
-
-			lock.acquire();
-
 			defaultCamZoom = FlxG.camera.zoom = stageData.defaultZoom;
 
 			BF_X = stageData.boyfriend[0];
@@ -1176,61 +1305,31 @@ class Gameplay extends State
 			if (null != stageData.camera_girlfriend)
 				girlfriendCameraOffset = stageData.camera_girlfriend;
 
-			trace('Loading gf...');
-
 			gf = new Character(0, 0, SONG.info.spectator);
 			gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
 			gfGroup.add(gf);
-
-			lock.acquire();
-
-			trace('Done loading gf!');
-
-			trace('Loading dad...');
 
 			dad = new Character(0, 0, SONG.info.player2);
 			dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
 			dadGroup.add(dad);
 
-			lock.acquire();
-
-			trace('Done loading dad!');
-
-			trace('Loading bf...');
-
 			bf = new Character(0, 0, SONG.info.player1, true);
 			bfGroup = new FlxSpriteGroup(BF_X, BF_Y);
 			bfGroup.add(bf);
 
-			lock.acquire();
-
-			trace('Done loading bf!');
-
-			trace('Loading inst audio file...');
 			inst = new FlxSound();
 			inst.loadEmbedded(Paths.inst(SONG.song));
-
-			trace('Done loading inst!');
-
-			lock.acquire();
 
 			inst.onComplete = endSong;
 			FlxG.sound.list.add(inst);
 			inst.looped = false;
 
 			threadsCompleted++;
-			lock.release();
 			
 			if (SONG.info.needsVoices)
 			{
-				trace('Loading voices audio file...');
 				voices = new FlxSound();
 				voices.loadEmbedded(Paths.voices(SONG.song));
-
-				trace('Done loading voices!');
-
-				lock.acquire();
-
 				voices.onComplete = endSong;
 				FlxG.sound.list.add(voices);
 				voices.looped = false;
@@ -1336,180 +1435,6 @@ class Gameplay extends State
 		}
 	}
 
-	private function startOtherThreads():Void
-	{
-		if (!Main.ENABLE_MULTITHREADING)
-			return;
-
-		trace('Loaded ${SONG.noteData.length} notes! Now time to load more stuff here...');
-
-		// What happens if you load a song with a bpm of under 10? Limit it.
-		Main.conductor.bpm = SONG.info.bpm = Math.max(SONG.info.bpm, 10.0);
-
-		if (null == SONG.info.spectator) // Fix gf (for vanilla charts)
-			SONG.info.spectator = 'gf';
-
-		if (null == SONG.info.offset || SONG.info.offset < 0) // Fix offset
-			SONG.info.offset = 0;
-
-		strumlineCount = null == SONG.info.strumlines ? 2 : SONG.info.strumlines;
-
-		songSpeed = SONG.info.speed;
-
-		curStage = SONG.info.stage;
-
-		if (curStage == null || curStage == '') // Fix stage (For vanilla charts)
-			curStage = 'stage';
-
-		var stageData:StageData.StageFile = null;
-
-		Thread.create(() ->
-		{
-			trace('Loading stage...');
-
-			// Setup stage and character groups
-
-			stageData = StageData.getStageFile(curStage);
-
-			if (null == stageData) // Stage doesn't exist, create a dummy stage to prevent crashing
-			{
-				stageData = {
-					directory: "",
-					defaultZoom: 0.9,
-					isPixelStage: false,
-
-					boyfriend: [770, 100],
-					girlfriend: [400, 130],
-					opponent: [100, 100],
-					hide_girlfriend: false,
-
-					camera_boyfriend: [0, 0],
-					camera_opponent: [0, 0],
-					camera_girlfriend: [0, 0],
-					camera_speed: 1
-				};
-			}
-
-			trace('Done loading stage!');
-
-			lock.acquire();
-
-			defaultCamZoom = FlxG.camera.zoom = stageData.defaultZoom;
-
-			BF_X = stageData.boyfriend[0];
-			BF_Y = stageData.boyfriend[1];
-			GF_X = stageData.girlfriend[0];
-			GF_Y = stageData.girlfriend[1];
-			DAD_X = stageData.opponent[0];
-			DAD_Y = stageData.opponent[1];
-
-			if (null != stageData.camera_speed)
-				cameraSpeed = stageData.camera_speed;
-
-			if (null != stageData.camera_boyfriend)
-				boyfriendCameraOffset = stageData.camera_boyfriend;
-
-			if (null != stageData.camera_opponent)
-				opponentCameraOffset = stageData.camera_opponent;
-
-			if (null != stageData.camera_girlfriend)
-				girlfriendCameraOffset = stageData.camera_girlfriend;
-
-			threadsCompleted++;
-			lock.release();
-		});
-
-		Thread.create(() ->
-		{
-			trace('Loading gf...');
-
-			gf = new Character(0, 0, SONG.info.spectator);
-			gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
-			gfGroup.add(gf);
-
-			trace('Done loading gf!');
-
-			lock.acquire();
-
-			threadsCompleted++;
-			lock.release();
-		});
-
-		Thread.create(() ->
-		{
-			trace('Loading dad...');
-
-			dad = new Character(0, 0, SONG.info.player2);
-			dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
-			dadGroup.add(dad);
-
-			trace('Done loading dad!');
-
-			lock.acquire();
-
-			threadsCompleted++;
-			lock.release();
-		});
-
-		Thread.create(() ->
-		{
-			trace('Loading bf...');
-
-			bf = new Character(0, 0, SONG.info.player1, true);
-			bfGroup = new FlxSpriteGroup(BF_X, BF_Y);
-			bfGroup.add(bf);
-
-			trace('Done loading bf!');
-
-			lock.acquire();
-
-			threadsCompleted++;
-			lock.release();
-		});
-
-		Thread.create(() ->
-		{
-			trace('Loading inst audio file...');
-			inst = new FlxSound();
-			inst.loadEmbedded(Paths.inst(SONG.song));
-
-			trace('Done loading inst!');
-
-			lock.acquire();
-
-			inst.onComplete = endSong;
-			FlxG.sound.list.add(inst);
-			inst.looped = false;
-
-			threadsCompleted++;
-			lock.release();
-		});
-		if (SONG.info.needsVoices)
-		{	
-			Thread.create(() ->
-			{
-				trace('Loading voices audio file...');
-				voices = new FlxSound();
-				voices.loadEmbedded(Paths.voices(SONG.song));
-
-				trace('Done loading voices!');
-
-				lock.acquire();
-
-				voices.onComplete = endSong;
-				FlxG.sound.list.add(voices);
-				voices.looped = false;
-
-				threadsCompleted++;
-				lock.release();
-			});
-		}
-		else
-		{
-			threadsCompleted++;
-		}
-	}
-
 	static public var strumlineCount:Int = 2;
 	static public var playablelineConfiguration:Array<Bool> = [false, true];
 	public function generateStrumline(player:Int = 0):Void
@@ -1562,14 +1487,9 @@ class Gameplay extends State
 		}
 
 		if (null != gameCameraZoomTween)
-		{
 			gameCameraZoomTween.cancel();
-		}
-
 		if (null != hudCameraZoomTween)
-		{
 			hudCameraZoomTween.cancel();
-		}
 
 		FlxG.camera.zoom += value1;
 		gameCameraZoomTween = zoomTweenFunction(FlxG.camera, defaultCamZoom);
@@ -1596,15 +1516,12 @@ class Gameplay extends State
 				case 3:
 					FlxG.sound.play(Paths.sound('introGo'), 0.6);
 
-				case 4:
-					startSong();
-
 				default:
 					FlxG.sound.play(Paths.sound('intro' + (3 - swagCounter)), 0.6);
 			}
 
 			dance(swagCounter++);
-		}, 5);
+		}, 4);
 
 		#if SCRIPTING_ALLOWED
 		Main.optUtils.scriptCall('startCountdown');
@@ -1620,10 +1537,14 @@ class Gameplay extends State
 		{
 			inst.play();
 			songLength = inst.length;
+			inst.time = 0;
 		}
 
 		if (null != voices)
+		{
 			voices.play();
+			voices.time = 0;
+		}
 
 		startedCountdown = true;
 
@@ -1663,9 +1584,9 @@ class Gameplay extends State
 
 		if (!noCharacters)
 		{
-			var midpoint:flixel.math.FlxPoint = whatCharacter.getMidpoint();
-			var camPosX:Float = whatCharacter.cameraPosition[0];
-			var camPosY:Float = whatCharacter.cameraPosition[1];
+			var midpoint = whatCharacter.getMidpoint();
+			var camPosX = whatCharacter.cameraPosition[0];
+			var camPosY = whatCharacter.cameraPosition[1];
 
 			if (null != whatCharacter)
 			{
@@ -1841,13 +1762,6 @@ class Gameplay extends State
 		Main.game.onKeyUp.off(SignalEvent.KEY_UP, onKeyUp);
 
 		super.destroy();
-	}
-
-	var pause(default, null):Bool;
-
-	function set_pause(value:Bool):Bool
-	{
-		return pause = value;
 	}
 
 	var newNote(default, null):(Note)->(Void) = null;

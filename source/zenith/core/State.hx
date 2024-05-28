@@ -1,11 +1,16 @@
 package zenith.core;
 
+import flixel.FlxBasic;
+
 // FlxState with crash handling and HScript functionality
 
 @:access(flixel.FlxCamera)
 
 class State extends FlxState
 {
+	var currentUpdateMember:FlxBasic = null;
+	var currentDrawMember:FlxBasic = null;
+
 	override function create():Void
 	{
 		Main.conductor.onStepHit = Main.conductor.onBeatHit = Main.conductor.onMeasureHit = null;
@@ -44,11 +49,12 @@ class State extends FlxState
 
 		updateMembers = (elapsed:Float) ->
 		{
-			for (basic in members)
+			for (i in 0...members.length)
 			{
-				if (basic != null && basic.exists && basic.active)
+				currentUpdateMember = members[i];
+				if (currentUpdateMember != null && currentUpdateMember.exists && currentUpdateMember.active)
 				{
-					basic.update(elapsed);
+					currentUpdateMember.update(elapsed);
 				}
 			}
 		}
@@ -61,10 +67,13 @@ class State extends FlxState
 				FlxCamera._defaultCameras = _cameras;
 			}
 
-			for (basic in members)
+			for (i in 0...members.length)
 			{
-				if (basic != null && basic.exists && basic.visible)
-					basic.draw();
+				currentDrawMember = members[i];
+				if (currentDrawMember != null && currentDrawMember.exists && currentDrawMember.visible)
+				{
+					currentDrawMember.draw();
+				}
 			}
 
 			FlxCamera._defaultCameras = oldDefaultCameras;
