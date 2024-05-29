@@ -599,7 +599,7 @@ class Gameplay extends State
 				_songPos += elapsed * 1000.0;
 			}
 
-			Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, _songPos, 0.126575 * (60.0 / Math.min(FlxG.updateFramerate, lime.app.Application.current.window.displayMode.refreshRate)));
+			Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, _songPos, 0.126565 * (lime.app.Application.current.window.displayMode.refreshRate / FlxG.updateFramerate));
 
 			p();
 			n();

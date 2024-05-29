@@ -708,9 +708,7 @@ class StaticSprite extends FlxBasic
 	var graphicCache:Map<FlxGraphicAsset, FlxGraphic> = new Map<FlxGraphicAsset, FlxGraphic>();
 	public function loadGraphic(graphic:FlxGraphicAsset, animated = false, frameWidth = 0, frameHeight = 0, unique = false, ?key:String):StaticSprite
 	{
-		var graph:FlxGraphic = graphicCache.get(graphic);
-		if (graph == null)
-			graphicCache.set(graphic, graph = FlxG.bitmap.add(graphic, unique, key));
+		var graph:FlxGraphic = FlxG.bitmap.add(graphic, unique, key);
 
 		if (graph == null)
 			return this;
