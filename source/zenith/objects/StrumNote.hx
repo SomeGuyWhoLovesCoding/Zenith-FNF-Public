@@ -113,6 +113,11 @@ class StrumNote extends FlxSprite
 		}
 	}
 
+	override function update(elapsed:Float):Void
+	{
+		animation.update(elapsed);
+	}
+
 	public var playAnim:(String)->(Void);
 
 	override function set_clipRect(rect:FlxRect):FlxRect
