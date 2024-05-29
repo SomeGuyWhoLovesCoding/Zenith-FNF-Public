@@ -1468,7 +1468,7 @@ class Gameplay extends State
 
 		new flixel.util.FlxTimer().start(Main.conductor.crochet * 0.001, (?timer) ->
 		{
-			if (swagCounter != 5)
+			if (swagCounter != 4)
 			{
 				if (swagCounter != 3)
 				{
