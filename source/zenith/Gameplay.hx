@@ -296,7 +296,8 @@ class Gameplay extends State
 			Main.optUtils.scriptCallNote('onNoteHitPost', note);
 			#end
 
-			hudGroup.updateScoreText();
+			if (hudGroup != null)
+				hudGroup.updateScoreText();
 		}
 
 		onNoteMiss = (note:(Note)) ->
@@ -325,7 +326,8 @@ class Gameplay extends State
 			Main.optUtils.scriptCallNote('onNoteMissPost', note);
 			#end
 
-			hudGroup.updateScoreText();
+			if (hudGroup != null)
+				hudGroup.updateScoreText();
 		}
 
 		onHold = (sustain:(SustainNote)) ->
@@ -582,7 +584,7 @@ class Gameplay extends State
 
 		onGameplayUpdate = (elapsed:Float) ->
 		{
-			health = FlxMath.bound(health, 0.0, hudGroup.healthBar.maxValue);
+			health = FlxMath.bound(health, 0.0, hudGroup != null ? hudGroup.healthBar.maxValue : 2.0);
 
 			hudCameraBelow.x = hudCamera.x;
 			hudCameraBelow.y = hudCamera.y;
@@ -1061,7 +1063,8 @@ class Gameplay extends State
 								bf.alpha = 0.001;
 								bf = bfMap.get(value2);
 								bf.alpha = lastAlpha;
-								hudGroup.plrIcon.changeIcon(bf.healthIcon);
+								if (hudGroup != null)
+									hudGroup.plrIcon.changeIcon(bf.healthIcon);
 							}
 
 						case 1:
@@ -1079,7 +1082,8 @@ class Gameplay extends State
 									gf.visible = !dad.curCharacter.startsWith('gf') && wasGf;
 
 								dad.alpha = lastAlpha;
-								hudGroup.oppIcon.changeIcon(dad.healthIcon);
+								if (hudGroup != null)
+									hudGroup.oppIcon.changeIcon(dad.healthIcon);
 							}
 
 						case 2:
@@ -1098,7 +1102,8 @@ class Gameplay extends State
 							}
 					}
 				}
-				hudGroup.reloadHealthBar();
+				if (hudGroup != null)
+					hudGroup.reloadHealthBar();
 
 			case 'Change Scroll Speed':
 				if (null != songSpeedTween)
@@ -1527,7 +1532,7 @@ class Gameplay extends State
 			voices.stop();
 		}
 
-		if (null != hudGroup.timeTxt)
+		if (null != hudGroup && null != hudGroup.timeTxt)
 		{
 			hudGroup.timeTxt.visible = false;
 		}
