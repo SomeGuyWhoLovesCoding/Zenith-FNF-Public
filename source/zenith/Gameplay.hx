@@ -190,16 +190,6 @@ class Gameplay extends State
 
 		super.create();
 
-		newNote = (note:(Note)) ->
-		{
-			note.scale.x = note.scale.y = 0.7;
-			note.setFrame(Paths.regularNoteFrame);
-
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallNote('newNote', note);
-			#end
-		}
-
 		setupNoteData = (chartNoteData:(Array<(Float)>)) ->
 		{
 			if (chartNoteData[0] < 0.0 || chartNoteData[3] < 0) // Don't spawn a note with negative time or lane
