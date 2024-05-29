@@ -3,6 +3,7 @@ package zenith;
 import flixel.group.FlxGroup;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
+import flixel.math.FlxPoint;
 import flixel.math.FlxAngle;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
