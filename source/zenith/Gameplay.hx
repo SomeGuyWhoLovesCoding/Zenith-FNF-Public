@@ -416,7 +416,7 @@ class Gameplay extends State
 		{
 			for (i in 0...notes.members.length)
 			{
-				_n = notes.members.[i];
+				_n = notes.members[i];
 				if ((_n.strum.playable && _n.noteData == key) &&
 					(!_n.wasHit && !_n.tooLate) && Math.abs(Main.conductor.songPosition - _n.strumTime) < 166.7)
 				{
