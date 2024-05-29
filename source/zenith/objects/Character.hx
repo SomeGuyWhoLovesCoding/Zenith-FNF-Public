@@ -84,6 +84,69 @@ class Character extends FlxSprite
 	{
 		super(x, y);
 
+		animOffsets = new Map<String, Array<Float>>();
+		curCharacter = character;
+		this.isPlayer = isPlayer;
+
+		var characterPath:String = 'characters/' + curCharacter + '.json';
+
+		var path:String = Paths.ASSET_PATH + '/' + characterPath;
+
+		if (!FileSystem.exists(path))
+			path = Paths.ASSET_PATH + '/characters/' + DEFAULT_CHARACTER + '.json'; //If a character couldn't be found, change him to BF just to prevent a crash
+
+		var json:CharacterFile = Json.parse(File.getContent(path));
+
+		frames = Paths.getSparrowAtlas(json.image);
+		imageFile = json.image;
+
+		if(json.scale != 1.0) {
+			jsonScale = json.scale;
+			setGraphicSize(Std.int(width * jsonScale));
+			updateHitbox();
+		}
+
+		positionArray = json.position;
+		cameraPosition = json.camera_position;
+
+		healthIcon = json.healthicon;
+		singDuration = json.sing_duration;
+		flipX = !!json.flip_x;
+		if(json.no_antialiasing) {
+			antialiasing = false;
+			noAntialiasing = true;
+		}
+
+		if(json.healthbar_colors != null && json.healthbar_colors.length > 2)
+			healthColorArray = json.healthbar_colors;
+
+		if(json.stillCharacterFrame != null)
+			stillCharacterFrame = json.stillCharacterFrame;
+
+		antialiasing = !noAntialiasing && SaveData.contents.graphics.antialiasing;
+
+		animationsArray = json.animations;
+		if (animationsArray != null && animationsArray.length > 0)
+		{
+			for (i in 0...animationsArray.length)
+			{
+				var anim = animationsArray[i];
+				var animLoop = !!anim.loop; //Bruh
+
+				if (anim.indices != null && anim.indices.length > 0)
+					animation.addByIndices('' + anim.anim, '' + anim.name, anim.indices, "", anim.fps, animLoop);
+				else
+					animation.addByPrefix('' + anim.anim, '' + anim.name, anim.fps, animLoop);
+
+				if(anim.offsets != null && anim.offsets.length > 1)
+					addOffset('' + anim.anim, anim.offsets[0], anim.offsets[1]);
+			}
+		}
+		else
+			quickAnimAdd('idle', 'BF idle dance');
+
+		originalFlipX = flipX;
+
 		playAnim = (AnimName:String, special:Bool = false) ->
 		{
 			specialAnim = special;
@@ -132,84 +195,24 @@ class Character extends FlxSprite
 			}
 		}
 
-		animOffsets = new Map<String, Array<Float>>();
-		curCharacter = character;
-		this.isPlayer = isPlayer;
-
-		var characterPath:String = 'characters/' + curCharacter + '.json';
-
-		var path:String = Paths.ASSET_PATH + '/' + characterPath;
-
-		if (!FileSystem.exists(path))
-			path = Paths.ASSET_PATH + '/characters/' + DEFAULT_CHARACTER + '.json'; //If a character couldn't be found, change him to BF just to prevent a crash
-
-		var json:CharacterFile = Json.parse(File.getContent(path));
-
-		frames = Paths.getSparrowAtlas(json.image);
-		imageFile = json.image;
-
-		if(json.scale != 1.0) {
-			jsonScale = json.scale;
-			setGraphicSize(Std.int(width * jsonScale));
-			updateHitbox();
-		}
-
-		positionArray = json.position;
-		cameraPosition = json.camera_position;
-
-		healthIcon = json.healthicon;
-		singDuration = json.sing_duration;
-		flipX = !!json.flip_x;
-		if(json.no_antialiasing) {
-			antialiasing = false;
-			noAntialiasing = true;
-		}
-
-		if(json.healthbar_colors != null && json.healthbar_colors.length > 2)
-			healthColorArray = json.healthbar_colors;
-
-		if(json.stillCharacterFrame != null)
-			stillCharacterFrame = json.stillCharacterFrame;
-
-		antialiasing = !noAntialiasing && SaveData.contents.graphics.antialiasing;
-
-		animationsArray = json.animations;
-		if (animationsArray != null && animationsArray.length > 0)
+		if(animOffsets.exists('singLEFTmiss') || animOffsets.exists('singDOWNmiss') || animOffsets.exists('singUPmiss') || animOffsets.exists('singRIGHTmiss'))
 		{
-			for (i in 0...animationsArray.length)
-			{
-				var anim:AnimArray = animationsArray[i];
-				var animLoop:Bool = !!anim.loop; //Bruh
-
-				if (anim.indices != null && anim.indices.length > 0)
-					animation.addByIndices('' + anim.anim, '' + anim.name, anim.indices, "", anim.fps, animLoop);
-				else
-					animation.addByPrefix('' + anim.anim, '' + anim.name, anim.fps, animLoop);
-
-				if(anim.offsets != null && anim.offsets.length > 1)
-					addOffset('' + anim.anim, anim.offsets[0], anim.offsets[1]);
-			}
+			hasMissAnimations = true;
 		}
-		else
-			quickAnimAdd('idle', 'BF idle dance');
 
-		originalFlipX = flipX;
-
-		if(animOffsets.exists('singLEFTmiss') || animOffsets.exists('singDOWNmiss') || animOffsets.exists('singUPmiss') || animOffsets.exists('singRIGHTmiss')) hasMissAnimations = true;
 		recalculateDanceIdle();
 		dance();
 
 		if (isPlayer)
+		{
 			flipX = !flipX;
+		}
 	}
 
 	override function update(elapsed:Float)
 	{
 		if (!debugMode && animation.curAnim != null)
 		{
-			if (animation.curAnim.finished && animation.getByName(animation.curAnim.name + '-loop') != null)
-				playAnim(animation.curAnim.name + '-loop');
-
 			if (specialAnim && animation.curAnim.finished)
 			{
 				specialAnim = false;
@@ -217,23 +220,33 @@ class Character extends FlxSprite
 			}
 
 			if (animation.curAnim.name.startsWith('sing'))
+			{
 				holdTimer += elapsed;
+			}
 
-			if (holdTimer >= Main.conductor.stepCrochet * singDuration * 0.001)
+			if (holdTimer > Main.conductor.stepCrochet * singDuration * 0.001)
 			{
 				dance();
-				holdTimer = 0;
+				holdTimer = 0.0;
 			}
 
 			// Hey timer stuff
 			if (animation.curAnim.name.startsWith('hey'))
 			{
-				if (heyTimer > 0)
+				if (heyTimer > 0.0)
+				{
 					heyTimer -= elapsed;
-				else {
-					heyTimer = 0;
+				}
+				else
+				{
+					heyTimer = 0.0;
 					dance();
 				}
+			}
+
+			if (animation.curAnim.finished && animation.getByName(animation.curAnim.name + '-loop') != null)
+			{
+				playAnim(animation.curAnim.name + '-loop');
 			}
 		}
 
@@ -257,7 +270,9 @@ class Character extends FlxSprite
 		danceIdle = (animation.getByName('danceLeft' + idleSuffix) != null && animation.getByName('danceRight' + idleSuffix) != null);
 
 		if(settingCharacterUp)
+		{
 			danceEveryNumBeats = (danceIdle ? 1 : 2);
+		}
 		else if(lastDanceIdle != danceIdle)
 		{
 			var calc:Float = danceEveryNumBeats;
@@ -272,7 +287,7 @@ class Character extends FlxSprite
 		settingCharacterUp = false;
 	}
 
-	public function addOffset(name:String, x:Float = 0, y:Float = 0)
+	public function addOffset(name:String, x:Float = 0.0, y:Float = 0.0)
 		animOffsets[name] = [x, y];
 
 	public function quickAnimAdd(name:String, anim:String)

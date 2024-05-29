@@ -287,7 +287,8 @@ class Gameplay extends State
 				}
 			}
 
-			note.wasHit = !(note.exists = false);
+			note.wasHit = true;
+			note.exists = false;
 
 			#if SCRIPTING_ALLOWED
 			Main.optUtils.scriptCallNote('onNoteHitPost', note);
@@ -409,7 +410,8 @@ class Gameplay extends State
 					Main.conductor.songPosition <= (_s.strumTime + _s.length) - (Main.conductor.stepCrochet * 0.875))
 				{
 					e.emit(SignalEvent.NOTE_RELEASE, _s.noteData);
-					_s.missed = !(_s.holding = false);
+					_s.holding = false;
+					_s.missed = true;
 					_s.alpha = 0.3;
 				}
 			}
@@ -530,15 +532,15 @@ class Gameplay extends State
 			Main.optUtils.scriptCall2Ints('onKeyDown', keyCode, keyModifier);
 			#end
 
-			var key = inputKeybinds.indexOf(keyCode);
+			key = inputKeybinds.indexOf(keyCode);
 
 			if (cpuControlled || key == -1 || !generatedMusic || holdArray[key])
 				return;
 			
-			var strum:(StrumNote) = strumlines.members[strumlines.members.length-1].members[key];
+			st = strumlines.members[strumlines.members.length-1].members[key];
 
-			if (strum.animation.curAnim.name != 'confirm')
-				strum.playAnim('pressed');
+			if (st.animation.curAnim.name != 'confirm')
+				st.playAnim('pressed');
 
 			h(key);
 
@@ -555,16 +557,16 @@ class Gameplay extends State
 			Main.optUtils.scriptCall2Ints('onKeyUp', keyCode, keyModifier);
 			#end
 
-			var key = inputKeybinds.indexOf(keyCode);
+			key = inputKeybinds.indexOf(keyCode);
 
 			if (cpuControlled || key == -1 || !generatedMusic || !holdArray[key])
 				return;
 
-			var strum:(StrumNote) = strumlines.members[strumlines.members.length-1].members[key];
+			st = strumlines.members[strumlines.members.length-1].members[key];
 
-			if (strum.animation.curAnim.name == 'confirm' ||
-				strum.animation.curAnim.name == 'pressed')
-				strum.playAnim('static');
+			if (st.animation.curAnim.name == 'confirm' ||
+				st.animation.curAnim.name == 'pressed')
+				st.playAnim('static');
 
 			r(key);
 
@@ -585,23 +587,27 @@ class Gameplay extends State
 			hudCameraBelow.alpha = hudCamera.alpha;
 			hudCameraBelow.zoom = hudCamera.zoom;
 
-			if (Main.conductor.songPosition >= 0 && !startedCountdown)
-			{
-				startSong();
-			}
-
 			if (startedCountdown && !songEnded)
 			{
-				Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, inst.time - SONG.info.offset, 0.1265);
+				_songPos = inst.time - SONG.info.offset;
 			}
 			else
 			{
-				Main.conductor.songPosition += elapsed * 1000.0;
+				_songPos += elapsed * 1000.0;
 			}
+
+			Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, _songPos, 0.126575 * (60.0 / Math.min(FlxG.updateFramerate, lime.app.Application.current.window.displayMode.refreshRate)));
 
 			p();
 			n();
 			s();
+
+			if (_songPos <= 0 || startedCountdown)
+			{
+				return;
+			}
+
+			startSong();
 		}
 
 		e.on(SignalEvent.NOTE_SETUP, setupNoteData);
@@ -617,39 +623,29 @@ class Gameplay extends State
 
 		Main.conductor.onBeatHit = (curBeat:(Float)) ->
 		{
-			if (songEnded)
+			ss();
+
+			if (songEnded || !startedCountdown || Main.conductor.songPosition < 0)
 			{
 				return;
 			}
 
-			if (curBeat > -1)
-			{
-				dance(curBeat - 1);
-			}
-
-			ss();
+			dance(curBeat - 1); // This is rather very fuckin weird but ok
 		}
 
 		Main.conductor.onMeasureHit = (curMeasure:(Float)) ->
 		{
-			if (songEnded)
+			if (songEnded || !startedCountdown || Main.conductor.songPosition < 0)
 			{
 				return;
 			}
 
-			if (curMeasure > -1)
-			{
-				addCameraZoom();
-			}
+			addCameraZoom();
 		}
 	}
 
 	override function update(elapsed:Float):Void
 	{
-		// Song creation
-
-		//trace(threadsCompleted);
-
 		if (Main.ENABLE_MULTITHREADING)
 		{
 			if (threadsCompleted == 0)
@@ -921,9 +917,11 @@ class Gameplay extends State
 		}
 
 		if (!generatedMusic)
+		{
 			return;
+		}
 
-		super.update(elapsed);
+		updateMembers(elapsed);
 
 		e.emit(SignalEvent.GAMEPLAY_UPDATE, elapsed);
 	}
@@ -1462,21 +1460,25 @@ class Gameplay extends State
 		inputKeybinds = SaveData.contents.controls.GAMEPLAY_BINDS;
 
 		var swagCounter = 0;
-		Main.conductor.songPosition = (-Main.conductor.crochet * 5.0) - SONG.info.offset;
+		_songPos = (-Main.conductor.crochet * 5.0);
+		Main.conductor.songPosition = _songPos - 100.0;
 
 		new flixel.util.FlxTimer().start(Main.conductor.crochet * 0.001, (?timer) ->
 		{
-			switch (swagCounter)
+			if (swagCounter != 5)
 			{
-				case 3:
-					FlxG.sound.play(Paths.sound('introGo'), 0.6);
-
-				default:
+				if (swagCounter != 3)
+				{
 					FlxG.sound.play(Paths.sound('intro' + (3 - swagCounter)), 0.6);
+				}
+				else
+				{
+					FlxG.sound.play(Paths.sound('introGo'), 0.6);
+				}
 			}
 
 			dance(swagCounter++);
-		}, 4);
+		}, 5);
 
 		#if SCRIPTING_ALLOWED
 		Main.optUtils.scriptCall('startCountdown');
@@ -1492,13 +1494,11 @@ class Gameplay extends State
 		{
 			inst.play();
 			songLength = inst.length;
-			inst.time = 0;
 		}
 
 		if (null != voices)
 		{
 			voices.play();
-			voices.time = 0;
 		}
 
 		startedCountdown = true;
@@ -1729,4 +1729,9 @@ class Gameplay extends State
 	var _nd(default, null):Array<Float> = null;
 
 	var c(default, null):Character = null;
+
+	var st(default, null):StrumNote = null;
+	var key(default, null):Int = 0;
+
+	var _songPos(default, null):Float = -5000.0;
 }
