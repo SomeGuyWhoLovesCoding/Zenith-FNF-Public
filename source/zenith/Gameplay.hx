@@ -119,10 +119,6 @@ class Gameplay extends State
 
 	static public var instance:Gameplay = null;
 
-	var e(default, null):Emitter = new Emitter();
-
-	// Test
-
 	override function create():Void
 	{
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
@@ -1543,8 +1539,8 @@ class Gameplay extends State
 	// Camera functions
 
 	var _mp(default, null):FlxPoint = null;
-	var _cpx(default, null):Int = 0;
-	var _cpy(default, null):Int = 0;
+	var _cpx(default, null):Float = 0.0;
+	var _cpy(default, null):Float = 0.0;
 
 	private function moveCamera(whatCharacter:(Character)):Void
 	{
