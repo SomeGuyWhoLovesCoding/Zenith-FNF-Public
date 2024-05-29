@@ -118,11 +118,6 @@ class Character extends FlxSprite
 			}
 		}
 
-		updateAnim = (elapsed:Float) ->
-		{
-			animation.update(elapsed);
-		}
-
 		dance = () ->
 		{
 			if (danceIdle && (!debugMode && !skipDance && !specialAnim))
@@ -242,14 +237,12 @@ class Character extends FlxSprite
 			}
 		}
 
-		updateAnim(elapsed);
+		animation.update(elapsed);
 
 		#if FLX_DEBUG
 		FlxBasic.activeCount++;
 		#end
 	}
-
-	var updateAnim:(Float)->(Void);
 
 	public var danced:Bool = false;
 
