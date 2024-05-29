@@ -122,8 +122,12 @@ class Gameplay extends State
 
 	var currentNote(default, null):Note = null;
 	var spawnedNote(default, null):Note = null;
+	var _n(default, null):Note = null;
 	var currentSustain(default, null):SustainNote = null;
 	var spawnedSustain(default, null):SustainNote = null;
+	var _s(default, null):SustainNote = null;
+
+	var _nd(default, null):Array<Float> = null;
 
 	// Test
 
@@ -202,21 +206,12 @@ class Gameplay extends State
 				return;
 
 			spawnedNote = notes.recycle((Note));
-			Gameplay.instance.e.emit(SignalEvent.NOTE_NEW, spawnedNote);
+
+			spawnedNote.scale.x = spawnedNote.scale.y = 0.7;
+			spawnedNote.setFrame(Paths.regularNoteFrame);
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('setupNoteData'))
-						(scriptList.get(script).interp.variables.get('setupNoteData'))(spawnedNote, chartNoteData);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCallNoteSetup('setupNoteData', spawnedNote, chartNoteData);
 			#end
 
 			spawnedNote.alpha = 1.0;
@@ -234,60 +229,34 @@ class Gameplay extends State
 			spawnedNote.color = NoteBase.colorArray[spawnedNote.noteData];
 			spawnedNote.angle = NoteBase.angleArray[spawnedNote.noteData];
 
+			#if SCRIPTING_ALLOWED
+			Main.optUtils.scriptCallNote('newNote', spawnedNote);
+			#end
+
 			if (spawnedNote.sustainLength > 32.0) // Don't spawn too short sustain notes
 			{
 				e.emit(SignalEvent.SUSTAIN_SETUP, chartNoteData);
 			}
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('setupNoteDataPost'))
-						(scriptList.get(script).interp.variables.get('setupNoteDataPost'))(spawnedNote, chartNoteData);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
-			#end
-		}
-
-		newSustain = (sustain:(SustainNote)) ->
-		{
-			sustain.scale.x = sustain.scale.y = 0.7;
-			sustain.downScroll = downScroll;
-			sustain.setFrame(Paths.sustainNoteFrame);
-			sustain.offset.x = -0.5 * ((sustain.frameWidth * 0.7) - sustain.frameWidth);
-			sustain.origin.x = sustain.frameWidth * 0.5;
-			sustain.origin.y = sustain.offset.y = 0.0;
-
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallSustain('newSustain', sustain);
+			Main.optUtils.scriptCallNoteSetup('setupNoteDataPost', spawnedNote, chartNoteData);
 			#end
 		}
 
 		setupSustainData = (chartNoteData:(Array<(Float)>)) ->
 		{
 			spawnedSustain = sustains.recycle((SustainNote));
-			Gameplay.instance.e.emit(SignalEvent.SUSTAIN_NEW, spawnedSustain);
+	
+			spawnedSustain.scale.x = spawnSustain.scale.y = 0.7;
+			spawnedSustain.setFrame(Paths.sustainNoteFrame);
 
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('setupSustainData'))
-						(scriptList.get(script).interp.variables.get('setupSustainData'))(spawnedSustain, chartNoteData);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCallSustainSetup('setupSustainData', spawnedSustain, chartNoteData);
 			#end
+
+			spawnedSustain.offset.x = -0.5 * ((spawnedSustain.frameWidth * 0.7) - spawnedSustain.frameWidth);
+			spawnedSustain.origin.x = spawnedSustain.frameWidth * 0.5;
+			spawnedSustain.origin.y = spawnedSustain.offset.y = 0.0;
 
 			spawnedSustain.alpha = 0.6; // Definitive alpha, default
 			spawnedSustain.y = -2000;
@@ -299,22 +268,16 @@ class Gameplay extends State
 			spawnedSustain.lane = Std.int(chartNoteData[3]);
 
 			spawnedSustain.strum = strumlines.members[spawnedSustain.lane].members[spawnedSustain.noteData];
-
 			spawnedSustain.color = NoteBase.colorArray[spawnedSustain.noteData];
 
+			spawnedSustain.downScroll = spawnddSustain.strum.scrollMult <= 0;
+
 			#if SCRIPTING_ALLOWED
-			for (script in scriptList.keys())
-			{
-				try
-				{
-					if (scriptList.get(script).interp.variables.exists('setupSustainDataPost'))
-						(scriptList.get(script).interp.variables.get('setupSustainDataPost'))(spawnedSustain, chartNoteData);
-				}
-				catch (e)
-				{
-					HScriptSystem.error(e);
-				}
-			}
+			Main.optUtils.scriptCallSustain('newSustain', spawnedSustain);
+			#end
+
+			#if SCRIPTING_ALLOWED
+			Main.optUtils.scriptCallSustainSetup('setupSustainDataPost', spawnedSstain, chartNoteData);
 			#end
 		}
 
@@ -451,12 +414,13 @@ class Gameplay extends State
 
 		h = (key:(Int)) ->
 		{
-			for (n in notes.members)
+			for (i in 0...notes.members.length)
 			{
-				if ((n.strum.playable && n.noteData == key) &&
-					(!n.wasHit && !n.tooLate) && Math.abs(Main.conductor.songPosition - n.strumTime) < 166.7)
+				_n = notes.members.[i];
+				if ((_n.strum.playable && _n.noteData == key) &&
+					(!_n.wasHit && !_n.tooLate) && Math.abs(Main.conductor.songPosition - _n.strumTime) < 166.7)
 				{
-					e.emit(SignalEvent.NOTE_HIT, n);
+					e.emit(SignalEvent.NOTE_HIT, _n);
 					break;
 				}
 			}
@@ -464,14 +428,15 @@ class Gameplay extends State
 
 		r = (key:(Int)) ->
 		{
-			for (s in sustains.members)
+			for (i in 0...sustains.members.length)
 			{
-				if ((s.strum.playable && !s.missed && s.noteData == key) && Main.conductor.songPosition >= s.strumTime &&
-					Main.conductor.songPosition <= (s.strumTime + s.length) - (Main.conductor.stepCrochet * 0.875))
+				_s = sustains.members[i];
+				if ((_s.strum.playable && !_s.missed && _s.noteData == key) && Main.conductor.songPosition >= _s.strumTime &&
+					Main.conductor.songPosition <= (_s.strumTime + _s.length) - (Main.conductor.stepCrochet * 0.875))
 				{
-					e.emit(SignalEvent.NOTE_RELEASE, s.noteData);
-					s.missed = !(s.holding = false);
-					s.alpha = 0.3;
+					e.emit(SignalEvent.NOTE_RELEASE, _s.noteData);
+					_s.missed = !(_s.holding = false);
+					_s.alpha = 0.3;
 				}
 			}
 		}
@@ -487,12 +452,12 @@ class Gameplay extends State
 			while (currentNoteId != SONG.noteData.length)
 			{
 				// Avoid redundant array access
-				var note = SONG.noteData[currentNoteId];
+				_nd = SONG.noteData[currentNoteId];
 
-				if (Main.conductor.songPosition < note[0] - (1950.0 / songSpeed))
+				if (Main.conductor.songPosition < _nd[0] - (1950.0 / songSpeed))
 					break;
 
-				e.emit(SignalEvent.NOTE_SETUP, note);
+				e.emit(SignalEvent.NOTE_SETUP, _nd);
 
 				currentNoteId++;
 			}
@@ -665,13 +630,11 @@ class Gameplay extends State
 			s();
 		}
 
-		e.on(SignalEvent.NOTE_NEW, newNote);
 		e.on(SignalEvent.NOTE_SETUP, setupNoteData);
 		e.on(SignalEvent.NOTE_HIT, onNoteHit);
 		e.on(SignalEvent.NOTE_MISS, onNoteMiss);
 		e.on(SignalEvent.NOTE_HOLD, onHold);
 		e.on(SignalEvent.NOTE_RELEASE, onRelease);
-		e.on(SignalEvent.SUSTAIN_NEW, newSustain);
 		e.on(SignalEvent.SUSTAIN_SETUP, setupSustainData);
 		e.on(SignalEvent.GAMEPLAY_UPDATE, onGameplayUpdate);
 
@@ -1750,13 +1713,11 @@ class Gameplay extends State
 			spawnedSustain.destroy();
 		}
 
-		e.off(SignalEvent.NOTE_NEW, newNote);
 		e.off(SignalEvent.NOTE_SETUP, setupNoteData);
 		e.off(SignalEvent.NOTE_HIT, onNoteHit);
 		e.off(SignalEvent.NOTE_MISS, onNoteMiss);
 		e.off(SignalEvent.NOTE_HOLD, onHold);
 		e.off(SignalEvent.NOTE_RELEASE, onRelease);
-		e.off(SignalEvent.SUSTAIN_NEW, newSustain);
 		e.off(SignalEvent.SUSTAIN_SETUP, setupSustainData);
 		e.off(SignalEvent.GAMEPLAY_UPDATE, onGameplayUpdate);
 
@@ -1765,9 +1726,6 @@ class Gameplay extends State
 
 		super.destroy();
 	}
-
-	var newNote(default, null):(Note)->(Void) = null;
-	var newSustain(default, null):(SustainNote)->(Void) = null;
 
 	var setupNoteData(default, null):(Array<(Float)>)->(Void) = null;
 	var setupSustainData(default, null):(Array<(Float)>)->(Void) = null;
