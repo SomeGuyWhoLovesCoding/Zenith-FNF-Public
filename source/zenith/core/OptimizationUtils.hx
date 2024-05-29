@@ -16,6 +16,8 @@ class OptimizationUtils
 
 	public var scriptCallNote:((String), (Note))->(Void) = null;
 	public var scriptCallSustain:((String), (SustainNote))->(Void) = null;
+	public var scriptCallNoteSetup:((String), (Note), Array<(Float)>)->(Void) = null;
+	public var scriptCallSustainSetup:((String), (SustainNote), Array<(Float)>)->(Void) = null;
 
 	public function initScriptOpts():Void
 	{
@@ -139,6 +141,38 @@ class OptimizationUtils
 				{
 					if (scriptList.get(script).interp.variables.exists(func))
 						(scriptList.get(script).interp.variables.get(func))(a);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
+		}
+
+		scriptCallNoteSetup = (func:(String), a:(Note), b:Array<(Float)>) ->
+		{
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists(func))
+						(scriptList.get(script).interp.variables.get(func))(a, b);
+				}
+				catch (e)
+				{
+					HScriptSystem.error(e);
+				}
+			}
+		}
+
+		scriptCallSustainSetup = (func:(String), a:(SustainNote), b:Array<(Float)>) ->
+		{
+			for (script in scriptList.keys())
+			{
+				try
+				{
+					if (scriptList.get(script).interp.variables.exists(func))
+						(scriptList.get(script).interp.variables.get(func))(a, b);
 				}
 				catch (e)
 				{
