@@ -13,6 +13,8 @@ class HealthBar extends FlxSpriteGroup
 	public var value:Float = 1.0;
 	public var maxValue:Float = 2.0;
 
+	var v(default, null):Float = 0.0;
+
 	public function new(x:Float = 0.0, y:Float = 0.0, left:Array<Int>, right:Array<Int>, width:Int = 100, height:Int = 10, maxValue:Float = 2.0):Void
 	{
 		super(x, y);
@@ -50,14 +52,13 @@ class HealthBar extends FlxSpriteGroup
 
 	override public function update(elapsed:Float):Void
 	{
-		__left.update(elapsed);
-		__right.update(elapsed);
+		v = FlxMath.bound(value / maxValue, 0.0, 1.0);
 
-		__left.scale.x = 1.0 - FlxMath.bound(value / maxValue, 0.0, 1.0);
+		__left.scale.x = 1.0 - v;
 		__left.updateHitbox();
 
-		__right.scale.x = FlxMath.bound(value / maxValue, 0.0, 1.0);
+		__right.scale.x = v;
 		__right.updateHitbox();
-		__right.x = __left.width + 340.0 /* Crazy math I got there :trollface: */;
+		__right.x = __left.width + 340.0;
 	}
 }
