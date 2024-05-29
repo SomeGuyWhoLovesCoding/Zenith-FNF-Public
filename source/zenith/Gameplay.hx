@@ -120,15 +120,6 @@ class Gameplay extends State
 
 	var e(default, null):Emitter = new Emitter();
 
-	var currentNote(default, null):Note = null;
-	var spawnedNote(default, null):Note = null;
-	var _n(default, null):Note = null;
-	var currentSustain(default, null):SustainNote = null;
-	var spawnedSustain(default, null):SustainNote = null;
-	var _s(default, null):SustainNote = null;
-
-	var _nd(default, null):Array<Float> = null;
-
 	// Test
 
 	override function create():Void
@@ -279,25 +270,23 @@ class Gameplay extends State
 
 			note.strum.playAnim('confirm');
 
-			var multiplier = FlxMath.maxInt(note.multiplier, 1); // Avoid calling FlxMath.maxInt 4 times
-
-			health += (0.045 * multiplier) * (note.strum.playable ? 1.0 : -1.0);
+			health += (0.045 * FlxMath.maxInt(note.multiplier, 1)) * (note.strum.playable ? 1.0 : -1.0);
 
 			if (note.strum.playable)
 			{
-				score += 350.0 * multiplier;
-				accuracy_left += (Math.abs(note.strumTime - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0) * multiplier;
-				accuracy_right += multiplier;
+				score += 350.0 * FlxMath.maxInt(note.multiplier, 1);
+				accuracy_left += (Math.abs(note.strumTime - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0) * FlxMath.maxInt(note.multiplier, 1);
+				accuracy_right += FlxMath.maxInt(note.multiplier, 1);
 			}
 
 			if (!noCharacters)
 			{
-				var char = (note.strum.playable ? bf : (note.gfNote ? gf : dad));
+				c = (note.strum.playable ? bf : (note.gfNote ? gf : dad));
 
-				if (null != char)
+				if (null != c)
 				{
-					char.playAnim(singAnimations[note.noteData]);
-					char.holdTimer = 0.0;
+					c.playAnim(singAnimations[note.noteData]);
+					c.holdTimer = 0.0;
 				}
 			}
 
@@ -319,12 +308,10 @@ class Gameplay extends State
 			note.tooLate = true;
 			note.alpha = 0.6;
 
-			var multiplier = FlxMath.maxInt(note.multiplier, 1); // Avoid calling FlxMath.maxInt 4 times
-
-			health -= 0.045 * multiplier;
-			score -= 100.0 * multiplier;
-			misses += multiplier;
-			accuracy_right += multiplier;
+			health -= 0.045 * FlxMath.maxInt(note.multiplier, 1);
+			score -= 100.0 * FlxMath.maxInt(note.multiplier, 1);
+			misses += FlxMath.maxInt(note.multiplier, 1);
+			accuracy_right += FlxMath.maxInt(note.multiplier, 1);
 
 			if (!noCharacters)
 			{
@@ -353,26 +340,26 @@ class Gameplay extends State
 
 			if (!noCharacters)
 			{
-				var char = (sustain.strum.playable ? bf : (sustain.gfNote ? gf : dad));
+				c = (sustain.strum.playable ? bf : (sustain.gfNote ? gf : dad));
 
-				if (null != char)
+				if (null != c)
 				{
 					if (Gameplay.stillCharacters)
 					{
-						char.playAnim(singAnimations[sustain.noteData]);
+						c.playAnim(singAnimations[sustain.noteData]);
 					}
 					else
 					{
 						// This shit is similar to amazing engine's character hold fix, but better
 
-						if (char.animation.curAnim.name == singAnimations[sustain.noteData] + 'miss')
-							char.playAnim(singAnimations[sustain.noteData]);
+						if (c.animation.curAnim.name == singAnimations[sustain.noteData] + 'miss')
+							c.playAnim(singAnimations[sustain.noteData]);
 
-						if (char.animation.curAnim.curFrame > (char.stillCharacterFrame == -1 ? char.animation.curAnim.frames.length : char.stillCharacterFrame))
-							char.animation.curAnim.curFrame = (char.stillCharacterFrame == -1 ? char.animation.curAnim.frames.length - 2 : char.stillCharacterFrame - 1);
+						if (c.animation.curAnim.curFrame > (c.stillCharacterFrame == -1 ? c.animation.curAnim.frames.length : c.stillCharacterFrame))
+							c.animation.curAnim.curFrame = (c.stillCharacterFrame == -1 ? c.animation.curAnim.frames.length - 2 : c.stillCharacterFrame - 1);
 					}
 
-					char.holdTimer = 0.0;
+					c.holdTimer = 0.0;
 				}
 			}
 
@@ -727,16 +714,24 @@ class Gameplay extends State
 					DAD_Y = stageData.opponent[1];
 
 					if (null != stageData.camera_speed)
+					{
 						cameraSpeed = stageData.camera_speed;
+					}
 
 					if (null != stageData.camera_boyfriend)
+					{
 						boyfriendCameraOffset = stageData.camera_boyfriend;
+					}
 
 					if (null != stageData.camera_opponent)
+					{
 						opponentCameraOffset = stageData.camera_opponent;
+					}
 
 					if (null != stageData.camera_girlfriend)
+					{
 						girlfriendCameraOffset = stageData.camera_girlfriend;
+					}
 
 					threadsCompleted++;
 					lock.release();
@@ -1249,16 +1244,24 @@ class Gameplay extends State
 			DAD_Y = stageData.opponent[1];
 
 			if (null != stageData.camera_speed)
+			{
 				cameraSpeed = stageData.camera_speed;
+			}
 
 			if (null != stageData.camera_boyfriend)
+			{
 				boyfriendCameraOffset = stageData.camera_boyfriend;
+			}
 
 			if (null != stageData.camera_opponent)
+			{
 				opponentCameraOffset = stageData.camera_opponent;
+			}
 
 			if (null != stageData.camera_girlfriend)
+			{
 				girlfriendCameraOffset = stageData.camera_girlfriend;
+			}
 
 			gf = new Character(0, 0, SONG.info.spectator);
 			gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
@@ -1515,13 +1518,19 @@ class Gameplay extends State
 		songEnded = true;
 
 		if (null != inst)
+		{
 			inst.stop();
+		}
 
 		if (null != voices)
+		{
 			voices.stop();
+		}
 
 		if (null != hudGroup.timeTxt)
+		{
 			hudGroup.timeTxt.visible = false;
+		}
 
 		switchState(new WelcomeState());
 
@@ -1532,6 +1541,10 @@ class Gameplay extends State
 
 	// Camera functions
 
+	var _mp(default, null):FlxPoint = null;
+	var _cpx(default, null):Int = 0;
+	var _cpy(default, null):Int = 0;
+
 	private function moveCamera(whatCharacter:(Character)):Void
 	{
 		if (null != camFollowPosTween)
@@ -1539,36 +1552,30 @@ class Gameplay extends State
 
 		if (!noCharacters)
 		{
-			var midpoint = whatCharacter.getMidpoint();
-			var camPosX = whatCharacter.cameraPosition[0];
-			var camPosY = whatCharacter.cameraPosition[1];
+			if (_mp != null)
+			{
+				_mp.put();
+			}
+
+			_mp = whatCharacter.getMidpoint();
+			_cpx = whatCharacter.cameraPosition[0];
+			_cpy = whatCharacter.cameraPosition[1];
 
 			if (null != whatCharacter)
 			{
 				camFollowPosTween = FlxTween.tween(camFollowPos, {
-					x: whatCharacter == gf ? midpoint.x + camPosX + girlfriendCameraOffset[0] :
-						whatCharacter == bf ? (midpoint.x - 100.0) - camPosX - boyfriendCameraOffset[0] :
-						(midpoint.x + 150.0) + camPosX + opponentCameraOffset[0],
-					y: whatCharacter == gf ? midpoint.y + camPosY + girlfriendCameraOffset[1] :
-						whatCharacter == bf ? (midpoint.y - 100.0) + camPosY + boyfriendCameraOffset[1] :
-						(midpoint.y - 100.0) + camPosY + opponentCameraOffset[1]
+					x: whatCharacter == gf ? _mp.x + _cpx + girlfriendCameraOffset[0] :
+						whatCharacter == bf ? (_mp.x - 100.0) - _cpx - boyfriendCameraOffset[0] :
+						(_mp.x + 150.0) + _cpx + opponentCameraOffset[0],
+					y: whatCharacter == gf ? _mp.y + _cpy + girlfriendCameraOffset[1] :
+						whatCharacter == bf ? (_mp.y - 100.0) + _cpy + boyfriendCameraOffset[1] :
+						(_mp.y - 100.0) + _cpy + opponentCameraOffset[1]
 				}, 1.3 * cameraSpeed, {ease: FlxEase.expoOut});
 			}
 		}
 
 		#if SCRIPTING_ALLOWED
-		for (script in scriptList.keys())
-		{
-			try
-			{
-				if (scriptList.get(script).interp.variables.exists('moveCamera'))
-					(scriptList.get(script).interp.variables.get('moveCamera'))(whatCharacter);
-			}
-			catch (e)
-			{
-				HScriptSystem.error(e);
-			}
-		}
+		Main.optUtils.scriptCallCharacter('moveCamera', whatCharacter);
 		#end
 	}
 
@@ -1592,7 +1599,9 @@ class Gameplay extends State
 			char.y = GF_Y;
 
 			if (null != gf)
+			{
 				gf.active = gf.visible = false;
+			}
 		}
 
 		char.x += char.positionArray[0];
@@ -1630,9 +1639,7 @@ class Gameplay extends State
 		}
 	}
 
-	// Real input system!!
-
-	public var inputKeybinds:Array<(lime.ui.KeyCode)> = [];
+	public var inputKeybinds:Array<(Int)> = [];
 
 	// The extra 5 values are used to check if a key is just pressed for extra keys aswell
 	public var holdArray(default, null):Array<Bool> = [false, false, false, false, false, false, false, false, false];
@@ -1683,26 +1690,6 @@ class Gameplay extends State
 
 	override function destroy():Void
 	{
-		if (currentNote != null)
-		{
-			currentNote.destroy();
-		}
-
-		if (spawnedNote != null)
-		{
-			spawnedNote.destroy();
-		}
-
-		if (currentSustain != null)
-		{
-			currentSustain.destroy();
-		}
-
-		if (spawnedSustain != null)
-		{
-			spawnedSustain.destroy();
-		}
-
 		e.off(SignalEvent.NOTE_SETUP, setupNoteData);
 		e.off(SignalEvent.NOTE_HIT, onNoteHit);
 		e.off(SignalEvent.NOTE_MISS, onNoteMiss);
@@ -1733,4 +1720,16 @@ class Gameplay extends State
 	var p:()->(Void) = null;
 	var n:()->(Void) = null;
 	var s:()->(Void) = null;
+
+	var e(default, null):Emitter = new Emitter();
+
+	var currentNote(default, null):Note = null;
+ 	var spawnedNote(default, null):Note = null;
+	var _n(default, null):Note = null;
+	var currentSustain(default, null):SustainNote = null;
+	var spawnedSustain(default, null):SustainNote = null;
+	var _s(default, null):SustainNote = null;
+	var _nd(default, null):Array<Float> = null;
+
+	var c(default, null):Character = null;
 }
