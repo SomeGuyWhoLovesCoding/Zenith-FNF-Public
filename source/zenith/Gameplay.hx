@@ -260,14 +260,14 @@ class Gameplay extends State
 			spawnedSustain.strum = strumlines.members[spawnedSustain.lane].members[spawnedSustain.noteData];
 			spawnedSustain.color = NoteBase.colorArray[spawnedSustain.noteData];
 
-			spawnedSustain.downScroll = spawnddSustain.strum.scrollMult <= 0;
+			spawnedSustain.downScroll = spawnedSustain.strum.scrollMult <= 0;
 
 			#if SCRIPTING_ALLOWED
 			Main.optUtils.scriptCallSustain('newSustain', spawnedSustain);
 			#end
 
 			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallSustainSetup('setupSustainDataPost', spawnedSstain, chartNoteData);
+			Main.optUtils.scriptCallSustainSetup('setupSustainDataPost', spawnedSustain, chartNoteData);
 			#end
 		}
 
