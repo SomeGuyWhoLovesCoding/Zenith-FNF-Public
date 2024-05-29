@@ -46,7 +46,7 @@ jobs:
       - name: Publish artifact
         uses: actions/upload-artifact@v4
         with:
-          name: windowsBuild
+          name: 'Zenith-FNF-Windows'
           path: export/release/windows/bin
   MacOSBuild:
     runs-on: macos-12
@@ -77,7 +77,7 @@ jobs:
       - name: Publish artifact
         uses: actions/upload-artifact@v4
         with:
-          name: macBuild
+          name: 'Zenith-FNF-MacOS'
           path: export/release/macos/bin
   LinuxBuild:
     # The type of runner that the job will run on
@@ -111,5 +111,5 @@ jobs:
       - name: Publish artifact
         uses: actions/upload-artifact@v4
         with:
-          name: linuxBuild
+          name: 'Zenith-FNF-Linux'
           path: export/release/linux/bin
