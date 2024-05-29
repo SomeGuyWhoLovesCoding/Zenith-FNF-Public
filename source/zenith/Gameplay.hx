@@ -18,12 +18,12 @@ using StringTools;
 
 class Gameplay extends State
 {
-	public var strumlines:FlxTypedGroup<Strumline> = null;
-	public var notes:FlxTypedGroup<Note> = null;
-	public var sustains:FlxTypedGroup<SustainNote> = null;
+	public var strumlines:FlxTypedGroup<Strumline>;
+	public var notes:FlxTypedGroup<Note>;
+	public var sustains:FlxTypedGroup<SustainNote>;
 
 	// Health stuff
-	private var hudGroup(default, null):HUDGroup = null;
+	private var hudGroup(default, null):HUDGroup;
 	public var health:Float = 1.0;
 
 	// Score text stuff
@@ -52,7 +52,7 @@ class Gameplay extends State
 	static public var stillCharacters:Bool = false;
 
 	// Song stuff
-	static public var SONG:Song.SwagSong = null;
+	static public var SONG:Song.SwagSong;
 
 	// Gameplay stuff
 
@@ -68,9 +68,9 @@ class Gameplay extends State
 	public var GF_X:Int = 400;
 	public var GF_Y:Int = 130;
 
-	public var bfGroup:FlxSpriteGroup = null;
-	public var dadGroup:FlxSpriteGroup = null;
-	public var gfGroup:FlxSpriteGroup = null;
+	public var bfGroup:FlxSpriteGroup;
+	public var dadGroup:FlxSpriteGroup;
+	public var gfGroup:FlxSpriteGroup;
 
 	// This is used to precache characters before loading in the song, like the change character event.
 	public var bfMap:Map<String, Character> = new Map<String, Character>();
@@ -81,8 +81,8 @@ class Gameplay extends State
 	public var opponentCameraOffset:Array<Int> = [0, 0];
 	public var girlfriendCameraOffset:Array<Int> = [0, 0];
 
-	public var songSpeedTween(default, null):FlxTween = null;
-	public var songLengthTween(default, null):FlxTween = null;
+	public var songSpeedTween(default, null):FlxTween;
+	public var songLengthTween(default, null):FlxTween;
 
 	public var songSpeed:Float = 1.0;
 	public var songLength:Float = 0.0;
@@ -95,29 +95,29 @@ class Gameplay extends State
 
 	public var gfSpeed:Int = 1;
 
-	public var inst:FlxSound = null;
-	public var voices:FlxSound = null;
+	public var inst:FlxSound;
+	public var voices:FlxSound;
 
-	public var gf:Character = null;
-	public var dad:Character = null;
-	public var bf:Character = null;
+	public var gf:Character;
+	public var dad:Character;
+	public var bf:Character;
 
-	public var gameCamera:FlxCamera = null;
-	public var hudCameraBelow:FlxCamera = null;
-	public var hudCamera:FlxCamera = null;
-	public var loadingScreenCamera:FlxCamera = null;
+	public var gameCamera:FlxCamera;
+	public var hudCameraBelow:FlxCamera;
+	public var hudCamera:FlxCamera;
+	public var loadingScreenCamera:FlxCamera;
 
-	public var gameCameraZoomTween(default, null):FlxTween = null;
-	public var hudCameraZoomTween(default, null):FlxTween = null;
+	public var gameCameraZoomTween(default, null):FlxTween;
+	public var hudCameraZoomTween(default, null):FlxTween;
 
 	public var defaultCamZoom(default, set):Float;
 
-	public var camFollowPos:FlxObject = null;
-	public var camFollowPosTween(default, null):FlxTween = null;
+	public var camFollowPos:FlxObject;
+	public var camFollowPosTween(default, null):FlxTween;
 
 	static var singAnimations(default, null):Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
 
-	static public var instance:Gameplay = null;
+	static public var instance:Gameplay;
 
 	override function create():Void
 	{
@@ -211,14 +211,16 @@ class Gameplay extends State
 			Main.optUtils.scriptCallNote('newNote', spawnedNote);
 			#end
 
-			if (spawnedNote.sustainLength > 32.0) // Don't spawn too short sustain notes
-			{
-				e.emit(SignalEvent.SUSTAIN_SETUP, chartNoteData);
-			}
-
 			#if SCRIPTING_ALLOWED
 			Main.optUtils.scriptCallNoteSetup('setupNoteDataPost', spawnedNote, chartNoteData);
 			#end
+
+			if (spawnedNote.sustainLength < 32.0) // Don't spawn too short sustain notes
+			{
+				return;
+			}
+
+			e.emit(SignalEvent.SUSTAIN_SETUP, chartNoteData);
 		}
 
 		setupSustainData = (chartNoteData:(Array<(Float)>)) ->
@@ -444,6 +446,7 @@ class Gameplay extends State
 			for (i in 0...notes.members.length)
 			{
 				currentNote = notes.members[i];
+
 				if (currentNote.exists)
 				{
 					currentNote.distance = 0.45 * (Main.conductor.songPosition - currentNote.strumTime) * songSpeed;
@@ -661,7 +664,7 @@ class Gameplay extends State
 				if (null == SONG.info.offset || SONG.info.offset < 0) // Fix offset
 					SONG.info.offset = 0;
 
-				strumlineCount = null == SONG.info.strumlines ? 2 : SONG.info.strumlines;
+				strumlineCount == SONG.info.strumlines ? 2 : SONG.info.strumlines;
 
 				songSpeed = SONG.info.speed;
 
@@ -921,7 +924,7 @@ class Gameplay extends State
 			return;
 		}
 
-		updateMembers(elapsed);
+		super.update(elapsed);
 
 		e.emit(SignalEvent.GAMEPLAY_UPDATE, elapsed);
 	}
@@ -930,7 +933,7 @@ class Gameplay extends State
 	var initialStrumHeight:Float = 112.0;
 	var currentNoteId:Int = 0;
 
-	public var onGameplayUpdate:(Float)->(Void) = null;
+	public var onGameplayUpdate:(Float)->(Void);
 
 	// Song events for hscript
 	public function triggerEvent(eventName:String, value1:String, value2:String, value3:String, value4:String)
@@ -1195,7 +1198,7 @@ class Gameplay extends State
 			if (null == SONG.info.offset || SONG.info.offset < 0) // Fix offset
 				SONG.info.offset = 0;
 
-			strumlineCount = null == SONG.info.strumlines ? 2 : SONG.info.strumlines;
+			strumlineCount == SONG.info.strumlines ? 2 : SONG.info.strumlines;
 
 			songSpeed = SONG.info.speed;
 
@@ -1538,7 +1541,7 @@ class Gameplay extends State
 
 	// Camera functions
 
-	var _mp(default, null):FlxPoint = null;
+	var _mp(default, null):FlxPoint;
 	var _cpx(default, null):Float = 0.0;
 	var _cpy(default, null):Float = 0.0;
 
@@ -1641,8 +1644,8 @@ class Gameplay extends State
 	// The extra 5 values are used to check if a key is just pressed for extra keys aswell
 	public var holdArray(default, null):Array<Bool> = [false, false, false, false, false, false, false, false, false];
 
-	public var onKeyDown:((Int), (Int))->(Void) = null;
-	public var onKeyUp:((Int), (Int))->(Void) = null;
+	public var onKeyDown:((Int), (Int))->(Void);
+	public var onKeyUp:((Int), (Int))->(Void);
 
 	// Preferences stuff (Also for scripting)
 
@@ -1701,37 +1704,37 @@ class Gameplay extends State
 		super.destroy();
 	}
 
-	var setupNoteData(default, null):(Array<(Float)>)->(Void) = null;
-	var setupSustainData(default, null):(Array<(Float)>)->(Void) = null;
+	var setupNoteData(default, null):(Array<(Float)>)->(Void);
+	var setupSustainData(default, null):(Array<(Float)>)->(Void);
 
-	var onNoteHit(default, null):(Note)->(Void) = null;
-	var onNoteMiss(default, null):(Note)->(Void) = null;
-	var onHold(default, null):(SustainNote)->(Void) = null;
-	var onRelease(default, null):(Int)->(Void) = null;
+	var onNoteHit(default, null):(Note)->(Void);
+	var onNoteMiss(default, null):(Note)->(Void);
+	var onHold(default, null):(SustainNote)->(Void);
+	var onRelease(default, null):(Int)->(Void);
 
 	// Short functions for visual
 
-	var h:(Int)->(Void) = null;
-	var r:(Int)->(Void) = null;
-	var ss:()->(Void) = null;
-	var p:()->(Void) = null;
-	var n:()->(Void) = null;
-	var s:()->(Void) = null;
+	var h:(Int)->(Void);
+	var r:(Int)->(Void);
+	var ss:()->(Void);
+	var p:()->(Void);
+	var n:()->(Void);
+	var s:()->(Void);
 
 	var e(default, null):Emitter = new Emitter();
 
-	var currentNote(default, null):Note = null;
- 	var spawnedNote(default, null):Note = null;
-	var _n(default, null):Note = null;
-	var currentSustain(default, null):SustainNote = null;
-	var spawnedSustain(default, null):SustainNote = null;
-	var _s(default, null):SustainNote = null;
-	var _nd(default, null):Array<Float> = null;
+	var currentNote(default, null):Note;
+ 	var spawnedNote(default, null):Note;
+	var _n(default, null):Note;
+	var currentSustain(default, null):SustainNote;
+	var spawnedSustain(default, null):SustainNote;
+	var _s(default, null):SustainNote;
+	var _nd(default, null):Array<Float>;
 
-	var c(default, null):Character = null;
+	var c(default, null):Character;
 
-	var st(default, null):StrumNote = null;
-	var key(default, null):Int = 0;
+	var st(default, null):StrumNote;
+	var key(default, null):Int;
 
 	var _songPos(default, null):Float = -5000.0;
 }

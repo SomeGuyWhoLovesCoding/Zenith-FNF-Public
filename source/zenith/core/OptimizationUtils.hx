@@ -7,19 +7,19 @@ class OptimizationUtils
 {
 	// The hscript part for which for loops need to be wrapped in a function and shit, which is absolutely for pure optimization.
 
-	public var scriptCall:(String)->(Void) = null;
-	public var scriptCallInt:((String), (Int))->(Void) = null;
-	public var scriptCallFloat:((String), (Float))->(Void) = null;
-	public var scriptCall2Ints:((String), (Int), (Int))->(Void) = null;
-	public var scriptCall2Strings:((String), (String), (String))->(Void) = null;
-	public var scriptCallEvent:((String), (String), (String), (String), (String), (String))->(Void) = null;
+	public var scriptCall:(String)->(Void);
+	public var scriptCallInt:((String), (Int))->(Void);
+	public var scriptCallFloat:((String), (Float))->(Void);
+	public var scriptCall2Ints:((String), (Int), (Int))->(Void);
+	public var scriptCall2Strings:((String), (String), (String))->(Void);
+	public var scriptCallEvent:((String), (String), (String), (String), (String), (String))->(Void);
 
-	public var scriptCallNote:((String), (Note))->(Void) = null;
-	public var scriptCallSustain:((String), (SustainNote))->(Void) = null;
-	public var scriptCallNoteSetup:((String), (Note), Array<(Float)>)->(Void) = null;
-	public var scriptCallSustainSetup:((String), (SustainNote), Array<(Float)>)->(Void) = null;
+	public var scriptCallNote:((String), (Note))->(Void);
+	public var scriptCallSustain:((String), (SustainNote))->(Void);
+	public var scriptCallNoteSetup:((String), (Note), Array<(Float)>)->(Void);
+	public var scriptCallSustainSetup:((String), (SustainNote), Array<(Float)>)->(Void);
 
-	public var scriptCallCharacter:((String), (Character))->(Void) = null;
+	public var scriptCallCharacter:((String), (Character))->(Void);
 
 	public function initScriptOpts():Void
 	{

@@ -448,6 +448,7 @@ class StaticSprite extends FlxBasic
 		{
 			clipRect.put();
 		}
+		_frame = _frame.clipTo(rect, _frame);
 
 		return clipRect = rect;
 	}

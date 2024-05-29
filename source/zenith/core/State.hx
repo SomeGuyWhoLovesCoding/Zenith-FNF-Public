@@ -8,9 +8,6 @@ import flixel.FlxBasic;
 
 class State extends FlxState
 {
-	var currentUpdateMember:FlxBasic = null;
-	var currentDrawMember:FlxBasic = null;
-
 	override function create():Void
 	{
 		Main.conductor.onStepHit = Main.conductor.onBeatHit = Main.conductor.onMeasureHit = null;
@@ -46,38 +43,6 @@ class State extends FlxState
 			FlxG.maxElapsed = 0.1;
 			throw e;
 		}
-
-		updateMembers = (elapsed:Float) ->
-		{
-			for (i in 0...members.length)
-			{
-				currentUpdateMember = members[i];
-				if (currentUpdateMember != null && currentUpdateMember.exists && currentUpdateMember.active)
-				{
-					currentUpdateMember.update(elapsed);
-				}
-			}
-		}
-
-		drawMembers = () ->
-		{
-			final oldDefaultCameras = FlxCamera._defaultCameras;
-			if (_cameras != null)
-			{
-				FlxCamera._defaultCameras = _cameras;
-			}
-
-			for (i in 0...members.length)
-			{
-				currentDrawMember = members[i];
-				if (currentDrawMember != null && currentDrawMember.exists && currentDrawMember.visible)
-				{
-					currentDrawMember.draw();
-				}
-			}
-
-			FlxCamera._defaultCameras = oldDefaultCameras;
-		}
 	}
 
 	override function update(elapsed:Float):Void
@@ -88,7 +53,7 @@ class State extends FlxState
 			Main.optUtils.scriptCallFloat('update', elapsed);
 			#end
 
-			updateMembers(elapsed);
+			super.update(elapsed);
 
 			#if SCRIPTING_ALLOWED
 			Main.optUtils.scriptCallFloat('updatePost', elapsed);
@@ -98,11 +63,6 @@ class State extends FlxState
 		{
 			throw e;
 		}
-	}
-
-	override function draw():Void
-	{
-		drawMembers();
 	}
 
 	override function destroy():Void
