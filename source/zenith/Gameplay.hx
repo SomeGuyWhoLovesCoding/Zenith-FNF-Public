@@ -237,7 +237,7 @@ class Gameplay extends State
 		{
 			spawnedSustain = sustains.recycle((SustainNote));
 	
-			spawnedSustain.scale.x = spawnSustain.scale.y = 0.7;
+			spawnedSustain.scale.x = spawnedSustain.scale.y = 0.7;
 			spawnedSustain.setFrame(Paths.sustainNoteFrame);
 
 			#if SCRIPTING_ALLOWED
