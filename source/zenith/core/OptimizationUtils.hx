@@ -19,7 +19,7 @@ class OptimizationUtils
 	public var scriptCallNoteSetup:((String), (Note), Array<(Float)>)->(Void) = null;
 	public var scriptCallSustainSetup:((String), (SustainNote), Array<(Float)>)->(Void) = null;
 
-	public var scriptCallCharacter:((String), (Character)->(Void) = null;
+	public var scriptCallCharacter:((String), (Character))->(Void) = null;
 
 	public function initScriptOpts():Void
 	{
