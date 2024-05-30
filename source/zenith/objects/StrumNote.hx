@@ -14,11 +14,7 @@ class StrumNote extends FlxSprite
 
 	inline function set_playable(value:Bool):Bool
 	{
-		animation.finishCallback = value ? null : (anim:(String)) ->
-		{
-			if (anim == 'confirm' && (!playable || Gameplay.cpuControlled))
-				playAnim('static');
-		}
+		animation.finishCallback = value ? null : finishCallbackFunc;
 		return playable = value;
 	}
 
@@ -48,37 +44,6 @@ class StrumNote extends FlxSprite
 
 		scale.x = scale.y = 0.7;
 
-		playAnim = (anim:String) ->
-		{
-			color = anim == 'static' ? 0xffffffff : NoteBase.colorArray[noteData];
-
-			// I swear to fucking god bro, I'll find a solution to this for HXCPP_CHECK_POINTER
-			#if HXCPP_CHECK_POINTER
-			animation.play(anim, true);
-			#else
-			if (anim == 'pressed')
-				animation.curAnim = PRESS_ANIM;
-
-			if (anim == 'confirm')
-				animation.curAnim = CONFIRM_ANIM;
-
-			if (anim == 'static')
-				animation.curAnim = STATIC_ANIM;
-
-			animation.curAnim._frameTimer = animation.curAnim.curFrame = 0;
-			animation.curAnim.finished = animation.curAnim.paused = !(active = anim != 'static');
-			#end
-			active = anim != 'static';
-
-			// Broken down version of updateHitbox(), basically inlining manually
-			width = Math.abs(scale.x) * frameWidth;
-			height = Math.abs(scale.y) * frameHeight;
-			offset.x = (frameWidth * 0.5) - 54;
-			offset.y = (frameHeight * 0.5) - 56;
-			origin.x = offset.x + 54;
-			origin.y = offset.y + 56;
-		}
-
 		playAnim('static'); // Wow, am I really a dumbass?
 	}
 
@@ -87,7 +52,36 @@ class StrumNote extends FlxSprite
 		animation.update(elapsed);
 	}
 
-	public var playAnim:(String)->(Void);
+	inline public function playAnim(anim:String):Void
+	{
+		active = anim != 'static';
+		color = !active ? 0xffffffff : NoteBase.colorArray[noteData];
+
+		// I swear to fucking god :sob:
+		#if HXCPP_CHECK_POINTER
+		animation.play(anim, true);
+		#else
+		if (anim == 'pressed')
+			animation.curAnim = PRESS_ANIM;
+
+		if (anim == 'confirm')
+			animation.curAnim = CONFIRM_ANIM;
+
+		if (anim == 'static')
+			animation.curAnim = STATIC_ANIM;
+
+		animation.curAnim._frameTimer = animation.curAnim.curFrame = 0;
+		animation.curAnim.finished = animation.curAnim.paused = false;
+		#end
+
+		// Broken down version of updateHitbox(), basically inlining manually
+		width = Math.abs(scale.x) * frameWidth;
+		height = Math.abs(scale.y) * frameHeight;
+		offset.x = (frameWidth * 0.5) - 54;
+		offset.y = (frameHeight * 0.5) - 56;
+		origin.x = offset.x + 54;
+		origin.y = offset.y + 56;
+	}
 
 	override function set_clipRect(rect:FlxRect):FlxRect
 	{
@@ -98,5 +92,24 @@ class StrumNote extends FlxSprite
 
 		_frame = _frame.clipTo(rect, _frame);
 		return clipRect = rect;
+	}
+
+	function finishCallbackFunc(anim:String):Void
+	{
+		if (anim != 'confirm' || (playable && !Gameplay.cpuControlled))
+			return;
+
+		animation.curAnim = STATIC_ANIM;
+		animation.curAnim._frameTimer = animation.curAnim.curFrame = 0;
+		animation.curAnim.finished = animation.curAnim.paused = false;
+		#end
+
+		// Broken down version of updateHitbox(), basically inlining manually
+		width = Math.abs(scale.x) * frameWidth;
+		height = Math.abs(scale.y) * frameHeight;
+		offset.x = (frameWidth * 0.5) - 54;
+		offset.y = (frameHeight * 0.5) - 56;
+		origin.x = offset.x + 54;
+		origin.y = offset.y + 56;
 	}
 }

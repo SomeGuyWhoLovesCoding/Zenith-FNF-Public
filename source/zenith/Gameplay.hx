@@ -119,6 +119,197 @@ class Gameplay extends State
 
 	static public var instance:Gameplay;
 
+	function h(key:(Int)):Void
+	{
+		for (i in 0...notes.members.length)
+		{
+			_n = notes.members[i];
+			if ((_n.strum.playable && _n.noteData == key) &&
+				(!_n.wasHit && !_n.tooLate) && Math.abs(Main.conductor.songPosition - _n.strumTime) < 166.7)
+			{
+				e.emit(SignalEvent.NOTE_HIT, _n);
+				break;
+			}
+		}
+	}
+
+	function r(key:(Int)):Void
+	{
+		for (i in 0...sustains.members.length)
+		{
+			_s = sustains.members[i];
+			if ((_s.strum.playable && !_s.missed && _s.noteData == key) && Main.conductor.songPosition >= _s.strumTime &&
+				Main.conductor.songPosition <= (_s.strumTime + _s.length) - (Main.conductor.stepCrochet * 0.875))
+			{
+				e.emit(SignalEvent.NOTE_RELEASE, _s.noteData);
+				_s.holding = false;
+				_s.missed = true;
+				_s.alpha = 0.3;
+			}
+		}
+	}
+
+	function ss():Void
+	{
+		notes.members.sort((a:(Note), b:(Note)) -> Std.int(a.strumTime - b.strumTime));
+		sustains.members.sort((a:(SustainNote), b:(SustainNote)) -> Std.int(a.strumTime - b.strumTime));
+	}
+
+	function p():Void
+	{
+		while (currentNoteId != SONG.noteData.length)
+		{
+			// Avoid redundant array access
+			_nd = SONG.noteData[currentNoteId];
+
+			if (Main.conductor.songPosition < _nd[0] - (1950.0 / songSpeed))
+				break;
+
+			e.emit(SignalEvent.NOTE_SETUP, _nd);
+
+			currentNoteId++;
+		}
+	}
+
+	function n():Void
+	{
+		for (i in 0...notes.members.length)
+		{
+			currentNote = notes.members[i];
+
+			if (currentNote.exists)
+			{
+				currentNote.distance = 0.45 * (Main.conductor.songPosition - currentNote.strumTime) * songSpeed;
+				currentNote.x = currentNote.strum.x + currentNote.offsetX + (-Math.abs(currentNote.strum.scrollMult) * currentNote.distance) *
+					FlxMath.fastCos(FlxAngle.asRadians(currentNote.direction - 90.0));
+				currentNote.y = currentNote.strum.y + currentNote.offsetY + (currentNote.strum.scrollMult * currentNote.distance) *
+					FlxMath.fastSin(FlxAngle.asRadians(currentNote.direction - 90.0));
+
+				if (Main.conductor.songPosition >= currentNote.strumTime + (750.0 / songSpeed)) // Remove them if they're offscreen
+					currentNote.exists = false;
+
+				// For note hits
+
+				if (currentNote.strum.playable)
+				{
+					if (cpuControlled)
+					{
+						if (Main.conductor.songPosition >= currentNote.strumTime)
+						{
+							e.emit(SignalEvent.NOTE_HIT, currentNote);
+						}
+					}
+
+					if (Main.conductor.songPosition >= currentNote.strumTime + (200.0 / songSpeed) && (!currentNote.wasHit && !currentNote.tooLate))
+					{
+						e.emit(SignalEvent.NOTE_MISS, currentNote);
+					}
+				}
+				else
+				{
+					if (Main.conductor.songPosition >= currentNote.strumTime)
+					{
+						e.emit(SignalEvent.NOTE_HIT, currentNote);
+					}
+				}
+			}
+		}
+	}
+
+	function s():Void
+	{
+		for (i in 0...sustains.members.length)
+		{
+			currentSustain = sustains.members[i];
+			if (currentSustain.exists)
+			{
+				currentSustain.distance = 0.45 * (Main.conductor.songPosition - currentSustain.strumTime) * songSpeed;
+
+				currentSustain.x = (currentSustain.strum.x + currentSustain.offsetX + (-Math.abs(currentSustain.strum.scrollMult) * currentSustain.distance) *
+					FlxMath.fastCos(FlxAngle.asRadians(currentSustain.direction - 90.0))) + ((initialStrumWidth - (currentSustain.frameWidth * currentSustain.scale.x)) * 0.5);
+
+				currentSustain.y = (currentSustain.strum.y + currentSustain.offsetY + (currentSustain.strum.scrollMult * currentSustain.distance) *
+					FlxMath.fastSin(FlxAngle.asRadians(currentSustain.direction - 90.0))) + (initialStrumHeight * 0.5);
+
+				// For hold input
+
+				if (Main.conductor.songPosition >= (currentSustain.strumTime + currentSustain.length) + (750.0 / songSpeed))
+					currentSustain.holding = currentSustain.missed = currentSustain.exists = false;
+
+				if (currentSustain.strum.playable)
+				{
+					if (Main.conductor.songPosition >= currentSustain.strumTime && !currentSustain.missed &&
+						Main.conductor.songPosition <= (currentSustain.strumTime + currentSustain.length) - (Main.conductor.stepCrochet * 0.875))
+					{
+						if (holdArray[currentSustain.noteData])
+						{
+							e.emit(SignalEvent.NOTE_HOLD, currentSustain);
+						}
+					}
+				}
+				else
+				{
+					if (Main.conductor.songPosition <= (currentSustain.strumTime + currentSustain.length) - (Main.conductor.stepCrochet * 0.875) &&
+						Main.conductor.songPosition >= currentSustain.strumTime)
+					{
+						e.emit(SignalEvent.NOTE_HOLD, currentSustain);
+					}
+				}
+			}
+		}
+	}
+
+	function onKeyDown(keyCode:(Int), keyModifier:(Int)):Void
+	{
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCall2Ints('onKeyDown', keyCode, keyModifier);
+		#end
+
+		key = inputKeybinds.indexOf(keyCode);
+
+		if (cpuControlled || key == -1 || !generatedMusic || holdArray[key])
+			return;
+
+		st = strumlines.members[strumlines.members.length-1].members[key];
+
+		if (st.animation.curAnim.name != 'confirm')
+			st.playAnim('pressed');
+
+		h(key);
+
+		holdArray[key] = true;
+
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCall2Ints('onKeyDownPost', keyCode, keyModifier);
+		#end
+	}
+
+	function onKeyUp(keyCode:(Int), keyModifier:(Int)):Void
+	{
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCall2Ints('onKeyUp', keyCode, keyModifier);
+		#end
+
+		key = inputKeybinds.indexOf(keyCode);
+
+		if (cpuControlled || key == -1 || !generatedMusic || !holdArray[key])
+			return;
+
+		st = strumlines.members[strumlines.members.length-1].members[key];
+
+		if (st.animation.curAnim.name == 'confirm' ||
+			st.animation.curAnim.name == 'pressed')
+			st.playAnim('static');
+
+		r(key);
+
+		holdArray[key] = false;
+
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCall2Ints('onKeyUpPost', keyCode, keyModifier);
+		#end
+	}
+
 	override function create():Void
 	{
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
@@ -178,411 +369,47 @@ class Gameplay extends State
 
 		super.create();
 
-		setupNoteData = (chartNoteData:(Array<(Float)>)) ->
+		e.on(SignalEvent.NOTE_SETUP, setupNoteData);
+		e.on(SignalEvent.NOTE_HIT, onNoteHit);
+		e.on(SignalEvent.NOTE_MISS, onNoteMiss);
+		e.on(SignalEvent.NOTE_HOLD, onHold);
+		e.on(SignalEvent.NOTE_RELEASE, onRelease);
+		e.on(SignalEvent.SUSTAIN_SETUP, setupSustainData);
+
+		Main.game.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
+		Main.game.onKeyUp.on(SignalEvent.KEY_UP, onKeyUp);
+
+		Main.conductor.onBeatHit = (curBeat:(Float)) ->
 		{
-			if (chartNoteData[0] < 0.0 || chartNoteData[3] < 0) // Don't spawn a note with negative time or lane
-				return;
+			ss();
 
-			spawnedNote = notes.recycle((Note));
-
-			spawnedNote.scale.x = spawnedNote.scale.y = 0.7;
-			spawnedNote.setFrame(Paths.regularNoteFrame);
-
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallNoteSetup('setupNoteData', spawnedNote, chartNoteData);
-			#end
-
-			spawnedNote.alpha = 1.0;
-			spawnedNote.y = -2000.0;
-			spawnedNote.wasHit = spawnedNote.tooLate = false;
-
-			spawnedNote.strumTime = chartNoteData[0];
-			spawnedNote.noteData = Std.int(chartNoteData[1]);
-			spawnedNote.sustainLength = Std.int(chartNoteData[2]) - 32;
-			spawnedNote.lane = Std.int(chartNoteData[3]) % strumlineCount;
-			spawnedNote.multiplier = Std.int(chartNoteData[4]);
-
-			spawnedNote.strum = strumlines.members[spawnedNote.lane].members[spawnedNote.noteData];
-
-			spawnedNote.color = NoteBase.colorArray[spawnedNote.noteData];
-			spawnedNote.angle = NoteBase.angleArray[spawnedNote.noteData];
-
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallNote('newNote', spawnedNote);
-			#end
-
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallNoteSetup('setupNoteDataPost', spawnedNote, chartNoteData);
-			#end
-
-			if (spawnedNote.sustainLength < 32.0) // Don't spawn too short sustain notes
+			if (songEnded || (!startedCountdown && curBeat == 0) || Main.conductor.songPosition < 0)
 			{
 				return;
 			}
 
-			e.emit(SignalEvent.SUSTAIN_SETUP, chartNoteData);
-		}
-
-		setupSustainData = (chartNoteData:(Array<(Float)>)) ->
-		{
-			spawnedSustain = sustains.recycle((SustainNote));
-	
-			spawnedSustain.scale.x = spawnedSustain.scale.y = 0.7;
-			spawnedSustain.setFrame(Paths.sustainNoteFrame);
-
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallSustainSetup('setupSustainData', spawnedSustain, chartNoteData);
-			#end
-
-			spawnedSustain.offset.x = -0.5 * ((spawnedSustain.frameWidth * 0.7) - spawnedSustain.frameWidth);
-			spawnedSustain.origin.x = spawnedSustain.frameWidth * 0.5;
-			spawnedSustain.origin.y = spawnedSustain.offset.y = 0.0;
-
-			spawnedSustain.alpha = 0.6; // Definitive alpha, default
-			spawnedSustain.y = -2000;
-			spawnedSustain.holding = spawnedSustain.missed = false;
-
-			spawnedSustain.strumTime = chartNoteData[0];
-			spawnedSustain.noteData = Std.int(chartNoteData[1]);
-			spawnedSustain.length = chartNoteData[2] - 32.0;
-			spawnedSustain.lane = Std.int(chartNoteData[3]);
-
-			spawnedSustain.strum = strumlines.members[spawnedSustain.lane].members[spawnedSustain.noteData];
-			spawnedSustain.color = NoteBase.colorArray[spawnedSustain.noteData];
-
-			spawnedSustain.downScroll = spawnedSustain.strum.scrollMult <= 0;
-
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallSustain('newSustain', spawnedSustain);
-			#end
-
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallSustainSetup('setupSustainDataPost', spawnedSustain, chartNoteData);
-			#end
-		}
-
-		onNoteHit = (note:(Note)) ->
-		{
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallNote('onNoteHit', note);
-			#end
-
-			note.strum.playAnim('confirm');
-
-			health += (0.045 * FlxMath.maxInt(note.multiplier, 1)) * (note.strum.playable ? 1.0 : -1.0);
-
-			if (note.strum.playable)
+			if (curBeat % 32 == 31)
 			{
-				score += 350.0 * FlxMath.maxInt(note.multiplier, 1);
-				accuracy_left += (Math.abs(note.strumTime - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0) * FlxMath.maxInt(note.multiplier, 1);
-				accuracy_right += FlxMath.maxInt(note.multiplier, 1);
+				Main.conductor.executeBpmChange(200.0, 25600.0);
 			}
 
-			if (!noCharacters)
+			dance(curBeat - 1); // This is rather very fuckin weird but ok
+		}
+
+		Main.conductor.onMeasureHit = (curMeasure:(Float)) ->
+		{
+			if (songEnded || (!startedCountdown && curMeasure == 0) || Main.conductor.songPosition < 0)
 			{
-				c = (note.strum.playable ? bf : (note.gfNote ? gf : dad));
-
-				if (null != c)
-				{
-					c.playAnim(singAnimations[note.noteData]);
-					c.holdTimer = 0.0;
-				}
-			}
-
-			note.wasHit = true;
-			note.exists = false;
-
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallNote('onNoteHitPost', note);
-			#end
-
-			if (hudGroup != null)
-				hudGroup.updateScoreText();
-		}
-
-		onNoteMiss = (note:(Note)) ->
-		{
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallNote('onNoteMiss', note);
-			#end
-
-			note.tooLate = true;
-			note.alpha = 0.6;
-
-			health -= 0.045 * FlxMath.maxInt(note.multiplier, 1);
-			score -= 100.0 * FlxMath.maxInt(note.multiplier, 1);
-			misses += FlxMath.maxInt(note.multiplier, 1);
-			accuracy_right += FlxMath.maxInt(note.multiplier, 1);
-
-			if (!noCharacters)
-			{
-				bf.playAnim(singAnimations[note.noteData] + 'miss');
-				bf.holdTimer = 0.0;
-			}
-
-			r(note.noteData);
-
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallNote('onNoteMissPost', note);
-			#end
-
-			if (hudGroup != null)
-				hudGroup.updateScoreText();
-		}
-
-		onHold = (sustain:(SustainNote)) ->
-		{
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallSustain('onHold', sustain);
-			#end
-
-			sustain.strum.playAnim('confirm');
-
-			health += 0.00275 * (sustain.strum.playable ? 1.0 : -1.0);
-
-			if (!noCharacters)
-			{
-				c = (sustain.strum.playable ? bf : (sustain.gfNote ? gf : dad));
-
-				if (null != c)
-				{
-					if (Gameplay.stillCharacters)
-					{
-						c.playAnim(singAnimations[sustain.noteData]);
-					}
-					else
-					{
-						// This shit is similar to amazing engine's character hold fix, but better
-
-						if (c.animation.curAnim.name == singAnimations[sustain.noteData] + 'miss')
-							c.playAnim(singAnimations[sustain.noteData]);
-
-						if (c.animation.curAnim.curFrame > (c.stillCharacterFrame == -1 ? c.animation.curAnim.frames.length : c.stillCharacterFrame))
-							c.animation.curAnim.curFrame = (c.stillCharacterFrame == -1 ? c.animation.curAnim.frames.length - 2 : c.stillCharacterFrame - 1);
-					}
-
-					c.holdTimer = 0.0;
-				}
-			}
-
-			sustain.holding = true;
-
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallSustain('onHoldPost', sustain);
-			#end
-		}
-
-		onRelease = (noteData:(Int)) ->
-		{
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallInt('onRelease', noteData);
-			#end
-
-			health -= 0.045;
-
-			if (!noCharacters)
-			{
-				bf.playAnim(singAnimations[noteData] + 'miss');
-				bf.holdTimer = 0.0;
-			}
-
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallInt('onReleasePost', noteData);
-			#end
-		}
-
-		h = (key:(Int)) ->
-		{
-			for (i in 0...notes.members.length)
-			{
-				_n = notes.members[i];
-				if ((_n.strum.playable && _n.noteData == key) &&
-					(!_n.wasHit && !_n.tooLate) && Math.abs(Main.conductor.songPosition - _n.strumTime) < 166.7)
-				{
-					e.emit(SignalEvent.NOTE_HIT, _n);
-					break;
-				}
-			}
-		}
-
-		r = (key:(Int)) ->
-		{
-			for (i in 0...sustains.members.length)
-			{
-				_s = sustains.members[i];
-				if ((_s.strum.playable && !_s.missed && _s.noteData == key) && Main.conductor.songPosition >= _s.strumTime &&
-					Main.conductor.songPosition <= (_s.strumTime + _s.length) - (Main.conductor.stepCrochet * 0.875))
-				{
-					e.emit(SignalEvent.NOTE_RELEASE, _s.noteData);
-					_s.holding = false;
-					_s.missed = true;
-					_s.alpha = 0.3;
-				}
-			}
-		}
-
-		ss = () ->
-		{
-			notes.members.sort((a:(Note), b:(Note)) -> Std.int(a.strumTime - b.strumTime));
-			sustains.members.sort((a:(SustainNote), b:(SustainNote)) -> Std.int(a.strumTime - b.strumTime));
-		}
-
-		p = () ->
-		{
-			while (currentNoteId != SONG.noteData.length)
-			{
-				// Avoid redundant array access
-				_nd = SONG.noteData[currentNoteId];
-
-				if (Main.conductor.songPosition < _nd[0] - (1950.0 / songSpeed))
-					break;
-
-				e.emit(SignalEvent.NOTE_SETUP, _nd);
-
-				currentNoteId++;
-			}
-		}
-
-		n = () ->
-		{
-			for (i in 0...notes.members.length)
-			{
-				currentNote = notes.members[i];
-
-				if (currentNote.exists)
-				{
-					currentNote.distance = 0.45 * (Main.conductor.songPosition - currentNote.strumTime) * songSpeed;
-					currentNote.x = currentNote.strum.x + currentNote.offsetX + (-Math.abs(currentNote.strum.scrollMult) * currentNote.distance) *
-						FlxMath.fastCos(FlxAngle.asRadians(currentNote.direction - 90.0));
-					currentNote.y = currentNote.strum.y + currentNote.offsetY + (currentNote.strum.scrollMult * currentNote.distance) *
-						FlxMath.fastSin(FlxAngle.asRadians(currentNote.direction - 90.0));
-
-					if (Main.conductor.songPosition >= currentNote.strumTime + (750.0 / songSpeed)) // Remove them if they're offscreen
-						currentNote.exists = false;
-
-					// For note hits
-
-					if (currentNote.strum.playable)
-					{
-						if (cpuControlled)
-						{
-							if (Main.conductor.songPosition >= currentNote.strumTime)
-							{
-								e.emit(SignalEvent.NOTE_HIT, currentNote);
-							}
-						}
-
-						if (Main.conductor.songPosition >= currentNote.strumTime + (200.0 / songSpeed) && (!currentNote.wasHit && !currentNote.tooLate))
-						{
-							e.emit(SignalEvent.NOTE_MISS, currentNote);
-						}
-					}
-					else
-					{
-						if (Main.conductor.songPosition >= currentNote.strumTime)
-						{
-							e.emit(SignalEvent.NOTE_HIT, currentNote);
-						}
-					}
-				}
-			}
-		}
-
-		s = () ->
-		{
-			for (i in 0...sustains.members.length)
-			{
-				currentSustain = sustains.members[i];
-				if (currentSustain.exists)
-				{
-					currentSustain.distance = 0.45 * (Main.conductor.songPosition - currentSustain.strumTime) * songSpeed;
-
-					currentSustain.x = (currentSustain.strum.x + currentSustain.offsetX + (-Math.abs(currentSustain.strum.scrollMult) * currentSustain.distance) *
-						FlxMath.fastCos(FlxAngle.asRadians(currentSustain.direction - 90.0))) + ((initialStrumWidth - (currentSustain.frameWidth * currentSustain.scale.x)) * 0.5);
-
-					currentSustain.y = (currentSustain.strum.y + currentSustain.offsetY + (currentSustain.strum.scrollMult * currentSustain.distance) *
-						FlxMath.fastSin(FlxAngle.asRadians(currentSustain.direction - 90.0))) + (initialStrumHeight * 0.5);
-
-					// For hold input
-
-					if (Main.conductor.songPosition >= (currentSustain.strumTime + currentSustain.length) + (750.0 / songSpeed))
-						currentSustain.holding = currentSustain.missed = currentSustain.exists = false;
-
-					if (currentSustain.strum.playable)
-					{
-						if (Main.conductor.songPosition >= currentSustain.strumTime && !currentSustain.missed &&
-							Main.conductor.songPosition <= (currentSustain.strumTime + currentSustain.length) - (Main.conductor.stepCrochet * 0.875))
-						{
-							if (holdArray[currentSustain.noteData])
-							{
-								e.emit(SignalEvent.NOTE_HOLD, currentSustain);
-							}
-						}
-					}
-					else
-					{
-						if (Main.conductor.songPosition <= (currentSustain.strumTime + currentSustain.length) - (Main.conductor.stepCrochet * 0.875) &&
-							Main.conductor.songPosition >= currentSustain.strumTime)
-						{
-							e.emit(SignalEvent.NOTE_HOLD, currentSustain);
-						}
-					}
-				}
-			}
-		}
-
-		onKeyDown = (keyCode:(Int), keyModifier:(Int)) ->
-		{
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCall2Ints('onKeyDown', keyCode, keyModifier);
-			#end
-
-			key = inputKeybinds.indexOf(keyCode);
-
-			if (cpuControlled || key == -1 || !generatedMusic || holdArray[key])
 				return;
-			
-			st = strumlines.members[strumlines.members.length-1].members[key];
+			}
 
-			if (st.animation.curAnim.name != 'confirm')
-				st.playAnim('pressed');
-
-			h(key);
-
-			holdArray[key] = true;
-
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCall2Ints('onKeyDownPost', keyCode, keyModifier);
-			#end
+			addCameraZoom();
 		}
+	}
 
-		onKeyUp = (keyCode:(Int), keyModifier:(Int)) ->
-		{
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCall2Ints('onKeyUp', keyCode, keyModifier);
-			#end
-
-			key = inputKeybinds.indexOf(keyCode);
-
-			if (cpuControlled || key == -1 || !generatedMusic || !holdArray[key])
-				return;
-
-			st = strumlines.members[strumlines.members.length-1].members[key];
-
-			if (st.animation.curAnim.name == 'confirm' ||
-				st.animation.curAnim.name == 'pressed')
-				st.playAnim('static');
-
-			r(key);
-
-			holdArray[key] = false;
-
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCall2Ints('onKeyUpPost', keyCode, keyModifier);
-			#end
-		}
-
-		onGameplayUpdate = (elapsed:Float) ->
+	override function update(elapsed:Float):Void
+	{
+		if (generatedMusic)
 		{
 			health = FlxMath.bound(health, 0.0, hudGroup != null ? hudGroup.healthBar.maxValue : 2.0);
 
@@ -607,335 +434,293 @@ class Gameplay extends State
 			n();
 			s();
 
-			if (_songPos <= 0 || startedCountdown)
+			if (_songPos >= 0 && !startedCountdown)
 			{
-				return;
+				startSong();
 			}
 
-			startSong();
+			super.update(elapsed);
+
+			return;
 		}
 
-		e.on(SignalEvent.NOTE_SETUP, setupNoteData);
-		e.on(SignalEvent.NOTE_HIT, onNoteHit);
-		e.on(SignalEvent.NOTE_MISS, onNoteMiss);
-		e.on(SignalEvent.NOTE_HOLD, onHold);
-		e.on(SignalEvent.NOTE_RELEASE, onRelease);
-		e.on(SignalEvent.SUSTAIN_SETUP, setupSustainData);
-		e.on(SignalEvent.GAMEPLAY_UPDATE, onGameplayUpdate);
-
-		Main.game.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
-		Main.game.onKeyUp.on(SignalEvent.KEY_UP, onKeyUp);
-
-		Main.conductor.onBeatHit = (curBeat:(Float)) ->
-		{
-			ss();
-
-			if (songEnded || !startedCountdown || Main.conductor.songPosition < 0)
-			{
-				return;
-			}
-
-			dance(curBeat - 1); // This is rather very fuckin weird but ok
-		}
-
-		Main.conductor.onMeasureHit = (curMeasure:(Float)) ->
-		{
-			if (songEnded || !startedCountdown || Main.conductor.songPosition < 0)
-			{
-				return;
-			}
-
-			addCameraZoom();
-		}
-	}
-
-	override function update(elapsed:Float):Void
-	{
-		if (Main.ENABLE_MULTITHREADING)
-		{
-			if (threadsCompleted == 0)
-			{
-				lock = new Mutex();
-
-				// What happens if you load a song with a bpm of under 10? Limit it.
-				Main.conductor.bpm = SONG.info.bpm = Math.max(SONG.info.bpm, 10.0);
-
-				if (null == SONG.info.spectator) // Fix gf (for vanilla charts)
-					SONG.info.spectator = 'gf';
-
-				if (null == SONG.info.offset || SONG.info.offset < 0) // Fix offset
-					SONG.info.offset = 0;
-
-				strumlineCount == SONG.info.strumlines ? 2 : SONG.info.strumlines;
-
-				songSpeed = SONG.info.speed;
-
-				curStage = SONG.info.stage;
-
-				if (curStage == null || curStage == '') // Fix stage (For vanilla charts)
-					curStage = 'stage';
-
-				var stageData:StageData.StageFile = null;
-
-				Thread.create(() ->
-				{
-					stageData = StageData.getStageFile(curStage);
-
-					if (null == stageData) // Stage doesn't exist, create a dummy stage to prevent crashing
-					{
-						stageData = {
-							directory: "",
-							defaultZoom: 0.9,
-							isPixelStage: false,
-
-							boyfriend: [770, 100],
-							girlfriend: [400, 130],
-							opponent: [100, 100],
-							hide_girlfriend: false,
-
-							camera_boyfriend: [0, 0],
-							camera_opponent: [0, 0],
-							camera_girlfriend: [0, 0],
-							camera_speed: 1
-						};
-					}
-
-					lock.acquire();
-
-					defaultCamZoom = FlxG.camera.zoom = stageData.defaultZoom;
-
-					BF_X = stageData.boyfriend[0];
-					BF_Y = stageData.boyfriend[1];
-					GF_X = stageData.girlfriend[0];
-					GF_Y = stageData.girlfriend[1];
-					DAD_X = stageData.opponent[0];
-					DAD_Y = stageData.opponent[1];
-
-					if (null != stageData.camera_speed)
-					{
-						cameraSpeed = stageData.camera_speed;
-					}
-
-					if (null != stageData.camera_boyfriend)
-					{
-						boyfriendCameraOffset = stageData.camera_boyfriend;
-					}
-
-					if (null != stageData.camera_opponent)
-					{
-						opponentCameraOffset = stageData.camera_opponent;
-					}
-
-					if (null != stageData.camera_girlfriend)
-					{
-						girlfriendCameraOffset = stageData.camera_girlfriend;
-					}
-
-					threadsCompleted++;
-					lock.release();
-				});
-
-				Thread.create(() ->
-				{
-					gf = new Character(0, 0, SONG.info.spectator);
-					gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
-					gfGroup.add(gf);
-
-					lock.acquire();
-
-					threadsCompleted++;
-					lock.release();
-				});
-
-				Thread.create(() ->
-				{
-					dad = new Character(0, 0, SONG.info.player2);
-					dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
-					dadGroup.add(dad);
-
-					lock.acquire();
-
-					threadsCompleted++;
-					lock.release();
-				});
-
-				Thread.create(() ->
-				{
-					bf = new Character(0, 0, SONG.info.player1, true);
-					bfGroup = new FlxSpriteGroup(BF_X, BF_Y);
-					bfGroup.add(bf);
-
-					lock.acquire();
-
-					threadsCompleted++;
-					lock.release();
-				});
-
-				Thread.create(() ->
-				{
-					inst = new FlxSound();
-					inst.loadEmbedded(Paths.inst(SONG.song));
-
-					lock.acquire();
-
-					inst.onComplete = endSong;
-					FlxG.sound.list.add(inst);
-					inst.looped = false;
-
-					threadsCompleted++;
-					lock.release();
-				});
-				if (SONG.info.needsVoices)
-				{	
-					Thread.create(() ->
-					{
-						voices = new FlxSound();
-						voices.loadEmbedded(Paths.voices(SONG.song));
-
-						lock.acquire();
-
-						voices.onComplete = endSong;
-						FlxG.sound.list.add(voices);
-						voices.looped = false;
-
-						threadsCompleted++;
-						lock.release();
-					});
-				}
-				else
-				{
-					threadsCompleted++;
-				}
-			}
-
-			if (threadsCompleted == 6)
-			{
-				// Finish off stage creation and add characters finally
-
-				#if SCRIPTING_ALLOWED
-				Main.optUtils.scriptCall2Strings('createStage', curSong, curDifficulty);
-				#end
-
-				threadsCompleted = -2;
-
-				Thread.create(() ->
-				{
-					if (!noCharacters && curStage == 'stage')
-					{
-						var bg:BGSprite = new BGSprite('stageback', -600, -200, 0.9, 0.9);
-						add(bg);
-
-						var stageFront:BGSprite = new BGSprite('stagefront', -650, 600, 0.9, 0.9);
-						stageFront.setGraphicSize(Std.int(stageFront.width * 1.1));
-						stageFront.updateHitbox();
-						add(stageFront);
-
-						var stageLight:BGSprite = new BGSprite('stage_light', -125, -100, 0.9, 0.9);
-						stageLight.setGraphicSize(Std.int(stageLight.width * 1.1));
-						stageLight.updateHitbox();
-						add(stageLight);
-
-						var stageLight2:BGSprite = new BGSprite('stage_light', 1225, -100, 0.9, 0.9);
-						stageLight2.setGraphicSize(Std.int(stageLight2.width * 1.1));
-						stageLight2.updateHitbox();
-						stageLight2.flipX = true;
-						add(stageLight2);
-
-						var stageCurtains:BGSprite = new BGSprite('stagecurtains', -500, -300, 1.3, 1.3);
-						stageCurtains.setGraphicSize(Std.int(stageCurtains.width * 0.9));
-						stageCurtains.updateHitbox();
-						add(stageCurtains);
-					}
-
-					threadsCompleted = 7;
-				});
-			}
-
-			if (threadsCompleted == 7)
-			{
-				add(gfGroup);
-				add(dadGroup);
-				add(bfGroup);
-
-				startCharacterPos(gf, false);
-				startCharacterPos(dad, true);
-				startCharacterPos(bf, false);
-
-				#if SCRIPTING_ALLOWED
-				Main.optUtils.scriptCall2Strings('createStagePost', curSong, curDifficulty);
-				#end
-
-				// Now time to load the UI and shit
-
-				sustains = new FlxTypedGroup<SustainNote>();
-				add(sustains);
-
-				strumlines = new FlxTypedGroup<Strumline>();
-				add(strumlines);
-
-				for (i in 0...strumlineCount)
-					generateStrumline(i);
-
-				if (downScroll)
-					changeDownScroll();
-
-				notes = new FlxTypedGroup<Note>();
-				add(notes);
-
-				if (!hideHUD)
-				{
-					hudGroup = new HUDGroup();
-					add(hudGroup);
-
-					hudGroup.reloadHealthBar();
-					hudGroup.cameras = [hudCamera];
-				}
-
-				sustains.cameras = strumlines.cameras = notes.cameras = [hudCamera];
-
-				var timeTakenToLoad:Float = haxe.Timer.stamp() - loadingTimestamp;
-
-				trace('Loading finished! Took ${Utils.formatTime(timeTakenToLoad * 1000.0, true, true)} to load.');
-
-				if (!noCharacters)
-				{
-					camFollowPos.setPosition(
-						gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0],
-						gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1]
-					);
-
-					moveCamera(dad);
-				}
-
-				generatedMusic = true;
-
-				#if SCRIPTING_ALLOWED
-				Main.optUtils.scriptCall2Strings('generateSong', curSong, curDifficulty);
-				#end
-
-				openfl.system.System.gc(); // Free up inactive memory
-
-				startCountdown();
-
-				threadsCompleted = -3;
-			}
-		}
-
-		if (!generatedMusic)
+		if (!Main.ENABLE_MULTITHREADING)
 		{
 			return;
 		}
 
-		super.update(elapsed);
+		if (threadsCompleted == 0)
+		{
+			lock = new Mutex();
 
-		e.emit(SignalEvent.GAMEPLAY_UPDATE, elapsed);
+			// What happens if you load a song with a bpm of under 10? Limit it.
+			Main.conductor.bpm = SONG.info.bpm = Math.max(SONG.info.bpm, 10.0);
+			Main.conductor.reset();
+
+			if (null == SONG.info.spectator) // Fix gf (for vanilla charts)
+				SONG.info.spectator = 'gf';
+
+			if (null == SONG.info.offset || SONG.info.offset < 0) // Fix offset
+				SONG.info.offset = 0;
+
+			strumlineCount == SONG.info.strumlines ? 2 : SONG.info.strumlines;
+
+			songSpeed = SONG.info.speed;
+
+			curStage = SONG.info.stage;
+
+			if (curStage == null || curStage == '') // Fix stage (For vanilla charts)
+				curStage = 'stage';
+
+			var stageData:StageData.StageFile = null;
+
+			Thread.create(() ->
+			{
+				stageData = StageData.getStageFile(curStage);
+
+				if (null == stageData) // Stage doesn't exist, create a dummy stage to prevent crashing
+				{
+					stageData = {
+						directory: "",
+						defaultZoom: 0.9,
+						isPixelStage: false,
+
+						boyfriend: [770, 100],
+						girlfriend: [400, 130],
+						opponent: [100, 100],
+						hide_girlfriend: false,
+
+						camera_boyfriend: [0, 0],
+						camera_opponent: [0, 0],
+						camera_girlfriend: [0, 0],
+						camera_speed: 1
+					};
+				}
+
+				lock.acquire();
+
+				defaultCamZoom = FlxG.camera.zoom = stageData.defaultZoom;
+
+				BF_X = stageData.boyfriend[0];
+				BF_Y = stageData.boyfriend[1];
+				GF_X = stageData.girlfriend[0];
+				GF_Y = stageData.girlfriend[1];
+				DAD_X = stageData.opponent[0];
+				DAD_Y = stageData.opponent[1];
+
+				if (null != stageData.camera_speed)
+				{
+					cameraSpeed = stageData.camera_speed;
+				}
+
+				if (null != stageData.camera_boyfriend)
+				{
+					boyfriendCameraOffset = stageData.camera_boyfriend;
+				}
+
+				if (null != stageData.camera_opponent)
+				{
+					opponentCameraOffset = stageData.camera_opponent;
+				}
+
+				if (null != stageData.camera_girlfriend)
+				{
+					girlfriendCameraOffset = stageData.camera_girlfriend;
+				}
+
+				threadsCompleted++;
+				lock.release();
+			});
+
+			Thread.create(() ->
+			{
+				gf = new Character(0, 0, SONG.info.spectator);
+				gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
+				gfGroup.add(gf);
+
+				lock.acquire();
+
+				threadsCompleted++;
+				lock.release();
+			});
+
+			Thread.create(() ->
+			{
+				dad = new Character(0, 0, SONG.info.player2);
+				dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
+				dadGroup.add(dad);
+
+				lock.acquire();
+
+				threadsCompleted++;
+				lock.release();
+			});
+
+			Thread.create(() ->
+			{
+				bf = new Character(0, 0, SONG.info.player1, true);
+				bfGroup = new FlxSpriteGroup(BF_X, BF_Y);
+				bfGroup.add(bf);
+
+				lock.acquire();
+
+				threadsCompleted++;
+				lock.release();
+			});
+
+			Thread.create(() ->
+			{
+				inst = new FlxSound();
+				inst.loadEmbedded(Paths.inst(SONG.song));
+
+				lock.acquire();
+
+				inst.onComplete = endSong;
+				FlxG.sound.list.add(inst);
+				inst.looped = false;
+
+				threadsCompleted++;
+				lock.release();
+			});
+			if (SONG.info.needsVoices)
+			{
+				Thread.create(() ->
+				{
+					voices = new FlxSound();
+					voices.loadEmbedded(Paths.voices(SONG.song));
+
+					lock.acquire();
+
+					voices.onComplete = endSong;
+					FlxG.sound.list.add(voices);
+					voices.looped = false;
+
+					threadsCompleted++;
+					lock.release();
+				});
+			}
+			else
+			{
+				threadsCompleted++;
+			}
+		}
+
+		if (threadsCompleted == 6)
+		{
+			// Finish off stage creation and add characters finally
+
+			#if SCRIPTING_ALLOWED
+			Main.optUtils.scriptCall2Strings('createStage', curSong, curDifficulty);
+			#end
+
+			threadsCompleted = -2;
+
+			Thread.create(() ->
+			{
+				if (!noCharacters && curStage == 'stage')
+				{
+					var bg:BGSprite = new BGSprite('stageback', -600, -200, 0.9, 0.9);
+					add(bg);
+
+					var stageFront:BGSprite = new BGSprite('stagefront', -650, 600, 0.9, 0.9);
+					stageFront.setGraphicSize(Std.int(stageFront.width * 1.1));
+					stageFront.updateHitbox();
+					add(stageFront);
+
+					var stageLight:BGSprite = new BGSprite('stage_light', -125, -100, 0.9, 0.9);
+					stageLight.setGraphicSize(Std.int(stageLight.width * 1.1));
+					stageLight.updateHitbox();
+					add(stageLight);
+
+					var stageLight2:BGSprite = new BGSprite('stage_light', 1225, -100, 0.9, 0.9);
+					stageLight2.setGraphicSize(Std.int(stageLight2.width * 1.1));
+					stageLight2.updateHitbox();
+					stageLight2.flipX = true;
+					add(stageLight2);
+
+					var stageCurtains:BGSprite = new BGSprite('stagecurtains', -500, -300, 1.3, 1.3);
+					stageCurtains.setGraphicSize(Std.int(stageCurtains.width * 0.9));
+					stageCurtains.updateHitbox();
+					add(stageCurtains);
+				}
+
+				threadsCompleted = 7;
+			});
+		}
+
+		if (threadsCompleted == 7)
+		{
+			add(gfGroup);
+			add(dadGroup);
+			add(bfGroup);
+
+			startCharacterPos(gf, false);
+			startCharacterPos(dad, true);
+			startCharacterPos(bf, false);
+
+			#if SCRIPTING_ALLOWED
+			Main.optUtils.scriptCall2Strings('createStagePost', curSong, curDifficulty);
+			#end
+
+			// Now time to load the UI and shit
+
+			sustains = new FlxTypedGroup<SustainNote>();
+			add(sustains);
+
+			strumlines = new FlxTypedGroup<Strumline>();
+			add(strumlines);
+
+			for (i in 0...strumlineCount)
+				generateStrumline(i);
+
+			if (downScroll)
+				changeDownScroll();
+
+			notes = new FlxTypedGroup<Note>();
+			add(notes);
+
+			if (!hideHUD)
+			{
+				hudGroup = new HUDGroup();
+				add(hudGroup);
+
+				hudGroup.reloadHealthBar();
+				hudGroup.cameras = [hudCamera];
+			}
+
+			sustains.cameras = strumlines.cameras = notes.cameras = [hudCamera];
+
+			var timeTakenToLoad:Float = haxe.Timer.stamp() - loadingTimestamp;
+
+			trace('Loading finished! Took ${Utils.formatTime(timeTakenToLoad * 1000.0, true, true)} to load.');
+
+			if (!noCharacters)
+			{
+				camFollowPos.setPosition(
+					gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0],
+					gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1]
+				);
+
+				moveCamera(dad);
+			}
+
+			generatedMusic = true;
+
+			#if SCRIPTING_ALLOWED
+			Main.optUtils.scriptCall2Strings('generateSong', curSong, curDifficulty);
+			#end
+
+			openfl.system.System.gc(); // Free up inactive memory
+
+			startCountdown();
+
+			threadsCompleted = -3;
+		}
 	}
 
 	var initialStrumWidth:Float = 112.0;
 	var initialStrumHeight:Float = 112.0;
 	var currentNoteId:Int = 0;
-
-	public var onGameplayUpdate:(Float)->(Void);
 
 	// Song events for hscript
 	public function triggerEvent(eventName:String, value1:String, value2:String, value3:String, value4:String)
@@ -1174,7 +959,7 @@ class Gameplay extends State
 				}
 				catch (e)
 				{
-					trace('Chart file "$preloadName" doesn\'t exist.');
+					trace('Chart file "$preloadName" is either corrupted or nonexistent.');
 				}
 			});
 		}
@@ -1184,18 +969,24 @@ class Gameplay extends State
 
 			var preloadName:String = curSong + (curDifficulty != '' ? '-$curDifficulty' : '');
 
-			// Chart preloader
-			if (ChartPreloader.container.exists(preloadName))
+			try
 			{
-				SONG = ChartPreloader.container.get(preloadName);
+				// Chart preloader
+				if (ChartPreloader.container.exists(preloadName))
+				{
+					SONG = ChartPreloader.container.get(preloadName);
+				}
+				else
+					SONG = Song.loadFromJson(curSong + '/' + curSong + curDifficulty);
 			}
-			else
+			catch (e)
 			{
-				SONG = Song.loadFromJson(curSong + '/' + curSong + curDifficulty);
+				trace('Chart file "$preloadName" is either corrupted or nonexistent.');
 			}
 
 			// What happens if you load a song with a bpm of under 10? Limit it.
 			Main.conductor.bpm = SONG.info.bpm = Math.max(SONG.info.bpm, 10.0);
+			Main.conductor.reset();
 
 			if (null == SONG.info.spectator) // Fix gf (for vanilla charts)
 				SONG.info.spectator = 'gf';
@@ -1286,7 +1077,7 @@ class Gameplay extends State
 			inst.looped = false;
 
 			threadsCompleted++;
-			
+
 			if (SONG.info.needsVoices)
 			{
 				voices = new FlxSound();
@@ -1649,9 +1440,6 @@ class Gameplay extends State
 	// The extra 5 values are used to check if a key is just pressed for extra keys aswell
 	public var holdArray(default, null):Array<Bool> = [false, false, false, false, false, false, false, false, false];
 
-	public var onKeyDown:((Int), (Int))->(Void);
-	public var onKeyUp:((Int), (Int))->(Void);
-
 	// Preferences stuff (Also for scripting)
 
 	var strumYTweens(default, null):Map<StrumNote, FlxTween> = [];
@@ -1701,30 +1489,12 @@ class Gameplay extends State
 		e.off(SignalEvent.NOTE_HOLD, onHold);
 		e.off(SignalEvent.NOTE_RELEASE, onRelease);
 		e.off(SignalEvent.SUSTAIN_SETUP, setupSustainData);
-		e.off(SignalEvent.GAMEPLAY_UPDATE, onGameplayUpdate);
 
 		Main.game.onKeyDown.off(SignalEvent.KEY_DOWN, onKeyDown);
 		Main.game.onKeyUp.off(SignalEvent.KEY_UP, onKeyUp);
 
 		super.destroy();
 	}
-
-	var setupNoteData(default, null):(Array<(Float)>)->(Void);
-	var setupSustainData(default, null):(Array<(Float)>)->(Void);
-
-	var onNoteHit(default, null):(Note)->(Void);
-	var onNoteMiss(default, null):(Note)->(Void);
-	var onHold(default, null):(SustainNote)->(Void);
-	var onRelease(default, null):(Int)->(Void);
-
-	// Short functions for visual
-
-	var h:(Int)->(Void);
-	var r:(Int)->(Void);
-	var ss:()->(Void);
-	var p:()->(Void);
-	var n:()->(Void);
-	var s:()->(Void);
 
 	var e(default, null):Emitter = new Emitter();
 
@@ -1742,4 +1512,217 @@ class Gameplay extends State
 	var key(default, null):Int;
 
 	var _songPos(default, null):Float = -5000.0;
+
+	function setupNoteData(chartNoteData:(Array<(Float)>)):Void
+	{
+		if (chartNoteData[0] < 0.0 || chartNoteData[3] < 0) // Don't spawn a note with negative time or lane
+			return;
+
+		spawnedNote = notes.recycle((Note));
+
+		spawnedNote.scale.x = spawnedNote.scale.y = 0.7;
+		spawnedNote.setFrame(Paths.regularNoteFrame);
+
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCallNoteSetup('setupNoteData', spawnedNote, chartNoteData);
+		#end
+
+		spawnedNote.alpha = 1.0;
+		spawnedNote.y = -2000.0;
+		spawnedNote.wasHit = spawnedNote.tooLate = false;
+
+		spawnedNote.strumTime = chartNoteData[0];
+		spawnedNote.noteData = Std.int(chartNoteData[1]);
+		spawnedNote.sustainLength = Std.int(chartNoteData[2]) - 32;
+		spawnedNote.lane = Std.int(chartNoteData[3]) % strumlineCount;
+		spawnedNote.multiplier = Std.int(chartNoteData[4]);
+
+		spawnedNote.strum = strumlines.members[spawnedNote.lane].members[spawnedNote.noteData];
+
+		spawnedNote.color = NoteBase.colorArray[spawnedNote.noteData];
+		spawnedNote.angle = NoteBase.angleArray[spawnedNote.noteData];
+
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCallNote('newNote', spawnedNote);
+		#end
+
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCallNoteSetup('setupNoteDataPost', spawnedNote, chartNoteData);
+		#end
+
+		if (spawnedNote.sustainLength < 32.0) // Don't spawn too short sustain notes
+		{
+			return;
+		}
+
+		setupSustainData(chartNoteData);
+	}
+
+	function setupSustainData(chartNoteData:(Array<(Float)>)):Void
+	{
+		spawnedSustain = sustains.recycle((SustainNote));
+
+		spawnedSustain.scale.x = spawnedSustain.scale.y = 0.7;
+		spawnedSustain.setFrame(Paths.sustainNoteFrame);
+
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCallSustainSetup('setupSustainData', spawnedSustain, chartNoteData);
+		#end
+
+		spawnedSustain.offset.x = -0.5 * ((spawnedSustain.frameWidth * 0.7) - spawnedSustain.frameWidth);
+		spawnedSustain.origin.x = spawnedSustain.frameWidth * 0.5;
+		spawnedSustain.origin.y = spawnedSustain.offset.y = 0.0;
+
+		spawnedSustain.alpha = 0.6; // Definitive alpha, default
+		spawnedSustain.y = -2000;
+		spawnedSustain.holding = spawnedSustain.missed = false;
+
+		spawnedSustain.strumTime = chartNoteData[0];
+		spawnedSustain.noteData = Std.int(chartNoteData[1]);
+		spawnedSustain.length = chartNoteData[2] - 32.0;
+		spawnedSustain.lane = Std.int(chartNoteData[3]);
+
+		spawnedSustain.strum = strumlines.members[spawnedSustain.lane].members[spawnedSustain.noteData];
+		spawnedSustain.color = NoteBase.colorArray[spawnedSustain.noteData];
+
+		spawnedSustain.downScroll = spawnedSustain.strum.scrollMult <= 0;
+
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCallSustain('newSustain', spawnedSustain);
+		#end
+
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCallSustainSetup('setupSustainDataPost', spawnedSustain, chartNoteData);
+		#end
+	}
+
+	function onNoteHit(note:(Note)):Void
+	{
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCallNote('onNoteHit', note);
+		#end
+
+		note.strum.playAnim('confirm');
+
+		health += (0.045 * FlxMath.maxInt(note.multiplier, 1)) * (note.strum.playable ? 1.0 : -1.0);
+
+		if (note.strum.playable)
+		{
+			score += 350.0 * FlxMath.maxInt(note.multiplier, 1);
+			accuracy_left += (Math.abs(note.strumTime - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0) * FlxMath.maxInt(note.multiplier, 1);
+			accuracy_right += FlxMath.maxInt(note.multiplier, 1);
+		}
+
+		if (!noCharacters)
+		{
+			c = (note.strum.playable ? bf : (note.gfNote ? gf : dad));
+
+			if (null != c)
+			{
+				c.playAnim(singAnimations[note.noteData]);
+				c.holdTimer = 0.0;
+			}
+		}
+
+		note.wasHit = true;
+		note.exists = false;
+
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCallNote('onNoteHitPost', note);
+		#end
+
+		if (hudGroup != null)
+			hudGroup.updateScoreText();
+	}
+
+	function onNoteMiss(note:(Note)):Void
+	{
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCallNote('onNoteMiss', note);
+		#end
+
+		note.tooLate = true;
+		note.alpha = 0.6;
+
+		health -= 0.045 * FlxMath.maxInt(note.multiplier, 1);
+		score -= 100.0 * FlxMath.maxInt(note.multiplier, 1);
+		misses += FlxMath.maxInt(note.multiplier, 1);
+		accuracy_right += FlxMath.maxInt(note.multiplier, 1);
+
+		if (!noCharacters)
+		{
+			bf.playAnim(singAnimations[note.noteData] + 'miss');
+			bf.holdTimer = 0.0;
+		}
+
+		r(note.noteData);
+
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCallNote('onNoteMissPost', note);
+		#end
+
+		if (hudGroup != null)
+			hudGroup.updateScoreText();
+	}
+
+	function onHold(sustain:(SustainNote)):Void
+	{
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCallSustain('onHold', sustain);
+		#end
+
+		sustain.strum.playAnim('confirm');
+
+		health += 0.00275 * (sustain.strum.playable ? 1.0 : -1.0);
+
+		if (!noCharacters)
+		{
+			c = (sustain.strum.playable ? bf : (sustain.gfNote ? gf : dad));
+
+			if (null != c)
+			{
+				if (Gameplay.stillCharacters)
+				{
+					c.playAnim(singAnimations[sustain.noteData]);
+				}
+				else
+				{
+					// This shit is similar to amazing engine's character hold fix, but better
+
+					if (c.animation.curAnim.name == singAnimations[sustain.noteData] + 'miss')
+						c.playAnim(singAnimations[sustain.noteData]);
+
+					if (c.animation.curAnim.curFrame > (c.stillCharacterFrame == -1 ? c.animation.curAnim.frames.length : c.stillCharacterFrame))
+						c.animation.curAnim.curFrame = (c.stillCharacterFrame == -1 ? c.animation.curAnim.frames.length - 2 : c.stillCharacterFrame - 1);
+				}
+
+				c.holdTimer = 0.0;
+			}
+		}
+
+		sustain.holding = true;
+
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCallSustain('onHoldPost', sustain);
+		#end
+	}
+
+	function onRelease(noteData:(Int)):Void
+	{
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCallInt('onRelease', noteData);
+		#end
+
+		health -= 0.045;
+
+		if (!noCharacters)
+		{
+			bf.playAnim(singAnimations[noteData] + 'miss');
+			bf.holdTimer = 0.0;
+		}
+
+		#if SCRIPTING_ALLOWED
+		Main.optUtils.scriptCallInt('onReleasePost', noteData);
+		#end
+	}
 }

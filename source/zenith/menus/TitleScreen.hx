@@ -47,41 +47,6 @@ class TitleScreen extends State
 		loadTitleScreenShit();
 		titleBG.visible = titleImage.visible = initialized;
 
-		onKeyDown = (keyCode:(Int), keyModifier:(Int)) ->
-		{
-			if (SaveData.contents.controls.ACCEPT == keyCode)
-			{
-				if (alreadyPressedEnter)
-					TitleScreenSubState.instance.sendSignalEnter();
-				else
-				{
-					if (!initialized)
-					{
-						skipIntro(true);
-						return;
-					}
-
-					openSubState(new TitleScreenSubState());
-					alreadyPressedEnter = true;
-				}
-			}
-
-			if (!alreadyPressedEnter)
-				return;
-
-			if (SaveData.contents.controls.LEFT == keyCode)
-				TitleScreenSubState.instance.sendSignalLeft();
-
-			if (SaveData.contents.controls.RIGHT == keyCode)
-				TitleScreenSubState.instance.sendSignalRight();
-
-			if (SaveData.contents.controls.BACK == keyCode)
-			{
-				closeSubState();
-				alreadyPressedEnter = false;
-			}
-		}
-
 		Main.game.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
 
 		super.create();
@@ -146,6 +111,7 @@ class TitleScreen extends State
 			FlxG.sound.music.fadeIn(4, 0, 0.7);
 
 			Main.conductor.bpm = titleConfig.bpm;
+			Main.conductor.reset();
 		}
 		else
 		{
@@ -258,5 +224,38 @@ class TitleScreen extends State
 
 	static public var alreadyPressedEnter:Bool = false;
 
-	private var onKeyDown:((Int), (Int))->(Void);
+	function onKeyDown(keyCode:(Int), keyModifier:(Int)):Void
+	{
+		if (SaveData.contents.controls.ACCEPT == keyCode)
+		{
+			if (alreadyPressedEnter)
+				TitleScreenSubState.instance.sendSignalEnter();
+			else
+			{
+				if (!initialized)
+				{
+					skipIntro(true);
+					return;
+				}
+
+				openSubState(new TitleScreenSubState());
+				alreadyPressedEnter = true;
+			}
+		}
+
+		if (!alreadyPressedEnter)
+			return;
+
+		if (SaveData.contents.controls.LEFT == keyCode)
+			TitleScreenSubState.instance.sendSignalLeft();
+
+		if (SaveData.contents.controls.RIGHT == keyCode)
+			TitleScreenSubState.instance.sendSignalRight();
+
+		if (SaveData.contents.controls.BACK == keyCode)
+		{
+			closeSubState();
+			alreadyPressedEnter = false;
+		}
+	}
 }

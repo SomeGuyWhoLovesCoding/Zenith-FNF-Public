@@ -10,7 +10,8 @@ class Conductor
 	var _beatTracker(default, null):Float = 0.0;
 	var _measureTracker(default, null):Float = 0.0;
 
-	var timeOffset(default, null):Float = 0.0;
+	var stepsToLose(default, null):Float = 0.0;
+	var stepsToAdd(default, null):Float = 0.0;
 
 	public var steps(default, set):Int = 4;
 
@@ -31,8 +32,15 @@ class Conductor
 		bpm = initialBpm;
 	}
 
+	inline public function reset():Void
+	{
+		stepsToLose = songPosition = 0.0;
+		changeTimeSignature(4, 4);
+	}
+
 	inline public function changeTimeSignature(newSteps:Int = 4, newBeats:Int = 4):Void
 	{
+		crochet = stepCrochet * newSteps;
 		steps = newSteps;
 		beats = newBeats;
 	}
@@ -40,16 +48,26 @@ class Conductor
 	public var lastBpm(default, null):Float = 100.0;
 	public var bpm(default, set):Float = 100.0;
 
-	function set_bpm(value:Float):Float
+	// Ensure that the bpm change executes at the right spot
+
+	inline public function executeBpmChange(newBpm:Float, position:Float):Void
+	{
+		stepsToAdd += (position - stepsToLose) / stepCrochet;
+		stepsToLose = position;
+		bpm = newBpm;
+		
+		trace(stepsToLose);
+	}
+
+	inline function set_bpm(value:Float):Float
 	{
 		if (lastBpm != value)
 		{
 			lastBpm = bpm;
-			//stepOffset = curStep * (lastBpm / value);
 			bpm = value;
 
-			crochet = 60000.0 / bpm;
-			stepCrochet = crochet * 0.25;
+			stepCrochet = 15000.0 / bpm;
+			crochet = stepCrochet * steps;
 		}
 
 		return value;
@@ -59,44 +77,47 @@ class Conductor
 
 	function set_songPosition(value:Float):Float
 	{
-		_stepTracker = Math.ffloor(rawMBTime(value) / stepCrochet);
-		_beatTracker = Math.ffloor(rawMBTime(value) / crochet);
-		_measureTracker = Math.ffloor(rawMBTime(value) / (crochet * beats));
+		_stepTracker = Math.ffloor((value - stepsToLose) / stepCrochet) + stepsToAdd;
+		_beatTracker = Math.ffloor(_stepTracker / steps);
+		_measureTracker = Math.ffloor(_beatTracker / beats);
 
-		if (onStepHit != null && _stepPos != _stepTracker)
+		if (_stepPos != _stepTracker)
 		{
 			#if SCRIPTING_ALLOWED
 			Main.optUtils.scriptCallFloat('onStepHit', _stepPos);
 			#end
-			onStepHit(_stepPos);
+			if (onStepHit != null)
+			{
+				onStepHit(_stepPos);
+			}
 			_stepPos = _stepTracker;
 		}
 
-		if (onBeatHit != null && _beatPos != _beatTracker)
+		if (_beatPos != _beatTracker)
 		{
 			#if SCRIPTING_ALLOWED
 			Main.optUtils.scriptCallFloat('onBeatHit', _beatPos);
 			#end
-			onBeatHit(_beatPos);
+			if (onBeatHit != null)
+			{
+				onBeatHit(_beatPos);
+			}
 			_beatPos = _beatTracker;
 		}
 
-		if (onMeasureHit != null && _measurePos != _measureTracker)
+		if (_measurePos != _measureTracker)
 		{
 			#if SCRIPTING_ALLOWED
 			Main.optUtils.scriptCallFloat('onMeasureHit', _measurePos);
 			#end
-			onMeasureHit(_measurePos);
+			if (onMeasureHit != null)
+			{
+				onMeasureHit(_measurePos);
+			}
 			_measurePos = _measureTracker;
 		}
 
 		return songPosition = value;
-	}
-
-	// Just for organization
-	inline function rawMBTime(pos:Float):Float
-	{
-		return pos + timeOffset;
 	}
 
 	public var crochet(default, null):Float;

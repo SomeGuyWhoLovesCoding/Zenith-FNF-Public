@@ -34,9 +34,11 @@ You should see something like this: "assets/scripts/script.hx"
 
 ``destroyPost()``: This function is called after the state was destroyed. (After switching to a new state)
 
-``stepHit()``: This function is called when ``stepHit()`` is called.
+``onStepHit(curStep)``: This function is called when the conductor's ``onStepHit`` callback is called.
 
-``beatHit()``: This function is called when ``beatHit()`` is called.
+``onBeatHit(curBeat)``: This function is called when the conductor's ``onBeatHit`` callback is called.
+
+``onMeasureHit(curMeasure)``: This function is called when the conductor's ``onMeasureHit`` callback is called.
 
 ``getVar(variable)``: This function gets a variable from the interpreter.
 

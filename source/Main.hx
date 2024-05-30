@@ -54,9 +54,7 @@ class Main extends Sprite
 	{
 		super();
 
-		optUtils = Type.createEmptyInstance(OptimizationUtils);
-		optUtils.initScriptOpts();
-
+		optUtils = new OptimizationUtils();
 		conductor = new Conductor();
 
 		#if SCRIPTING_ALLOWED

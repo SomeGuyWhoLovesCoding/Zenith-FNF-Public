@@ -53,6 +53,7 @@ class Character extends FlxSprite
 
 	public var isPlayer:Bool = false;
 	public var curCharacter:String = DEFAULT_CHARACTER;
+	var namedWithGf(default, null):Bool = false;
 
 	public var holdTimer:Float = 0.0;
 	public var heyTimer:Float = 0.0;
@@ -86,6 +87,7 @@ class Character extends FlxSprite
 
 		animOffsets = new Map<String, Array<Float>>();
 		curCharacter = character;
+		namedWithGf = curCharacter.startsWith('gf');
 		this.isPlayer = isPlayer;
 
 		var characterPath:String = 'characters/' + curCharacter + '.json';
@@ -147,54 +149,6 @@ class Character extends FlxSprite
 
 		originalFlipX = flipX;
 
-		playAnim = (AnimName:String, special:Bool = false) ->
-		{
-			specialAnim = special;
-
-			#if HXCPP_CHECK_POINTER
-			animation.play(AnimName, true);
-			#else
-			animation.curAnim = animation._animations.get(AnimName);
-			animation.curAnim._frameTimer = animation.curAnim.curFrame = 0;
-			animation.curAnim.finished = animation.curAnim.paused = false;
-			#end
-
-			var daOffset = animOffsets.get(AnimName);
-
-			if (daOffset != null)
-			{
-				offset.x = animOffsets.get(AnimName)[0];
-				offset.y = animOffsets.get(AnimName)[1];
-			}
-			else
-				offset.x = offset.y = 0.0;
-
-			if (curCharacter.startsWith('gf'))
-			{
-				if (AnimName == 'singLEFT')
-					danced = true;
-				else if (AnimName == 'singRIGHT')
-					danced = false;
-
-				if (AnimName == 'singUP' || AnimName == 'singDOWN')
-					danced = !danced;
-			}
-		}
-
-		dance = () ->
-		{
-			if (danceIdle && (!debugMode && !skipDance && !specialAnim))
-			{
-				danced = !danced;
-				playAnim((danced ? 'danceRight' : 'danceLeft') + idleSuffix);
-			}
-			else
-			{
-				if (animation.getByName('idle' + idleSuffix) != null)
-					playAnim('idle' + idleSuffix);
-			}
-		}
-
 		if(animOffsets.exists('singLEFTmiss') || animOffsets.exists('singDOWNmiss') || animOffsets.exists('singUPmiss') || animOffsets.exists('singRIGHTmiss'))
 		{
 			hasMissAnimations = true;
@@ -206,6 +160,56 @@ class Character extends FlxSprite
 		if (isPlayer)
 		{
 			flipX = !flipX;
+		}
+	}
+
+	var daOffsets(default, null):Array<Float>;
+	// This shit is simple and only has 1 function call for debug
+	inline public function playAnim(AnimName:String, special:Bool = false):Void
+	{
+		specialAnim = special;
+
+		#if HXCPP_CHECK_POINTER
+		animation.play(AnimName, true);
+		#else
+		animation.curAnim = animation._animations.get(AnimName);
+		animation.curAnim._frameTimer = animation.curAnim.curFrame = 0;
+		animation.curAnim.finished = animation.curAnim.paused = false;
+		#end
+
+		daOffsets = animOffsets.get(AnimName);
+
+		if (daOffsets != null)
+		{
+			offset.x = daOffsets[0];
+			offset.y = daOffsets[1];
+		}
+		else
+			offset.x = offset.y = 0.0;
+
+		if (namedWithGf)
+		{
+			if (AnimName == 'singLEFT')
+				danced = true;
+			else if (AnimName == 'singRIGHT')
+				danced = false;
+
+			if (AnimName == 'singUP' || AnimName == 'singDOWN')
+				danced = !danced;
+		}
+	}
+
+	public function dance():Void
+	{
+		if (danceIdle && (!debugMode && !skipDance && !specialAnim))
+		{
+			danced = !danced;
+			playAnim((danced ? 'danceRight' : 'danceLeft') + idleSuffix);
+		}
+		else
+		{
+			if (animation.getByName('idle' + idleSuffix) != null)
+				playAnim('idle' + idleSuffix);
 		}
 	}
 
@@ -258,10 +262,6 @@ class Character extends FlxSprite
 	}
 
 	public var danced:Bool = false;
-
-	public var dance:()->(Void);
-
-	public var playAnim:((String), (?Bool))->(Void);
 
 	public var danceEveryNumBeats:Int = 2;
 	private var settingCharacterUp:Bool = true;
