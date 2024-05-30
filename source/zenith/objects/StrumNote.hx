@@ -107,6 +107,9 @@ class StrumNote extends FlxSprite
 		animation.curAnim.finished = animation.curAnim.paused = false;
 		#end
 
+		active = false;
+		color = 0xffffffff;
+
 		// Broken down version of updateHitbox(), basically inlining manually
 		width = Math.abs(scale.x) * frameWidth;
 		height = Math.abs(scale.y) * frameHeight;
