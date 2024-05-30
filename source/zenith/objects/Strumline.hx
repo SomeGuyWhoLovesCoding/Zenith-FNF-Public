@@ -13,14 +13,22 @@ class Strumline extends FlxBasic
 			{
 				var strumNote = new StrumNote(i, lane);
 				strumNote.scale.x = strumNote.scale.y = scale;
+				strumNote.parent = this;
 				members[i] = strumNote;
 			}
 			else
 			{
 				member.angle = NoteBase.angleArray[member.noteData];
-				member.color = NoteBase.colorArray[member.noteData];
 			}
 		}
+
+		if (value <= keys)
+		{
+			members.resize(value);
+		}
+
+		moveX(x);
+		moveY(y);
 		return keys = value;
 	}
 
@@ -61,9 +69,37 @@ class Strumline extends FlxBasic
 
 	public var members:Array<StrumNote> = [];
 
-	public var gap(default, null):Float = 112.0;
+	public var gap(default, set):Float;
 
-	public var scale(default, null):Float = 0.7;
+	function set_gap(value:Float):Float
+	{
+		if (members.length == 0)
+			return gap;
+
+		gap = value;
+		moveX(x);
+
+		return gap = value;
+	}
+
+	public var scale(default, set):Float;
+
+	function set_scale(value:Float):Float
+	{
+		if (members.length == 0)
+			return scale;
+
+		scale = value;
+
+		for (i in 0...members.length)
+		{
+			members[i].scale.set(scale, scale);
+		}
+
+		moveX(x);
+
+		return value;
+	}
 
 	public var playable(default, set):Bool;
 
@@ -84,14 +120,29 @@ class Strumline extends FlxBasic
 	{
 		super();
 
-		this.keys = keys;
 		this.lane = lane;
+		this.keys = keys;
+		gap = 112.0;
+		scale = 0.7;
 		this.playable = playable;
 
 		// Default strumline positions
 		x = (y = 60.0) + ((FlxG.width * 0.5587511111112) * lane);
 	}
 
+	public function reset():Strumline
+	{
+		keys = 4;
+		gap = 112.0;
+		scale = 0.7;
+
+		// Default strumline positions
+		x = (y = 60.0) + ((FlxG.width * 0.5587511111112) * lane);
+
+		return this;
+	}
+
+	var m:StrumNote;
 	override function update(elapsed:Float)
 	{
 		if (members.length == 0)
@@ -99,10 +150,10 @@ class Strumline extends FlxBasic
 
 		for (i in 0...members.length)
 		{
-			var member = members[i];
-			if (member.exists && member.active)
+			m = members[i];
+			if (m.exists && m.active)
 			{
-				member.update(elapsed);
+				m.update(elapsed);
 			}
 		}
 	}
@@ -114,10 +165,10 @@ class Strumline extends FlxBasic
 
 		for (i in 0...members.length)
 		{
-			var member = members[i];
-			if (member.exists && member.visible && member.alpha != 0.0)
+			m = members[i];
+			if (m.exists && m.visible && m.alpha != 0.0)
 			{
-				member.draw();
+				m.draw();
 			}
 		}
 	}
@@ -144,30 +195,25 @@ class Strumline extends FlxBasic
 		}
 	}
 
-	public function setGap(newGap:Float = 160.0):Void
-	{
-		gap = newGap;
-		moveX(x);
-	}
-
-	public function setScale(newScale:Float = 0.7):Void
-	{
-		if (members.length == 0)
-			return;
-
-		scale = newScale;
-
-		for (i in 0...members.length)
-		{
-			members[i].scale.set(scale, scale);
-		}
-	}
-
 	public function clear():Void
 	{
 		while (members.length != 0)
 		{
 			members.pop().destroy();
+		}
+	}
+
+	public function updateHitbox():Void
+	{
+		for (i in 0...members.length)
+		{
+			m = members[i];
+			m.width = (m.scale.x < 0.0 ? -m.scale.x : m.scale.x) * m.frameWidth;
+			m.height = (m.scale.y < 0.0 ? -m.scale.y : m.scale.y) * m.frameHeight;
+			m.offset.x = (m.frameWidth * 0.5) - 54;
+			m.offset.y = (m.frameHeight * 0.5) - 56;
+			m.origin.x = m.offset.x + 54;
+			m.origin.y = m.offset.y + 56;
 		}
 	}
 }

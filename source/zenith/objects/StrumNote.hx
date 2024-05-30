@@ -18,6 +18,8 @@ class StrumNote extends FlxSprite
 		return playable = value;
 	}
 
+	public var parent:Strumline;
+
 	// Easter egg moment
 
 	public var PRESS_ANIM:FlxAnimation = null;
@@ -75,10 +77,10 @@ class StrumNote extends FlxSprite
 		#end
 
 		// Broken down version of updateHitbox(), basically inlining manually
-		width = Math.abs(scale.x) * frameWidth;
-		height = Math.abs(scale.y) * frameHeight;
-		offset.x = (frameWidth * 0.5) - 54;
-		offset.y = (frameHeight * 0.5) - 56;
+		width = (scale.x < 0.0 ? -scale.x : scale.x) * frameWidth;
+		height = (scale.y < 0.0 ? -scale.y : scale.y) * frameHeight;
+		offset.x = ((frameWidth / (scale.x * 1.428571428571429)) * 0.5) - 54;
+		offset.y = ((frameHeight / (scale.y * 1.428571428571429)) * 0.5) - 56;
 		origin.x = offset.x + 54;
 		origin.y = offset.y + 56;
 	}
@@ -111,8 +113,8 @@ class StrumNote extends FlxSprite
 		color = 0xffffffff;
 
 		// Broken down version of updateHitbox(), basically inlining manually
-		width = Math.abs(scale.x) * frameWidth;
-		height = Math.abs(scale.y) * frameHeight;
+		width = (scale.x < 0.0 ? -scale.x : scale.x) * frameWidth;
+		height = (scale.y < 0.0 ? -scale.y : scale.y) * frameHeight;
 		offset.x = (frameWidth * 0.5) - 54;
 		offset.y = (frameHeight * 0.5) - 56;
 		origin.x = offset.x + 54;

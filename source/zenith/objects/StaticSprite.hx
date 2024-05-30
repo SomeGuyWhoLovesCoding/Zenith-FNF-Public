@@ -27,107 +27,8 @@ import openfl.geom.Rectangle;
 
 using flixel.util.FlxColorTransformUtil;
 
-/**
- * The core building blocks of all Flixel games. With helpful tools for animation, movement and
- * features for the needs of most games.
- * 
- * It is pretty common place to extend `StaticSprite` for your own game's needs; for example a `SpaceShip`
- * class may extend `StaticSprite` but could have additional variables for the game like `shieldStrength`
- * or `shieldPower`.
- * 
- * - [Handbook - StaticSprite](https://haxeflixel.com/documentation/StaticSprite/)
- * 
- * ## Collision and Motion
- * Flixel handles many aspects of collision and physics motions for you. This is all defined in the
- * base class: [FlxObject](https://api.haxeflixel.com/flixel/FlxObject.html), check there for things
- * like: `x`, `y`, `width`, `height`, `velocity`, `acceleration`, `maxVelocity`, `drag`, `angle`,
- * and `angularVelocity`. All of these affect the movement and orientation of the sprite as well
- * as [FlxG.collide](https://api.haxeflixel.com/flixel/FlxG.html#collide) and
- * [FlxG.overlap](https://api.haxeflixel.com/flixel/FlxG.html#overlap)
- * 
- * ## Graphics
- * `StaticSprites` are just `FlxObjects` with the ability to show graphics. There are various ways to do this.
- * ### `loadGraphic()`
- * [Snippets - Loading Sprites](https://snippets.haxeflixel.com/sprites/loading-sprites/)
- * The easiest way to use a single image for your StaticSprite. Using the OpenFL asset system defined
- * in the project xml file you simply have to define a path to your image and the compiler will do
- * the rest.
- * ```haxe
- * var player = new StaticSprite();
- * player.loadGraphic("assets/player.png");
- * add(player);
- * ```
- * 
- * ####Animations
- * [Snippets - Animations](https://snippets.haxeflixel.com/sprites/animation/)
- * When loading a graphic for a `StaticSprite`, you can specify is as an animated graphic. Then, using
- * animation, you can setup animations and play them.
- * ```haxe
- *  // sprite's graphic will be loaded from 'path/to/image.png' and is set to allow animations.
- * sprite.loadGraphic('path/to/image/png', true);
- * 
- * // add an animation named 'run' to sprite, using the specified frames
- * sprite.animation.add('run', [0, 1, 2, 1]);
- * 
- * // play the 'run' animation
- * sprite.animation.play('run');
- * ```
- * 
- * ### `makeGraphic()`
- * [Snippets - Loading Sprites](https://snippets.haxeflixel.com/sprites/making-sprites/)
- * This method is a handy way to make a simple color fill to quickly test a feature or have the basic shape.
- * ```haxe
- * var whiteSquare = new StaticSprite();
- * whiteSquare.makeGraphic(200, 200, FlxColor.WHITE);
- * add(whiteSquare);
- * ```
- * ## Properties
- * ### Position: x, y
- * ```haxe
- * whiteSquare.x = 100;
- * whiteSquare.y = 300;
- * ```
- * 
- * ### Size: width, height
- * Automatically set in loadGraphic() or makeGraphic(), changing this will only affect the hitbox
- * of this sprite, use scale to change the graphic's size.
- * ```haxe
- * // get
- * var getWidth = whiteSquare.width;
- * 
- * // set
- * whiteSquare.width = 100;
- * whiteSquare.height = 100;
- * ```
- * 
- * ### Scale
- * [Snippets - Scale](https://snippets.haxeflixel.com/sprites/scale/)
- * (FlxPoint) Change the size of your sprite's graphic. NOTE: The hitbox is not automatically
- * adjusted, use updateHitbox() for that.
- * ```haxe
- * // twice as big
- * whiteSquare.scale.set(2, 2);
- * 
- * // 50%
- * whiteSquare.scale.set(0.5, 0.5);
- * ```
- * 
- * ### Offset
- * (FlxPoint) Controls the position of the sprite's hitbox. Likely needs to be adjusted after changing a sprite's width, height or scale.
- * ```haxe
- * whiteSquare.offset.set(50, 50);
- * ```
- * 
- * ### Origin
- * (FlxPoint) Rotation axis. Default: center.
- * 
- * WARNING: If you change this, the visuals and the collisions will likely be pretty out-of-sync if you do any rotation.
- * ```haxe
- * // rotate from top-left corner instead of center
- * whiteSquare.origin.set(0, 0);
- * ```
- * 
- */
+// Just a FlxSprite copy without animation support.
+
 class StaticSprite extends FlxBasic
 {
 
@@ -315,14 +216,15 @@ class StaticSprite extends FlxBasic
 	{
 		_flashRect.x = _flashRect.y = 0;
 
-		_flashRect.width = frameWidth = Std.int((_frame = frame.copyTo(null)).sourceSize.x);
+		_frame = frame.copyTo(null);
+		_flashRect.width = frameWidth = Std.int(_frame.sourceSize.x);
 		_flashRect.height = frameHeight = Std.int(_frame.sourceSize.y);
 
 		origin.x = _halfSize.x = 0.5 * frameWidth;
 		origin.y = _halfSize.y = 0.5 * frameHeight;
 
-		width = Math.abs(scale.x) * frameWidth;
-		height = Math.abs(scale.y) * frameHeight;
+		width = (scale.x < 0.0 ? -scale.x : scale.x) * frameWidth;
+		height = (scale.y < 0.0 ? -scale.y : scale.y) * frameHeight;
 		offset.x = -0.5 * (width - frameWidth);
 		offset.y = -0.5 * (height - frameHeight);
 	}

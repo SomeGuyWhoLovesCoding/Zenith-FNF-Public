@@ -179,6 +179,9 @@ class Gameplay extends State
 
 			if (currentNote.exists)
 			{
+				currentNote.scale.set(currentNote.strum.scale.x, currentNote.strum.scale.y);
+				currentNote.updateHitbox();
+
 				currentNote.distance = 0.45 * (Main.conductor.songPosition - currentNote.strumTime) * songSpeed;
 				currentNote.x = currentNote.strum.x + currentNote.offsetX + (-Math.abs(currentNote.strum.scrollMult) * currentNote.distance) *
 					FlxMath.fastCos(FlxAngle.asRadians(currentNote.direction - 90.0));
@@ -223,6 +226,11 @@ class Gameplay extends State
 			currentSustain = sustains.members[i];
 			if (currentSustain.exists)
 			{
+				currentSustain.scale.set(currentSustain.strum.scale.x, currentSustain.strum.scale.y);
+				currentSustain.offset.x = -0.5 * ((currentSustain.frameWidth * 0.7) - currentSustain.frameWidth);
+				currentSustain.origin.x = currentSustain.frameWidth * 0.5;
+				currentSustain.origin.y = currentSustain.offset.y = 0.0;
+
 				currentSustain.distance = 0.45 * (Main.conductor.songPosition - currentSustain.strumTime) * songSpeed;
 
 				currentSustain.x = (currentSustain.strum.x + currentSustain.offsetX + (-Math.abs(currentSustain.strum.scrollMult) * currentSustain.distance) *
@@ -265,19 +273,17 @@ class Gameplay extends State
 		Main.optUtils.scriptCall2Ints('onKeyDown', keyCode, keyModifier);
 		#end
 
-		key = inputKeybinds.indexOf(keyCode);
+		st = inputKeybinds.get(keyCode);
 
-		if (cpuControlled || key == -1 || !generatedMusic || holdArray[key])
+		if (st == null || cpuControlled || !generatedMusic || holdArray[st.noteData])
 			return;
-
-		st = strumlines.members[strumlines.members.length-1].members[key];
 
 		if (st.animation.curAnim.name != 'confirm')
 			st.playAnim('pressed');
 
-		h(key);
+		h(st.noteData);
 
-		holdArray[key] = true;
+		holdArray[st.noteData] = true;
 
 		#if SCRIPTING_ALLOWED
 		Main.optUtils.scriptCall2Ints('onKeyDownPost', keyCode, keyModifier);
@@ -290,20 +296,18 @@ class Gameplay extends State
 		Main.optUtils.scriptCall2Ints('onKeyUp', keyCode, keyModifier);
 		#end
 
-		key = inputKeybinds.indexOf(keyCode);
+		st = inputKeybinds.get(keyCode);
 
-		if (cpuControlled || key == -1 || !generatedMusic || !holdArray[key])
+		if (cpuControlled || st == null || !generatedMusic || !holdArray[st.noteData])
 			return;
-
-		st = strumlines.members[strumlines.members.length-1].members[key];
 
 		if (st.animation.curAnim.name == 'confirm' ||
 			st.animation.curAnim.name == 'pressed')
 			st.playAnim('static');
 
-		r(key);
+		r(st.noteData);
 
-		holdArray[key] = false;
+		holdArray[st.noteData] = false;
 
 		#if SCRIPTING_ALLOWED
 		Main.optUtils.scriptCall2Ints('onKeyUpPost', keyCode, keyModifier);
@@ -1197,8 +1201,7 @@ class Gameplay extends State
 			playablelineConfiguration.push(false);
 		}
 
-		var strumline = new Strumline(4, player, playablelineConfiguration[player]);
-		strumlines.add(strumline);
+		strumlines.add(new Strumline(4, player, playablelineConfiguration[player]));
 	}
 
 	public function dance(beat:Float):Void
@@ -1256,7 +1259,10 @@ class Gameplay extends State
 
 		addCameraZoom();
 
-		inputKeybinds = SaveData.contents.controls.GAMEPLAY_BINDS;
+		for (i in 0...SaveData.contents.controls.GAMEPLAY_BINDS.length)
+		{
+			inputKeybinds.set(SaveData.contents.controls.GAMEPLAY_BINDS[i], strumlines.members[Std.int(i * 0.25) + 1].members[i]);
+		}
 
 		var swagCounter = 0;
 		_songPos = (-Main.conductor.crochet * 5.0);
@@ -1435,7 +1441,7 @@ class Gameplay extends State
 		}
 	}
 
-	public var inputKeybinds:Array<(Int)> = [];
+	public var inputKeybinds:Map<(Int), (StrumNote)> = new Map<(Int), (StrumNote)>();
 
 	// The extra 5 values are used to check if a key is just pressed for extra keys aswell
 	public var holdArray(default, null):Array<Bool> = [false, false, false, false, false, false, false, false, false];
@@ -1458,26 +1464,31 @@ class Gameplay extends State
 						var actualScrollMult = strum.scrollMult;
 						actualScrollMult = -actualScrollMult;
 
-						var scrollTween = strumScrollMultTweens.get(strum);
+						var scrollMultTween = strumScrollMultTweens.get(strum);
 						var yTween = strumYTweens.get(strum);
 
-						if (null != scrollTween)
-							scrollTween.cancel();
+						if (null != scrollMultTween)
+							scrollMultTween.cancel();
 
-						strumScrollMultTweens.set(strum, FlxTween.tween(strum, {scrollMult: strum.scrollMult > 0.0 ? -1.0 : 1.0}, Math.abs(tweenLength), {ease: FlxEase.quintOut}));
+						strumScrollMultTweens.set(strum, FlxTween.tween(strum, {scrollMult: strum.scrollMult > 0.0 ? -1.0 : 1.0}, (tweenLength < 0.0 ? -tweenLength : tweenLength), {ease: FlxEase.quintOut}));
 
 						if (null != yTween)
 							yTween.cancel();
 
-						strumYTweens.set(strum, FlxTween.tween(strum, {y: actualScrollMult < 0.0 ? FlxG.height - 160.0 : 60.0}, Math.abs(tweenLength), {ease: FlxEase.quintOut}));
+						strumYTweens.set(strum, FlxTween.tween(strum, {y: actualScrollMult < 0.0 ? FlxG.height - 160.0 : 60.0}, (tweenLength < 0.0 ? -tweenLength : tweenLength), {ease: FlxEase.quintOut}));
 					}
 					else
 					{
 						strum.scrollMult = -strum.scrollMult;
-						strum.y = strum.scrollMult < 0.0 ? FlxG.height - 160.0 : 60.0;
 					}
 				}
+
+				if (strum.noteData == strumline.keys - 1)
+				{
+					strumline.downScroll = strum.scrollMult < 0.0;
+				}
 			}
+			strumline.y = strumline.downScroll ? FlxG.height - 160.0 : 60.0;
 		}
 	}
 
@@ -1506,10 +1517,12 @@ class Gameplay extends State
 	var _s(default, null):SustainNote;
 	var _nd(default, null):Array<Float>;
 
+	var _d(default, null):Float;
+	var _nk(default, null):Int = 0;
+
 	var c(default, null):Character;
 
 	var st(default, null):StrumNote;
-	var key(default, null):Int;
 
 	var _songPos(default, null):Float = -5000.0;
 
@@ -1519,8 +1532,6 @@ class Gameplay extends State
 			return;
 
 		spawnedNote = notes.recycle((Note));
-
-		spawnedNote.scale.x = spawnedNote.scale.y = 0.7;
 		spawnedNote.setFrame(Paths.regularNoteFrame);
 
 		#if SCRIPTING_ALLOWED
@@ -1537,10 +1548,13 @@ class Gameplay extends State
 		spawnedNote.lane = Std.int(chartNoteData[3]) % strumlineCount;
 		spawnedNote.multiplier = Std.int(chartNoteData[4]);
 
-		spawnedNote.strum = strumlines.members[spawnedNote.lane].members[spawnedNote.noteData];
+		_nk = strumlines.members[spawnedNote.lane].keys;
 
-		spawnedNote.color = NoteBase.colorArray[spawnedNote.noteData];
-		spawnedNote.angle = NoteBase.angleArray[spawnedNote.noteData];
+		spawnedNote.strum = strumlines.members[spawnedNote.lane].members[spawnedNote.noteData % _nk];
+		spawnedNote.scale.set(spawnedNote.strum.scale.x, spawnedNote.strum.scale.y);
+
+		spawnedNote.color = NoteBase.colorArray[spawnedNote.noteData % _nk];
+		spawnedNote.angle = NoteBase.angleArray[spawnedNote.noteData % _nk];
 
 		#if SCRIPTING_ALLOWED
 		Main.optUtils.scriptCallNote('newNote', spawnedNote);
@@ -1550,7 +1564,7 @@ class Gameplay extends State
 		Main.optUtils.scriptCallNoteSetup('setupNoteDataPost', spawnedNote, chartNoteData);
 		#end
 
-		if (spawnedNote.sustainLength < 32.0) // Don't spawn too short sustain notes
+		if (spawnedNote.sustainLength < 2.0) // Don't spawn too short sustain notes
 		{
 			return;
 		}
@@ -1562,19 +1576,14 @@ class Gameplay extends State
 	{
 		spawnedSustain = sustains.recycle((SustainNote));
 
-		spawnedSustain.scale.x = spawnedSustain.scale.y = 0.7;
 		spawnedSustain.setFrame(Paths.sustainNoteFrame);
 
 		#if SCRIPTING_ALLOWED
 		Main.optUtils.scriptCallSustainSetup('setupSustainData', spawnedSustain, chartNoteData);
 		#end
 
-		spawnedSustain.offset.x = -0.5 * ((spawnedSustain.frameWidth * 0.7) - spawnedSustain.frameWidth);
-		spawnedSustain.origin.x = spawnedSustain.frameWidth * 0.5;
-		spawnedSustain.origin.y = spawnedSustain.offset.y = 0.0;
-
 		spawnedSustain.alpha = 0.6; // Definitive alpha, default
-		spawnedSustain.y = -2000;
+		spawnedSustain.y = -2000.0;
 		spawnedSustain.holding = spawnedSustain.missed = false;
 
 		spawnedSustain.strumTime = chartNoteData[0];
@@ -1582,10 +1591,18 @@ class Gameplay extends State
 		spawnedSustain.length = chartNoteData[2] - 32.0;
 		spawnedSustain.lane = Std.int(chartNoteData[3]);
 
-		spawnedSustain.strum = strumlines.members[spawnedSustain.lane].members[spawnedSustain.noteData];
-		spawnedSustain.color = NoteBase.colorArray[spawnedSustain.noteData];
+		_nk = strumlines.members[spawnedSustain.lane].keys;
 
-		spawnedSustain.downScroll = spawnedSustain.strum.scrollMult <= 0;
+		spawnedSustain.strum = strumlines.members[spawnedSustain.lane].members[spawnedSustain.noteData % _nk];
+		spawnedSustain.scale.set(spawnedSustain.strum.scale.x, spawnedSustain.strum.scale.y);
+
+		spawnedSustain.offset.x = -0.5 * ((spawnedSustain.frameWidth * 0.7) - spawnedSustain.frameWidth);
+		spawnedSustain.origin.x = spawnedSustain.frameWidth * 0.5;
+		spawnedSustain.origin.y = spawnedSustain.offset.y = 0.0;
+
+		spawnedSustain.color = NoteBase.colorArray[spawnedSustain.noteData % _nk];
+
+		spawnedSustain.downScroll = spawnedSustain.strum.scrollMult < 0.0;
 
 		#if SCRIPTING_ALLOWED
 		Main.optUtils.scriptCallSustain('newSustain', spawnedSustain);
@@ -1608,8 +1625,9 @@ class Gameplay extends State
 
 		if (note.strum.playable)
 		{
+			_d = note.strumTime - Main.conductor.songPosition;
 			score += 350.0 * FlxMath.maxInt(note.multiplier, 1);
-			accuracy_left += (Math.abs(note.strumTime - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0) * FlxMath.maxInt(note.multiplier, 1);
+			accuracy_left += ((_d < 0.0 ? -_d : _d) > 83.35 ? 0.75 : 1.0) * FlxMath.maxInt(note.multiplier, 1);
 			accuracy_right += FlxMath.maxInt(note.multiplier, 1);
 		}
 
@@ -1673,7 +1691,7 @@ class Gameplay extends State
 
 		sustain.strum.playAnim('confirm');
 
-		health += 0.00275 * (sustain.strum.playable ? 1.0 : -1.0);
+		health += FlxG.elapsed * (sustain.strum.playable ? 0.125 : -0.125);
 
 		if (!noCharacters)
 		{
@@ -1724,5 +1742,34 @@ class Gameplay extends State
 		#if SCRIPTING_ALLOWED
 		Main.optUtils.scriptCallInt('onReleasePost', noteData);
 		#end
+	}
+
+	var finder:NoteFinder = new NoteFinder();
+}
+
+private class NoteFinder
+{
+	public function new():Void {}
+
+	var noteTracker:Int;
+	var sustainTracker:Int;
+
+	var note:Note;
+	var sustain:Note;
+
+	// I'm getting confused here
+	public function findNote(position:Float):Note
+	{
+		note = Gameplay.instance.notes.members[noteTracker = Std.int(position / Main.conductor.stepCrochet)];
+
+		if (!note.strum.playable)
+		{
+			while (!note.strum.playable)
+			{
+				note = Gameplay.instance.notes.members[noteTracker++];
+			}
+		}
+
+		return note;
 	}
 }
