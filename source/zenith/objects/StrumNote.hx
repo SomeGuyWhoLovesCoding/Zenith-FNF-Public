@@ -99,6 +99,9 @@ class StrumNote extends FlxSprite
 		if (anim != 'confirm' || (playable && !Gameplay.cpuControlled))
 			return;
 
+		#if HXCPP_CHECK_POINTER
+		animation.play('static', true);
+		#else
 		animation.curAnim = STATIC_ANIM;
 		animation.curAnim._frameTimer = animation.curAnim.curFrame = 0;
 		animation.curAnim.finished = animation.curAnim.paused = false;
