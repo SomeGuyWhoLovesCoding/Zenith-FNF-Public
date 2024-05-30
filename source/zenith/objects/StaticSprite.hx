@@ -413,7 +413,7 @@ class StaticSprite extends FlxBasic
 	 */
 	@:noCompletion
 	var _halfSize:FlxPoint;
-	
+
 	/**
 	 *  Helper variable
 	 */
@@ -451,49 +451,6 @@ class StaticSprite extends FlxBasic
 	{
 		x = X;
 		y = Y;
-
-		onDraw = () ->
-		{
-			checkEmptyFrame();
-
-			if (alpha == 0.0 || _frame.type == FlxFrameType.EMPTY)
-				return;
-
-			for (camera in cameras)
-			{
-				if (!camera.visible || !camera.exists || !isOnScreen(camera))
-					continue;
-
-				_frame.prepareMatrix(_matrix, FlxFrameAngle.ANGLE_0, checkFlipX(), checkFlipY());
-				_matrix.translate(-origin.x, -origin.y);
-				_matrix.scale(scale.x, scale.y);
-
-				if (bakedRotationAngle <= 0)
-				{
-					var radians:Float = angle * FlxAngle.TO_RAD;
-					_sinAngle = FlxMath.fastSin(radians);
-					_cosAngle = FlxMath.fastCos(radians);
-
-					if (angle != 0.0)
-						_matrix.rotateWithTrig(_cosAngle, _sinAngle);
-				}
-
-				getScreenPosition(_point, camera).subtractPoint(offset);
-				_point.add(origin.x, origin.y);
-				_matrix.translate(_point.x, _point.y);
-
-				camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
-
-				#if FLX_DEBUG
-				FlxBasic.visibleCount++;
-				#end
-			}
-
-			#if FLX_DEBUG
-			if (FlxG.debugger.drawDebug)
-				drawDebug();
-			#end
-		}
 
 		super();
 
@@ -783,7 +740,44 @@ class StaticSprite extends FlxBasic
 	 */
 	override public function draw():Void
 	{
-		onDraw();
+		checkEmptyFrame();
+
+		if (alpha != 0.0 && _frame.type != FlxFrameType.EMPTY)
+		{
+			for (camera in cameras)
+			{
+				if (camera.visible && camera.exists && isOnScreen(camera))
+				{
+					_frame.prepareMatrix(_matrix, FlxFrameAngle.ANGLE_0, checkFlipX(), checkFlipY());
+					_matrix.translate(-origin.x, -origin.y);
+					_matrix.scale(scale.x, scale.y);
+
+					if (bakedRotationAngle <= 0)
+					{
+						_sinAngle = FlxMath.fastSin(angle * FlxAngle.TO_RAD);
+						_cosAngle = FlxMath.fastCos(angle * FlxAngle.TO_RAD);
+
+						if (angle != 0.0)
+							_matrix.rotateWithTrig(_cosAngle, _sinAngle);
+					}
+
+					getScreenPosition(_point, camera).subtractPoint(offset);
+					_point.add(origin.x, origin.y);
+					_matrix.translate(_point.x, _point.y);
+
+					camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
+
+					#if FLX_DEBUG
+					FlxBasic.visibleCount++;
+					#end
+				}
+			}
+
+			#if FLX_DEBUG
+			if (FlxG.debugger.drawDebug)
+				drawDebug();
+			#end
+		}
 	}
 
 	/**
@@ -806,7 +800,7 @@ class StaticSprite extends FlxBasic
 	 * Sets the sprite's origin to its center - useful after adjusting
 	 * `scale` to make sure rotations work as expected.
 	 */
-	public inline function centerOrigin():Void
+	inline public function centerOrigin():Void
 	{
 		origin.set(frameWidth * 0.5, frameHeight * 0.5);
 	}
@@ -841,7 +835,7 @@ class StaticSprite extends FlxBasic
 	 * @param   blueOffset        The offset for the blue color channel value, in the range from `-255` to `255`.
 	 * @param   alphaOffset       The offset for alpha transparency channel value, in the range from `-255` to `255`.
 	 */
-	public function setColorTransform(redMultiplier = 1.0, greenMultiplier = 1.0, blueMultiplier = 1.0, alphaMultiplier = 1.0,
+	inline public function setColorTransform(redMultiplier = 1.0, greenMultiplier = 1.0, blueMultiplier = 1.0, alphaMultiplier = 1.0,
 			redOffset = 0, greenOffset = 0, blueOffset = 0, alphaOffset = 0):Void
 	{
 		color = FlxColor.fromRGBFloat(redMultiplier, greenMultiplier, blueMultiplier).to24Bit();
@@ -853,8 +847,8 @@ class StaticSprite extends FlxBasic
 		useColorTransform = alpha != 1 || color != 0xffffff || colorTransform.hasRGBOffsets();
 		dirty = true;
 	}
-	
-	function updateColorTransform():Void
+
+	inline function updateColorTransform():Void
 	{
 		if (colorTransform == null)
 			return;
@@ -875,7 +869,7 @@ class StaticSprite extends FlxBasic
 	 *                  Otherwise a new one is created.
 	 * @return  A `FlxPoint` containing the midpoint of this sprite's graphic in world coordinates.
 	 */
-	public function getGraphicMidpoint(?point:FlxPoint):FlxPoint
+	inline public function getGraphicMidpoint(?point:FlxPoint):FlxPoint
 	{
 		if (point == null)
 			point = FlxPoint.get();
@@ -889,11 +883,11 @@ class StaticSprite extends FlxBasic
 	 * @param   Camera  Specify which game camera you want. If `null`, `FlxG.camera` is used.
 	 * @return  Whether the object is on screen or not.
 	 */
-	inline public function isOnScreen(?camera:FlxCamera):Bool
+	public function isOnScreen(?camera:FlxCamera):Bool
 	{
 		if (camera == null)
 			camera = FlxG.camera;
-		
+
 		return camera.containsRect(getScreenBounds(_rect, camera));
 	}
 
@@ -910,11 +904,11 @@ class StaticSprite extends FlxBasic
 	{
 		if (newRect == null)
 			newRect = FlxRect.get();
-		
+
 		newRect.set(x, y, width, height);
 		return newRect.getRotatedBounds(angle, origin, newRect);
 	}
-	
+
 	/**
 	 * Calculates the smallest globally aligned bounding box that encompasses this sprite's graphic as it
 	 * would be displayed. Honors scrollFactor, rotation, scale, offset and origin.
@@ -927,10 +921,10 @@ class StaticSprite extends FlxBasic
 	{
 		if (newRect == null)
 			newRect = FlxRect.get();
-		
+
 		if (camera == null)
 			camera = FlxG.camera;
-		
+
 		newRect.setPosition(x, y);
 
 		_scaledOrigin.set(origin.x * scale.x, origin.y * scale.y);
@@ -940,7 +934,7 @@ class StaticSprite extends FlxBasic
 		newRect.setSize(frameWidth * (scale.x < 0.0 ? -scale.x : scale.x), frameHeight * (scale.y < 0.0 ? -scale.y : scale.y));
 		return newRect.getRotatedBounds(angle, _scaledOrigin, newRect);
 	}
-	
+
 	/**
 	 * Set how a sprite flips when facing in a particular direction.
 	 *
@@ -951,13 +945,13 @@ class StaticSprite extends FlxBasic
 	 * @param   FlipX       Whether to flip the sprite on the X axis.
 	 * @param   FlipY       Whether to flip the sprite on the Y axis.
 	 */
-	public inline function setFacingFlip(Direction:FlxDirectionFlags, FlipX:Bool, FlipY:Bool):Void
+	inline public function setFacingFlip(Direction:FlxDirectionFlags, FlipX:Bool, FlipY:Bool):Void
 	{
 		_facingFlip.set(Direction, {x: FlipX, y: FlipY});
 	}
 
 	@:noCompletion
-	function set_facing(Direction:FlxDirectionFlags):FlxDirectionFlags
+	inline function set_facing(Direction:FlxDirectionFlags):FlxDirectionFlags
 	{
 		var flip = _facingFlip.get(Direction);
 		if (flip != null)
@@ -970,7 +964,7 @@ class StaticSprite extends FlxBasic
 	}
 
 	@:noCompletion
-	function set_alpha(Alpha:Float):Float
+	inline function set_alpha(Alpha:Float):Float
 	{
 		if (alpha == Alpha)
 		{
@@ -982,7 +976,7 @@ class StaticSprite extends FlxBasic
 	}
 
 	@:noCompletion
-	function set_color(Color:FlxColor):Int
+	inline function set_color(Color:FlxColor):Int
 	{
 		if (color == Color)
 		{
@@ -994,7 +988,7 @@ class StaticSprite extends FlxBasic
 	}
 
 	@:noCompletion
-	function set_blend(Value:BlendMode):BlendMode
+	inline function set_blend(Value:BlendMode):BlendMode
 	{
 		return blend = Value;
 	}
@@ -1011,14 +1005,14 @@ class StaticSprite extends FlxBasic
 			// If new graphic is not null, increase its use count
 			if (value != null)
 				value.incrementUseCount();
-			
+
 			// If old graphic is not null, decrease its use count
 			if (graphic != null)
 				graphic.decrementUseCount();
-			
+
 			graphic = value;
 		}
-		
+
 		return value;
 	}
 
