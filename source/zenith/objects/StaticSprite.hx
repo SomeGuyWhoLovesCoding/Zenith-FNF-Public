@@ -732,8 +732,8 @@ class StaticSprite extends FlxBasic
 	 */
 	public function updateHitbox():Void
 	{
-		width = Math.abs(scale.x) * frameWidth;
-		height = Math.abs(scale.y) * frameHeight;
+		width = (scale.x < 0.0 ? -scale.x : scale.x) * frameWidth;
+		height = (scale.y < 0.0 ? -scale.y : scale.y) * frameHeight;
 		offset.set(-0.5 * (width - frameWidth), -0.5 * (height - frameHeight));
 		centerOrigin();
 	}
@@ -937,7 +937,7 @@ class StaticSprite extends FlxBasic
 		newRect.x += -Std.int(camera.scroll.x * scrollFactor.x) - offset.x + origin.x - _scaledOrigin.x;
 		newRect.y += -Std.int(camera.scroll.y * scrollFactor.y) - offset.y + origin.y - _scaledOrigin.y;
 
-		newRect.setSize(frameWidth * Math.abs(scale.x), frameHeight * Math.abs(scale.y));
+		newRect.setSize(frameWidth * (scale.x < 0.0 ? -scale.x : scale.x), frameHeight * (scale.y < 0.0 ? -scale.y : scale.y));
 		return newRect.getRotatedBounds(angle, _scaledOrigin, newRect);
 	}
 	
