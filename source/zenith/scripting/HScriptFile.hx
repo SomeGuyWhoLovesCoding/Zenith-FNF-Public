@@ -1,5 +1,6 @@
 package zenith.scripting;
 
+#if SCRIPTING_ALLOWED 
 import hscript.Interp;
 import hscript.Parser;
 
@@ -104,3 +105,4 @@ class HScriptFile
 		parser = null;
 	}
 }
+#end
