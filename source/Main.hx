@@ -29,7 +29,10 @@ typedef TransitioningInfo =
 class Main extends Sprite
 {
 	static public var conductor:Conductor;
+
+	#if SCRIPTING_ALLOWED
 	static public var hscript:HScriptSystem;
+	#end
 
 	static private final transitioning:Transitioning = {_in: null, _out: null};
 
