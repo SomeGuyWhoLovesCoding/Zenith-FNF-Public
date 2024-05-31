@@ -592,7 +592,7 @@ class Gameplay extends State
 				// Finish off stage creation and add characters finally
 
 				#if SCRIPTING_ALLOWED
-				Main.optUtils.scriptCall2Strings('createStage', curSong, curDifficulty);
+				HScriptSystem.callFromAllScripts('createStage', curSong, curDifficulty);
 				#end
 
 				threadsCompleted = -2;
