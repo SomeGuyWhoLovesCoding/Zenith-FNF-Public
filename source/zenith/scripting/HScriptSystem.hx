@@ -4,14 +4,14 @@ import hscript.*;
 
 class HScriptSystem
 {
-	static public var list:Map<String, HScriptFile>;
+	public var list:Map<String, HScriptFile>;
 
-	static public function init():Void
+	public function new():Void
 	{
 		list = new Map<String, HScriptFile>();
 	}
 
-	static public function reloadAllScripts():Void
+	public function reloadAllScripts():Void
 	{
 		for (key in list.keys())
 		{
@@ -19,7 +19,7 @@ class HScriptSystem
 		}
 	}
 
-	static public function loadScript(sourcePath:String, key:String, fromDirectory:Bool = false, directoryName:String = ""):Void
+	public function loadScript(sourcePath:String, key:String, fromDirectory:Bool = false, directoryName:String = ""):Void
 	{
 		// If the script already exists, overwrite it with the new contents
 		if (list.exists(key))
@@ -34,7 +34,7 @@ class HScriptSystem
 		}
 	}
 
-	static public function removeScript(key:String):Void
+	public function removeScript(key:String):Void
 	{
 		// If the script is already removed, don't destroy it again
 
@@ -51,7 +51,7 @@ class HScriptSystem
 		}
 	}
 
-	static public function loadScriptsFromDirectory(sourcePath:String):Void
+	public function loadScriptsFromDirectory(sourcePath:String):Void
 	{
 		try
 		{
@@ -81,7 +81,7 @@ class HScriptSystem
 		}
 	}
 
-	static public function removeScriptsFromDirectory(sourcePath:String):Void
+	public function removeScriptsFromDirectory(sourcePath:String):Void
 	{
 		try
 		{
@@ -105,12 +105,12 @@ class HScriptSystem
 		}
 	}
 
-	inline static public function getScript(key:String):HScriptFile
+	inline public function getScript(key:String):HScriptFile
 	{
 		return list[key];
 	}
 
-	static public function reloadScript(key:String):Void
+	public function reloadScript(key:String):Void
 	{
 		var file = getScript(key);
 
@@ -127,13 +127,13 @@ class HScriptSystem
 		}
 	}
 
-	static public function callFromAllScripts(func:String, ?arg1:Dynamic, ?arg2:Dynamic, ?arg3:Dynamic, ?arg4:Dynamic, ?arg5:Dynamic):Void
+	public function callFromAllScripts(func:String, ?arg1:Dynamic, ?arg2:Dynamic, ?arg3:Dynamic, ?arg4:Dynamic, ?arg5:Dynamic):Void
 	{
-		for (script => x in scriptList)
+		for (script => x in list)
 		{
 			try
 			{
-				final func = scriptList[script].interp.variables[func];
+				final func = list[script].interp.variables[func];
 				if (func != null)
 				{
 					func(arg1,arg2,arg3,arg4,arg5);
@@ -146,7 +146,7 @@ class HScriptSystem
 		}
 	}
 
-	static public dynamic function error(e:haxe.Exception):Void
+	public dynamic function error(e:haxe.Exception):Void
 	{
 		#if debug
 		trace(e.message);

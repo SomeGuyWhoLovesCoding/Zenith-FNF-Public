@@ -57,7 +57,7 @@ class HUDGroup extends FlxSpriteGroup
 			Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000.0) * 0.01 + '%');
 
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScripts('onUpdateScore');
+		Main.hscript.callFromAllScripts('onUpdateScore');
 		#end
 	}
 
@@ -70,12 +70,6 @@ class HUDGroup extends FlxSpriteGroup
 			healthBar.__left.makeGraphic(healthBar.__width, healthBar.__height, FlxColor.fromRGB(Gameplay.instance.dad.healthColorArray[0], Gameplay.instance.dad.healthColorArray[1], Gameplay.instance.dad.healthColorArray[2]));
 			healthBar.__right.makeGraphic(healthBar.__width, healthBar.__height, FlxColor.fromRGB(Gameplay.instance.bf.healthColorArray[0], Gameplay.instance.bf.healthColorArray[1], Gameplay.instance.bf.healthColorArray[2]));
 		}
-	}
-
-	function updateIcons():Void
-	{
-		plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;
-		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
 	}
 
 	override public function update(elapsed:Float):Void
@@ -98,7 +92,8 @@ class HUDGroup extends FlxSpriteGroup
 			timeTxt.text = Utils.formatTime(Gameplay.instance.songLength - Main.conductor.songPosition, true, true);
 		}
 
-		updateIcons();
+		plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;
+		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
 
 		super.update(elapsed);
 	}

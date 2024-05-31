@@ -20,10 +20,6 @@ import flixel.ui.*;
 
 import emitter.signals.*;
 
-// HScript
-
-import zenith.scripting.HScriptSystem.list in scriptList;
-
 #if !debug
 @:noDebug
 #end

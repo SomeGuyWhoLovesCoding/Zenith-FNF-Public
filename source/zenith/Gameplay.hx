@@ -265,7 +265,7 @@ class Gameplay extends State
 	inline public function onKeyDown(keyCode:(Int), keyModifier:(Int)):Void
 	{
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScripts('onKeyDown', keyCode, keyModifier);
+		Main.hscript.callFromAllScripts('onKeyDown', keyCode, keyModifier);
 		#end
 
 		st = inputKeybinds[keyCode];
@@ -280,7 +280,7 @@ class Gameplay extends State
 			holdArray[st.noteData] = true;
 
 			#if SCRIPTING_ALLOWED
-			HScriptSystem.callFromAllScripts('onKeyDownPost', keyCode, keyModifier);
+			Main.hscript.callFromAllScripts('onKeyDownPost', keyCode, keyModifier);
 			#end
 		}
 	}
@@ -288,7 +288,7 @@ class Gameplay extends State
 	inline public function onKeyUp(keyCode:(Int), keyModifier:(Int)):Void
 	{
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScripts('onKeyUp', keyCode, keyModifier);
+		Main.hscript.callFromAllScripts('onKeyUp', keyCode, keyModifier);
 		#end
 
 		st = inputKeybinds[keyCode];
@@ -304,7 +304,7 @@ class Gameplay extends State
 			holdArray[st.noteData] = false;
 
 			#if SCRIPTING_ALLOWED
-			HScriptSystem.callFromAllScripts('onKeyUpPost', keyCode, keyModifier);
+			Main.hscript.callFromAllScripts('onKeyUpPost', keyCode, keyModifier);
 			#end
 		}
 	}
@@ -592,7 +592,7 @@ class Gameplay extends State
 				// Finish off stage creation and add characters finally
 
 				#if SCRIPTING_ALLOWED
-				HScriptSystem.callFromAllScripts('createStage', curSong, curDifficulty);
+				Main.hscript.callFromAllScripts('createStage', curSong, curDifficulty);
 				#end
 
 				threadsCompleted = -2;
@@ -641,7 +641,7 @@ class Gameplay extends State
 				startCharacterPos(bf, false);
 
 				#if SCRIPTING_ALLOWED
-				HScriptSystem.callFromAllScripts('createStagePost', curSong, curDifficulty);
+				Main.hscript.callFromAllScripts('createStagePost', curSong, curDifficulty);
 				#end
 
 				// Now time to load the UI and shit
@@ -689,7 +689,7 @@ class Gameplay extends State
 				generatedMusic = true;
 
 				#if SCRIPTING_ALLOWED
-				HScriptSystem.callFromAllScripts('generateSong', curSong, curDifficulty);
+				Main.hscript.callFromAllScripts('generateSong', curSong, curDifficulty);
 				#end
 
 				openfl.system.System.gc(); // Free up inactive memory
@@ -910,7 +910,7 @@ class Gameplay extends State
 		}
 
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScripts('triggerEvent', eventName, value1, value2, value3, value4);
+		Main.hscript.callFromAllScripts('triggerEvent', eventName, value1, value2, value3, value4);
 		#end
 	}
 
@@ -1067,7 +1067,7 @@ class Gameplay extends State
 			// Finish off stage creation and add characters finally
 
 			#if SCRIPTING_ALLOWED
-			HScriptSystem.callFromAllScripts('createStage', curSong, curDifficulty);
+			Main.hscript.callFromAllScripts('createStage', curSong, curDifficulty);
 			#end
 
 			threadsCompleted = -2;
@@ -1108,7 +1108,7 @@ class Gameplay extends State
 			startCharacterPos(bf, false);
 
 			#if SCRIPTING_ALLOWED
-			HScriptSystem.callFromAllScripts('createStagePost', curSong, curDifficulty);
+			Main.hscript.callFromAllScripts('createStagePost', curSong, curDifficulty);
 			#end
 
 			// Now time to load the UI and shit
@@ -1156,7 +1156,7 @@ class Gameplay extends State
 			generatedMusic = true;
 
 			#if SCRIPTING_ALLOWED
-			HScriptSystem.callFromAllScripts('generateSong', curSong, curDifficulty);
+			Main.hscript.callFromAllScripts('generateSong', curSong, curDifficulty);
 			#end
 
 			openfl.system.System.gc(); // Free up inactive memory
@@ -1259,7 +1259,7 @@ class Gameplay extends State
 			}, 5);
 
 			#if SCRIPTING_ALLOWED
-			HScriptSystem.callFromAllScripts('startCountdown');
+			Main.hscript.callFromAllScripts('startCountdown');
 			#end
 		}
 	}
@@ -1282,7 +1282,7 @@ class Gameplay extends State
 			startedCountdown = true;
 
 			#if SCRIPTING_ALLOWED
-			HScriptSystem.callFromAllScripts('startSong');
+			Main.hscript.callFromAllScripts('startSong');
 			#end
 
 			addCameraZoom();
@@ -1311,7 +1311,7 @@ class Gameplay extends State
 		switchState(new WelcomeState());
 
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScripts('endSong');
+		Main.hscript.callFromAllScripts('endSong');
 		#end
 	}
 
@@ -1351,7 +1351,7 @@ class Gameplay extends State
 		}
 
 		#if SCRIPTING_ALLOWEDA
-		HScriptSystem.callFromAllScripts('moveCamera', whatCharacter);
+		Main.hscript.callFromAllScripts('moveCamera', whatCharacter);
 		#end
 	}
 
@@ -1492,7 +1492,7 @@ class Gameplay extends State
 			spawnedNote.setFrame(Paths.regularNoteFrame);
 
 			#if SCRIPTING_ALLOWED
-			HScriptSystem.callFromAllScripts('setupNoteData', spawnedNote, chartNoteData);
+			Main.hscript.callFromAllScripts('setupNoteData', spawnedNote, chartNoteData);
 			#end
 
 			spawnedNote.alpha = 1.0;
@@ -1519,11 +1519,11 @@ class Gameplay extends State
 			spawnedNote.angle = NoteBase.angleArray[spawnedNote.noteData % _nk];
 
 			#if SCRIPTING_ALLOWED
-			HScriptSystem.callFromAllScripts('newNote', spawnedNote);
+			Main.hscript.callFromAllScripts('newNote', spawnedNote);
 			#end
 
 			#if SCRIPTING_ALLOWED
-			HScriptSystem.callFromAllScripts('setupNoteDataPost', spawnedNote, chartNoteData);
+			Main.hscript.callFromAllScripts('setupNoteDataPost', spawnedNote, chartNoteData);
 			#end
 
 			if (spawnedNote.sustainLength > 2.0) // Don't spawn too short sustain notes
@@ -1540,7 +1540,7 @@ class Gameplay extends State
 		spawnedSustain.setFrame(Paths.sustainNoteFrame);
 
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScripts('setupSustainData', spawnedSustain, chartNoteData);
+		Main.hscript.callFromAllScripts('setupSustainData', spawnedSustain, chartNoteData);
 		#end
 
 		spawnedSustain.alpha = 0.6; // Definitive alpha, default
@@ -1566,18 +1566,18 @@ class Gameplay extends State
 		spawnedSustain.downScroll = spawnedSustain.strum.scrollMult < 0.0;
 
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScripts('newSustain', spawnedSustain);
+		Main.hscript.callFromAllScripts('newSustain', spawnedSustain);
 		#end
 
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScripts('setupSustainDataPost', spawnedSustain, chartNoteData);
+		Main.hscript.callFromAllScripts('setupSustainDataPost', spawnedSustain, chartNoteData);
 		#end
 	}
 
 	function onNoteHit(note:(Note)):Void
 	{
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScripts('onNoteHit', note);
+		Main.hscript.callFromAllScripts('onNoteHit', note);
 		#end
 
 		note.strum.playAnim('confirm');
@@ -1607,7 +1607,7 @@ class Gameplay extends State
 		note.exists = false;
 
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScripts('onNoteHitPost', note);
+		Main.hscript.callFromAllScripts('onNoteHitPost', note);
 		#end
 
 		if (hudGroup != null)
@@ -1617,7 +1617,7 @@ class Gameplay extends State
 	function onNoteMiss(note:(Note)):Void
 	{
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScripts('onNoteMiss', note);
+		Main.hscript.callFromAllScripts('onNoteMiss', note);
 		#end
 
 		note.tooLate = true;
@@ -1637,7 +1637,7 @@ class Gameplay extends State
 		r(note.noteData);
 
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScripts('onNoteMissPost', note);
+		Main.hscript.callFromAllScripts('onNoteMissPost', note);
 		#end
 
 		if (hudGroup != null)
@@ -1647,7 +1647,7 @@ class Gameplay extends State
 	function onHold(sustain:(SustainNote)):Void
 	{
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScripts('onHold', sustain);
+		Main.hscript.callFromAllScripts('onHold', sustain);
 		#end
 
 		sustain.strum.playAnim('confirm');
@@ -1682,14 +1682,14 @@ class Gameplay extends State
 		sustain.holding = true;
 
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScripts('onHoldPost', sustain);
+		Main.hscript.callFromAllScripts('onHoldPost', sustain);
 		#end
 	}
 
 	function onRelease(noteData:(Int)):Void
 	{
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScripts('onRelease', noteData);
+		Main.hscript.callFromAllScripts('onRelease', noteData);
 		#end
 
 		health -= 0.045;
@@ -1701,7 +1701,7 @@ class Gameplay extends State
 		}
 
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScripts('onReleasePost', noteData);
+		Main.hscript.callFromAllScripts('onReleasePost', noteData);
 		#end
 	}
 

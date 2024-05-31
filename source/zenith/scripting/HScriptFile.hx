@@ -22,21 +22,6 @@ class HScriptFile
 		create(sourcePath, sourceKey);
 	}
 
-	inline public function call(func:String, args:Array<Dynamic>):Void
-	{
-		try
-		{
-			if (Reflect.isFunction(getVar(func)) && interp.variables.exists(func))
-			{
-				Reflect.callMethod(null, getVar(func), args);
-			}
-		}
-		catch (e:haxe.Exception)
-		{
-			HScriptSystem.error(e);
-		}
-	}
-
 	inline public function getVar(variable:String)
 	{
 		return interp.variables.get(variable);
@@ -107,7 +92,7 @@ class HScriptFile
 		}
 		catch (e:haxe.Exception)
 		{
-			HScriptSystem.error(e);
+			Main.hscript.error(e);
 		}
 	}
 
