@@ -277,11 +277,11 @@ class Gameplay extends State
 		{
 			if (st.animation.curAnim.name != 'confirm')
 				st.playAnim('pressed');
-	
+
 			h(st.noteData);
-	
+
 			holdArray[st.noteData] = true;
-	
+
 			#if SCRIPTING_ALLOWED
 			Main.optUtils.scriptCall2Ints('onKeyDownPost', keyCode, keyModifier);
 			#end
@@ -381,7 +381,7 @@ class Gameplay extends State
 				{
 					Main.conductor.executeBpmChange(200.0, 25600.0);
 				}
-	
+
 				dance(curBeat - 1); // This is rather very fuckin weird but ok
 			}
 		}
@@ -1233,7 +1233,7 @@ class Gameplay extends State
 				gameCameraZoomTween.cancel();
 			if (null != hudCameraZoomTween)
 				hudCameraZoomTween.cancel();
-	
+
 			FlxG.camera.zoom += value1;
 			gameCameraZoomTween = zoomTweenFunction(FlxG.camera, defaultCamZoom);
 			hudCamera.zoom += value2;
@@ -1251,11 +1251,11 @@ class Gameplay extends State
 			{
 				inputKeybinds.set(SaveData.contents.controls.GAMEPLAY_BINDS[i], strumlines.members[1].members[i]);
 			}
-	
+
 			var swagCounter = 0;
 			_songPos = (-Main.conductor.crochet * 5.0);
 			Main.conductor.songPosition = _songPos - 100.0;
-	
+
 			new flixel.util.FlxTimer().start(Main.conductor.crochet * 0.001, (?timer) ->
 			{
 				if (swagCounter != 4)
@@ -1269,10 +1269,10 @@ class Gameplay extends State
 						FlxG.sound.play(Paths.sound('introGo'), 0.6);
 					}
 				}
-	
+
 				dance(swagCounter++);
 			}, 5);
-	
+
 			#if SCRIPTING_ALLOWED
 			Main.optUtils.scriptCall('startCountdown');
 			#end
@@ -1288,18 +1288,18 @@ class Gameplay extends State
 				inst.play();
 				songLength = inst.length;
 			}
-	
+
 			if (null != voices)
 			{
 				voices.play();
 			}
-	
+
 			startedCountdown = true;
-	
+
 			#if SCRIPTING_ALLOWED
 			Main.optUtils.scriptCall('startSong');
 			#end
-	
+
 			addCameraZoom();
 		}
 	}
@@ -1501,46 +1501,46 @@ class Gameplay extends State
 
 	function setupNoteData(chartNoteData:(Array<(Float)>)):Void
 	{
-		if (chartNoteData[0] > 0.0 && chartNoteData[3] > 0) // Don't spawn a note with negative time or lane
+		if (chartNoteData[0] >= 0.0 && chartNoteData[3] >= 0) // Don't spawn a note with negative time or lane
 		{
 			spawnedNote = notes.recycle((Note));
 			spawnedNote.setFrame(Paths.regularNoteFrame);
-	
+
 			#if SCRIPTING_ALLOWED
 			Main.optUtils.scriptCallNoteSetup('setupNoteData', spawnedNote, chartNoteData);
 			#end
-	
+
 			spawnedNote.alpha = 1.0;
 			spawnedNote.y = -2000.0;
 			spawnedNote.wasHit = spawnedNote.tooLate = false;
-	
+
 			spawnedNote.strumTime = chartNoteData[0];
 			spawnedNote.noteData = Std.int(chartNoteData[1]);
 			spawnedNote.sustainLength = Std.int(chartNoteData[2]) - 32;
 			spawnedNote.lane = Std.int(chartNoteData[3]) % strumlineCount;
 			spawnedNote.multiplier = Std.int(chartNoteData[4]);
-	
+
 			_nk = strumlines.members[spawnedNote.lane].keys;
-	
+
 			spawnedNote.strum = strumlines.members[spawnedNote.lane].members[spawnedNote.noteData % _nk];
 			spawnedNote.scale.set(spawnedNote.strum.scale.x, spawnedNote.strum.scale.y);
-	
+
 			spawnedNote.offset.x = -0.5 * ((spawnedNote.frameWidth * spawnedNote.scale.x) - spawnedNote.frameWidth);
 			spawnedNote.offset.y = -0.5 * ((spawnedNote.frameHeight * spawnedNote.scale.y) - spawnedNote.frameHeight);
 			spawnedNote.origin.x = spawnedNote.frameWidth * 0.5;
 			spawnedNote.origin.y = spawnedNote.frameHeight * 0.5;
-	
+
 			spawnedNote.color = NoteBase.colorArray[spawnedNote.noteData % _nk];
 			spawnedNote.angle = NoteBase.angleArray[spawnedNote.noteData % _nk];
-	
+
 			#if SCRIPTING_ALLOWED
 			Main.optUtils.scriptCallNote('newNote', spawnedNote);
 			#end
-	
+
 			#if SCRIPTING_ALLOWED
 			Main.optUtils.scriptCallNoteSetup('setupNoteDataPost', spawnedNote, chartNoteData);
 			#end
-	
+
 			if (spawnedNote.sustainLength > 2.0) // Don't spawn too short sustain notes
 			{
 				setupSustainData(chartNoteData);
