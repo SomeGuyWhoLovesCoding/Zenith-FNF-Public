@@ -38,22 +38,6 @@ class HUDGroup extends FlxSpriteGroup
 		scoreTxt.setBorderStyle(OUTLINE, 0xFF000000);
 		add(scoreTxt);
 
-		updateScoreText = () ->
-		{
-			scoreTxt.text = 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ' + (Gameplay.instance.accuracy_right == 0.0 ? '???' :
-				Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000.0) * 0.01 + '%');
-
-			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCall('onUpdateScore');
-			#end
-		}
-
-		updateIcons = () ->
-		{
-			plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;
-			oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
-		}
-
 		timeTxt = new FlxText(0, Gameplay.downScroll ? FlxG.height - 42 : 8, 0, '???', 30);
 		timeTxt.setBorderStyle(OUTLINE, 0xFF000000);
 		timeTxt.alpha = 0;
@@ -67,6 +51,16 @@ class HUDGroup extends FlxSpriteGroup
 		oppIcon.pixelPerfectPosition = plrIcon.pixelPerfectPosition = healthBar.pixelPerfectPosition = scoreTxt.pixelPerfectPosition = timeTxt.pixelPerfectPosition = false;
 	}
 
+	public function updateScoreText():Void
+	{
+		scoreTxt.text = 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ' + (Gameplay.instance.accuracy_right == 0.0 ? '???' :
+			Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000.0) * 0.01 + '%');
+
+		#if SCRIPTING_ALLOWED
+		HScriptSystem.callFromAllScripts('onUpdateScore');
+		#end
+	}
+
 	function reloadHealthBar():Void
 	{
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
@@ -76,6 +70,12 @@ class HUDGroup extends FlxSpriteGroup
 			healthBar.__left.makeGraphic(healthBar.__width, healthBar.__height, FlxColor.fromRGB(Gameplay.instance.dad.healthColorArray[0], Gameplay.instance.dad.healthColorArray[1], Gameplay.instance.dad.healthColorArray[2]));
 			healthBar.__right.makeGraphic(healthBar.__width, healthBar.__height, FlxColor.fromRGB(Gameplay.instance.bf.healthColorArray[0], Gameplay.instance.bf.healthColorArray[1], Gameplay.instance.bf.healthColorArray[2]));
 		}
+	}
+
+	function updateIcons():Void
+	{
+		plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;
+		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
 	}
 
 	override public function update(elapsed:Float):Void
@@ -102,7 +102,4 @@ class HUDGroup extends FlxSpriteGroup
 
 		super.update(elapsed);
 	}
-
-	public var updateScoreText:() -> (Void);
-	public var updateIcons:() -> (Void);
 }
