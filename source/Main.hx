@@ -7,7 +7,6 @@ import openfl.geom.Matrix;
 import lime._internal.backend.native.NativeCFFI;
 import lime.ui.Window;
 import lime.ui.KeyCode;
-import lime.ui.Gamepad;
 
 using StringTools;
 
@@ -24,7 +23,6 @@ typedef TransitioningInfo =
 
 // Keep these
 @:access(lime.app.Application)
-@:access(lime.ui.Gamepad)
 @:access(lime._internal.backend.native.NativeApplication)
 @:access(lime._internal.backend.native.NativeCFFI)
 
@@ -43,9 +41,6 @@ class Main extends Sprite
 
 	static public var skipTransIn:Bool = false;
 	static public var skipTransOut:Bool = false;
-
-	private var keyboard:()->(Void) = null;
-	private var gamepad:()->(Void) = null;
 
 	static public var ENABLE_MULTITHREADING:Bool = false;
 	static public var VSYNC = {ADAPTIVE: false, ENABLED: false};
@@ -98,38 +93,54 @@ class Main extends Sprite
 
 		var backend = lime.app.Application.current.__backend;
 
-		NativeCFFI.lime_key_event_manager_register(keyboard = () ->
+		NativeCFFI.lime_key_event_manager_register(function()
 		{
-			var keyEventInfo = backend.keyEventInfo;
-
-			if (keyEventInfo.type == cast 1)
-				game.onKeyUp.emit(SignalEvent.KEY_UP, Std.int(keyEventInfo.keyCode), keyEventInfo.modifier);
-
-			if (keyEventInfo.type == cast 0)
+			if (backend.keyEventInfo.type == cast 1)
 			{
-				game.onKeyDown.emit(SignalEvent.KEY_DOWN, Std.int(keyEventInfo.keyCode), keyEventInfo.modifier);
-
-				if (keyEventInfo.keyCode == KeyCode.F11)
+				if (Gameplay.instance != null && !Gameplay.instance.paused)
 				{
-					var window:Window = backend.parent.__windowByID.get(keyEventInfo.windowID);
+					Gameplay.instance.onKeyUp(Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
+				}
+				else
+				{
+					game.onKeyUp.emit(SignalEvent.KEY_UP, Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
+				}
+			}
+
+			if (backend.keyEventInfo.type == cast 0)
+			{
+				if (Gameplay.instance != null && !Gameplay.instance.paused)
+				{
+					Gameplay.instance.onKeyDown(Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
+				}
+				else
+				{
+					game.onKeyDown.emit(SignalEvent.KEY_DOWN, Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
+				}
+
+				if (backend.keyEventInfo.keyCode == KeyCode.F11)
+				{
+					var window:Window = backend.parent.__windowByID.get(backend.keyEventInfo.windowID);
 					window.fullscreen = !window.fullscreen;
 				}
 
 				if (null != FlxG.sound && !game.blockSoundKeys)
 				{
-					if (keyEventInfo.keyCode == KeyCode.EQUALS)
+					if (backend.keyEventInfo.keyCode == KeyCode.EQUALS)
 					{
+						FlxG.sound.muted = false;
 						FlxG.sound.volume = Math.min(FlxG.sound.volume + 0.1, 1.0);
 						Main.volumeTxt.alpha = 1.0;
 					}
 
-					if (keyEventInfo.keyCode == KeyCode.MINUS)
+					if (backend.keyEventInfo.keyCode == KeyCode.MINUS)
 					{
+						FlxG.sound.muted = false;
 						FlxG.sound.volume = Math.max(FlxG.sound.volume - 0.1, 0.0);
 						Main.volumeTxt.alpha = 1.0;
 					}
 
-					if (keyEventInfo.keyCode == KeyCode.NUMBER_0)
+					if (backend.keyEventInfo.keyCode == KeyCode.NUMBER_0)
 					{
 						FlxG.sound.muted = !FlxG.sound.muted;
 						Main.volumeTxt.alpha = 1.0;
@@ -138,32 +149,17 @@ class Main extends Sprite
 			}
 		}, backend.keyEventInfo);
 
-		NativeCFFI.lime_gamepad_event_manager_register(gamepad = () ->
+		NativeCFFI.lime_application_event_manager_register(() ->
 		{
-			var gamepadEventInfo = backend.gamepadEventInfo;
-
-			if (gamepadEventInfo.type == cast 0)
-				game.onGamepadAxisMove.emit(SignalEvent.GAMEPAD_AXIS_MOVE, gamepadEventInfo.axis, gamepadEventInfo.axisValue);
-
-			if (gamepadEventInfo.type == cast 1)
-				game.onGamepadButtonDown.emit(SignalEvent.GAMEPAD_BUTTON_DOWN, gamepadEventInfo.button);
-
-			if (gamepadEventInfo.type == cast 2)
-				game.onGamepadButtonUp.emit(SignalEvent.GAMEPAD_BUTTON_UP, gamepadEventInfo.button);
-
-			if (gamepadEventInfo.type == cast 3)
+			if (backend.applicationEventInfo.type != UPDATE)
 			{
-				Gamepad.__connect(gamepadEventInfo.id);
-				game.onGamepadConnect.emit(SignalEvent.GAMEPAD_CONNECT, gamepadEventInfo.id);
+				backend.updateTimer();
+				backend.parent.onUpdate.dispatch(backend.applicationEventInfo.deltaTime);
 			}
-
-			if (gamepadEventInfo.type == cast 4)
-			{
-				Gamepad.__disconnect(gamepadEventInfo.id);
-				game.onGamepadDisconnect.emit(SignalEvent.GAMEPAD_DISCONNECT, gamepadEventInfo.id);
-			}
-		}, backend.gamepadEventInfo);
-
+		}, backend.applicationEventInfo);
+		NativeCFFI.lime_sensor_event_manager_register(null, backend.sensorEventInfo);
+		NativeCFFI.lime_touch_event_manager_register(null, backend.touchEventInfo);
+		NativeCFFI.lime_gamepad_event_manager_register(null, backend.gamepadEventInfo);
 		NativeCFFI.lime_joystick_event_manager_register(null, backend.joystickEventInfo);
 	}
 

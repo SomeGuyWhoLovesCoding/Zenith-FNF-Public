@@ -12,13 +12,6 @@ class Game extends FlxGame
 	public var onKeyDown:Emitter = new Emitter();
 	public var onKeyUp:Emitter = new Emitter();
 
-	// Gamepad events
-	public var onGamepadAxisMove:Emitter = new Emitter();
-	public var onGamepadButtonDown:Emitter = new Emitter();
-	public var onGamepadButtonUp:Emitter = new Emitter();
-	public var onGamepadConnect:Emitter = new Emitter();
-	public var onGamepadDisconnect:Emitter = new Emitter();
-
 	public static var frameRate(default, null):Int;
 
 	public function new():Void
@@ -41,6 +34,7 @@ class Game extends FlxGame
 			lime.app.Application.current.window.setVsync(FlxG.elapsed > 1.0 / frameRate || Main.VSYNC.ADAPTIVE);
 		}*/
 
+		FlxG.fixedTimestep = false;
 		super.onEnterFrame((_ : openfl.events.Event));
 		Main.updateMain(FlxG.elapsed);
 	}

@@ -78,8 +78,8 @@ class StrumNote extends FlxSprite
 
 		width = (scale.x < 0.0 ? -scale.x : scale.x) * frameWidth;
 		height = (scale.y < 0.0 ? -scale.y : scale.y) * frameHeight;
-		offset.x = (frameWidth * 0.5) - (54 / (scale.x * 1.428571428571429));
-		offset.y = (frameHeight * 0.5) - (56 / (scale.y * 1.428571428571429));
+		offset.x = (frameWidth * 0.5) - 54;
+		offset.y = (frameHeight * 0.5) - 56;
 		origin.x = offset.x + 54;
 		origin.y = offset.y + 56;
 	}
@@ -113,8 +113,8 @@ class StrumNote extends FlxSprite
 
 		width = (scale.x < 0.0 ? -scale.x : scale.x) * frameWidth;
 		height = (scale.y < 0.0 ? -scale.y : scale.y) * frameHeight;
-		offset.x = (frameWidth * 0.5) - (54 / (scale.x * 1.428571428571429));
-		offset.y = (frameHeight * 0.5) - (56 / (scale.y * 1.428571428571429));
+		offset.x = (frameWidth * 0.5) - 54;
+		offset.y = (frameHeight * 0.5) - 56;
 		origin.x = offset.x + 54;
 		origin.y = offset.y + 56;
 	}

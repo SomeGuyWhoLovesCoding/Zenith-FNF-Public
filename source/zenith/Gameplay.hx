@@ -22,11 +22,9 @@ class Gameplay extends State
 	public var notes:FlxTypedGroup<Note>;
 	public var sustains:FlxTypedGroup<SustainNote>;
 
-	// Health stuff
 	private var hudGroup(default, null):HUDGroup;
 	public var health:Float = 1.0;
 
-	// Score text stuff
 	public var score(default, set):Float = 0.0;
 
 	inline function set_score(value:Float):Float
@@ -157,7 +155,12 @@ class Gameplay extends State
 
 	function p():Void
 	{
-		while (nd[0] > Main.conductor.songPosition - (1915.0 / songSpeed))
+		if (currentNoteId == SONG.noteData.length)
+		{
+			return;
+		}
+
+		while (nd[0] < Main.conductor.songPosition + (1915.0 / songSpeed))
 		{
 			setupNoteData(nd);
 			nd = SONG.noteData[currentNoteId++];
@@ -173,7 +176,10 @@ class Gameplay extends State
 			if (currentNote.exists)
 			{
 				currentNote.scale.set(currentNote.strum.scale.x, currentNote.strum.scale.y);
-				currentNote.updateHitbox();
+				currentNote.offset.x = -0.5 * ((currentNote.frameWidth * 0.7) - currentNote.frameWidth);
+				currentNote.offset.y = -0.5 * ((currentNote.frameHeight * 0.7) - currentNote.frameHeight);
+				currentNote.origin.x = currentNote.frameWidth * 0.5;
+				currentNote.origin.y = currentNote.frameHeight * 0.5;
 
 				currentNote.distance = 0.45 * (Main.conductor.songPosition - currentNote.strumTime) * songSpeed;
 				currentNote.x = currentNote.strum.x + currentNote.offsetX + (-Math.abs(currentNote.strum.scrollMult) * currentNote.distance) *
@@ -182,7 +188,10 @@ class Gameplay extends State
 					FlxMath.fastSin(FlxAngle.asRadians(currentNote.direction - 90.0));
 
 				if (Main.conductor.songPosition >= currentNote.strumTime + (750.0 / songSpeed)) // Remove them if they're offscreen
+				{
 					currentNote.exists = false;
+					continue;
+				}
 
 				// For note hits
 
@@ -214,10 +223,11 @@ class Gameplay extends State
 		for (i in 0...sustains.members.length)
 		{
 			currentSustain = sustains.members[i];
+
 			if (currentSustain.exists)
 			{
 				currentSustain.scale.set(currentSustain.strum.scale.x, currentSustain.strum.scale.y);
-				currentSustain.offset.x = -0.5 * ((currentSustain.frameWidth * 0.7) - currentSustain.frameWidth);
+				currentSustain.offset.x = -0.5 * ((currentSustain.frameWidth * currentSustain.scale.x) - currentSustain.frameWidth);
 				currentSustain.origin.x = currentSustain.frameWidth * 0.5;
 				currentSustain.origin.y = currentSustain.offset.y = 0.0;
 
@@ -232,7 +242,10 @@ class Gameplay extends State
 				// For hold input
 
 				if (Main.conductor.songPosition >= (currentSustain.strumTime + currentSustain.length) + (750.0 / songSpeed))
+				{
 					currentSustain.holding = currentSustain.missed = currentSustain.exists = false;
+					continue;
+				}
 
 				if (currentSustain.strum.playable)
 				{
@@ -254,7 +267,7 @@ class Gameplay extends State
 		}
 	}
 
-	function onKeyDown(keyCode:(Int), keyModifier:(Int)):Void
+	inline public function onKeyDown(keyCode:(Int), keyModifier:(Int)):Void
 	{
 		#if SCRIPTING_ALLOWED
 		Main.optUtils.scriptCall2Ints('onKeyDown', keyCode, keyModifier);
@@ -262,22 +275,22 @@ class Gameplay extends State
 
 		st = inputKeybinds.get(keyCode);
 
-		if (st == null || cpuControlled || !generatedMusic || holdArray[st.noteData])
-			return;
-
-		if (st.animation.curAnim.name != 'confirm')
-			st.playAnim('pressed');
-
-		h(st.noteData);
-
-		holdArray[st.noteData] = true;
-
-		#if SCRIPTING_ALLOWED
-		Main.optUtils.scriptCall2Ints('onKeyDownPost', keyCode, keyModifier);
-		#end
+		if (st != null && !cpuControlled && generatedMusic && !holdArray[st.noteData])
+		{
+			if (st.animation.curAnim.name != 'confirm')
+				st.playAnim('pressed');
+	
+			h(st.noteData);
+	
+			holdArray[st.noteData] = true;
+	
+			#if SCRIPTING_ALLOWED
+			Main.optUtils.scriptCall2Ints('onKeyDownPost', keyCode, keyModifier);
+			#end
+		}
 	}
 
-	function onKeyUp(keyCode:(Int), keyModifier:(Int)):Void
+	inline public function onKeyUp(keyCode:(Int), keyModifier:(Int)):Void
 	{
 		#if SCRIPTING_ALLOWED
 		Main.optUtils.scriptCall2Ints('onKeyUp', keyCode, keyModifier);
@@ -285,20 +298,20 @@ class Gameplay extends State
 
 		st = inputKeybinds.get(keyCode);
 
-		if (cpuControlled || st == null || !generatedMusic || !holdArray[st.noteData])
-			return;
+		if (st != null && !cpuControlled && generatedMusic && holdArray[st.noteData])
+		{
+			if (st.animation.curAnim.name == 'confirm' ||
+				st.animation.curAnim.name == 'pressed')
+				st.playAnim('static');
 
-		if (st.animation.curAnim.name == 'confirm' ||
-			st.animation.curAnim.name == 'pressed')
-			st.playAnim('static');
+			r(st.noteData);
 
-		r(st.noteData);
+			holdArray[st.noteData] = false;
 
-		holdArray[st.noteData] = false;
-
-		#if SCRIPTING_ALLOWED
-		Main.optUtils.scriptCall2Ints('onKeyUpPost', keyCode, keyModifier);
-		#end
+			#if SCRIPTING_ALLOWED
+			Main.optUtils.scriptCall2Ints('onKeyUpPost', keyCode, keyModifier);
+			#end
+		}
 	}
 
 	override function create():Void
@@ -936,6 +949,7 @@ class Gameplay extends State
 					else
 						SONG = Song.loadFromJson(curSong + '/' + curSong + curDifficulty);
 
+					nd = SONG.noteData[currentNoteId];
 					threadsCompleted++;
 				}
 				catch (e)
@@ -959,6 +973,8 @@ class Gameplay extends State
 				}
 				else
 					SONG = Song.loadFromJson(curSong + '/' + curSong + curDifficulty);
+
+				nd = SONG.noteData[currentNoteId];
 			}
 			catch (e)
 			{
@@ -1126,6 +1142,9 @@ class Gameplay extends State
 			for (i in 0...strumlineCount)
 				generateStrumline(i);
 
+			if (downScroll)
+				changeDownScroll();
+
 			notes = new FlxTypedGroup<Note>();
 			add(notes);
 
@@ -1238,7 +1257,7 @@ class Gameplay extends State
 
 		for (i in 0...SaveData.contents.controls.GAMEPLAY_BINDS.length)
 		{
-			inputKeybinds.set(SaveData.contents.controls.GAMEPLAY_BINDS[i], strumlines.members[Std.int(i * 0.25) + 1].members[i]);
+			inputKeybinds.set(SaveData.contents.controls.GAMEPLAY_BINDS[i], strumlines.members[1].members[i]);
 		}
 
 		var swagCounter = 0;
@@ -1514,6 +1533,11 @@ class Gameplay extends State
 		spawnedNote.strum = strumlines.members[spawnedNote.lane].members[spawnedNote.noteData % _nk];
 		spawnedNote.scale.set(spawnedNote.strum.scale.x, spawnedNote.strum.scale.y);
 
+		spawnedNote.offset.x = -0.5 * ((spawnedNote.frameWidth * spawnedNote.scale.x) - spawnedNote.frameWidth);
+		spawnedNote.offset.y = -0.5 * ((spawnedNote.frameHeight * spawnedNote.scale.y) - spawnedNote.frameHeight);
+		spawnedNote.origin.x = spawnedNote.frameWidth * 0.5;
+		spawnedNote.origin.y = spawnedNote.frameHeight * 0.5;
+
 		spawnedNote.color = NoteBase.colorArray[spawnedNote.noteData % _nk];
 		spawnedNote.angle = NoteBase.angleArray[spawnedNote.noteData % _nk];
 
@@ -1557,7 +1581,7 @@ class Gameplay extends State
 		spawnedSustain.strum = strumlines.members[spawnedSustain.lane].members[spawnedSustain.noteData % _nk];
 		spawnedSustain.scale.set(spawnedSustain.strum.scale.x, spawnedSustain.strum.scale.y);
 
-		spawnedSustain.offset.x = -0.5 * ((spawnedSustain.frameWidth * 0.7) - spawnedSustain.frameWidth);
+		spawnedSustain.offset.x = -0.5 * ((spawnedSustain.frameWidth * spawnedSustain.scale.x) - spawnedSustain.frameWidth);
 		spawnedSustain.origin.x = spawnedSustain.frameWidth * 0.5;
 		spawnedSustain.origin.y = spawnedSustain.offset.y = 0.0;
 
@@ -1706,6 +1730,8 @@ class Gameplay extends State
 	}
 
 	var finder:NoteFinder = new NoteFinder();
+
+	public var paused:Bool = false;
 }
 
 private class NoteFinder

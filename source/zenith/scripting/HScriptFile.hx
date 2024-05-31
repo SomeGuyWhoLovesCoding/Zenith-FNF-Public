@@ -76,6 +76,7 @@ class HScriptFile
 			interp.variables.set('Math', Math);
 			interp.variables.set('Conductor', Conductor);
 			interp.variables.set('Gameplay', Gameplay);
+			interp.variables.set('NoteBase', NoteBase);
 			interp.variables.set('SaveData', SaveData);
 			interp.variables.set('StringTools', StringTools);
 			interp.variables.set('Paths', Paths);
