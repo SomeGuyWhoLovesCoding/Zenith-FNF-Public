@@ -1,5 +1,6 @@
 package zenith.scripting;
 
+#if SCRIPTING_ALLOWED
 import hscript.*;
 
 class HScriptSystem
@@ -154,3 +155,4 @@ class HScriptSystem
 		#end
 	}
 }
+#end
