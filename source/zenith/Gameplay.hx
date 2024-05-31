@@ -127,7 +127,7 @@ class Gameplay extends State
 			if ((_n.strum.playable && _n.noteData == key) &&
 				(!_n.wasHit && !_n.tooLate) && Math.abs(Main.conductor.songPosition - _n.strumTime) < 166.7)
 			{
-				e.emit(SignalEvent.NOTE_HIT, _n);
+				onNoteHit(_n);
 				break;
 			}
 		}
@@ -141,7 +141,7 @@ class Gameplay extends State
 			if ((_s.strum.playable && !_s.missed && _s.noteData == key) && Main.conductor.songPosition >= _s.strumTime &&
 				Main.conductor.songPosition <= (_s.strumTime + _s.length) - (Main.conductor.stepCrochet * 0.875))
 			{
-				e.emit(SignalEvent.NOTE_RELEASE, _s.noteData);
+				onRelease(_s.noteData);
 				_s.holding = false;
 				_s.missed = true;
 				_s.alpha = 0.3;
@@ -157,17 +157,10 @@ class Gameplay extends State
 
 	function p():Void
 	{
-		while (currentNoteId != SONG.noteData.length)
+		while (nd[0] > Main.conductor.songPosition - (1915.0 / songSpeed))
 		{
-			// Avoid redundant array access
-			_nd = SONG.noteData[currentNoteId];
-
-			if (Main.conductor.songPosition < _nd[0] - (1950.0 / songSpeed))
-				break;
-
-			e.emit(SignalEvent.NOTE_SETUP, _nd);
-
-			currentNoteId++;
+			setupNoteData(nd);
+			nd = SONG.noteData[currentNoteId++];
 		}
 	}
 
@@ -195,24 +188,21 @@ class Gameplay extends State
 
 				if (currentNote.strum.playable)
 				{
-					if (cpuControlled)
+					if (cpuControlled && Main.conductor.songPosition >= currentNote.strumTime)
 					{
-						if (Main.conductor.songPosition >= currentNote.strumTime)
-						{
-							e.emit(SignalEvent.NOTE_HIT, currentNote);
-						}
+						onNoteHit(currentNote);
 					}
 
 					if (Main.conductor.songPosition >= currentNote.strumTime + (200.0 / songSpeed) && (!currentNote.wasHit && !currentNote.tooLate))
 					{
-						e.emit(SignalEvent.NOTE_MISS, currentNote);
+						onNoteMiss(currentNote);
 					}
 				}
 				else
 				{
 					if (Main.conductor.songPosition >= currentNote.strumTime)
 					{
-						e.emit(SignalEvent.NOTE_HIT, currentNote);
+						onNoteHit(currentNote);
 					}
 				}
 			}
@@ -246,13 +236,10 @@ class Gameplay extends State
 
 				if (currentSustain.strum.playable)
 				{
-					if (Main.conductor.songPosition >= currentSustain.strumTime && !currentSustain.missed &&
+					if (holdArray[currentSustain.noteData] && Main.conductor.songPosition >= currentSustain.strumTime && !currentSustain.missed &&
 						Main.conductor.songPosition <= (currentSustain.strumTime + currentSustain.length) - (Main.conductor.stepCrochet * 0.875))
 					{
-						if (holdArray[currentSustain.noteData])
-						{
-							e.emit(SignalEvent.NOTE_HOLD, currentSustain);
-						}
+						onHold(currentSustain);
 					}
 				}
 				else
@@ -260,7 +247,7 @@ class Gameplay extends State
 					if (Main.conductor.songPosition <= (currentSustain.strumTime + currentSustain.length) - (Main.conductor.stepCrochet * 0.875) &&
 						Main.conductor.songPosition >= currentSustain.strumTime)
 					{
-						e.emit(SignalEvent.NOTE_HOLD, currentSustain);
+						onHold(currentSustain);
 					}
 				}
 			}
@@ -372,16 +359,6 @@ class Gameplay extends State
 		generateSong(songName, songDifficulty);
 
 		super.create();
-
-		e.on(SignalEvent.NOTE_SETUP, setupNoteData);
-		e.on(SignalEvent.NOTE_HIT, onNoteHit);
-		e.on(SignalEvent.NOTE_MISS, onNoteMiss);
-		e.on(SignalEvent.NOTE_HOLD, onHold);
-		e.on(SignalEvent.NOTE_RELEASE, onRelease);
-		e.on(SignalEvent.SUSTAIN_SETUP, setupSustainData);
-
-		Main.game.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
-		Main.game.onKeyUp.on(SignalEvent.KEY_UP, onKeyUp);
 
 		Main.conductor.onBeatHit = (curBeat:(Float)) ->
 		{
@@ -1492,30 +1469,14 @@ class Gameplay extends State
 		}
 	}
 
-	override function destroy():Void
-	{
-		e.off(SignalEvent.NOTE_SETUP, setupNoteData);
-		e.off(SignalEvent.NOTE_HIT, onNoteHit);
-		e.off(SignalEvent.NOTE_MISS, onNoteMiss);
-		e.off(SignalEvent.NOTE_HOLD, onHold);
-		e.off(SignalEvent.NOTE_RELEASE, onRelease);
-		e.off(SignalEvent.SUSTAIN_SETUP, setupSustainData);
-
-		Main.game.onKeyDown.off(SignalEvent.KEY_DOWN, onKeyDown);
-		Main.game.onKeyUp.off(SignalEvent.KEY_UP, onKeyUp);
-
-		super.destroy();
-	}
-
-	var e(default, null):Emitter = new Emitter();
-
 	var currentNote(default, null):Note;
  	var spawnedNote(default, null):Note;
 	var _n(default, null):Note;
 	var currentSustain(default, null):SustainNote;
 	var spawnedSustain(default, null):SustainNote;
 	var _s(default, null):SustainNote;
-	var _nd(default, null):Array<Float>;
+
+	var nd(default, null):Array<Float>;
 
 	var _d(default, null):Float;
 	var _nk(default, null):Int = 0;
