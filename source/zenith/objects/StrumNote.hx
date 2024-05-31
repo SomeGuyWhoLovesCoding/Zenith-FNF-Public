@@ -22,9 +22,9 @@ class StrumNote extends FlxSprite
 
 	// Easter egg moment
 
-	public var PRESS_ANIM:FlxAnimation = null;
-	public var CONFIRM_ANIM:FlxAnimation = null;
-	public var STATIC_ANIM:FlxAnimation = null;
+	public var PRESS_ANIM:FlxAnimation;
+	public var CONFIRM_ANIM:FlxAnimation;
+	public var STATIC_ANIM:FlxAnimation;
 
 	public function new(data:Int, plr:Int)
 	{
@@ -36,9 +36,9 @@ class StrumNote extends FlxSprite
 		frames = Paths.strumNoteAtlas;
 		animation.copyFrom(Paths.strumNoteAnimationHolder.animation);
 
-		PRESS_ANIM = animation._animations.get('pressed');
-		CONFIRM_ANIM = animation._animations.get('confirm');
-		STATIC_ANIM = animation._animations.get('static');
+		PRESS_ANIM = animation._animations['pressed'];
+		CONFIRM_ANIM = animation._animations['confirm'];
+		STATIC_ANIM = animation._animations['static'];
 
 		pixelPerfectPosition = false;
 
