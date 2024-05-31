@@ -139,9 +139,9 @@ class HScriptSystem
 					func(arg1,arg2,arg3,arg4,arg5);
 				}
 			}
-			catch (error)
+			catch (e:haxe.Exception)
 			{
-				error(error);
+				error(e);
 			}
 		}
 	}
