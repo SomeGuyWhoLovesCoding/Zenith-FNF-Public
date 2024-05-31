@@ -1694,7 +1694,7 @@ class Gameplay extends State
 		sustain.holding = true;
 
 		#if SCRIPTING_ALLOWED
-		HScriptSystem.callFromAllScriptsn('onHoldPost', sustain);
+		HScriptSystem.callFromAllScripts('onHoldPost', sustain);
 		#end
 	}
 
