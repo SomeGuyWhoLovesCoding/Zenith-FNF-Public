@@ -155,9 +155,9 @@ class Gameplay extends State
 
 	function p():Void
 	{
-		if (nd[0] < Main.conductor.songPosition + (1915.0 / songSpeed) && currentNoteId != SONG.noteData.length)
+		if (nd != null)
 		{
-			while (nd[0] < Main.conductor.songPosition + (1915.0 / songSpeed))
+			while (nd[0] <= Main.conductor.songPosition + (1915.0 / songSpeed))
 			{
 				setupNoteData(nd);
 				nd = SONG.noteData[currentNoteId++];
