@@ -667,10 +667,9 @@ class Gameplay extends State
 					add(hudGroup);
 
 					hudGroup.reloadHealthBar();
-					hudGroup.cameras = [hudCamera];
 				}
 
-				sustains.cameras = strumlines.cameras = notes.cameras = [hudCamera];
+				sustains.camera = strumlines.camera = notes.camera = hudCamera;
 
 				var timeTakenToLoad:Float = haxe.Timer.stamp() - loadingTimestamp;
 
@@ -1134,10 +1133,10 @@ class Gameplay extends State
 				add(hudGroup);
 
 				hudGroup.reloadHealthBar();
-				hudGroup.cameras = [hudCamera];
+				hudGroup.camera = hudCamera;
 			}
 
-			sustains.cameras = strumlines.cameras = notes.cameras = [hudCamera];
+			sustains.camera = strumlines.camera = notes.camera = hudCamera;
 
 			var timeTakenToLoad:Float = haxe.Timer.stamp() - loadingTimestamp;
 

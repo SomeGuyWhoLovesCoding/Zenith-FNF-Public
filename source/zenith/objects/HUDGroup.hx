@@ -1,13 +1,12 @@
 package zenith.objects;
 
-import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.math.FlxMath;
 
 @:access(zenith.Gameplay)
 
-class HUDGroup extends FlxSpriteGroup
+class HUDGroup extends FlxBasic
 {
 	public var oppIcon:HealthIcon;
 	public var plrIcon:HealthIcon;
@@ -22,26 +21,19 @@ class HUDGroup extends FlxSpriteGroup
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
 
+		healthBar = new HealthBar(0, Gameplay.downScroll ? 60.0 : FlxG.height - 86.0, [0xFFFF0000], [0xFF00FF00], 600, 24);
+		healthBar.screenCenter(X);
+
 		oppIcon = new HealthIcon(Gameplay.instance.dad.healthIcon);
 		plrIcon = new HealthIcon(Gameplay.instance.bf.healthIcon, true);
 
-		healthBar = new HealthBar(0, Gameplay.downScroll ? 60.0 : FlxG.height - 86.0, [0xFFFF0000], [0xFF00FF00], 600, 24);
-		healthBar.screenCenter(X);
-		add(healthBar);
-
 		oppIcon.y = plrIcon.y = healthBar.y - 60.0;
-
-		add(oppIcon);
-		add(plrIcon);
 
 		scoreTxt = new FlxText(0, healthBar.y + (healthBar.height + 2), 0, 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ???', 20);
 		scoreTxt.setBorderStyle(OUTLINE, 0xFF000000);
-		add(scoreTxt);
 
 		timeTxt = new FlxText(0, Gameplay.downScroll ? FlxG.height - 42 : 8, 0, '???', 30);
 		timeTxt.setBorderStyle(OUTLINE, 0xFF000000);
-		timeTxt.alpha = 0;
-		add(timeTxt);
 
 		scoreTxt.borderSize = timeTxt.borderSize = 1.25;
 		scoreTxt.font = timeTxt.font = Paths.font('vcr');
@@ -49,6 +41,7 @@ class HUDGroup extends FlxSpriteGroup
 		scoreTxt.active = timeTxt.active = false;
 
 		oppIcon.pixelPerfectPosition = plrIcon.pixelPerfectPosition = healthBar.pixelPerfectPosition = scoreTxt.pixelPerfectPosition = timeTxt.pixelPerfectPosition = false;
+		oppIcon.camera = plrIcon.camera = healthBar.camera = scoreTxt.camera = timeTxt.camera = Gameplay.instance.hudCamera;
 	}
 
 	public function updateScoreText():Void
@@ -72,6 +65,12 @@ class HUDGroup extends FlxSpriteGroup
 		}
 	}
 
+	function updateIcons():Void
+	{
+		plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;
+		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
+	}
+
 	override public function update(elapsed:Float):Void
 	{
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
@@ -87,14 +86,42 @@ class HUDGroup extends FlxSpriteGroup
 
 		if (Gameplay.instance.startedCountdown)
 		{
-			if (timeTxt.alpha != 1.0)
-				timeTxt.alpha += elapsed * 6.0;
 			timeTxt.text = Utils.formatTime(Gameplay.instance.songLength - Main.conductor.songPosition, true, true);
 		}
 
-		plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;
-		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
+		updateIcons();
 
-		super.update(elapsed);
+		oppIcon.update(elapsed);
+		plrIcon.update(elapsed);
+		healthBar.update(elapsed);
+		scoreTxt.update(elapsed);
+		timeTxt.update(elapsed);
+	}
+
+	override function draw():Void
+	{
+		healthBar.draw();
+		oppIcon.draw();
+		plrIcon.draw();
+		scoreTxt.draw();
+		timeTxt.draw();
+	}
+
+	override function destroy():Void
+	{
+		if (healthBar != null)
+			healthBar.destroy();
+
+		if (oppIcon != null)
+			oppIcon.destroy();
+
+		if (plrIcon != null)
+			plrIcon.destroy();
+
+		if (scoreTxt != null)
+			scoreTxt.destroy();
+
+		if (timeTxt != null)
+			timeTxt.destroy();
 	}
 }
