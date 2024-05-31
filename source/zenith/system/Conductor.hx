@@ -53,7 +53,7 @@ class Conductor
 	inline public function executeBpmChange(newBpm:Float, position:Float):Void
 	{
 		stepsToAdd += (position - stepsToLose) / stepCrochet;
-		stepsToLose = position;
+		stepsToLose = position / stepCrochet;
 		bpm = newBpm;
 		
 		trace(stepsToLose);
@@ -77,7 +77,7 @@ class Conductor
 
 	function set_songPosition(value:Float):Float
 	{
-		_stepTracker = Math.ffloor(((value - stepsToLose) / stepCrochet) + stepsToAdd);
+		_stepTracker = Math.ffloor(((value / stepCrochet) - stepsToLose) + stepsToAdd);
 		_beatTracker = Math.ffloor(_stepTracker / steps);
 		_measureTracker = Math.ffloor(_beatTracker / beats);
 
