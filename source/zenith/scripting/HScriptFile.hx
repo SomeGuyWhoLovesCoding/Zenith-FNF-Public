@@ -1,6 +1,6 @@
 package zenith.scripting;
 
-#if SCRIPTING_ALLOWED 
+#if (SCRIPTING_ALLOWED && hscript)
 import hscript.Interp;
 import hscript.Parser;
 
