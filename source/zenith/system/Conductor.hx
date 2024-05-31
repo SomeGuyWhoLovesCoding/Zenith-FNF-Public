@@ -52,7 +52,7 @@ class Conductor
 
 	inline public function executeBpmChange(newBpm:Float, position:Float):Void
 	{
-		stepsToAdd += (position - stepsToLose) / stepCrochet;
+		stepsToAdd += (Math.ffloor(position / stepCrochet) - stepsToLose);
 		stepsToLose = position / stepCrochet;
 		bpm = newBpm;
 		
