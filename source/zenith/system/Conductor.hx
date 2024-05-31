@@ -77,7 +77,7 @@ class Conductor
 
 	function set_songPosition(value:Float):Float
 	{
-		_stepTracker = Math.ffloor((value - stepsToLose) / stepCrochet) + stepsToAdd;
+		_stepTracker = Math.ffloor(((value - stepsToLose) / stepCrochet) + stepsToAdd);
 		_beatTracker = Math.ffloor(_stepTracker / steps);
 		_measureTracker = Math.ffloor(_beatTracker / beats);
 
