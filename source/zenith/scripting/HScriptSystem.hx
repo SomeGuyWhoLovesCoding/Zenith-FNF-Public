@@ -127,16 +127,17 @@ class HScriptSystem
 		}
 	}
 
+	var f(default, null):Dynamic;
 	public function callFromAllScripts(func:String, ?arg1:Dynamic, ?arg2:Dynamic, ?arg3:Dynamic, ?arg4:Dynamic, ?arg5:Dynamic):Void
 	{
-		for (script => x in list)
+		for (script in list.keys())
 		{
 			try
 			{
-				final func = list[script].interp.variables[func];
-				if (func != null)
+				f = list[script].interp.variables[func];
+				if (f != null)
 				{
-					func(arg1,arg2,arg3,arg4,arg5);
+					f(arg1,arg2,arg3,arg4,arg5);
 				}
 			}
 			catch (e:haxe.Exception)
