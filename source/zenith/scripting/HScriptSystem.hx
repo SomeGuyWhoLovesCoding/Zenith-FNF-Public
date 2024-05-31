@@ -1,8 +1,6 @@
 package zenith.scripting;
 
 #if SCRIPTING_ALLOWED
-import hscript.*;
-
 class HScriptSystem
 {
 	public var list:Map<String, HScriptFile>;
