@@ -28,7 +28,6 @@ typedef TransitioningInfo =
 
 class Main extends Sprite
 {
-	static public var optUtils:OptimizationUtils = null;
 	static public var conductor:Conductor = null;
 
 	static private final transitioning:Transitioning = {_in: null, _out: null};
@@ -49,7 +48,6 @@ class Main extends Sprite
 	{
 		super();
 
-		optUtils = new OptimizationUtils();
 		conductor = new Conductor();
 
 		#if SCRIPTING_ALLOWED
