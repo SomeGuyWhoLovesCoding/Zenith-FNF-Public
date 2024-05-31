@@ -1,6 +1,5 @@
 package zenith.scripting;
 
-import haxe.Constraints.Function;
 import hscript.Interp;
 import hscript.Parser;
 
@@ -51,19 +50,19 @@ class HScriptFile
 	public function overwrite(sourcePath:String = ""):Void
 	{
 		// No need to overwrite the file if the contents are the same as the modified contents
-		if (stringCode == sys.io.File.getContent(path))
-			return;
+		if (stringCode != sys.io.File.getContent(path))
+		{
+			destroy();
 
-		destroy();
-
-		if (sourcePath != "")
-			path = sourcePath;
-
-		create(path, key);
-
-		#if debug
-		trace('HScript "$key" overwritten');
-		#end
+			if (sourcePath != "")
+				path = sourcePath;
+	
+			create(path, key);
+	
+			#if debug
+			trace('HScript "$key" overwritten');
+			#end
+		}
 	}
 
 	private function create(sourcePath:String, sourceKey:String):Void
@@ -98,8 +97,10 @@ class HScriptFile
 			//interp.variables.set('SettingsMenu', SettingsMenu);
 
 			parser = new Parser();
+			parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;
 
-			interp.execute(parser.parseString(stringCode = sys.io.File.getContent(path), key = sourceKey));
+			stringCode = sys.io.File.getContent(path);
+			interp.execute(parser.parseString(stringCode, key = sourceKey));
 
 			interp.variables.set('getVar', getVar);
 			interp.variables.set('setVar', setVar);
