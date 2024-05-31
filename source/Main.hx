@@ -151,7 +151,7 @@ class Main extends Sprite
 
 		NativeCFFI.lime_application_event_manager_register(() ->
 		{
-			if (backend.applicationEventInfo.type != UPDATE)
+			if (backend.applicationEventInfo.type == UPDATE)
 			{
 				backend.updateTimer();
 				backend.parent.onUpdate.dispatch(backend.applicationEventInfo.deltaTime);
