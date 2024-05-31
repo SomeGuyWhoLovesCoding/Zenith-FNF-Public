@@ -93,6 +93,7 @@ class Main extends Sprite
 
 		var backend = lime.app.Application.current.__backend;
 
+		var window:Window = null;
 		NativeCFFI.lime_key_event_manager_register(function()
 		{
 			if (backend.keyEventInfo.type == cast 1)
@@ -120,7 +121,7 @@ class Main extends Sprite
 
 				if (backend.keyEventInfo.keyCode == KeyCode.F11)
 				{
-					var window:Window = backend.parent.__windowByID.get(backend.keyEventInfo.windowID);
+					window = backend.parent.__windowByID.get(backend.keyEventInfo.windowID);
 					window.fullscreen = !window.fullscreen;
 				}
 
