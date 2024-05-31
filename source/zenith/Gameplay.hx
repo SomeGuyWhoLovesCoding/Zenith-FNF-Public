@@ -268,7 +268,7 @@ class Gameplay extends State
 		Main.optUtils.scriptCall2Ints('onKeyDown', keyCode, keyModifier);
 		#end
 
-		st = inputKeybinds.get(keyCode);
+		st = inputKeybinds[keyCode];
 
 		if (st != null && !cpuControlled && generatedMusic && !holdArray[st.noteData])
 		{
@@ -291,7 +291,7 @@ class Gameplay extends State
 		Main.optUtils.scriptCall2Ints('onKeyUp', keyCode, keyModifier);
 		#end
 
-		st = inputKeybinds.get(keyCode);
+		st = inputKeybinds[keyCode];
 
 		if (st != null && !cpuControlled && generatedMusic && holdArray[st.noteData])
 		{
