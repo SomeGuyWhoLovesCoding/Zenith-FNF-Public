@@ -24,7 +24,7 @@ class State extends FlxState
 
 			for (script in scriptList.keys())
 			{
-				scriptList.[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
+				scriptList[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
 			}
 
 			HScriptSystem.callFromAllScripts('create');
