@@ -107,7 +107,7 @@ class HScriptSystem
 
 	inline static public function getScript(key:String):HScriptFile
 	{
-		return list.get(key);
+		return list[key];
 	}
 
 	static public function reloadScript(key:String):Void
@@ -127,11 +127,22 @@ class HScriptSystem
 		}
 	}
 
-	static public function callFromAllScripts(func:String, args:Array<Dynamic>):Void
+	static public function callFromAllScripts(func:String, ?arg1:Dynamic, ?arg2:Dynamic, ?arg3:Dynamic, ?arg4:Dynamic, ?arg5:Dynamic):Void
 	{
-		for (key in list.keys())
+		for (script => x in scriptList)
 		{
-			getScript(key).call(func, args);
+			try
+			{
+				final func = scriptList[script].interp.variables[func];
+				if (func != null)
+				{
+					func(arg1,arg2,arg3,arg4,arg5);
+				}
+			}
+			catch (error)
+			{
+				error(error);
+			}
 		}
 	}
 
