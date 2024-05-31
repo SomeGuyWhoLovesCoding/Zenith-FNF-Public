@@ -933,13 +933,7 @@ class Gameplay extends State
 				var preloadName:String = curSong + (curDifficulty != '' ? '-$curDifficulty' : '');
 				try
 				{
-					// Chart preloader
-					if (ChartPreloader.container.exists(preloadName))
-					{
-						SONG = ChartPreloader.container.get(preloadName);
-					}
-					else
-						SONG = Song.loadFromJson(curSong + '/' + curSong + curDifficulty);
+					SONG = Song.loadFromJson(curSong + '/' + curSong + curDifficulty);
 
 					nd = SONG.noteData[currentNoteId];
 					threadsCompleted++;
@@ -958,13 +952,7 @@ class Gameplay extends State
 
 			try
 			{
-				// Chart preloader
-				if (ChartPreloader.container.exists(preloadName))
-				{
-					SONG = ChartPreloader.container.get(preloadName);
-				}
-				else
-					SONG = Song.loadFromJson(curSong + '/' + curSong + curDifficulty);
+				SONG = Song.loadFromJson(curSong + '/' + curSong + curDifficulty);
 
 				nd = SONG.noteData[currentNoteId];
 			}

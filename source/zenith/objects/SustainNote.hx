@@ -26,8 +26,8 @@ class SustainNote extends NoteBase
 		if (null != _frame)
 		{
 			_frame.frame.height = (1 - (_frame.frame.y = -length * (((null != Gameplay.SONG ? Gameplay.SONG.info.speed : 1.0) *
-				0.6428571428571431) /* What the hell? */ / (strum.scale.y * 1.428571428571429))) * Math.abs(strum.scrollMult)) + frameHeight;
-			height = _frame.frame.height * Math.abs(scale.y);
+				0.6428571428571431) /* What the hell? */ / (strum.scale.y * 1.428571428571429))) * (strum.scrollMult < 0.0 ? -strum.scrollMult : strum.scrollMult)) + frameHeight;
+			height = _frame.frame.height * (scale.y < 0.0 ? -scale.y : scale.y);
 		}
 		super.draw();
 	}
@@ -60,21 +60,9 @@ class SustainNote extends NoteBase
 		newRect.x += (-Std.int(camera.scroll.x * scrollFactor.x) - offset.x + origin.x - _scaledOrigin.x);
 		newRect.y += (-Std.int(camera.scroll.y * scrollFactor.y) - offset.y + origin.y - _scaledOrigin.y);
 
-		newRect.width = _frame.frame.width * Math.abs(scale.x);
-		newRect.height = _frame.frame.height * Math.abs(scale.y);
+		newRect.width = _frame.frame.width * (scale.x < 0.0 ? -scale.x : scale.x);
+		newRect.height = _frame.frame.height * (scale.y < 0.0 ? -scale.y : scale.y);
 
 		return newRect.getRotatedBounds(angle, _scaledOrigin, newRect);
-	}
-
-	override function set_width(value:Float):Float
-	{
-		visible = value > 0.0;
-		return width = value;
-	}
-
-	override function set_height(value:Float):Float
-	{
-		visible = value > 0.0;
-		return height = value;
 	}
 }

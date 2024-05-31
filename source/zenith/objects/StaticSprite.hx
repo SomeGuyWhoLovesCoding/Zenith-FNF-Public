@@ -36,87 +36,27 @@ class StaticSprite extends FlxBasic
 	 * Set the angle (in degrees) of a sprite to rotate it. WARNING: rotating sprites
 	 * decreases their rendering performance by a factor of ~10x when using blitting!
 	 */
-	public var angle(default, set):Float = 0;
+	public var angle:Float = 0;
 
 	/**
 	 * X position of the upper left corner of this object in world space.
 	 */
-	public var x(default, set):Float = 0;
+	public var x:Float = 0;
 
 	/**
 	 * Y position of the upper left corner of this object in world space.
 	 */
-	public var y(default, set):Float = 0;
+	public var y:Float = 0;
 
 	/**
 	 * The width of this object's hitbox. For sprites, use `offset` to control the hitbox position.
 	 */
-	@:isVar
-	public var width(get, set):Float;
+	public var width:Float;
 
 	/**
 	 * The height of this object's hitbox. For sprites, use `offset` to control the hitbox position.
 	 */
-	@:isVar
-	public var height(get, set):Float;
-
-	@:noCompletion
-	function set_x(value:Float):Float
-	{
-		return x = value;
-	}
-
-	@:noCompletion
-	function set_y(value:Float):Float
-	{
-		return y = value;
-	}
-
-	@:noCompletion
-	function set_width(value:Float):Float
-	{
-		#if FLX_DEBUG
-		if (!(exists = value > 0))
-		{
-			FlxG.log.warn("An object's width cannot be smaller than 0. Use offset for sprites to control the hitbox position!");
-			return value;
-		}
-		#end
-
-		return width = value;
-	}
-
-	@:noCompletion
-	function set_height(value:Float):Float
-	{
-		#if FLX_DEBUG
-		if (!(exists = value > 0))
-		{
-			FlxG.log.warn("An object's height cannot be smaller than 0. Use offset for sprites to control the hitbox position!");
-			return value;
-		}
-		#end
-
-		return height = value;
-	}
-
-	@:noCompletion
-	function get_width():Float
-	{
-		return width;
-	}
-
-	@:noCompletion
-	function get_height():Float
-	{
-		return height;
-	}
-
-	@:noCompletion
-	function set_angle(a:Float):Float
-	{
-		return angle = a;
-	}
+	public var height:Float;
 
 	/**
 	 * Controls how much this object is affected by camera scrolling. `0` = no movement (e.g. a background layer),
@@ -742,7 +682,7 @@ class StaticSprite extends FlxBasic
 	{
 		checkEmptyFrame();
 
-		if (alpha != 0.0 && _frame.type != FlxFrameType.EMPTY)
+		if ((width >= 0 && height >= 0) && alpha != 0.0 && _frame.type != FlxFrameType.EMPTY)
 		{
 			for (camera in cameras)
 			{
