@@ -84,7 +84,7 @@ class Conductor
 		if (_stepPos != _stepTracker)
 		{
 			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallFloat('onStepHit', _stepPos);
+			HScriptSystem.callFromAllScripts('onStepHit', _stepPos);
 			#end
 			if (onStepHit != null)
 			{
@@ -96,7 +96,7 @@ class Conductor
 		if (_beatPos != _beatTracker)
 		{
 			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallFloat('onBeatHit', _beatPos);
+			HScriptSystem.callFromAllScripts('onBeatHit', _beatPos);
 			#end
 			if (onBeatHit != null)
 			{
@@ -108,7 +108,7 @@ class Conductor
 		if (_measurePos != _measureTracker)
 		{
 			#if SCRIPTING_ALLOWED
-			Main.optUtils.scriptCallFloat('onMeasureHit', _measurePos);
+			HScriptSystem.callFromAllScripts('onMeasureHit', _measurePos);
 			#end
 			if (onMeasureHit != null)
 			{
@@ -124,7 +124,7 @@ class Conductor
 
 	public var stepCrochet(default, null):Float;
 
-	public var onStepHit:(Float)->(Void) = null;
-	public var onBeatHit:(Float)->(Void) = null;
-	public var onMeasureHit:(Float)->(Void) = null;
+	public var onStepHit:(Float)->(Void);
+	public var onBeatHit:(Float)->(Void);
+	public var onMeasureHit:(Float)->(Void);
 }
