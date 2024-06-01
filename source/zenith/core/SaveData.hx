@@ -126,7 +126,7 @@ typedef SaveFile =
 	var preferences:PreferencesData;
 	var graphics:GraphicsData;
 	var controls:ControlsData;
-	var customData:Map<String, CustomSaveFile>;
+	var customData:Map<String, _CustomSaveFile>;
 }
 
 class CustomSaveFile
@@ -139,7 +139,7 @@ class CustomSaveFile
 		name = initialName;
 	}
 
-	public function toStruct():_CustomSaveFie
+	public function toStruct():_CustomSaveFile
 	{
 		return {name: name, data: data};
 	}
