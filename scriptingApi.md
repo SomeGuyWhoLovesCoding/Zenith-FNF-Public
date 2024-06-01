@@ -27,10 +27,13 @@ Here's a fact! You can create your own custom save data by writing:
 ```haxe
 function onGameBoot(modpack)
 {
-    SaveData.createCustomSave(modpack);
-    SaveData.setCustomSaveConten(modpack, 'test', 4);
-    trace(SaveData.getCustomSave(modpack));
-    trace(SaveData.getCustomSaveContent(modpack, 'test'));
+    if (!SaveData.contents.customSaves.exists("hi))
+    {
+        var saveFile = new SaveFile("Hi!");
+        saveFile.name = "hi"; // Change the name
+        saveFile.data = 3; // Set the data to an intz,
+        SaveData.addToCustomSaves(saveFile);
+    }
 }
 ```
 
