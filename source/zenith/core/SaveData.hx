@@ -4,8 +4,10 @@ import lime.ui.KeyCode;
 import sys.io.File;
 import haxe.ds.StringMap;
 
-class SaveData
+@:generic class SaveData
 {
+	// Actual savedata.
+
 	static public var contents(default, null):SaveFile = {
 		preferences: {
 			downScroll: false,
@@ -38,10 +40,12 @@ class SaveData
 			RESET: KeyCode.DELETE,
 			CONTROL: KeyCode.LEFT_CTRL
 		},
-		customData: new StringMap<StringMap<Dynamic>>()
+		customData: new CustomSaveDataHandler()
 	};
 
-	static public function reloadSave():Void
+	// Reader and writer for the global savedata.
+
+	static public function read():Void
 	{
 		if (sys.FileSystem.exists('savedata.sav'))
 		{
@@ -55,47 +59,33 @@ class SaveData
 		}
 	}
 
-	static public function saveContent():Void
+	static public function write():Void
 	{
 		File.saveContent('savedata.sav', haxe.Serializer.run(contents : SaveFile));
 	}
 
-	inline static public function createCustomSave(sav:String):Void
+	// Custom savedata system.
+	// Very easy to use due to how fancy it is.
+
+	inline static public function createCustomSave(name:String):Void
 	{
-		if (contents.customData[sav] == null)
-		{
-			contents.customData[sav] = new StringMap<Dynamic>();
-		}
+		contents.customData.createCustomSave(name);
 	}
 
-	inline static public function changeCustomSaveName(sav:String, name:String):Void
+	inline static public function changeCustomSaveName(name:String, newName:String):Void
 	{
-		if (contents.customData[name] == null)
-		{
-			contents.customData[name] = contents.customData[sav].copy();
-			deleteCustomSave(sav);
-		}
+		contents.customData.changeCustomSaveName(name, newName);
 	}
 
-	inline static public function setDataFromCustomSave(sav:String, data:String, content:Dynamic):Void
+	inline static public function setCustomSaveContent(name:String, content:String, data:Dynamic):Void
 	{
-		if ((s = contents.customData[sav]) != null)
-		{
-			s[data] = content;
-		}
+		contents.customData.setCustomSaveContent(name, content, data);
 	}
 
-	inline static public function deleteCustomSave(sav:String):Void
+	inline static public function deleteCustomSave(name:String):Void
 	{
-		if ((s = contents.customData[sav]) != null)
-		{
-			s.clear();
-			s = null;
-			contents.customData.remove(sav);
-		}
+		contents.customData.deleteCustomSave(name);
 	}
-
-	var s(default, null):StringMap<Dynamic>;
 }
 
 typedef PreferencesData =
@@ -135,5 +125,51 @@ typedef SaveFile =
 	var preferences:PreferencesData;
 	var graphics:GraphicsData;
 	var controls:ControlsData;
-	var customData:StringMap<StringMap<Dynamic>>;
+	var customData:CustomSaveDataHandler;
+}
+
+// For maximum security when handling custom savedata.
+
+private class CustomSaveDataHandler
+{
+	private var _data(default, null):StringMap<StringMap<Dynamic>>;
+
+	inline public function new():Void
+	{
+		_data = new StringMap<StringMap<Dynamic>>();
+	}
+
+	inline public function createCustomSave(name:String):Void
+	{
+		_data[name] = new StringMap<Dynamic>();
+	}
+
+	inline public function changeCustomSaveName(name:String, newName:String):Void
+	{
+		if (newName != name)
+		{
+			_data[newName] = _data[name].copy();
+			_data[name].clear();
+			_data[name] = null;
+			_data.remove(name);
+		}
+	}
+
+	inline public function setCustomSaveContent(name:String, content:String, data:Dynamic):Void
+	{
+		if (_data[name] != null)
+		{
+			_data[name][content] = data;
+		}
+	}
+
+	inline public function deleteCustomSave(name:String):Void
+	{
+		if (_data[name] != null)
+		{
+			_data[name].clear();
+			_data[name] = null;
+			_data.remove(name);
+		}
+	}
 }
