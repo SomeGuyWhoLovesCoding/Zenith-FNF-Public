@@ -2,7 +2,6 @@ package zenith.core;
 
 import lime.ui.KeyCode;
 import sys.io.File;
-using haxe.DynamicAccess;
 
 @:generic class SaveData
 {
@@ -69,7 +68,7 @@ using haxe.DynamicAccess;
 
 	inline static public function addToCustomSaves(file:CustomSaveFile):Void
 	{
-		contents.customData[file.name] = {name: file.name, data: file.data};
+		contents.customData[file.name] = file.toStruct();
 	}
 
 	inline static public function getCustomSave(name:String):_CustomSaveFile
@@ -138,6 +137,11 @@ class CustomSaveFile
 	public function new(initialName:String):Void
 	{
 		name = initialName;
+	}
+
+	public function toStruct():_CustomSaveFie
+	{
+		return {name: name, data: data};
 	}
 }
 
