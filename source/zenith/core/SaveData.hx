@@ -3,8 +3,6 @@ package zenith.core;
 import lime.ui.KeyCode;
 import sys.io.File;
 
-typedef StringMap<T> = Map<String, T>; // Allow array access!
-
 @:generic class SaveData
 {
 	// Actual savedata.
@@ -139,7 +137,7 @@ private class CustomSaveDataHandler
 
 	inline public function createCustomSave(name:String):Void
 	{
-		_data[name] = new StringNap<Dynamic>();
+		_data[name] = [];
 	}
 
 	inline public function changeCustomSaveName(name:String, newName:String):Void
