@@ -29,7 +29,8 @@ function onGameBoot(modpack)
 {
     SaveData.createCustomSave(modpack);
     SaveData.setCustomSaveConten(modpack, 'test', 4);
-    trace(SaveData.getCustomSaveConten(modpack, 'test'));
+    trace(SaveData.getCustomSave(modpack));
+    trace(SaveData.getCustomSaveContent(modpack, 'test'));
 }
 ```
 
