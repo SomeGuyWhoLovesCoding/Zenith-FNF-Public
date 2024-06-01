@@ -834,7 +834,7 @@ class Gameplay extends State
 								bf.alpha = 0.001;
 								bf = bfMap.get(value2);
 								bf.alpha = lastAlpha;
-								if (hudGroup != null)
+								if (hudGroup != null && hudGroup.plrIcon != null)
 									hudGroup.plrIcon.changeIcon(bf.healthIcon);
 							}
 
@@ -853,7 +853,7 @@ class Gameplay extends State
 									gf.visible = !dad.curCharacter.startsWith('gf') && wasGf;
 
 								dad.alpha = lastAlpha;
-								if (hudGroup != null)
+								if (hudGroup != null && hudGroup.oppIcon != null)
 									hudGroup.oppIcon.changeIcon(dad.healthIcon);
 							}
 
@@ -873,6 +873,7 @@ class Gameplay extends State
 							}
 					}
 				}
+
 				if (hudGroup != null)
 					hudGroup.reloadHealthBar();
 
@@ -1278,6 +1279,11 @@ class Gameplay extends State
 			if (null != voices)
 			{
 				voices.play();
+			}
+
+			if (null != hudGroup && null != hudGroup.timeTxt)
+			{
+				hudGroup.timeTxt.visible = true;
 			}
 
 			startedCountdown = true;

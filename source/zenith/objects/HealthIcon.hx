@@ -15,7 +15,7 @@ class HealthIcon extends FlxSprite
 		changeIcon(char);
 	}
 
-	private var iconOffsets(default, null):Array<Float> = [0, 0];
+	private var iconOffsets(default, null):Array<Float> = [0.0, 0.0];
 	public function changeIcon(char:String):Void {
 		// Finally revamp the icon check shit
 		var file:String = Paths.ASSET_PATH + '/images/icons/icon-' + char + '.png';
@@ -37,7 +37,7 @@ class HealthIcon extends FlxSprite
 		{
 			loadGraphic(file); // Get the file size of the graphic
 			loadGraphic(file, true, Std.int(width * 0.5), Std.int(height)); // Then load it with the animation frames
-			iconOffsets[0] = iconOffsets[1] = (width - 150) * 0.5;
+			iconOffsets[0] = iconOffsets[1] = (width - 150.0) * 0.5;
 
 			animation.add(char, [0, 1], 0, false, isPlayer);
 			animation.play(char);
@@ -50,8 +50,8 @@ class HealthIcon extends FlxSprite
 
 	override function updateHitbox()
 	{
-		width = Math.abs(scale.x) * frameWidth;
-		height = Math.abs(scale.y) * frameHeight;
+		width = (scale.x < 0.0 ? -scale.x : scale.x) * frameWidth;
+		height = (scale.y < 0.0 ? -scale.y : scale.y) * frameHeight;
 		offset.x = iconOffsets[0];
 		offset.y = iconOffsets[1];
 		origin.x = offset.x + 54;

@@ -29,11 +29,14 @@ class HUDGroup extends FlxBasic
 
 		oppIcon.y = plrIcon.y = healthBar.y - 60.0;
 
-		scoreTxt = new FlxText(0, healthBar.y + (healthBar.height + 2), 0, 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ???', 20);
+		scoreTxt = new FlxText(0, (healthBar.y + healthBar.height) + 2, 0, 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ???', 20);
 		scoreTxt.setBorderStyle(OUTLINE, 0xFF000000);
+		scoreTxt.screenCenter(X);
 
 		timeTxt = new FlxText(0, Gameplay.downScroll ? FlxG.height - 42 : 8, 0, '???', 30);
 		timeTxt.setBorderStyle(OUTLINE, 0xFF000000);
+		timeTxt.screenCenter(X);
+		timeTxt.visible = false;
 
 		scoreTxt.borderSize = timeTxt.borderSize = 1.25;
 		scoreTxt.font = timeTxt.font = Paths.font('vcr');
@@ -48,6 +51,7 @@ class HUDGroup extends FlxBasic
 	{
 		scoreTxt.text = 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ' + (Gameplay.instance.accuracy_right == 0.0 ? '???' :
 			Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000.0) * 0.01 + '%');
+		scoreTxt.screenCenter(X);
 
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('onUpdateScore');
@@ -76,10 +80,7 @@ class HUDGroup extends FlxBasic
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
 
-		scoreTxt.screenCenter(X);
-		timeTxt.screenCenter(X);
-
-		oppIcon.x = healthBar.width * (1 - (healthBar.value / healthBar.maxValue) + 0.5) - 75.0;
+		oppIcon.x = healthBar.width * (1.0 - (healthBar.value / healthBar.maxValue) + 0.5) - 75.0;
 		plrIcon.x = oppIcon.x + 105.0;
 
 		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0.0, healthBar.maxValue), SaveData.contents.preferences.smoothHealth ? 0.08 : 1.0);
@@ -87,41 +88,33 @@ class HUDGroup extends FlxBasic
 		if (Gameplay.instance.startedCountdown)
 		{
 			timeTxt.text = Utils.formatTime(Gameplay.instance.songLength - Main.conductor.songPosition, true, true);
+			timeTxt.screenCenter(X);
 		}
 
 		updateIcons();
 
-		oppIcon.update(elapsed);
-		plrIcon.update(elapsed);
-		healthBar.update(elapsed);
-		scoreTxt.update(elapsed);
-		timeTxt.update(elapsed);
+		if (healthBar != null)
+			healthBar.update(elapsed);
+
+		if (timeTxt != null)
+			timeTxt.update(elapsed);
 	}
 
 	override function draw():Void
 	{
-		healthBar.draw();
-		oppIcon.draw();
-		plrIcon.draw();
-		scoreTxt.draw();
-		timeTxt.draw();
-	}
-
-	override function destroy():Void
-	{
 		if (healthBar != null)
-			healthBar.destroy();
+			healthBar.draw();
 
 		if (oppIcon != null)
-			oppIcon.destroy();
+			oppIcon.draw();
 
-		if (plrIcon != null)
-			plrIcon.destroy();
+		if (oppIcon != null)
+			plrIcon.draw();
 
-		if (scoreTxt != null)
-			scoreTxt.destroy();
+		if (oppIcon != null)
+			scoreTxt.draw();
 
 		if (timeTxt != null)
-			timeTxt.destroy();
+			timeTxt.draw();
 	}
 }
