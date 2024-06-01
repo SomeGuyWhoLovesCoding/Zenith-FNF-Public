@@ -141,7 +141,7 @@ private abstract CustomSaveDataBackend(Dynamic)
 
 	inline public function createCustomSave(name:String, ?data:Dynamic):Void
 	{
-		Reflect.sefField(this, name, data);
+		Reflect.setField(this, name, data);
 	}
 
 	inline public function changeCustomSaveName(name:String, newName:String):Void
