@@ -40,7 +40,7 @@ using haxe.DynamicAccess;
 			RESET: KeyCode.DELETE,
 			CONTROL: KeyCode.LEFT_CTRL
 		},
-		customData: new Map<String, CustomSaveFile>()
+		customData: new Map<String, _CustomSaveFile>()
 	};
 
 	// Reader and writer for the global savedata.
@@ -69,10 +69,10 @@ using haxe.DynamicAccess;
 
 	inline static public function addToCustomSaves(file:CustomSaveFile):Void
 	{
-		contents.customData[file.name] = file;
+		contents.customData[file.name] = {name: file.name, data: file.data};
 	}
 
-	inline static public function getCustomSave(name:String):CustomSaveFile
+	inline static public function getCustomSave(name:String):_CustomSaveFile
 	{
 		return contents.customData[name];
 	}
@@ -82,9 +82,11 @@ using haxe.DynamicAccess;
 		contents.customData[name].name = newName;
 	}
 
-	inline static public function deleteCustomSave(file:CustomSaveFile):Void
+	inline static public function deleteCustomSave(name:String):Void
 	{
-		contents.customData[file.name].delete();
+		contents.customData[name].data = null;
+		contents.customData[name] = null;
+		contents.customData.remove(name);
 	}
 }
 
@@ -133,13 +135,14 @@ class CustomSaveFile
 	public var name:String;
 	public var data:Dynamic;
 
-	inline public function new(initialName:String):Void
+	public function new(initialName:String):Void
 	{
 		name = initialName;
 	}
+}
 
-	inline public function delete():Void
-	{
-		data = null;
-	}
+private typedef _CustomSaveFile
+{
+	var name:String;
+	var data:Dynamic;
 }
