@@ -132,7 +132,10 @@ typedef SaveFile =
 
 private abstract CustomSaveDataBackend(Dynamic)
 {
-	public function new():Void {}
+	public function new():Void
+	{
+		this = {};
+	}
 
 	inline function get(name:String):Dynamic
 	{
