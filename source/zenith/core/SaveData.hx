@@ -72,9 +72,19 @@ using haxe.DynamicAccess;
 		contents.customData.createCustomSave(name);
 	}
 
+	inline static public function getCustomSave(name:String):Map<String, Dynamic>
+	{
+		return contents.customData.getCustomSave(name);
+	}
+
 	inline static public function changeCustomSaveName(name:String, newName:String):Void
 	{
 		contents.customData.changeCustomSaveName(name, newName);
+	}
+
+	inline static public function getCustomSaveContent(name:String, content:String):Dynamic
+	{
+		return contents.customData.getCustomSaveContent(name, content);
 	}
 
 	inline static public function setCustomSaveContent(name:String, content:String, data:Any):Void
@@ -142,6 +152,11 @@ private abstract CustomSaveDataBackend(Map<String, Map<String, Any>>)
 		this[name] = null;
 	}
 
+	inline public function getCustomSave(name:String):Map<String, Dynamic>
+	{
+		return this[name] != null ? this[name] : null;
+	}
+
 	inline public function changeCustomSaveName(name:String, newName:String):Void
 	{
 		if (this[name] != null && newName != name)
@@ -149,6 +164,11 @@ private abstract CustomSaveDataBackend(Map<String, Map<String, Any>>)
 			this[newName] = this[name].copy();
 			deleteCustomSave(name);
 		}
+	}
+
+	inline public function getCustomSaveContent(name:String, content:String):Dynamic
+	{
+		return this[name] != null ? this[name][content] : null;
 	}
 
 	inline public function setCustomSaveContent(name:String, content:String, data:Any):Void
