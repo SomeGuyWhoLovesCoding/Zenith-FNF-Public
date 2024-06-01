@@ -133,16 +133,13 @@ typedef SaveFile =
 
 private class CustomSaveDataHandler
 {
-	private var _data(default, null):StringMap<StringMap<Dynamic>>;
+	private var _data(default, null):Dynamic = [];
 
-	inline public function new():Void
-	{
-		_data = new StringMap<StringMap<Dynamic>>();
-	}
+	inline public function new():Void {}
 
 	inline public function createCustomSave(name:String):Void
 	{
-		_data[name] = new StringMap<Dynamic>();
+		_data[name] = new StringNap<Dynamic>();
 	}
 
 	inline public function changeCustomSaveName(name:String, newName:String):Void
