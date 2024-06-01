@@ -119,7 +119,7 @@ class StrumNote extends FlxSprite
 		origin.y = offset.y + 56;
 	}
 
-	inline public function isIdle():Vool
+	inline public function isIdle():Bool
 	{
 		return animation.curAnim == STATIC_ANIM;
 	}
