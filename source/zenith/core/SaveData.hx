@@ -67,9 +67,9 @@ using haxe.DynamicAccess;
 	// Custom savedata system.
 	// Very easy to use due to how fancy it is.
 
-	inline static public function createCustomSave(name:String, ?data:Dynamic):Void
+	inline static public function createCustomSave(name:String):Void
 	{
-		contents.customData.createCustomSave(name, data);
+		contents.customData.createCustomSave(name);
 	}
 
 	inline static public function changeCustomSaveName(name:String, newName:String):Void
@@ -130,39 +130,38 @@ typedef SaveFile =
 
 // For maximum security when handling custom savedata.
 
-private abstract CustomSaveDataBackend(Dynamic) from Dynamic
+private abstract CustomSaveDataBackend(Map<String, Map<String, Dynamic>>)
 {
 	public function new():Void
 	{
-		this = {};
+		this = new Map<String, Map<String, Dynamic>>();
 	}
 
-	inline function get(name:String):Dynamic
+	inline public function createCustomSave(name:String):Void
 	{
-		return Reflect.field(this, name);
-	}
-
-	inline public function createCustomSave(name:String, ?data:Dynamic):Void
-	{
-		Reflect.setField(this, name, data);
+		this[name] = null;
 	}
 
 	inline public function changeCustomSaveName(name:String, newName:String):Void
 	{
-		if (get(name) != null && newName != name)
+		if (this[name] != null && newName != name)
 		{
-			Reflect.setField(get(name), newName, Reflect.copy(get(name)));
-			Reflect.deleteField(this, name);
+			this[newName] = this[name].copy();
+			deleteCustomSave(name);
 		}
 	}
 
 	inline public function setCustomSaveContent(name:String, content:String, data:Dynamic):Void
 	{
-		Reflect.setField(get(name), content, data);
+		if (this[name] != null)
+		{
+			this[name][content] = data;
+		}
 	}
 
 	inline public function deleteCustomSave(name:String):Void
 	{
-		Reflect.deleteField(this, name);
+		this[name] = null;
+		this.remove(name);
 	}
 }
