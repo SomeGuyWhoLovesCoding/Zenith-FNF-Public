@@ -58,6 +58,7 @@ class Main extends Sprite
 	
 		#if SCRIPTING_ALLOWED
 		hscript = new HScriptSystem();
+		hscript.callFromAllScripts('onGameBoot');
 		#end
 
 		// Before adding ``game``, create the transition
