@@ -144,11 +144,11 @@ private abstract CustomSaveDataBackend(Dynamic)
 		Reflect.sefField(this, name, data);
 	}
 
-	inline public function changeCustomSave(name:String, newName:String):Void
+	inline public function changeCustomSaveName(name:String, newName:String):Void
 	{
 		if (get(name) != null && newName != name)
 		{
-			Reflect.setField(get(name), newName, Reflect.copy(this[name]));
+			Reflect.setField(get(name), newName, Reflect.copy(get(name)));
 			Reflect.deleteField(this, name);
 		}
 	}
