@@ -91,7 +91,6 @@ class StrumNote extends FlxSprite
 			clipRect.put();
 		}
 
-		_frame = _frame.clipTo(rect, _frame);
 		return clipRect = rect;
 	}
 
@@ -119,6 +118,7 @@ class StrumNote extends FlxSprite
 		origin.y = offset.y + 56;
 	}
 
+	// This replaces Gameplay.hx's holdArray btw
 	inline public function isIdle():Bool
 	{
 		return animation.curAnim == STATIC_ANIM;
