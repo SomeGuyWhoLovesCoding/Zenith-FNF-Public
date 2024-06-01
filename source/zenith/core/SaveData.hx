@@ -141,7 +141,7 @@ class CustomSaveFile
 	}
 }
 
-private typedef _CustomSaveFile
+private typedef _CustomSaveFile =
 {
 	var name:String;
 	var data:Dynamic;
