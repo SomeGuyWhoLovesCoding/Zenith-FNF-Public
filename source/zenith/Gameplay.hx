@@ -244,7 +244,7 @@ class Gameplay extends State
 
 				if (currentSustain.strum.playable)
 				{
-					if (holdArray[currentSustain.noteData] && Main.conductor.songPosition >= currentSustain.strumTime && !currentSustain.missed &&
+					if (!currentSustain.strum.isIdle() && Main.conductor.songPosition >= currentSustain.strumTime && !currentSustain.missed &&
 						Main.conductor.songPosition <= (currentSustain.strumTime + currentSustain.length) - (Main.conductor.stepCrochet * 0.875))
 					{
 						onHold(currentSustain);
