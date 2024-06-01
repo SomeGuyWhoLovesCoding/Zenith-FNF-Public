@@ -8,8 +8,8 @@ class Strumline extends FlxBasic
 	{
 		for (i in 0...value)
 		{
-			var member = members[i];
-			if (member == null)
+			m = members[i];
+			if (m == null)
 			{
 				var strumNote = new StrumNote(i, lane);
 				strumNote.scale.x = strumNote.scale.y = scale;
@@ -18,7 +18,7 @@ class Strumline extends FlxBasic
 			}
 			else
 			{
-				member.angle = NoteBase.angleArray[member.noteData];
+				m.angle = NoteBase.angleArray[m.noteData];
 			}
 		}
 
