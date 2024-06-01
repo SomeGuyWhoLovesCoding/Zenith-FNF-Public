@@ -268,20 +268,21 @@ class Gameplay extends State
 		Main.hscript.callFromAllScripts('onKeyDown', keyCode, keyModifier);
 		#end
 
-		st = inputKeybinds[keyCode];
-
-		if (st != null && !cpuControlled && generatedMusic && !holdArray[st.noteData])
+		if (!cpuControlled && generatedMusic)
 		{
-			if (st.animation.curAnim.name != 'confirm')
-				st.playAnim('pressed');
+			st = inputKeybinds[keyCode];
 
-			h(st.noteData);
+			if (st != null && st.isIdle())
+			{
+				if (st.animation.curAnim.name != 'confirm')
+					st.playAnim('pressed');
 
-			holdArray[st.noteData] = true;
+				h(st.noteData);
 
-			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('onKeyDownPost', keyCode, keyModifier);
-			#end
+				#if SCRIPTING_ALLOWED
+				Main.hscript.callFromAllScripts('onKeyDownPost', keyCode, keyModifier);
+				#end
+			}
 		}
 	}
 
@@ -291,21 +292,22 @@ class Gameplay extends State
 		Main.hscript.callFromAllScripts('onKeyUp', keyCode, keyModifier);
 		#end
 
-		st = inputKeybinds[keyCode];
-
-		if (st != null && !cpuControlled && generatedMusic && holdArray[st.noteData])
+		if (!cpuControlled && generatedMusic)
 		{
-			if (st.animation.curAnim.name == 'confirm' ||
-				st.animation.curAnim.name == 'pressed')
-				st.playAnim('static');
+			st = inputKeybinds[keyCode];
 
-			r(st.noteData);
+			if (st != null && !st.isIdle())
+			{
+				if (st.animation.curAnim.name == 'confirm' ||
+					st.animation.curAnim.name == 'pressed')
+					st.playAnim('static');
 
-			holdArray[st.noteData] = false;
+				r(st.noteData);
 
-			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('onKeyUpPost', keyCode, keyModifier);
-			#end
+				#if SCRIPTING_ALLOWED
+				Main.hscript.callFromAllScripts('onKeyUpPost', keyCode, keyModifier);
+				#end
+			}
 		}
 	}
 
@@ -1415,11 +1417,6 @@ class Gameplay extends State
 	}
 
 	public var inputKeybinds:Map<(Int), (StrumNote)> = new Map<(Int), (StrumNote)>();
-
-	// The extra 5 values are used to check if a key is just pressed for extra keys aswell
-	public var holdArray(default, null):Array<Bool> = [false, false, false, false, false, false, false, false, false];
-
-	// Preferences stuff (Also for scripting)
 
 	var strumYTweens(default, null):Map<StrumNote, FlxTween> = [];
 	var strumScrollMultTweens(default, null):Map<StrumNote, FlxTween> = [];
