@@ -130,7 +130,7 @@ typedef SaveFile =
 
 // For maximum security when handling custom savedata.
 
-private abstract CustomSaveDataBackend(Dynamic)
+private abstract CustomSaveDataBackend(Dynamic) from Dynamic
 {
 	public function new():Void
 	{
