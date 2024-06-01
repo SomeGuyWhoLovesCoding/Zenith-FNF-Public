@@ -52,6 +52,8 @@ class Main extends Sprite
 	{
 		super();
 
+		SaveData.read();
+
 		conductor = new Conductor();
 	
 		#if SCRIPTING_ALLOWED
@@ -68,8 +70,6 @@ class Main extends Sprite
 		transition.graphics.drawRect(0, 0, 2560, 2880);
 		transition.graphics.endFill();
 		transition.x = -transition.width * 0.5;
-
-		SaveData.reloadSave();
 
 		flixel.graphics.FlxGraphic.defaultPersist = SaveData.contents.graphics.persistentGraphics;
 		ENABLE_MULTITHREADING = SaveData.contents.graphics.multithreading;
