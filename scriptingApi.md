@@ -20,6 +20,21 @@ You should see something like this: "assets/scripts/script.hx"
 
 ## Built-in functions
 
+``onGameBoot(modpack)``; This function is calle when the game boots.
+
+Here's a fact! You can create your own custom save data by writing:
+
+```haxe
+function onGameBoot(modpack)
+{
+    SaveData.createCustomSave(modpack);
+    SaveData.setCustomSaveConten(modpack, 'test', 4);
+    trace(SaveData.getCustomSaveConten(modpack, 'test'));
+}
+```
+
+It allows your own custom savedata to load immediately.
+
 ### State-wise
 
 ``create()``: This function is called before creating the current state.
@@ -99,14 +114,16 @@ You should see something like this: "assets/scripts/script.hx"
 ## Example usage
 
 ```haxe
-function triggerEvent(eventName, value1, value2)
+function triggerEvent(eventName, value1, value2, value3, value4)
 {
 	switch(eventName)
 	{
 		case "Trace string":
-			trace(value1,value2);
+			trace(value1,value2,value3,value4);
 	}
 }
 ```
+
+# Final message
 
 Hope you enjoyed this!
