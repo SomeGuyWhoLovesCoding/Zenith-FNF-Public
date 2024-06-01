@@ -61,7 +61,7 @@ import haxe.ds.StringMap;
 
 	static public function write():Void
 	{
-		File.saveContent('savedata.sav', haxe.Serializer.run(contents : SaveFile));
+		File.saveContent('savedata.sav', haxe.Serializer.run((contents : SaveFile)));
 	}
 
 	// Custom savedata system.
