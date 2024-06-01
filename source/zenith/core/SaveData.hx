@@ -77,7 +77,7 @@ using haxe.DynamicAccess;
 		contents.customData.changeCustomSaveName(name, newName);
 	}
 
-	inline static public function setCustomSaveContent(name:String, content:String, data:Dynamic):Void
+	inline static public function setCustomSaveContent(name:String, content:String, data:Any):Void
 	{
 		contents.customData.setCustomSaveContent(name, content, data);
 	}
@@ -130,11 +130,11 @@ typedef SaveFile =
 
 // For maximum security when handling custom savedata.
 
-private abstract CustomSaveDataBackend(Map<String, Map<String, Dynamic>>)
+private abstract CustomSaveDataBackend(Map<String, Map<String, Any>>)
 {
 	public function new():Void
 	{
-		this = new Map<String, Map<String, Dynamic>>();
+		this = new Map<String, Map<String, Any>>();
 	}
 
 	inline public function createCustomSave(name:String):Void
@@ -151,7 +151,7 @@ private abstract CustomSaveDataBackend(Map<String, Map<String, Dynamic>>)
 		}
 	}
 
-	inline public function setCustomSaveContent(name:String, content:String, data:Dynamic):Void
+	inline public function setCustomSaveContent(name:String, content:String, data:Any):Void
 	{
 		if (this[name] != null)
 		{
