@@ -27,7 +27,7 @@ Here's a fact! You can create your own custom save data by writing:
 ```haxe
 function onGameBoot(modpack)
 {
-    if (!SaveData.contents.customSaves.exists("hi))
+    if (!SaveData.contents.customSaves.exists("hi"))
     {
         var saveFile = new SaveFile("Hi!");
         saveFile.name = "hi"; // Change the name
