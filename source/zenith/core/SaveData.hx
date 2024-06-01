@@ -2,6 +2,7 @@ package zenith.core;
 
 import lime.ui.KeyCode;
 import sys.io.File;
+using haxe.DynamicAccess;
 
 @:generic class SaveData
 {
@@ -39,7 +40,7 @@ import sys.io.File;
 			RESET: KeyCode.DELETE,
 			CONTROL: KeyCode.LEFT_CTRL
 		},
-		customData: new CustomSaveDataHandler()
+		customData: new CustomSaveDataBackend()
 	};
 
 	// Reader and writer for the global savedata.
@@ -66,9 +67,9 @@ import sys.io.File;
 	// Custom savedata system.
 	// Very easy to use due to how fancy it is.
 
-	inline static public function createCustomSave(name:String):Void
+	inline static public function createCustomSave(name:String, ?data:Dynamic):Void
 	{
-		contents.customData.createCustomSave(name);
+		contents.customData.createCustomSave(name, data);
 	}
 
 	inline static public function changeCustomSaveName(name:String, newName:String):Void
@@ -124,48 +125,41 @@ typedef SaveFile =
 	var preferences:PreferencesData;
 	var graphics:GraphicsData;
 	var controls:ControlsData;
-	var customData:CustomSaveDataHandler;
+	var customData:CustomSaveDataBackend;
 }
 
 // For maximum security when handling custom savedata.
 
-private class CustomSaveDataHandler
+private abstract CustomSaveDataBackend(Dynamic)
 {
-	private var _data(default, null):Dynamic = [];
+	public function new():Void {}
 
-	inline public function new():Void {}
-
-	inline public function createCustomSave(name:String):Void
+	inline function get(name:String):Dynamic
 	{
-		_data[name] = [];
+		return Reflect.field(this, name);
 	}
 
-	inline public function changeCustomSaveName(name:String, newName:String):Void
+	inline public function createCustomSave(name:String, ?data:Dynamic):Void
 	{
-		if (newName != name)
+		Reflect.sefField(this, name, data);
+	}
+
+	inline public function changeCustomSave(name:String, newName:String):Void
+	{
+		if (get(name) != null && newName != name)
 		{
-			_data[newName] = _data[name].copy();
-			_data[name].clear();
-			_data[name] = null;
-			_data.remove(name);
+			Reflect.setField(get(name), newName, Reflect.copy(this[name]));
+			Reflect.deleteField(this, name);
 		}
 	}
 
 	inline public function setCustomSaveContent(name:String, content:String, data:Dynamic):Void
 	{
-		if (_data[name] != null)
-		{
-			_data[name][content] = data;
-		}
+		Reflect.setField(get(name), content, data);
 	}
 
 	inline public function deleteCustomSave(name:String):Void
 	{
-		if (_data[name] != null)
-		{
-			_data[name].clear();
-			_data[name] = null;
-			_data.remove(name);
-		}
+		Reflect.deleteField(this, name);
 	}
 }
