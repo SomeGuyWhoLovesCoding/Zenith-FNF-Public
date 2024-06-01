@@ -72,7 +72,7 @@ using haxe.DynamicAccess;
 		contents.customData[file.name] = file;
 	}
 
-	inline static public function getCustomSave(name:String):Map<String, Dynamic>
+	inline static public function getCustomSave(name:String):CustomSaveFile
 	{
 		return contents.customData[name];
 	}
