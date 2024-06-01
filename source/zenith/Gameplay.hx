@@ -477,7 +477,7 @@ class Gameplay extends State
 							camera_boyfriend: [0, 0],
 							camera_opponent: [0, 0],
 							camera_girlfriend: [0, 0],
-							camera_speed: 1
+							camera_speed: 1.0
 						};
 					}
 
@@ -1003,7 +1003,7 @@ class Gameplay extends State
 					camera_boyfriend: [0, 0],
 					camera_opponent: [0, 0],
 					camera_girlfriend: [0, 0],
-					camera_speed: 1
+					camera_speed: 1.0
 				};
 			}
 
