@@ -2,7 +2,8 @@ package zenith.core;
 
 import lime.ui.KeyCode;
 import sys.io.File;
-import haxe.ds.StringMap;
+
+typedef StringMap<T> = Map<String, T>; // Allow array access!
 
 @:generic class SaveData
 {
