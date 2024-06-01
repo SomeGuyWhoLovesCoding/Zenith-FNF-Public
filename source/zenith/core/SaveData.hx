@@ -40,7 +40,7 @@ using haxe.DynamicAccess;
 			RESET: KeyCode.DELETE,
 			CONTROL: KeyCode.LEFT_CTRL
 		},
-		customData: new CustomSaveDataBackend()
+		customData: new Map<String, CustomSaveFile>()
 	};
 
 	// Reader and writer for the global savedata.
@@ -67,34 +67,24 @@ using haxe.DynamicAccess;
 	// Custom savedata system.
 	// Very easy to use due to how fancy it is.
 
-	inline static public function createCustomSave(name:String):Void
+	inline static public function addToCustomSaves(file:CustomSaveFile):Void
 	{
-		contents.customData.createCustomSave(name);
+		contents.customData[file.name] = file;
 	}
 
 	inline static public function getCustomSave(name:String):Map<String, Dynamic>
 	{
-		return contents.customData.getCustomSave(name);
+		return contents.customData[name];
 	}
 
 	inline static public function changeCustomSaveName(name:String, newName:String):Void
 	{
-		contents.customData.changeCustomSaveName(name, newName);
+		contents.customData[name].name = newName;
 	}
 
-	inline static public function getCustomSaveContent(name:String, content:String):Dynamic
+	inline static public function deleteCustomSave(file:CustomSaveFile):Void
 	{
-		return contents.customData.getCustomSaveContent(name, content);
-	}
-
-	inline static public function setCustomSaveContent(name:String, content:String, data:Any):Void
-	{
-		contents.customData.setCustomSaveContent(name, content, data);
-	}
-
-	inline static public function deleteCustomSave(name:String):Void
-	{
-		contents.customData.deleteCustomSave(name);
+		contents.customData[file.name].delete();
 	}
 }
 
@@ -135,53 +125,21 @@ typedef SaveFile =
 	var preferences:PreferencesData;
 	var graphics:GraphicsData;
 	var controls:ControlsData;
-	var customData:CustomSaveDataBackend;
+	var customData:Map<String, CustomSaveFile>;
 }
 
-// For maximum security when handling custom savedata.
-
-private abstract CustomSaveDataBackend(Map<String, Map<String, Any>>)
+class CustomSaveFile
 {
-	public function new():Void
+	public var name:String;
+	public var data:Dynamic;
+
+	inline public function new(initialName:String):Void
 	{
-		this = new Map<String, Map<String, Any>>();
+		name = initialName;
 	}
 
-	inline public function createCustomSave(name:String):Void
+	inline public function delete():Void
 	{
-		this[name] = null;
-	}
-
-	inline public function getCustomSave(name:String):Map<String, Dynamic>
-	{
-		return this[name] != null ? this[name] : null;
-	}
-
-	inline public function changeCustomSaveName(name:String, newName:String):Void
-	{
-		if (this[name] != null && newName != name)
-		{
-			this[newName] = this[name].copy();
-			deleteCustomSave(name);
-		}
-	}
-
-	inline public function getCustomSaveContent(name:String, content:String):Dynamic
-	{
-		return this[name] != null ? this[name][content] : null;
-	}
-
-	inline public function setCustomSaveContent(name:String, content:String, data:Any):Void
-	{
-		if (this[name] != null)
-		{
-			this[name][content] = data;
-		}
-	}
-
-	inline public function deleteCustomSave(name:String):Void
-	{
-		this[name] = null;
-		this.remove(name);
+		data = null;
 	}
 }
