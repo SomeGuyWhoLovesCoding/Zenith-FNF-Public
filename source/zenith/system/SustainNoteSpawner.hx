@@ -22,6 +22,7 @@ class SustainNoteSpawner extends FlxBasic
 	public function spawn(chartSustainData:Array<Float>):SustainNote
 	{
 		_s = recycle();
+		_s.state = IDLE;
 
 		_s.camera = camera;
 		_s.cameras = cameras;
@@ -90,13 +91,13 @@ class SustainNoteSpawner extends FlxBasic
 
 				if (Main.conductor.songPosition > (s.strumTime + s.length) + (750.0 / Gameplay.instance.songSpeed))
 				{
-					s.holding = s.missed = s.exists = false;
+					s.exists = false;
 					h[s.strum] = null;
 					continue;
 				}
 
 				if (Main.conductor.songPosition < (s.strumTime + s.length) - (Main.conductor.stepCrochet * 0.875) &&
-					Main.conductor.songPosition > s.strumTime && !s.missed)
+					Main.conductor.songPosition > s.strumTime && s.state != MISS)
 				{
 					if (!s.strum.isIdle() || !s.strum.playable)
 					{
@@ -142,10 +143,9 @@ class SustainNoteSpawner extends FlxBasic
 	public function handleRelease(strum:StrumNote):Void
 	{
 		missable = h[strum];
-		if ((missable != null && missable.exists) && !missable.missed)
+		if ((missable != null && missable.exists) && missable.state != MISS)
 		{
-			missable.holding = false;
-			missable.missed = true;
+			missable.state = MISS;
 			missable.alpha = 0.3;
 			h[strum] = null;
 			Gameplay.instance.onRelease(missable.noteData);
