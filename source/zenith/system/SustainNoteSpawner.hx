@@ -2,6 +2,7 @@ package zenith.system;
 
 import flixel.math.FlxMath;
 import flixel.math.FlxAngle;
+import sys.thread.Deque;
 
 @:access(zenith.Gameplay)
 
@@ -21,7 +22,13 @@ class SustainNoteSpawner extends FlxBasic
 	var _s(default, null):SustainNote;
 	public function spawn(chartSustainData:Array<Float>):SustainNote
 	{
-		_s = recycle();
+		_s = p.pop(false);
+
+		if (_s == null)
+		{
+			m[m.length] = _s = new SustainNote();
+		}
+
 		_s.state = IDLE;
 
 		_s.camera = camera;
@@ -152,18 +159,5 @@ class SustainNoteSpawner extends FlxBasic
 		}
 	}
 
-	var r(default, null):SustainNote;
-	public function recycle():SustainNote
-	{
-		for (i in 0...m.length)
-		{
-			r = m[i];
-			if (!r.exists)
-			{
-				r.exists = true;
-				return r;
-			}
-		}
-		return m[m.length] = new SustainNote();
-	}
+	var p(default, null):Deque<SustainNote>;
 }
