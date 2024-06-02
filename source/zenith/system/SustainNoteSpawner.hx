@@ -27,7 +27,11 @@ class SustainNoteSpawner extends FlxBasic
 
 		if (_s == null)
 		{
-			m[m.length] = _s = new SustainNote();
+			_s = m[m.length] = new SustainNote();
+		}
+		else
+		{
+			_s.exists = true;
 		}
 
 		_s.state = IDLE;
@@ -95,32 +99,33 @@ class SustainNoteSpawner extends FlxBasic
 				s.y = (s.strum.y + s.offsetY + (s.strum.scrollMult * s.distance) *
 					FlxMath.fastSin(FlxAngle.asRadians(s.direction - 90.0))) + (Gameplay.instance.initialStrumHeight * 0.5);
 
-				// For hold input
-
 				if (Main.conductor.songPosition > (s.strumTime + s.length) + (750.0 / Gameplay.instance.songSpeed))
 				{
-					p.push(missable);
 					s.exists = false;
-					h[s.strum] = null;
+					p.push(s);
 					continue;
 				}
 
 				if (Main.conductor.songPosition < (s.strumTime + s.length) - (Main.conductor.stepCrochet * 0.875) &&
 					Main.conductor.songPosition > s.strumTime && s.state != MISS)
 				{
+					if (s.strum.playable)
+					{
+						if (Main.conductor.songPosition > s.strumTime - 166.7 &&
+							(!h.exists(s.strum) || h[s.strum].strumTime > s.strumTime))
+						{
+							h[s.strum] = s;
+						}
+					}
+
 					if (!s.strum.isIdle() || !s.strum.playable)
 					{
 						Gameplay.instance.onHold(s);
 					}
-
-					if (h[s.strum] == null || h[s.strum].strumTime > s.strumTime)
-					{
-						h[s.strum] = s;
-					}
 				}
 				else
 				{
-					h[s.strum] = null;
+					h.remove(s.strum);
 				}
 			}
 		}
@@ -148,17 +153,14 @@ class SustainNoteSpawner extends FlxBasic
 
 	var _sk(default, null):Int = 0;
 
-	var missable(default, null):SustainNote;
 	public function handleRelease(strum:StrumNote):Void
 	{
-		missable = h[strum];
-		if ((missable != null && missable.exists) && missable.state != MISS)
+		if (strum.playable && h.exists(strum) && h[strum].state != MISS)
 		{
-			p.push(missable);
-			h[strum] = null;
-			missable.state = MISS;
-			missable.alpha = 0.3;
-			Gameplay.instance.onRelease(missable.noteData);
+			h[strum].state = MISS;
+			h[strum].alpha = 0.3;
+			Gameplay.instance.onRelease(h[strum].noteData);
+			h.remove(strum);
 		}
 	}
 

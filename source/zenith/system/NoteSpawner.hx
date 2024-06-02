@@ -25,9 +25,14 @@ class NoteSpawner extends FlxBasic
 	{
 		_n = p.pop(false);
 
-		if (_n == null)
+		if (_n != null)
 		{
-			m[m.length] = _n = new Note();
+			_n.exists = true;
+		}
+		else
+		{
+			_n = new Note();
+			m.push(_n);
 		}
 
 		_n.state = IDLE;
@@ -102,45 +107,35 @@ class NoteSpawner extends FlxBasic
 
 				if (Main.conductor.songPosition > n.strumTime + (750.0 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
 				{
-					p.push(n);
 					n.exists = false;
-					h[n.strum] = null;
+					h.remove(n.strum);
+					p.push(n);
 					continue;
 				}
 
 				if (n.strum.playable)
 				{
-					if (Gameplay.cpuControlled && Main.conductor.songPosition > n.strumTime)
-					{
-						p.push(n);
-						Gameplay.instance.onNoteHit(n);
-					}
-
 					if (n.state == IDLE)
 					{
-						if (Main.conductor.songPosition > n.strumTime + (166.7 / Gameplay.instance.songSpeed))
-						{
-							p.push(n);
-							h[n.strum] = null;
-							hittable.state = MISS;
-							Gameplay.instance.onNoteMiss(n);
-						}
-
 						// Took forever to fully polish jack detection here
 						if (Main.conductor.songPosition > n.strumTime - 166.7 &&
-							(h[n.strum] == null || h[n.strum].strumTime > n.strumTime))
+							(!h.exists(n.strum) || h[n.strum].strumTime > n.strumTime && h[n.strum].state == MISS))
 						{
 							h[n.strum] = n;
 						}
+
+						if (Main.conductor.songPosition > n.strumTime + (166.7 / Gameplay.instance.songSpeed))
+						{
+							Gameplay.instance.onNoteMiss(n);
+							n.state = MISS;
+						}
 					}
 				}
-				else
+
+				if ((Gameplay.cpuControlled || !n.strum.playable) && Main.conductor.songPosition > n.strumTime)
 				{
-					if (Main.conductor.songPosition > n.strumTime)
-					{
-						p.push(n);
-						Gameplay.instance.onNoteHit(n);
-					}
+					Gameplay.instance.onNoteHit(n);
+					p.push(n);
 				}
 			}
 		}
@@ -168,17 +163,16 @@ class NoteSpawner extends FlxBasic
 
 	var _nk(default, null):Int = 0;
 
-	var hittable(default, null):Note;
 	inline public function handleHittableNote(strum:StrumNote):Void
 	{
-		hittable = h[strum];
-		if ((hittable != null && hittable.exists) && hittable.state == IDLE)
+		if (h.exists(strum) && h[strum].state == IDLE)
 		{
-			p.push(hittable);
-			h[strum] = null;
-			Gameplay.instance.onNoteHit(hittable);
+			h[strum].state = HIT;
+			Gameplay.instance.onNoteHit(h[strum]);
+			p.push(h[strum]);
+			h.remove(strum);
 		}
 	}
 
-	var p(default, null):Deque<Note>;
+	var p(default, null):Deque<Note>; // Rewritten recycler
 }

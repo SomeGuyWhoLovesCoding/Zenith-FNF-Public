@@ -16,11 +16,11 @@ class Game extends FlxGame
 
 	public function new():Void
 	{
+		trace('Game initialized.');
 		FlxSprite.defaultAntialiasing = SaveData.contents.graphics.antialiasing;
 		var fps = Std.int(setFramerate(SaveData.contents.graphics.fps));
 		super(0, 0, initState, fps, fps, true);
 		lime.app.Application.current.window.onClose.add(SaveData.write);
-		trace('Game initialized.');
 	}
 
 	override public function onEnterFrame(_:openfl.events.Event):Void
