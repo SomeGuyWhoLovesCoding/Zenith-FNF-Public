@@ -1,9 +1,9 @@
 package zenith.system;
 
-enum abstract NoteState(Int)
+enum NoteState
 {
-    var IDLE:Int = 0;
-    var HELD:Int = 1;
-    var HIT:Int = 2;
-    var MISS:Int = -1;
+    IDLE;
+    HELD;
+    HIT;
+    MISS;
 }
