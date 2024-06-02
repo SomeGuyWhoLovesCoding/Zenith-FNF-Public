@@ -17,6 +17,7 @@ class SustainNoteSpawner extends FlxBasic
 
 		m = [];
 		h = new Map<StrumNote, SustainNote>();
+		p = new Deque<SustainNote>();
 	}
 
 	var _s(default, null):SustainNote;

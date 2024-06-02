@@ -17,6 +17,7 @@ class NoteSpawner extends FlxBasic
 
 		m = [];
 		h = new Map<StrumNote, Note>();
+		p = new Deque<Note>();
 	}
 
 	var _n(default, null):Note;
