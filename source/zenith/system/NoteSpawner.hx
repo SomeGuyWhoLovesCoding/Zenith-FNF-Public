@@ -2,6 +2,7 @@ package zenith.system;
 
 import flixel.math.FlxMath;
 import flixel.math.FlxAngle;
+import sys.thread.Deque;
 
 @:access(zenith.Gameplay)
 
@@ -21,7 +22,13 @@ class NoteSpawner extends FlxBasic
 	var _n(default, null):Note;
 	public function spawn(chartNoteData:Array<Float>):Note
 	{
-		_n = recycle();
+		_n = p.pop(false);
+
+		if (_n == null)
+		{
+			m[m.length] = _n = new Note();
+		}
+
 		_n.state = IDLE;
 
 		_n.camera = camera;
@@ -164,22 +171,10 @@ class NoteSpawner extends FlxBasic
 		{
 			h[strum] = null;
 			hittable.state = HIT;
+			p.add(hittable);
 			Gameplay.instance.onNoteHit(hittable);
 		}
 	}
 
-	var r(default, null):Note;
-	public function recycle():Note
-	{
-		for (i in 0...m.length)
-		{
-			r = m[i];
-			if (!r.exists)
-			{
-				r.exists = true;
-				return r;
-			}
-		}
-		return m[m.length] = new Note();
-	}
+	var p(default, null):Deque<Note<
 }
