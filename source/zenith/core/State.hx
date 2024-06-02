@@ -8,6 +8,8 @@ import flixel.FlxBasic;
 
 class State extends FlxState
 {
+	static public var crashHandler:Bool = false;
+
 	override function create():Void
 	{
 		Main.conductor.onStepHit = Main.conductor.onBeatHit = Main.conductor.onMeasureHit = null;
@@ -41,7 +43,8 @@ class State extends FlxState
 		catch (e)
 		{
 			FlxG.maxElapsed = 0.1;
-			throw e;
+			if (crashHandler)
+				throw e;
 		}
 	}
 
@@ -61,7 +64,8 @@ class State extends FlxState
 		}
 		catch (e)
 		{
-			throw e;
+			if (crashHandler)
+				throw e;
 		}
 	}
 
@@ -88,12 +92,10 @@ class State extends FlxState
 		catch (e)
 		{
 			FlxG.maxElapsed = 0.1;
-			throw e;
+			if (crashHandler)
+				throw e;
 		}
 	}
-
-	var updateMembers:(Float)->(Void);
-	var drawMembers:()->(Void);
 
 	public function switchState(nextState:FlxState)
 	{

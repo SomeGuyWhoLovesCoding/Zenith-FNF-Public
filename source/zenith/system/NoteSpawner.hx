@@ -102,7 +102,7 @@ class NoteSpawner extends FlxBasic
 
 				if (Main.conductor.songPosition > n.strumTime + (750.0 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
 				{
-					p.add(n);
+					p.push(n);
 					n.exists = false;
 					h[n.strum] = null;
 					continue;
@@ -112,7 +112,7 @@ class NoteSpawner extends FlxBasic
 				{
 					if (Gameplay.cpuControlled && Main.conductor.songPosition > n.strumTime)
 					{
-						p.add(n);
+						p.push(n);
 						Gameplay.instance.onNoteHit(n);
 					}
 
@@ -120,7 +120,7 @@ class NoteSpawner extends FlxBasic
 					{
 						if (Main.conductor.songPosition > n.strumTime + (166.7 / Gameplay.instance.songSpeed))
 						{
-							
+							p.push(n);
 							h[n.strum] = null;
 							hittable.state = MISS;
 							Gameplay.instance.onNoteMiss(n);
@@ -138,7 +138,7 @@ class NoteSpawner extends FlxBasic
 				{
 					if (Main.conductor.songPosition > n.strumTime)
 					{
-						p.add(n);
+						p.push(n);
 						Gameplay.instance.onNoteHit(n);
 					}
 				}
@@ -174,9 +174,8 @@ class NoteSpawner extends FlxBasic
 		hittable = h[strum];
 		if ((hittable != null && hittable.exists) && hittable.state == IDLE)
 		{
+			p.push(hittable);
 			h[strum] = null;
-			hittable.state = HIT;
-			p.add(hittable);
 			Gameplay.instance.onNoteHit(hittable);
 		}
 	}

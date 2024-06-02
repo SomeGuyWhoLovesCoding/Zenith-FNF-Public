@@ -99,7 +99,7 @@ class SustainNoteSpawner extends FlxBasic
 
 				if (Main.conductor.songPosition > (s.strumTime + s.length) + (750.0 / Gameplay.instance.songSpeed))
 				{
-					p.add(missable);
+					p.push(missable);
 					s.exists = false;
 					h[s.strum] = null;
 					continue;
@@ -154,10 +154,10 @@ class SustainNoteSpawner extends FlxBasic
 		missable = h[strum];
 		if ((missable != null && missable.exists) && missable.state != MISS)
 		{
+			p.push(missable);
+			h[strum] = null;
 			missable.state = MISS;
 			missable.alpha = 0.3;
-			h[strum] = null;
-			p.add(missable);
 			Gameplay.instance.onRelease(missable.noteData);
 		}
 	}
