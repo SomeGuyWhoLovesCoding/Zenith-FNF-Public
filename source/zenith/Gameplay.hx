@@ -1379,7 +1379,7 @@ class Gameplay extends State
 			}
 		}
 
-		note.wasHit = true;
+		note.state = HIT;
 		note.exists = false;
 
 		#if SCRIPTING_ALLOWED
@@ -1396,7 +1396,7 @@ class Gameplay extends State
 		Main.hscript.callFromAllScripts('onNoteMiss', note);
 		#end
 
-		note.tooLate = true;
+		note.state = MISS;
 		note.alpha = 0.6;
 
 		health -= 0.045 * FlxMath.maxInt(note.multiplier, 1);
@@ -1451,7 +1451,7 @@ class Gameplay extends State
 			}
 		}
 
-		sustain.holding = true;
+		sustain.state = HELD;
 
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('onHoldPost', sustain);
