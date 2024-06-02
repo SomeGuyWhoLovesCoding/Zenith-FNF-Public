@@ -2,11 +2,17 @@ package zenith.objects;
 
 import flixel.math.FlxRect;
 
+enum SustainNoteState
+{
+	IDLE;
+	HELD;
+	MISS;
+}
+
 class SustainNote extends NoteBase
 {
 	public var length:Float = 0.0;
-	public var holding:Bool = false;
-	public var missed:Bool = false;
+	public var state:SustainNoteState = IDLE;
 
 	override function set_direction(dir:Float):Float
 	{
