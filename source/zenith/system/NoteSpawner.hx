@@ -33,7 +33,7 @@ class NoteSpawner extends FlxBasic
 
 		_n.alpha = 1.0;
 		_n.y = -2000.0;
-		_n.wasHit = _n.tooLate = false;
+		_n.state = IDLE;
 
 		_n.strumTime = chartNoteData[0];
 		_n.noteData = Std.int(chartNoteData[1]);
@@ -106,16 +106,17 @@ class NoteSpawner extends FlxBasic
 						Gameplay.instance.onNoteHit(n);
 					}
 
-					if (!n.wasHit && !n.tooLate)
+					if (n.state == IDLE)
 					{
 						if (Main.conductor.songPosition > n.strumTime + (166.7 / Gameplay.instance.songSpeed))
 						{
 							h[n.strum] = null;
+							hittable.state = MISS;
 							Gameplay.instance.onNoteMiss(n);
 						}
 
 						// Took forever to fully polish jack detection here
-						if (Main.conductor.songPosition > n.strumTime - 166.7 && (!n.wasHit && !n.tooLate) &&
+						if (Main.conductor.songPosition > n.strumTime - 166.7 &&
 							(h[n.strum] == null || h[n.strum].strumTime > n.strumTime))
 						{
 							h[n.strum] = n;
@@ -159,9 +160,10 @@ class NoteSpawner extends FlxBasic
 	inline public function handleHittableNote(strum:StrumNote):Void
 	{
 		hittable = h[strum];
-		if ((hittable != null && hittable.exists) && (!hittable.wasHit && !hittable.tooLate))
+		if ((hittable != null && hittable.exists) && hittable.state == IDLE)
 		{
 			h[strum] = null;
+			hittable.state = HIT;
 			Gameplay.instance.onNoteHit(hittable);
 		}
 	}
