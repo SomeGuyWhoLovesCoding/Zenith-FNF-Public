@@ -4,7 +4,7 @@ enum NoteState
 {
     IDLE;
     HIT;
-    MISSED;
+    MISS;
 }
 
 class Note extends NoteBase
