@@ -22,6 +22,7 @@ class NoteSpawner extends FlxBasic
 	public function spawn(chartNoteData:Array<Float>):Note
 	{
 		_n = recycle();
+		_n.state = IDLE;
 
 		_n.camera = camera;
 		_n.cameras = cameras;
@@ -33,7 +34,6 @@ class NoteSpawner extends FlxBasic
 
 		_n.alpha = 1.0;
 		_n.y = -2000.0;
-		_n.state = IDLE;
 
 		_n.strumTime = chartNoteData[0];
 		_n.noteData = Std.int(chartNoteData[1]);
