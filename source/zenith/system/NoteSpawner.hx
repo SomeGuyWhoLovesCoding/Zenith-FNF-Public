@@ -176,5 +176,5 @@ class NoteSpawner extends FlxBasic
 		}
 	}
 
-	var p(default, null):Deque<Note<
+	var p(default, null):Deque<Note>;
 }
