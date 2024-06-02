@@ -28,7 +28,7 @@ class WelcomeState extends State
 		add(bkdr);
 
 		var txtStr:String = 'Hey there, welcome to ' + lime.app.Application.current.meta.get('name') +
-			'!\n\nPlease type in an existing song name and difficulty using' +
+			'\n\nPlease type in an existing song name and difficulty using' +
 			'\nthe command prompt. Or, you can just type in the song name.' +
 			'\n(Just make sure the chart for it exists)' +
 		'\n\nThanks for downloading!';
