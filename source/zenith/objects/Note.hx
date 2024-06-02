@@ -1,12 +1,5 @@
 package zenith.objects;
 
-enum NoteState
-{
-    IDLE;
-    HIT;
-    MISS;
-}
-
 class Note extends NoteBase
 {
 	public var sustainLength:Int = 0;
