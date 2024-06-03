@@ -17,7 +17,9 @@ class SustainNoteSpawner extends FlxBasic
 		m = [];
 
 		h = new Map<StrumNote, SustainNote>();
-		p = new Deque<SustainNote>();
+
+		if (SaveData.contents.experimental.fastNoteSpawning)
+			p = new Deque<SustainNote>();
 
 		active = false;
 	}
@@ -25,7 +27,7 @@ class SustainNoteSpawner extends FlxBasic
 	var _s(default, null):SustainNote;
 	public function spawn(chartSustainData:Array<Float>):SustainNote
 	{
-		_s = p.pop(false);
+		_s = SaveData.contents.experimental.fastNoteSpawning ? p.pop(false) : recycle();
 
 		if (_s != null)
 		{
@@ -111,7 +113,8 @@ class SustainNoteSpawner extends FlxBasic
 				if (Main.conductor.songPosition > (s.strumTime + s.length) + (750.0 / Gameplay.instance.songSpeed))
 				{
 					s.exists = false;
-					p.add(s);
+					if (SaveData.contents.experimental.fastNoteSpawning)
+						p.add(s);
 					continue;
 				}
 
@@ -187,6 +190,14 @@ class SustainNoteSpawner extends FlxBasic
 
 			h.remove(strum);
 		}
+	}
+
+	function recycle():SustainNote
+	{
+		for (sustain in members)
+			if (!sustain.exists)
+				return sustain;
+		return null;
 	}
 
 	var p(default, null):Deque<SustainNote>;
