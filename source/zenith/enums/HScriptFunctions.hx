@@ -30,7 +30,7 @@ enum abstract HScriptFunctions(String)
 	var NOTE_MISS = "onNoteMiss";
 	var NOTE_HIT_POST = "onNoteHitPost";
 	var NOTE_MISS_POST = "onNoteMissPost";
-	var NOTE_HOLD: = "onHold";
+	var NOTE_HOLD = "onHold";
 	var NOTE_RELEASE = "onRelease";
 	var NOTE_HOLD_POST = "onHoldPost";
 	var NOTE_RELEASE_POST = "onReleasePost";
