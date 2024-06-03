@@ -806,7 +806,6 @@ class Gameplay extends State
 				try
 				{
 					SONG = Song.loadFromJson(curSong + '/' + curSong + curDifficulty);
-
 					nd = SONG.noteData[currentNoteId];
 					threadsCompleted++;
 				}
@@ -825,7 +824,6 @@ class Gameplay extends State
 			try
 			{
 				SONG = Song.loadFromJson(curSong + '/' + curSong + curDifficulty);
-
 				nd = SONG.noteData[currentNoteId];
 			}
 			catch (e)
@@ -1106,7 +1104,10 @@ class Gameplay extends State
 
 			for (i in 0...SaveData.contents.controls.GAMEPLAY_BINDS.length)
 			{
-				inputKeybinds.set(SaveData.contents.controls.GAMEPLAY_BINDS[i], strumlines.members[1].members[i]);
+				for (j in 0...SaveData.contents.controls.GAMEPLAY_BINDS[i].length)
+				{
+					inputKeybinds.set(SaveData.contents.controls.GAMEPLAY_BINDS[i][j], strumlines.members[1].members[i]);
+				}
 			}
 
 			var swagCounter = 0;
