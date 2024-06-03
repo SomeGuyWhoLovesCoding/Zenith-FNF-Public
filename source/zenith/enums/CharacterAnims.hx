@@ -1,6 +1,6 @@
 package zenith.enums;
 
-enum abstract CharacterAnims(String) to String
+enum abstract CharacterAnims(String)
 {
 	final IDLE:String = "idle";
 	final DL:String = "danceLeft";
