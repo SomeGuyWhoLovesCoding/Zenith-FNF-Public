@@ -17,18 +17,21 @@ import sys.io.File;
 		},
 		graphics: {
 			antialiasing: true,
-			multithreading: false,
 			gpuCaching: true,
 			vsync: {adaptive: false, enabled: false},
 			persistentGraphics: false,
 			fps: 60
 		},
+		experimental: {
+			fastNoteSpawning: false,
+			multithreading: false
+		},
 		controls: {
 			GAMEPLAY_BINDS: [
-				KeyCode.A,
-				KeyCode.S,
-				KeyCode.UP,
-				KeyCode.RIGHT
+				[KeyCode.A, KeyCode.LEFT],
+				[KeyCode.S, KeyCode.DOWN],
+				[KeyCode.W, KeyCode.UP],
+				[KeyCode.D, KeyCode.RIGHT]
 			],
 			LEFT: KeyCode.LEFT,
 			DOWN: KeyCode.DOWN,
@@ -101,16 +104,20 @@ typedef PreferencesData =
 typedef GraphicsData =
 {
 	var antialiasing:Bool;
-	var multithreading:Bool;
 	var gpuCaching:Bool;
-	var vsync:{adaptive:Bool, enabled:Bool};
 	var persistentGraphics:Bool;
 	var fps:Int;
 }
 
+typedef ExperimentalData =
+{
+	var fastNoteSpawning:Bool;
+	var multithreading:Bool;
+}
+
 typedef ControlsData =
 {
-	var GAMEPLAY_BINDS:Array<Int>;
+	var GAMEPLAY_BINDS:Array<Array<Int>>;
 	var LEFT:Int;
 	var DOWN:Int;
 	var UP:Int;
@@ -125,6 +132,7 @@ typedef SaveFile =
 {
 	var preferences:PreferencesData;
 	var graphics:GraphicsData;
+	var experimental:ExperimentalData;
 	var controls:ControlsData;
 	var customData:Map<String, _CustomSaveFile>;
 }
