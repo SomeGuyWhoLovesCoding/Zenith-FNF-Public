@@ -111,7 +111,7 @@ class SustainNoteSpawner extends FlxBasic
 				if (Main.conductor.songPosition > (s.strumTime + s.length) + (750.0 / Gameplay.instance.songSpeed))
 				{
 					s.exists = false;
-					p.push(s);
+					p.add(s);
 					continue;
 				}
 
