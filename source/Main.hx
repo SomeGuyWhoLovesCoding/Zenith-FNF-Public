@@ -48,7 +48,6 @@ class Main extends Sprite
 	static public var skipTransOut:Bool = false;
 
 	static public var ENABLE_MULTITHREADING:Bool = false;
-	static public var VSYNC = {ADAPTIVE: false, ENABLED: false};
 
 	public function new()
 	{
@@ -75,9 +74,7 @@ class Main extends Sprite
 		transition.x = -transition.width * 0.5;
 
 		flixel.graphics.FlxGraphic.defaultPersist = SaveData.contents.graphics.persistentGraphics;
-		ENABLE_MULTITHREADING = SaveData.contents.graphics.multithreading;
-		VSYNC.ADAPTIVE = SaveData.contents.graphics.vsync.adaptive;
-		VSYNC.ENABLED = SaveData.contents.graphics.vsync.enabled;
+		ENABLE_MULTITHREADING = SaveData.contents.experimental.multithreading;
 
 		addChild(game = new Game());
 		addChild(transition);
