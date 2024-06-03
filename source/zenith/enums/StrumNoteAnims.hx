@@ -1,8 +1,8 @@
 package zenith.enums;
 
-enum abstract StrumNoteAnims(String)
+class StrumNoteAnims
 {
-	var HIT:String = "confirm";
-	var IDLE:String = "static";
-	var PRESS:String = "pressed";
+	static public var HIT:String = "confirm";
+	static public var IDLE:String = "static";
+	static public var PRESS:String = "pressed";
 }
