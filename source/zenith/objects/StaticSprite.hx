@@ -376,8 +376,6 @@ class StaticSprite extends FlxBasic
 	@:noCompletion
 	var _facingFlip:Map<FlxDirectionFlags, {x:Bool, y:Bool}> = new Map<FlxDirectionFlags, {x:Bool, y:Bool}>();
 
-	var onDraw:()->(Void);
-
 	/**
 	 * Creates a `StaticSprite` at a specified position with a specified one-frame graphic.
 	 * If none is provided, a 16x16 image of the HaxeFlixel logo is used.
