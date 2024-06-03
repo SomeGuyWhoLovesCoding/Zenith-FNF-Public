@@ -17,7 +17,9 @@ class NoteSpawner extends FlxBasic
 		m = [];
 
 		h = new Map<StrumNote, Note>();
-		p = new Deque<Note>();
+
+		if (SaveData.contents.experimental.fastNoteSpawning)
+			p = new Deque<Note>();
 
 		active = false;
 	}
@@ -25,7 +27,7 @@ class NoteSpawner extends FlxBasic
 	var _n(default, null):Note;
 	public function spawn(chartNoteData:Array<Float>):Note
 	{
-		_n = p.pop(false);
+		_n = SaveData.contents.experimental.fastNoteSpawning ? p.pop(false) : recycle();
 
 		if (_n != null)
 		{
@@ -117,7 +119,8 @@ class NoteSpawner extends FlxBasic
 				{
 					h.remove(n.strum);
 					n.exists = false;
-					p.add(n);
+					if (SaveData.contents.experimental.fastNoteSpawning)
+						p.add(n);
 					continue;
 				}
 
@@ -146,7 +149,8 @@ class NoteSpawner extends FlxBasic
 					if (Main.conductor.songPosition > n.strumTime)
 					{
 						Gameplay.instance.onNoteHit(n);
-						p.add(n);
+						if (SaveData.contents.experimental.fastNoteSpawning)
+							p.add(n);
 					}
 				}
 			}
@@ -182,9 +186,18 @@ class NoteSpawner extends FlxBasic
 		{
 			h[strum].state = HIT;
 			Gameplay.instance.onNoteHit(h[strum]);
-			p.add(h[strum]);
+			if (SaveData.contents.experimental.fastNoteSpawning)
+				p.add(h[strum]);
 			h.remove(strum);
 		}
+	}
+
+	function recycle():Note
+	{
+		for (note in members)
+			if (!note.exists)
+				return note;
+		return null;
 	}
 
 	var p(default, null):Deque<Note>; // Rewritten recycler
