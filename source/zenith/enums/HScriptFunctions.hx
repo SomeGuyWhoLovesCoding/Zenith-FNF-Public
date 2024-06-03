@@ -1,6 +1,6 @@
 package zenith.enums;
 
-enum abstract HScriptFunctions(String) to String
+enum abstract HScriptFunctions(String)
 {
 	final GAME_BOOT:String = "onGameBoot";
 
