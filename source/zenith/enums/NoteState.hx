@@ -1,9 +1,9 @@
 package zenith.enums;
 
-enum NoteState
+enum abstract NoteState(It)
 {
-    IDLE;
-    HELD;
-    HIT;
-    MISS;
+    IDLE = 0;
+    HELD = 1;
+    HIT = 2;
+    MISS = -1;
 }
