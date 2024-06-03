@@ -1,42 +1,42 @@
 package zenith.enums;
 
-class HScriptFunctions
+enum abstract HScriptFunctions(String)
 {
-	static public var GAME_BOOT:String = "onGameBoot";
+	var GAME_BOOT = "onGameBoot";
 
 	// State-wise
-	static public var CREATE:String = "create";
-	static public var UPDATE:String = "update";
-	static public var DESTROY:String = "destroy";
-	static public var CREATE_POST:String = "createPost";
-	static public var UPDATE_POST:String = "updatePost";
-	static public var DESTROY_POST:String = "destroyPost";
-	static public var STEP_HIT:String = "onStepHit";
-	static public var BEAT_HIT:String = "onBeatHit";
-	static public var MEASURE_HIT:String = "onMeasureHit";
+	var CREATE = "create";
+	var UPDATE = "update";
+	var DESTROY = "destroy";
+	var CREATE_POST = "createPost";
+	var UPDATE_POST = "updatePost";
+	var DESTROY_POST = "destroyPost";
+	var STEP_HIT = "onStepHit";
+	var BEAT_HIT = "onBeatHit";
+	var MEASURE_HIT = "onMeasureHit";
 
 	// Gameplay-wise
-	static public var CREATE_STAGE:String = "createStage";
-	static public var CREATE_STAGE_POST:String = "createStagePost";
-	static public var GENERATE_SONG:String = "generateSong";
-	static public var START_COUNTDOWN:String = "startCountdown";
-	static public var START_SONG:String = "startSong";
-	static public var END_SONG:String = "endSong";
-	static public var KEY_DOWN:String = "onKeyDown";
-	static public var KEY_UP:String = "onKeyUp";
-	static public var KEY_DOWN_POST:String = "onKeyDownPost";
-	static public var KEY_UP_POST:String = "onKeyUpPost";
-	static public var NOTE_HIT:String = "onNoteHit";
-	static public var NOTE_MISS:String = "onNoteMiss";
-	static public var NOTE_HIT_POST:String = "onNoteHitPost";
-	static public var NOTE_MISS_POST:String = "onNoteMissPost";
-	static public var NOTE_HOLD:String = "onHold";
-	static public var NOTE_RELEASE:String = "onRelease";
-	static public var NOTE_HOLD_POST:String = "onHoldPost";
-	static public var NOTE_RELEASE_POST:String = "onReleasePost";
-	static public var NEW_NOTE:String = "newNote";
-	static public var SETUP_NOTE_DATA:String = "setupNoteData";
-	static public var SETUP_SUSTAIN_DATA:String = "setupSustainData";
-	static public var SETUP_NOTE_DATA_POST:String = "setupNoteDataPost";
-	static public var SETUP_SUSTAIN_DATA_POST:String = "setupSustainDataPost";
+	var CREATE_STAGE = "createStage";
+	var CREATE_STAGE_POST = "createStagePost";
+	var GENERATE_SONG = "generateSong";
+	var START_COUNTDOWN = "startCountdown";
+	var START_SONG = "startSong";
+	var END_SONG = "endSong";
+	var KEY_DOWN = "onKeyDown";
+	var KEY_UP = "onKeyUp";
+	var KEY_DOWN_POST = "onKeyDownPost";
+	var KEY_UP_POST = "onKeyUpPost";
+	var NOTE_HIT = "onNoteHit";
+	var NOTE_MISS = "onNoteMiss";
+	var NOTE_HIT_POST = "onNoteHitPost";
+	var NOTE_MISS_POST = "onNoteMissPost";
+	var NOTE_HOLD: = "onHold";
+	var NOTE_RELEASE = "onRelease";
+	var NOTE_HOLD_POST = "onHoldPost";
+	var NOTE_RELEASE_POST = "onReleasePost";
+	var NEW_NOTE = "newNote";
+	var SETUP_NOTE_DATA = "setupNoteData";
+	var SETUP_SUSTAIN_DATA = "setupSustainData";
+	var SETUP_NOTE_DATA_POST = "setupNoteDataPost";
+	var SETUP_SUSTAIN_DATA_POST = "setupSustainDataPost";
 }
