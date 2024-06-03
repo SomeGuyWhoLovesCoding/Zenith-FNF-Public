@@ -8,19 +8,19 @@ HScript improved: ``haxelib git zenith-hscript https://github.com/FNF-CNE-Devs/h
 
 # Guide
 
-Here's the thing. This shit only supports HScript because it has actual functionality.
+Here's the thing. This shit only supports HScript because it has actual object-oriented functionality and doesn't have methods for everything which made psych engine lua script code messy.
 
 So, let's get started.
 
 ## How to add a script
 
-Basically, make a "scripts" folder in assets. Then, make a document that ends with ".hx".
+Basically, make a "scripts" folder in assets. Then, make a text document that ends with ".hx".
 
 You should see something like this: "assets/scripts/script.hx"
 
 ## Built-in functions
 
-``onGameBoot(modpack)``; This function is calle when the game boots.
+``onGameBoot()``; This function is called when the game boots. (Will have a ``modpack`` argument if modding support is fully finished)
 
 Here's a fact! You can create your own custom save data by writing:
 
@@ -31,7 +31,7 @@ function onGameBoot(modpack)
     {
         var saveFile = new SaveFile("Hi!");
         saveFile.name = "hi"; // Change the name
-        saveFile.data = 3; // Set the data to an intz,
+        saveFile.data = 3; // Set the data to an int,
         SaveData.addToCustomSaves(saveFile);
     }
 }
@@ -77,6 +77,8 @@ It allows your own custom savedata to load immediately.
 
 ``endSong()``: This function is called when the song has ended.
 
+``moveCamera(whatCharacter)``: This function is called when the camera has moved to a specific character.
+
 ``triggerEvent(eventName, value1, value2, value3, value4)``: This function is called when the current event has triggered.
 
 ``onKeyDown(keyCode, keyModifier)``: This function is called before pressing down a key. (This is only available in-game)
@@ -99,9 +101,9 @@ It allows your own custom savedata to load immediately.
 
 ``onHoldPost(sustain)``: This function is called every frame after holding down a sustain note.
 
-``onRelease(noteData)``: This function is called before releasing a sustain note.
+``onRelease(sustain)``: This function is called before releasing a sustain note.
 
-``onReleasePost(noteData)``: This function is called after releasing a sustain note.
+``onReleasePost(sustain)``: This function is called after releasing a sustain note.
 
 ``newNote(note)``: This function is called after creating a note instance.
 

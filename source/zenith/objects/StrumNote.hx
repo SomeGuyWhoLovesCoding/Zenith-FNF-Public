@@ -36,9 +36,9 @@ class StrumNote extends FlxSprite
 		frames = Paths.strumNoteAtlas;
 		animation.copyFrom(Paths.strumNoteAnimationHolder.animation);
 
-		PRESS_ANIM = animation._animations['pressed'];
-		CONFIRM_ANIM = animation._animations['confirm'];
-		STATIC_ANIM = animation._animations['static'];
+		PRESS_ANIM = animation._animations[StrumNoteAnims.PRESS];
+		CONFIRM_ANIM = animation._animations[StrumNoteAnims.HIT];
+		STATIC_ANIM = animation._animations[StrumNoteAnims.IDLE];
 
 		pixelPerfectPosition = false;
 
@@ -46,7 +46,7 @@ class StrumNote extends FlxSprite
 
 		scale.x = scale.y = 0.7;
 
-		playAnim('static'); // Wow, am I really a dumbass?
+		playAnim(StrumNoteAnims.IDLE); // Wow, am I really a dumbass?
 	}
 
 	override function update(elapsed:Float):Void
@@ -56,20 +56,20 @@ class StrumNote extends FlxSprite
 
 	inline public function playAnim(anim:String):Void
 	{
-		active = anim != 'static';
+		active = anim != StrumNoteAnims.IDLE;
 		color = !active ? 0xffffffff : NoteBase.colorArray[noteData];
 
 		// I swear to fucking god :sob:
 		#if HXCPP_CHECK_POINTER
 		animation.play(anim, true);
 		#else
-		if (anim == 'pressed')
+		if (anim == StrumNoteAnims.PRESS)
 			animation.curAnim = PRESS_ANIM;
 
-		if (anim == 'confirm')
+		if (anim == StrumNoteAnims.HIT)
 			animation.curAnim = CONFIRM_ANIM;
 
-		if (anim == 'static')
+		if (anim == StrumNoteAnims.IDLE)
 			animation.curAnim = STATIC_ANIM;
 
 		animation.curAnim._frameTimer = animation.curAnim.curFrame = 0;
@@ -96,11 +96,11 @@ class StrumNote extends FlxSprite
 
 	function finishCallbackFunc(anim:String):Void
 	{
-		if (anim != 'confirm' || (playable && !Gameplay.cpuControlled))
+		if (anim != StrumNoteAnims.HIT || (playable && !Gameplay.cpuControlled))
 			return;
 
 		#if HXCPP_CHECK_POINTER
-		animation.play('static', true);
+		animation.play(StrumNoteAnims.IDLE, true);
 		#else
 		animation.curAnim = STATIC_ANIM;
 		animation.curAnim._frameTimer = animation.curAnim.curFrame = 0;

@@ -113,8 +113,8 @@ class Gameplay extends State
 	public var camFollowPos:FlxObject;
 	public var camFollowPosTween(default, null):FlxTween;
 
-	static var singAnimations(default, null):Array<String> = ['singLEFT', 'singDOWN', 'singUP', 'singRIGHT'];
-	static var missAnimations(default, null):Array<String> = ['singLEFTmiss', 'singDOWNmiss', 'singUPmiss', 'singRIGHTmiss'];
+	static var singAnimations(default, null):Array<String> = [CharacterAnims.L, CharacterAnims.D, CharacterAnims.U, CharacterAnims.R];
+	static var missAnimations(default, null):Array<String> = [CharacterAnims.Lm, CharacterAnims.Dm, CharacterAnims.Um, CharacterAnims.Rm];
 
 	static public var instance:Gameplay;
 
@@ -122,58 +122,69 @@ class Gameplay extends State
 	{
 		while (nd != null && nd[0] <= Main.conductor.songPosition + (1915.0 / songSpeed))
 		{
-			setupNoteData(nd);
+			if (nd[0] >= 0.0 && nd[3] >= 0) // Don't spawn a note with negative time or lane
+			{
+				noteSpawner.spawn(nd);
+			}
+
 			nd = SONG.noteData[currentNoteId++];
 		}
 	}
 
-	inline public function onKeyDown(keyCode:(Int), keyModifier:(Int)):Void
+	public function onKeyDown(keyCode:Int, keyModifier:Int):Void
 	{
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('onKeyDown', keyCode, keyModifier);
+		Main.hscript.callFromAllScripts(HScriptFunctions.KEY_DOWN, keyCode, keyModifier);
 		#end
 
-		if (!cpuControlled && generatedMusic)
+		if (cpuControlled || !generatedMusic)
 		{
-			st = inputKeybinds[keyCode];
-
-			if (st != null && st.isIdle())
-			{
-				if (st.animation.curAnim.name != 'confirm')
-					st.playAnim('pressed');
-
-				noteSpawner.handleHittableNote(st);
-
-				#if SCRIPTING_ALLOWED
-				Main.hscript.callFromAllScripts('onKeyDownPost', keyCode, keyModifier);
-				#end
-			}
+			return;
 		}
+
+		st = inputKeybinds[keyCode];
+
+		if (st == null || !st.isIdle())
+		{
+			return;
+		}
+
+		if (st.animation.curAnim.name != StrumNoteAnims.HIT)
+			st.playAnim(StrumNoteAnims.PRESS);
+
+		noteSpawner.handleHittableNote(st);
+
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts(HScriptFunctions.KEY_DOWN_POST, keyCode, keyModifier);
+		#end
 	}
 
-	inline public function onKeyUp(keyCode:(Int), keyModifier:(Int)):Void
+	public function onKeyUp(keyCode:Int, keyModifier:Int):Void
 	{
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('onKeyUp', keyCode, keyModifier);
+		Main.hscript.callFromAllScripts(HScriptFunctions.KEY_UP, keyCode, keyModifier);
 		#end
 
-		if (!cpuControlled && generatedMusic)
+		if (cpuControlled || !generatedMusic)
 		{
-			st = inputKeybinds[keyCode];
-
-			if (st != null && !st.isIdle())
-			{
-				if (st.animation.curAnim.name == 'confirm' ||
-					st.animation.curAnim.name == 'pressed')
-					st.playAnim('static');
-
-				sustainNoteSpawner.handleRelease(st);
-
-				#if SCRIPTING_ALLOWED
-				Main.hscript.callFromAllScripts('onKeyUpPost', keyCode, keyModifier);
-				#end
-			}
+			return;
 		}
+
+		st = inputKeybinds[keyCode];
+
+		if (st == null || st.isIdle())
+		{
+			return;
+		}
+
+		if (st.animation.curAnim.name != StrumNoteAnims.IDLE)
+			st.playAnim(StrumNoteAnims.IDLE);
+
+		sustainNoteSpawner.handleRelease(st);
+
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts(HScriptFunctions.KEY_UP_POST, keyCode, keyModifier);
+		#end
 	}
 
 	override function create():Void
@@ -278,9 +289,7 @@ class Gameplay extends State
 				_songPos += elapsed * 1000.0;
 			}
 
-			Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, _songPos, 0.126565 * (lime.app.Application.current.window.displayMode.refreshRate / FlxG.updateFramerate));
-
-			p();
+			Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, _songPos, FlxG.elapsed * 10.75);
 
 			if (_songPos >= 0 && !startedCountdown)
 			{
@@ -455,7 +464,7 @@ class Gameplay extends State
 				// Finish off stage creation and add characters finally
 
 				#if SCRIPTING_ALLOWED
-				Main.hscript.callFromAllScripts('createStage', curSong, curDifficulty);
+				Main.hscript.callFromAllScripts(HScriptFunctions.CREATE_STAGE, curSong, curDifficulty);
 				#end
 
 				threadsCompleted = -2;
@@ -504,7 +513,7 @@ class Gameplay extends State
 				startCharacterPos(bf, false);
 
 				#if SCRIPTING_ALLOWED
-				Main.hscript.callFromAllScripts('createStagePost', curSong, curDifficulty);
+				Main.hscript.callFromAllScripts(HScriptFunctions.CREATE_STAGE_POST, curSong, curDifficulty);
 				#end
 
 				// Now time to load the UI and shit
@@ -551,7 +560,7 @@ class Gameplay extends State
 				generatedMusic = true;
 
 				#if SCRIPTING_ALLOWED
-				Main.hscript.callFromAllScripts('generateSong', curSong, curDifficulty);
+				Main.hscript.callFromAllScripts(HScriptFunctions.GENERATE_SONG, curSong, curDifficulty);
 				#end
 
 				openfl.system.System.gc(); // Free up inactive memory
@@ -930,7 +939,7 @@ class Gameplay extends State
 			// Finish off stage creation and add characters finally
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('createStage', curSong, curDifficulty);
+			Main.hscript.callFromAllScripts(HScriptFunctions.CREATE_STAGE, curSong, curDifficulty);
 			#end
 
 			threadsCompleted = -2;
@@ -971,7 +980,7 @@ class Gameplay extends State
 			startCharacterPos(bf, false);
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('createStagePost', curSong, curDifficulty);
+			Main.hscript.callFromAllScripts(HScriptFunctions.CREATE_STAGE_POST, curSong, curDifficulty);
 			#end
 
 			// Now time to load the UI and shit
@@ -1019,7 +1028,7 @@ class Gameplay extends State
 			generatedMusic = true;
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('generateSong', curSong, curDifficulty);
+			Main.hscript.callFromAllScripts(HScriptFunctions.GENERATE_SONG, curSong, curDifficulty);
 			#end
 
 			openfl.system.System.gc(); // Free up inactive memory
@@ -1122,7 +1131,7 @@ class Gameplay extends State
 			}, 5);
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('startCountdown');
+			Main.hscript.callFromAllScripts(HScriptFunctions.START_COUNTDOWN);
 			#end
 		}
 	}
@@ -1150,7 +1159,7 @@ class Gameplay extends State
 			startedCountdown = true;
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('startSong');
+			Main.hscript.callFromAllScripts(HScriptFunctions.START_SONG);
 			#end
 
 			addCameraZoom();
@@ -1179,7 +1188,7 @@ class Gameplay extends State
 		switchState(new WelcomeState());
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('endSong');
+		Main.hscript.callFromAllScripts(HScriptFunctions.END_SONG);
 		#end
 	}
 
@@ -1219,7 +1228,7 @@ class Gameplay extends State
 		}
 
 		#if SCRIPTING_ALLOWEDA
-		Main.hscript.callFromAllScripts('moveCamera', whatCharacter);
+		Main.hscript.callFromAllScripts(HScriptFunctions.MOVE_CAMERA, whatCharacter);
 		#end
 	}
 
@@ -1342,21 +1351,13 @@ class Gameplay extends State
 
 	var _songPos(default, null):Float = -5000.0;
 
-	inline function setupNoteData(chartNoteData:Array<Float>):Void
-	{
-		if (chartNoteData[0] >= 0.0 && chartNoteData[3] >= 0) // Don't spawn a note with negative time or lane
-		{
-			noteSpawner.spawn(chartNoteData);
-		}
-	}
-
 	function onNoteHit(note:Note):Void
 	{
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('onNoteHit', note);
+		Main.hscript.callFromAllScripts(HScriptFunctions.NOTE_HIT, note);
 		#end
 
-		note.strum.playAnim('confirm');
+		note.strum.playAnim(StrumNoteAnims.HIT);
 
 		health += (0.045 * FlxMath.maxInt(note.multiplier, 1)) * (note.strum.playable ? 1.0 : -1.0);
 
@@ -1383,7 +1384,7 @@ class Gameplay extends State
 		note.exists = false;
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('onNoteHitPost', note);
+		Main.hscript.callFromAllScripts(HScriptFunctions.NOTE_HIT_POST, note);
 		#end
 
 		if (hudGroup != null)
@@ -1393,7 +1394,7 @@ class Gameplay extends State
 	function onNoteMiss(note:Note):Void
 	{
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('onNoteMiss', note);
+		Main.hscript.callFromAllScripts(HScriptFunctions.NOTE_MISS, note);
 		#end
 
 		note.state = MISS;
@@ -1410,19 +1411,21 @@ class Gameplay extends State
 			bf.holdTimer = 0.0;
 		}
 
-		noteSpawner.handleHittableNote(st);
-
 		if (hudGroup != null)
 			hudGroup.updateScoreText();
+
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts(HScriptFunctions.NOTE_MISS_POST, note);
+		#end
 	}
 
 	function onHold(sustain:SustainNote):Void
 	{
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('onHold', sustain);
+		Main.hscript.callFromAllScripts(HScriptFunctions.NOTE_HOLD, sustain);
 		#end
 
-		sustain.strum.playAnim('confirm');
+		sustain.strum.playAnim(StrumNoteAnims.HIT);
 
 		health += FlxG.elapsed * (sustain.strum.playable ? 0.125 : -0.125);
 
@@ -1454,26 +1457,7 @@ class Gameplay extends State
 		sustain.state = HELD;
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('onHoldPost', sustain);
-		#end
-	}
-
-	function onRelease(noteData:Int):Void
-	{
-		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('onRelease', noteData);
-		#end
-
-		health -= 0.045;
-
-		if (!noCharacters)
-		{
-			bf.playAnim(missAnimations[noteData]);
-			bf.holdTimer = 0.0;
-		}
-
-		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('onReleasePost', noteData);
+		Main.hscript.callFromAllScripts(HScriptFunctions.NOTE_HOLD_POST, sustain);
 		#end
 	}
 

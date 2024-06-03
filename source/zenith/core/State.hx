@@ -12,6 +12,8 @@ class State extends FlxState
 
 	override function create():Void
 	{
+		Main.startTransition(false, null);
+
 		Main.conductor.onStepHit = Main.conductor.onBeatHit = Main.conductor.onMeasureHit = null;
 
 		FlxG.maxElapsed = FlxG.elapsed;
@@ -29,13 +31,13 @@ class State extends FlxState
 				Main.hscript.list[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
 			}
 
-			Main.hscript.callFromAllScripts('create');
+			Main.hscript.callFromAllScripts(HScriptFunctions.CREATE);
 			#end
 
 			super.create();
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('createPost');
+			Main.hscript.callFromAllScripts(HScriptFunctions.CREATE_POST);
 			#end
 
 			FlxG.maxElapsed = 0.1;
@@ -53,13 +55,13 @@ class State extends FlxState
 		try
 		{
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('update', elapsed);
+			Main.hscript.callFromAllScripts(HScriptFunctions.UPDATE, elapsed);
 			#end
 
 			super.update(elapsed);
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('updatePost', elapsed);
+			Main.hscript.callFromAllScripts(HScriptFunctions.UPDATE_POST, elapsed);
 			#end
 		}
 		catch (e)
@@ -75,13 +77,13 @@ class State extends FlxState
 		try
 		{
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('destroy');
+			Main.hscript.callFromAllScripts(HScriptFunctions.DESTROY);
 			#end
 
 			super.destroy();
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('destroyPost');
+			Main.hscript.callFromAllScripts(HScriptFunctions.DESTROY_POST);
 			#end
 
 			if (!SaveData.contents.graphics.persistentGraphics)

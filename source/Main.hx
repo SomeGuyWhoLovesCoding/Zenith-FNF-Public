@@ -18,13 +18,15 @@ typedef Transitioning =
 
 typedef TransitioningInfo =
 {
-	var callback:Void->Void;
+	var callback:()->Void;
 }
 
 // Keep these
 @:access(lime.app.Application)
 @:access(lime._internal.backend.native.NativeApplication)
 @:access(lime._internal.backend.native.NativeCFFI)
+@:access(zenith.Gameplay)
+@:access(flixel.FlxGame)
 
 class Main extends Sprite
 {
@@ -58,7 +60,7 @@ class Main extends Sprite
 	
 		#if SCRIPTING_ALLOWED
 		hscript = new HScriptSystem();
-		hscript.callFromAllScripts('onGameBoot');
+		hscript.callFromAllScripts(HScriptFunctions.GAME_BOOT);
 		#end
 
 		// Before adding ``game``, create the transition
@@ -97,7 +99,7 @@ class Main extends Sprite
 		var backend = lime.app.Application.current.__backend;
 
 		var window:Window;
-		NativeCFFI.lime_key_event_manager_register(function()
+		NativeCFFI.lime_key_event_manager_register(function():Void
 		{
 			if (backend.keyEventInfo.type == cast 1)
 			{
@@ -153,10 +155,26 @@ class Main extends Sprite
 			}
 		}, backend.keyEventInfo);
 
-		NativeCFFI.lime_application_event_manager_register(() ->
+		NativeCFFI.lime_application_event_manager_register(function():Void
 		{
+			if (FlxG.game._lostFocus && FlxG.autoPause) // How come none other fnf engines do this? I wonder why lol
+			{
+				return;
+			}
+
 			if (backend.applicationEventInfo.type == UPDATE)
 			{
+				// Make sure the hittable note is ready before updating the game itself. Otherwise, it'll be a frame delayed
+
+				if (Gameplay.instance != null)
+				{
+					if (Gameplay.instance.noteSpawner != null)
+						Gameplay.instance.noteSpawner._update();
+					if (Gameplay.instance.sustainNoteSpawner != null)
+						Gameplay.instance.sustainNoteSpawner._update();
+					Gameplay.instance.p();
+				}
+
 				backend.updateTimer();
 				backend.parent.onUpdate.dispatch(backend.applicationEventInfo.deltaTime);
 			}
@@ -167,7 +185,7 @@ class Main extends Sprite
 		NativeCFFI.lime_joystick_event_manager_register(function():Void {}, backend.joystickEventInfo);
 	}
 
-	static public function startTransition(_transIn:Bool = false, _callback:Void->Void):Void
+	static public function startTransition(_transIn:Bool = false, _callback:()->Void):Void
 	{
 		if (_transIn)
 		{

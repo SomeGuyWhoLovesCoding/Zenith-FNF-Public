@@ -14,10 +14,12 @@ class SustainNoteSpawner extends FlxBasic
 	public function new():Void
 	{
 		super();
-
 		m = [];
+
 		h = new Map<StrumNote, SustainNote>();
 		p = new Deque<SustainNote>();
+
+		active = false;
 	}
 
 	var _s(default, null):SustainNote;
@@ -25,13 +27,14 @@ class SustainNoteSpawner extends FlxBasic
 	{
 		_s = p.pop(false);
 
-		if (_s == null)
+		if (_s != null)
 		{
-			_s = m[m.length] = new SustainNote();
+			_s.exists = true;
 		}
 		else
 		{
-			_s.exists = true;
+			_s = new SustainNote();
+			m.push(_s);
 		}
 
 		_s.state = IDLE;
@@ -78,8 +81,13 @@ class SustainNoteSpawner extends FlxBasic
 	}
 
 	var s(default, null):SustainNote;
-	override function update(elapsed:Float):Void
+	public function _update():Void
 	{
+		if (m == null)
+		{
+			return;
+		}
+
 		for (i in 0...m.length)
 		{
 			s = m[i];
@@ -112,13 +120,13 @@ class SustainNoteSpawner extends FlxBasic
 					if (s.strum.playable)
 					{
 						if (Main.conductor.songPosition > s.strumTime - 166.7 &&
-							(!h.exists(s.strum) || h[s.strum].strumTime > s.strumTime))
+							(!h.exists(s.strum) || h[s.strum].strumTime > s.strumTime || h[s.strum].state != IDLE))
 						{
 							h[s.strum] = s;
 						}
 					}
 
-					if (!s.strum.isIdle() || !s.strum.playable)
+					if ((!s.strum.isIdle() && s.state != MISS) || !s.strum.playable)
 					{
 						Gameplay.instance.onHold(s);
 					}
@@ -155,11 +163,27 @@ class SustainNoteSpawner extends FlxBasic
 
 	public function handleRelease(strum:StrumNote):Void
 	{
-		if (strum.playable && h.exists(strum) && h[strum].state != MISS)
+		if (strum.playable && h.exists(strum) && Main.conductor.songPosition > h[strum].strumTime && h[strum].state != MISS)
 		{
 			h[strum].state = MISS;
 			h[strum].alpha = 0.3;
-			Gameplay.instance.onRelease(h[strum].noteData);
+
+			#if SCRIPTING_ALLOWED
+			Main.hscript.callFromAllScripts('onRelease', h[strum]);
+			#end
+
+			Gameplay.instance.health -= 0.045;
+
+			if (!Gameplay.noCharacters)
+			{
+				Gameplay.instance.bf.playAnim(Gameplay.missAnimations[h[strum].noteData]);
+				Gameplay.instance.bf.holdTimer = 0.0;
+			}
+
+			#if SCRIPTING_ALLOWED
+			Main.hscript.callFromAllScripts('onReleasePost', h[strum]);
+			#end
+
 			h.remove(strum);
 		}
 	}

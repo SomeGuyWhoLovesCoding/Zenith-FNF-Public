@@ -1,4 +1,4 @@
-package zenith.system;
+package zenith.enums;
 
 enum NoteState
 {

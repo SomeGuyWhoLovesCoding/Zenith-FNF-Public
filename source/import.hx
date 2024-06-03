@@ -3,6 +3,7 @@
 import zenith.*;
 import zenith.core.*;
 import zenith.data.*;
+import zenith.enums.*;
 import zenith.menus.*;
 import zenith.objects.*;
 import zenith.scripting.*;

@@ -14,10 +14,12 @@ class NoteSpawner extends FlxBasic
 	public function new():Void
 	{
 		super();
-
 		m = [];
+
 		h = new Map<StrumNote, Note>();
 		p = new Deque<Note>();
+
+		active = false;
 	}
 
 	var _n(default, null):Note;
@@ -27,11 +29,15 @@ class NoteSpawner extends FlxBasic
 
 		if (_n != null)
 		{
+			_n.y = -2000.0;
+			_n.alpha = 1.0;
 			_n.exists = true;
 		}
 		else
 		{
 			_n = new Note();
+			_n.y = -2000.0;
+			_n.alpha = 1.0;
 			m.push(_n);
 		}
 
@@ -44,9 +50,6 @@ class NoteSpawner extends FlxBasic
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('setupNoteData', _n, chartNoteData);
 		#end
-
-		_n.alpha = 1.0;
-		_n.y = -2000.0;
 
 		_n.strumTime = chartNoteData[0];
 		_n.noteData = Std.int(chartNoteData[1]);
@@ -85,8 +88,13 @@ class NoteSpawner extends FlxBasic
 	}
 
 	var n(default, null):Note;
-	override function update(elapsed:Float):Void
+	public function _update():Void
 	{
+		if (m == null)
+		{
+			return;
+		}
+
 		for (i in 0...m.length)
 		{
 			n = m[i];
@@ -107,35 +115,39 @@ class NoteSpawner extends FlxBasic
 
 				if (Main.conductor.songPosition > n.strumTime + (750.0 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
 				{
-					n.exists = false;
 					h.remove(n.strum);
+					n.exists = false;
 					p.push(n);
 					continue;
 				}
 
-				if (n.strum.playable)
+				if (!Gameplay.cpuControlled && n.strum.playable)
 				{
 					if (n.state == IDLE)
 					{
-						// Took forever to fully polish jack detection here
-						if (Main.conductor.songPosition > n.strumTime - 166.7 &&
-							(!h.exists(n.strum) || h[n.strum].strumTime > n.strumTime && h[n.strum].state == MISS))
-						{
-							h[n.strum] = n;
-						}
-
 						if (Main.conductor.songPosition > n.strumTime + (166.7 / Gameplay.instance.songSpeed))
 						{
 							Gameplay.instance.onNoteMiss(n);
 							n.state = MISS;
+							h.remove(n.strum);
+						}
+
+						// Took forever to fully polish here ofc
+						// 
+						if ((!h.exists(n.strum) || h[n.strum].strumTime > n.strumTime || h[n.strum].state != IDLE) &&
+							Main.conductor.songPosition > n.strumTime - (166.7 / Gameplay.instance.songSpeed))
+						{
+							h[n.strum] = n;
 						}
 					}
 				}
-
-				if ((Gameplay.cpuControlled || !n.strum.playable) && Main.conductor.songPosition > n.strumTime)
+				else
 				{
-					Gameplay.instance.onNoteHit(n);
-					p.push(n);
+					if (Main.conductor.songPosition > n.strumTime)
+					{
+						Gameplay.instance.onNoteHit(n);
+						p.push(n);
+					}
 				}
 			}
 		}
@@ -165,7 +177,8 @@ class NoteSpawner extends FlxBasic
 
 	inline public function handleHittableNote(strum:StrumNote):Void
 	{
-		if (h.exists(strum) && h[strum].state == IDLE)
+		// The middle checks are pretty weird but it does fix a couple bugs
+		if (strum.playable && h.exists(strum) && h[strum].state == IDLE && Main.conductor.songPosition > h[strum].strumTime - (166.7 * Gameplay.instance.songSpeed))
 		{
 			h[strum].state = HIT;
 			Gameplay.instance.onNoteHit(h[strum]);
