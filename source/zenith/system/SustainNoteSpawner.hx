@@ -29,11 +29,15 @@ class SustainNoteSpawner extends FlxBasic
 
 		if (_s != null)
 		{
+			_s.y = -2000.0;
+			_s.alpha = 0.6;
 			_s.exists = true;
 		}
 		else
 		{
 			_s = new SustainNote();
+			_s.y = -2000.0;
+			_s.alpha = 0.6;
 			m.push(_s);
 		}
 
@@ -46,9 +50,6 @@ class SustainNoteSpawner extends FlxBasic
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('setupSustainData', _s, chartSustainData);
 		#end
-
-		_s.alpha = 0.6;
-		_s.y = -2000.0;
 
 		_s.strumTime = chartSustainData[0];
 		_s.noteData = Std.int(chartSustainData[1]);
