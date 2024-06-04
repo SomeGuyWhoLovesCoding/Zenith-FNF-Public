@@ -62,8 +62,8 @@ class Conductor
 		offsetStep += (position - offsetTime) / stepCrochet;
 		offsetTime = position;
 		bpm = newBpm;
-		
-		trace(stepsToLose);
+
+		trace(offsetStep, offsetTime);
 	}
 
 	inline function set_bpm(value:Float):Float
