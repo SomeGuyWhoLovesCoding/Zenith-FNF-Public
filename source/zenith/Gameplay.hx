@@ -246,22 +246,17 @@ class Gameplay extends State
 
 		super.create();
 
-		Main.conductor.onBeatHit = (curBeat:(Float)) ->
+		Main.conductor.onBeatHit = (curBeat:Float) ->
 		{
-			if (!songEnded && (startedCountdown || curBeat != 0) && Main.conductor.songPosition > 0)
+			if (curBeat > 0 && !songEnded && startedCountdown && Main.conductor.songPosition > 0)
 			{
-				if (curBeat % 32 == 31)
-				{
-					Main.conductor.executeBpmChange(200.0, 25600.0);
-				}
-
-				dance(curBeat - 1); // This is rather very fuckin weird but ok
+				dance(curBeat);
 			}
 		}
 
-		Main.conductor.onMeasureHit = (curMeasure:(Float)) ->
+		Main.conductor.onMeasureHit = (curMeasure:Float) ->
 		{
-			if (!songEnded && (startedCountdown || curMeasure != 0) && Main.conductor.songPosition > 0)
+			if (curMeasure > 0 && !songEnded && startedCountdown && Main.conductor.songPosition > 0)
 			{
 				addCameraZoom();
 			}
@@ -274,7 +269,7 @@ class Gameplay extends State
 		{
 			p();
 
-			health = FlxMath.bound(health, 0.0, hudGroup != null ? hudGroup.healthBar.maxValue : 2.0);
+			health = FlxMath.bound(health, 0.0, hudGroup != null && hudGroup.healthBar != null ? hudGroup.healthBar.maxValue : 2.0);
 
 			hudCameraBelow.x = hudCamera.x;
 			hudCameraBelow.y = hudCamera.y;
@@ -1132,7 +1127,7 @@ class Gameplay extends State
 				}
 
 				dance(swagCounter++);
-			}, 5);
+			}, 4);
 
 			#if SCRIPTING_ALLOWED
 			Main.hscript.callFromAllScripts(HScriptFunctions.START_COUNTDOWN);
@@ -1167,6 +1162,7 @@ class Gameplay extends State
 			#end
 
 			addCameraZoom();
+			dance(0.0);
 		}
 	}
 

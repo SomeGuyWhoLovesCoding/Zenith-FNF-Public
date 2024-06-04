@@ -41,11 +41,11 @@ class Conductor
 
 	inline public function reset():Void
 	{
-		stepsToLose = songPosition = 0.0;
+		offsetStep = offsetTime = songPosition = 0.0;
 		changeTimeSignature(4, 4);
 	}
 
-	inline public function changeTimeSignature(newSteps:Int = 4, newBeats:Int = 4):Void
+	public function changeTimeSignature(newSteps:Int = 4, newBeats:Int = 4):Void
 	{
 		crochet = stepCrochet * newSteps;
 		steps = newSteps;
@@ -57,7 +57,7 @@ class Conductor
 
 	// Ensure that the bpm change executes at the right spot
 
-	inline public function executeBpmChange(newBpm:Float, position:Float):Void
+	public function executeBpmChange(newBpm:Float, position:Float):Void
 	{
 		offsetStep += (position - offsetTime) / stepCrochet;
 		offsetTime = position;
@@ -68,14 +68,11 @@ class Conductor
 
 	inline function set_bpm(value:Float):Float
 	{
-		if (lastBpm != value)
-		{
-			lastBpm = bpm;
-			bpm = value;
+		lastBpm = bpm;
+		bpm = value;
 
-			stepCrochet = 15000.0 / bpm;
-			crochet = stepCrochet * steps;
-		}
+		stepCrochet = 15000.0 / bpm;
+		crochet = stepCrochet * steps;
 
 		return value;
 	}
@@ -92,38 +89,44 @@ class Conductor
 
 		if (_stepPos != _stepTracker)
 		{
+			_stepPos = _stepTracker;
+
 			#if SCRIPTING_ALLOWED
 			Main.hscript.callFromAllScripts(HScriptFunctions.STEP_HIT, _stepPos);
 			#end
+
 			if (onStepHit != null)
 			{
 				onStepHit(_stepPos);
 			}
-			_stepPos = _stepTracker;
 		}
 
 		if (_beatPos != _beatTracker)
 		{
+			_beatPos = _beatTracker;
+
 			#if SCRIPTING_ALLOWED
 			Main.hscript.callFromAllScripts(HScriptFunctions.BEAT_HIT, _beatPos);
 			#end
+
 			if (onBeatHit != null)
 			{
 				onBeatHit(_beatPos);
 			}
-			_beatPos = _beatTracker;
 		}
 
 		if (_measurePos != _measureTracker)
 		{
+			_measurePos = _measureTracker;
+
 			#if SCRIPTING_ALLOWED
 			Main.hscript.callFromAllScripts(HScriptFunctions.MEASURE_HIT, _measurePos);
 			#end
+
 			if (onMeasureHit != null)
 			{
 				onMeasureHit(_measurePos);
 			}
-			_measurePos = _measureTracker;
 		}
 
 		return value;

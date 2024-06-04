@@ -58,6 +58,9 @@ class HScriptFile
 			mTime = sys.FileSystem.stat(path = sourcePath).mtime.getTime();
 
 			interp = new Interp();
+			interp.variables.set('Utils', Utils);
+			interp.variables.set('Std', Std);
+			interp.variables.set('Main', Main);
 			interp.variables.set('Math', Math);
 			interp.variables.set('Conductor', Conductor);
 			interp.variables.set('Gameplay', Gameplay);

@@ -14,6 +14,7 @@ class State extends FlxState
 	{
 		Main.startTransition(false, null);
 
+		Main.conductor.reset();
 		Main.conductor.onStepHit = Main.conductor.onBeatHit = Main.conductor.onMeasureHit = null;
 
 		FlxG.maxElapsed = FlxG.elapsed;
