@@ -2,7 +2,6 @@ package zenith.system;
 
 import flixel.math.FlxMath;
 import flixel.math.FlxAngle;
-import sys.thread.Deque;
 
 @:access(zenith.Gameplay)
 
@@ -19,7 +18,7 @@ class NoteSpawner extends FlxBasic
 		hittable = new Map<StrumNote, Note>();
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
-			pool = new Deque<Note>();
+			pool = new Array<Note>();
 
 		active = false;
 	}
@@ -27,7 +26,7 @@ class NoteSpawner extends FlxBasic
 	var _n(default, null):Note;
 	public function spawn(chartNoteData:Array<Float>):Note
 	{
-		_n = SaveData.contents.experimental.fastNoteSpawning ? pool.pop(false) : recycle();
+		_n = SaveData.contents.experimental.fastNoteSpawning ? pool.pop() : recycle();
 
 		if (_n != null)
 		{
@@ -117,7 +116,7 @@ class NoteSpawner extends FlxBasic
 					hittable.remove(n.strum);
 					n.exists = false;
 					if (SaveData.contents.experimental.fastNoteSpawning)
-						pool.add(n);
+						pool.push(n);
 					continue;
 				}
 
@@ -146,7 +145,7 @@ class NoteSpawner extends FlxBasic
 					{
 						Gameplay.instance.onNoteHit(n);
 						if (SaveData.contents.experimental.fastNoteSpawning)
-							pool.add(n);
+							pool.push(n);
 					}
 				}
 			}
@@ -174,7 +173,7 @@ class NoteSpawner extends FlxBasic
 			hittable[strum].state = HIT;
 			Gameplay.instance.onNoteHit(hittable[strum]);
 			if (SaveData.contents.experimental.fastNoteSpawning)
-				pool.add(hittable[strum]);
+				pool.push(hittable[strum]);
 			hittable.remove(strum);
 		}
 	}
@@ -187,5 +186,5 @@ class NoteSpawner extends FlxBasic
 		return null;
 	}
 
-	var pool(default, null):Deque<Note>; // Rewritten recycler
+	var pool(default, null):Array<Note>; // Rewritten recycler
 }
