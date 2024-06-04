@@ -8,18 +8,18 @@ import sys.thread.Deque;
 
 class SustainNoteSpawner extends FlxBasic
 {
-	var m(default, null):Array<SustainNote>; // Members
-	var h(default, null):Map<StrumNote, SustainNote>; // Missable
+	var members(default, null):Array<SustainNote>;
+	var missable(default, null):Map<StrumNote, SustainNote>;
 
 	public function new():Void
 	{
 		super();
-		m = [];
+		members = [];
 
-		h = new Map<StrumNote, SustainNote>();
+		missable = new Map<StrumNote, SustainNote>();
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
-			p = new Deque<SustainNote>();
+			pool = new Deque<SustainNote>();
 
 		active = false;
 	}
@@ -27,21 +27,21 @@ class SustainNoteSpawner extends FlxBasic
 	var _s(default, null):SustainNote;
 	public function spawn(chartSustainData:Array<Float>):SustainNote
 	{
-		_s = SaveData.contents.experimental.fastNoteSpawning ? p.pop(false) : recycle();
+		_s = SaveData.contents.experimental.fastNoteSpawning ? pool.pop(false) : recycle();
 
 		if (_s != null)
 		{
-			_s.y = -2000.0;
-			_s.alpha = 0.6;
+			_s.y = FlxG.height * 8.0;
 			_s.exists = true;
 		}
 		else
 		{
 			_s = new SustainNote();
-			_s.y = -2000.0;
-			_s.alpha = 0.6;
-			m.push(_s);
+			_s.y = FlxG.height * 8.0;
+			members.push(_s);
 		}
+
+		_s.alpha = 0.6;
 
 		_s.state = IDLE;
 
@@ -84,19 +84,17 @@ class SustainNoteSpawner extends FlxBasic
 	}
 
 	var s(default, null):SustainNote;
-	public function _update():Void
-	{
-		if (m == null)
-		{
-			return;
-		}
 
-		for (i in 0...m.length)
+	override function draw():Void
+	{
+		for (i in 0...members.length)
 		{
-			s = m[i];
+			s = members[i];
 
 			if (s.exists)
 			{
+				s.draw();
+
 				s.scale.set(s.strum.scale.x, s.strum.scale.y);
 				s.offset.x = -0.5 * ((s.frameWidth * s.scale.x) - s.frameWidth);
 				s.origin.x = s.frameWidth * 0.5;
@@ -114,7 +112,7 @@ class SustainNoteSpawner extends FlxBasic
 				{
 					s.exists = false;
 					if (SaveData.contents.experimental.fastNoteSpawning)
-						p.add(s);
+						pool.add(s);
 					continue;
 				}
 
@@ -124,9 +122,9 @@ class SustainNoteSpawner extends FlxBasic
 					if (s.strum.playable)
 					{
 						if (Main.conductor.songPosition > s.strumTime - 166.7 &&
-							(!h.exists(s.strum) || h[s.strum].strumTime > s.strumTime || h[s.strum].state != IDLE))
+							(!missable.exists(s.strum) || missable[s.strum].strumTime > s.strumTime || missable[s.strum].state != IDLE))
 						{
-							h[s.strum] = s;
+							missable[s.strum] = s;
 						}
 					}
 
@@ -137,58 +135,47 @@ class SustainNoteSpawner extends FlxBasic
 				}
 				else
 				{
-					h.remove(s.strum);
+					missable.remove(s.strum);
 				}
 			}
 		}
 	}
 
-	override function draw():Void
-	{
-		for (i in 0...m.length)
-		{
-			s = m[i];
-			if (s.exists)
-				s.draw();
-		}
-	}
-
 	override function destroy():Void
 	{
-		while (m.length != 0)
+		while (members.length != 0)
 		{
-			m.pop().destroy();
+			members.pop().destroy();
 		}
 
-		m = null;
+		members = null;
 	}
 
 	var _sk(default, null):Int = 0;
 
 	public function handleRelease(strum:StrumNote):Void
 	{
-		if (strum.playable && h.exists(strum) && Main.conductor.songPosition > h[strum].strumTime && h[strum].state != MISS)
+		if (strum != null && strum.playable && missable.exists(strum) &&
+			Main.conductor.songPosition > missable[strum].strumTime && missable[strum].state != MISS)
 		{
-			h[strum].state = MISS;
-			h[strum].alpha = 0.3;
+			missable[strum].state = MISS;
+			missable[strum].alpha = 0.3;
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('onRelease', h[strum]);
+			Main.hscript.callFromAllScripts(HScriptFunctions.NOTE_RELEASE, missable[strum]);
 			#end
 
 			Gameplay.instance.health -= 0.045;
 
 			if (!Gameplay.noCharacters)
 			{
-				Gameplay.instance.bf.playAnim(Gameplay.missAnimations[h[strum].noteData]);
+				Gameplay.instance.bf.playAnim(Gameplay.missAnimations[missable[strum].noteData]);
 				Gameplay.instance.bf.holdTimer = 0.0;
 			}
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('onReleasePost', h[strum]);
+			Main.hscript.callFromAllScripts(HScriptFunctions.NOTE_RELEASE_POST, missable[strum]);
 			#end
-
-			h.remove(strum);
 		}
 	}
 
@@ -200,5 +187,5 @@ class SustainNoteSpawner extends FlxBasic
 		return null;
 	}
 
-	var p(default, null):Deque<SustainNote>;
+	var pool(default, null):Deque<SustainNote>;
 }

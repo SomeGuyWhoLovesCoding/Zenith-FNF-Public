@@ -78,10 +78,10 @@ class StrumNote extends FlxSprite
 
 		width = (scale.x < 0.0 ? -scale.x : scale.x) * frameWidth;
 		height = (scale.y < 0.0 ? -scale.y : scale.y) * frameHeight;
-		offset.x = (frameWidth * 0.5) - 54;
-		offset.y = (frameHeight * 0.5) - 56;
-		origin.x = offset.x + 54;
-		origin.y = offset.y + 56;
+		offset.x = (frameWidth * 0.5) - 54.0;
+		offset.y = (frameHeight * 0.5) - 56.0;
+		origin.x = offset.x + 54.0;
+		origin.y = offset.y + 56.0;
 	}
 
 	override function set_clipRect(rect:FlxRect):FlxRect

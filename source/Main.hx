@@ -21,7 +21,6 @@ typedef TransitioningInfo =
 	var callback:()->Void;
 }
 
-// Keep these
 @:access(lime.app.Application)
 @:access(lime._internal.backend.native.NativeApplication)
 @:access(lime._internal.backend.native.NativeCFFI)
@@ -98,21 +97,29 @@ class Main extends Sprite
 		var window:Window;
 		NativeCFFI.lime_key_event_manager_register(function():Void
 		{
-			if (backend.keyEventInfo.type == cast 1)
+			if (FlxG.game._lostFocus && FlxG.autoPause) // How come none other fnf engines do this? I wonder why lol
 			{
-				if (Gameplay.instance != null && !Gameplay.instance.paused)
+				return;
+			}
+
+			if (Gameplay.instance != null && FlxG.state == Gameplay.instance)
+			{
+				if (backend.keyEventInfo.type == cast 1)
 				{
-					Gameplay.instance.onKeyUp(Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
-				}
-				else
-				{
-					game.onKeyUp.emit(SignalEvent.KEY_UP, Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
+					if (!Gameplay.instance.paused)
+					{
+						Gameplay.instance.onKeyUp(Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
+					}
+					else
+					{
+						game.onKeyUp.emit(SignalEvent.KEY_UP, Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
+					}
 				}
 			}
 
 			if (backend.keyEventInfo.type == cast 0)
 			{
-				if (Gameplay.instance != null && !Gameplay.instance.paused)
+				if (Gameplay.instance != null && FlxG.state == Gameplay.instance && !Gameplay.instance.paused)
 				{
 					Gameplay.instance.onKeyDown(Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
 				}
@@ -161,17 +168,6 @@ class Main extends Sprite
 
 			if (backend.applicationEventInfo.type == UPDATE)
 			{
-				// Make sure the hittable note is ready before updating the game itself. Otherwise, it'll be a frame delayed
-
-				if (Gameplay.instance != null)
-				{
-					if (Gameplay.instance.noteSpawner != null)
-						Gameplay.instance.noteSpawner._update();
-					if (Gameplay.instance.sustainNoteSpawner != null)
-						Gameplay.instance.sustainNoteSpawner._update();
-					Gameplay.instance.p();
-				}
-
 				backend.updateTimer();
 				backend.parent.onUpdate.dispatch(backend.applicationEventInfo.deltaTime);
 			}

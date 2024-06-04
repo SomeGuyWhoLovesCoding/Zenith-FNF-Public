@@ -1,10 +1,12 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TextureAtlas imagePath="Strums.png">
+	<!-- Created with Adobe Animate version 21.0.9.42677 -->
+	<!-- http://www.adobe.com/products/animate.html -->
 	<SubTexture name="confirm0000" x="0" y="0" width="207" height="211"/>
 	<SubTexture name="confirm0001" x="209" y="0" width="207" height="211"/>
 	<SubTexture name="confirm0002" x="418" y="0" width="207" height="211"/>
 	<SubTexture name="confirm0003" x="0" y="213" width="207" height="211"/>
-	<SubTexture name="press0000" x="209" y="213" width="146" height="149"/>
-	<SubTexture name="press0001" x="357" y="213" width="146" height="149"/>
-	<SubTexture name="static0000" x="505" y="213" width="154" height="157"/>
+	<SubTexture name="press0000" x="365" y="213" width="146" height="149"/>
+	<SubTexture name="press0001" x="513" y="213" width="146" height="149"/>
+	<SubTexture name="static0000" x="209" y="213" width="154" height="157"/>
 </TextureAtlas>

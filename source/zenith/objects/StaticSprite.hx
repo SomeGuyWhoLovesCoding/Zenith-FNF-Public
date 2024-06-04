@@ -27,7 +27,7 @@ import openfl.geom.Rectangle;
 
 using flixel.util.FlxColorTransformUtil;
 
-// Just a FlxSprite copy without animation support.
+// Just a FlxSprite copy without animation and clipRect support.
 
 class StaticSprite extends FlxBasic
 {
@@ -156,7 +156,7 @@ class StaticSprite extends FlxBasic
 	{
 		_flashRect.x = _flashRect.y = 0;
 
-		_frame = frame.copyTo(null);
+		_frame = inline frame.copyTo(null);
 		_flashRect.width = frameWidth = Std.int(_frame.sourceSize.x);
 		_flashRect.height = frameHeight = Std.int(_frame.sourceSize.y);
 
@@ -168,20 +168,6 @@ class StaticSprite extends FlxBasic
 		offset.x = -0.5 * (width - frameWidth);
 		offset.y = -0.5 * (height - frameHeight);
 	}
-
-	// TODO: maybe convert this var to property...
-
-	/**
-	 * The current display state of the sprite including current animation frame,
-	 * tint, flip etc... may be `null` unless `useFramePixels` is `true`.
-	 */
-	public var framePixels:BitmapData;
-
-	/**
-	 * Always `true` on `FlxG.renderBlit`. On `FlxG.renderTile` it determines whether
-	 * `framePixels` is used and defaults to `false` for performance reasons.
-	 */
-	public var useFramePixels(default, set):Bool = true;
 
 	/**
 	 * Controls whether the object is smoothed when rotated, affects performance.
@@ -277,25 +263,6 @@ class StaticSprite extends FlxBasic
 	public var useColorTransform(default, null):Bool = false;
 
 	/**
-	 * Clipping rectangle for this sprite.
-	 * Changing the rect's properties directly doesn't have any effect,
-	 * reassign the property to update it (`sprite.clipRect = sprite.clipRect;`).
-	 * Set to `null` to discard graphic frame clipping.
-	 */
-	public var clipRect(default, set):FlxRect;
-
-	function set_clipRect(rect:FlxRect):FlxRect
-	{
-		if (clipRect != null)
-		{
-			clipRect.put();
-		}
-		_frame = _frame.clipTo(rect, _frame);
-
-		return clipRect = rect;
-	}
-
-	/**
 	 * GLSL shader for this sprite. Avoid changing it frequently as this is a costly operation.
 	 * @since 4.1.0
 	 */
@@ -306,12 +273,6 @@ class StaticSprite extends FlxBasic
 	 */
 	@:noCompletion
 	var _frame:FlxFrame;
-
-	/**
-	 * Graphic of `_frame`. Used in tile render mode, when `useFramePixels` is `true`.
-	 */
-	@:noCompletion
-	var _frameGraphic:FlxGraphic;
 
 	@:noCompletion
 	var _facingHorizontalMult:Int = 1;
@@ -407,7 +368,6 @@ class StaticSprite extends FlxBasic
 		colorTransform = new ColorTransform();
 		_scaledOrigin = new FlxPoint();
 
-		useFramePixels = FlxG.renderBlit;
 		if (SimpleGraphic != null)
 			loadGraphic(SimpleGraphic);
 	}
@@ -436,8 +396,6 @@ class StaticSprite extends FlxBasic
 		_halfSize = FlxDestroyUtil.put(_halfSize);
 		_scaledOrigin = FlxDestroyUtil.put(_scaledOrigin);
 
-		framePixels = FlxDestroyUtil.dispose(framePixels);
-
 		_flashPoint = null;
 		_flashRect = null;
 		_flashRect2 = null;
@@ -448,7 +406,6 @@ class StaticSprite extends FlxBasic
 
 		graphic = null;
 		_frame = FlxDestroyUtil.destroy(_frame);
-		_frameGraphic = FlxDestroyUtil.destroy(_frameGraphic);
 
 		shader = null;
 	}
@@ -476,7 +433,6 @@ class StaticSprite extends FlxBasic
 		}
 		antialiasing = Sprite.antialiasing;
 		graphicLoaded();
-		clipRect = Sprite.clipRect;
 		return this;
 	}
 
@@ -703,7 +659,7 @@ class StaticSprite extends FlxBasic
 					_point.add(origin.x, origin.y);
 					_matrix.translate(_point.x, _point.y);
 
-					camera.drawPixels(_frame, framePixels, _matrix, colorTransform, blend, antialiasing, shader);
+					camera.drawPixels(_frame, null, _matrix, colorTransform, blend, antialiasing, shader);
 
 					#if FLX_DEBUG
 					FlxBasic.visibleCount++;
@@ -942,11 +898,11 @@ class StaticSprite extends FlxBasic
 		{
 			// If new graphic is not null, increase its use count
 			if (value != null)
-				value.incrementUseCount();
+				value.useCount++;
 
 			// If old graphic is not null, decrease its use count
 			if (graphic != null)
-				graphic.decrementUseCount();
+				graphic.useCount--;
 
 			graphic = value;
 		}
@@ -980,23 +936,6 @@ class StaticSprite extends FlxBasic
 	function set_antialiasing(value:Bool):Bool
 	{
 		return antialiasing = value;
-	}
-
-	@:noCompletion
-	function set_useFramePixels(value:Bool):Bool
-	{
-		if (FlxG.renderTile)
-		{
-			if (value != useFramePixels)
-				useFramePixels = value;
-
-			return value;
-		}
-		else
-		{
-			useFramePixels = true;
-			return true;
-		}
 	}
 
 	@:noCompletion

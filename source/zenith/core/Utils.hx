@@ -35,22 +35,16 @@ class Utils
 	inline public static function formatTime(ms:Float, englishStyle:Bool, showMS:Bool):String
 	{
 		// Rewritten code??? Moment when I use ChatGPT:
-		var milliseconds:Int = Std.int(ms * 0.1) % 100;
-		var seconds:Int = Std.int(ms * 0.001);
-		var hours:Int = Std.int(seconds / 3600);
+		var milliseconds:Float = Math.ffloor(ms * 0.1) % 100.0;
+		var seconds:Float = Math.ffloor(ms * 0.001);
+		var hours:Float = Math.ffloor(seconds / 3600.0);
 		seconds %= 3600;
-		var minutes:Int = Std.int(seconds / 60);
+		var minutes:Float = Math.ffloor(seconds / 60.0);
 		seconds %= 60;
 
-		var t:String = ';';
+		var t:String = englishStyle ? ':' : ';';
 
-		if (englishStyle)
-			t = ':';
-
-		var c:String = ',';
-
-		if (englishStyle)
-			c = '.';
+		var c:String = englishStyle ? '.' : ',';
 
 		var time:String = '';
 		if (!Math.isNaN(ms)) {

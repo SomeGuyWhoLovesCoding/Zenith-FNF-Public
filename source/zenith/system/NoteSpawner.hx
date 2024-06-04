@@ -8,18 +8,18 @@ import sys.thread.Deque;
 
 class NoteSpawner extends FlxBasic
 {
-	var m(default, null):Array<Note>; // Members
-	var h(default, null):Map<StrumNote, Note>; // Hittable
+	var members(default, null):Array<Note>; // Members
+	var hittable(default, null):Map<StrumNote, Note>; // Hittable
 
 	public function new():Void
 	{
 		super();
-		m = [];
+		members = [];
 
-		h = new Map<StrumNote, Note>();
+		hittable = new Map<StrumNote, Note>();
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
-			p = new Deque<Note>();
+			pool = new Deque<Note>();
 
 		active = false;
 	}
@@ -27,22 +27,21 @@ class NoteSpawner extends FlxBasic
 	var _n(default, null):Note;
 	public function spawn(chartNoteData:Array<Float>):Note
 	{
-		_n = SaveData.contents.experimental.fastNoteSpawning ? p.pop(false) : recycle();
+		_n = SaveData.contents.experimental.fastNoteSpawning ? pool.pop(false) : recycle();
 
 		if (_n != null)
 		{
-			_n.y = -2000.0;
-			_n.alpha = 1.0;
+			_n.y = FlxG.height * 8.0;
 			_n.exists = true;
 		}
 		else
 		{
 			_n = new Note();
-			_n.y = -2000.0;
-			_n.alpha = 1.0;
-			m.push(_n);
+			_n.y = FlxG.height * 8.0;
+			members.push(_n);
 		}
 
+		_n.alpha = 1.0;
 		_n.state = IDLE;
 
 		_n.camera = camera;
@@ -90,19 +89,17 @@ class NoteSpawner extends FlxBasic
 	}
 
 	var n(default, null):Note;
-	public function _update():Void
-	{
-		if (m == null)
-		{
-			return;
-		}
 
-		for (i in 0...m.length)
+	override function draw():Void
+	{
+		for (i in 0...members.length)
 		{
-			n = m[i];
+			n = members[i];
 
 			if (n.exists)
 			{
+				n.draw();
+
 				n.scale.set(n.strum.scale.x, n.strum.scale.y);
 				n.offset.x = -0.5 * ((n.frameWidth * 0.7) - n.frameWidth);
 				n.offset.y = -0.5 * ((n.frameHeight * 0.7) - n.frameHeight);
@@ -117,10 +114,10 @@ class NoteSpawner extends FlxBasic
 
 				if (Main.conductor.songPosition > n.strumTime + (750.0 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
 				{
-					h.remove(n.strum);
+					hittable.remove(n.strum);
 					n.exists = false;
 					if (SaveData.contents.experimental.fastNoteSpawning)
-						p.add(n);
+						pool.add(n);
 					continue;
 				}
 
@@ -128,19 +125,18 @@ class NoteSpawner extends FlxBasic
 				{
 					if (n.state == IDLE)
 					{
-						if (Main.conductor.songPosition > n.strumTime + (166.7 / Gameplay.instance.songSpeed))
+						if (Main.conductor.songPosition > n.strumTime + 166.7)
 						{
 							Gameplay.instance.onNoteMiss(n);
 							n.state = MISS;
-							h.remove(n.strum);
 						}
 
 						// Took forever to fully polish here ofc
 						// 
-						if ((!h.exists(n.strum) || h[n.strum].strumTime > n.strumTime || h[n.strum].state != IDLE) &&
-							Main.conductor.songPosition > n.strumTime - (166.7 / Gameplay.instance.songSpeed))
+						if ((!hittable.exists(n.strum) || hittable[n.strum].strumTime > n.strumTime || hittable[n.strum].state != IDLE) &&
+							Main.conductor.songPosition > n.strumTime - 166.7)
 						{
-							h[n.strum] = n;
+							hittable[n.strum] = n;
 						}
 					}
 				}
@@ -150,31 +146,21 @@ class NoteSpawner extends FlxBasic
 					{
 						Gameplay.instance.onNoteHit(n);
 						if (SaveData.contents.experimental.fastNoteSpawning)
-							p.add(n);
+							pool.add(n);
 					}
 				}
 			}
 		}
 	}
 
-	override function draw():Void
-	{
-		for (i in 0...m.length)
-		{
-			n = m[i];
-			if (n.exists)
-				n.draw();
-		}
-	}
-
 	override function destroy():Void
 	{
-		while (m.length != 0)
+		while (members.length != 0)
 		{
-			m.pop().destroy();
+			members.pop().destroy();
 		}
 
-		m = null;
+		members = null;
 	}
 
 	var _nk(default, null):Int = 0;
@@ -182,13 +168,14 @@ class NoteSpawner extends FlxBasic
 	inline public function handleHittableNote(strum:StrumNote):Void
 	{
 		// The middle checks are pretty weird but it does fix a couple bugs
-		if (strum.playable && h.exists(strum) && h[strum].state == IDLE && Main.conductor.songPosition > h[strum].strumTime - (166.7 * Gameplay.instance.songSpeed))
+		if (strum != null && strum.playable && hittable.exists(strum) && hittable[strum].state == IDLE &&
+			Main.conductor.songPosition > hittable[strum].strumTime - (166.7 * Gameplay.instance.songSpeed))
 		{
-			h[strum].state = HIT;
-			Gameplay.instance.onNoteHit(h[strum]);
+			hittable[strum].state = HIT;
+			Gameplay.instance.onNoteHit(hittable[strum]);
 			if (SaveData.contents.experimental.fastNoteSpawning)
-				p.add(h[strum]);
-			h.remove(strum);
+				pool.add(hittable[strum]);
+			hittable.remove(strum);
 		}
 	}
 
@@ -200,5 +187,5 @@ class NoteSpawner extends FlxBasic
 		return null;
 	}
 
-	var p(default, null):Deque<Note>; // Rewritten recycler
+	var pool(default, null):Deque<Note>; // Rewritten recycler
 }

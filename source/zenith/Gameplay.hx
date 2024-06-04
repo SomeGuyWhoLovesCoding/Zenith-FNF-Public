@@ -272,6 +272,8 @@ class Gameplay extends State
 	{
 		if (generatedMusic)
 		{
+			p();
+
 			health = FlxMath.bound(health, 0.0, hudGroup != null ? hudGroup.healthBar.maxValue : 2.0);
 
 			hudCameraBelow.x = hudCamera.x;
@@ -289,7 +291,7 @@ class Gameplay extends State
 				_songPos += elapsed * 1000.0;
 			}
 
-			Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, _songPos, FlxG.elapsed * 10.75);
+			Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, _songPos, FlxG.elapsed * 10.215);
 
 			if (_songPos >= 0 && !startedCountdown)
 			{
@@ -539,6 +541,7 @@ class Gameplay extends State
 					add(hudGroup);
 
 					hudGroup.reloadHealthBar();
+					hudGroup.camera = hudCamera;
 				}
 
 				noteSpawner.camera = strumlines.camera = sustainNoteSpawner.camera = hudCamera;
@@ -1339,15 +1342,7 @@ class Gameplay extends State
 		}
 	}
 
-	var _n(default, null):Note;
-	var _s(default, null):SustainNote;
-
 	var nd(default, null):Array<Float>;
-
-	var _d(default, null):Float;
-
-	var c(default, null):Character;
-
 	var st(default, null):StrumNote;
 
 	var _songPos(default, null):Float = -5000.0;
@@ -1364,15 +1359,15 @@ class Gameplay extends State
 
 		if (note.strum.playable)
 		{
-			_d = note.strumTime - Main.conductor.songPosition;
 			score += 350.0 * FlxMath.maxInt(note.multiplier, 1);
-			accuracy_left += ((_d < 0.0 ? -_d : _d) > 83.35 ? 0.75 : 1.0) * FlxMath.maxInt(note.multiplier, 1);
+			accuracy_left += ((note.strumTime - Main.conductor.songPosition < 0.0 ? -(note.strumTime - Main.conductor.songPosition) :
+				note.strumTime - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0) * FlxMath.maxInt(note.multiplier, 1);
 			accuracy_right += FlxMath.maxInt(note.multiplier, 1);
 		}
 
 		if (!noCharacters)
 		{
-			c = note.strum.playable ? bf : note.gfNote ? gf : dad;
+			var c = note.strum.playable ? bf : note.gfNote ? gf : dad;
 
 			if (null != c)
 			{
@@ -1432,7 +1427,7 @@ class Gameplay extends State
 
 		if (!noCharacters)
 		{
-			c = (sustain.strum.playable ? bf : (sustain.gfNote ? gf : dad));
+			var c = (sustain.strum.playable ? bf : (sustain.gfNote ? gf : dad));
 
 			if (null != c)
 			{

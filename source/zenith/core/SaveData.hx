@@ -18,7 +18,6 @@ import sys.io.File;
 		graphics: {
 			antialiasing: true,
 			gpuCaching: true,
-			vsync: {adaptive: false, enabled: false},
 			persistentGraphics: false,
 			fps: 60
 		},

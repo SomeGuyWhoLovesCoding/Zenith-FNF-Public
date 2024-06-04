@@ -261,7 +261,7 @@ class Character extends FlxSprite
 		#end
 	}
 
-	public var danced:Bool = false;
+	public var danced:Bool = true;
 
 	public var danceEveryNumBeats:Int = 2;
 	private var settingCharacterUp:Bool = true;

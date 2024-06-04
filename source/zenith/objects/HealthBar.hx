@@ -61,4 +61,10 @@ class HealthBar extends FlxSpriteGroup
 		__right.updateHitbox();
 		__right.x = __left.width + 340.0;
 	}
+
+	override public function draw():Void
+	{
+		__left.draw();
+		__right.draw();
+	}
 }

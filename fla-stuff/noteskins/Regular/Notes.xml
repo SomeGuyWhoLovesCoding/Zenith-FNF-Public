@@ -1,5 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <TextureAtlas imagePath="Notes.png">
+	<!-- Created with Adobe Animate version 21.0.9.42677 -->
+	<!-- http://www.adobe.com/products/animate.html -->
 	<SubTexture name="regular0000" x="0" y="0" width="154" height="157"/>
 	<SubTexture name="sustain0000" x="156" y="0" width="50" height="64"/>
 </TextureAtlas>
