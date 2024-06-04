@@ -59,8 +59,8 @@ class Conductor
 
 	inline public function executeBpmChange(newBpm:Float, position:Float):Void
 	{
-		timeStep += (position - stepsToLose) / stepCrochet;
-		timeOffset = position;
+		offsetStep += (position - offsetTime) / stepCrochet;
+		offsetTime = position;
 		bpm = newBpm;
 		
 		trace(stepsToLose);
