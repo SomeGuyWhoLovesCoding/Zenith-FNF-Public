@@ -2,7 +2,6 @@ package zenith.system;
 
 import flixel.math.FlxMath;
 import flixel.math.FlxAngle;
-import sys.thread.Deque;
 
 @:access(zenith.Gameplay)
 
@@ -19,7 +18,7 @@ class SustainNoteSpawner extends FlxBasic
 		missable = new Map<StrumNote, SustainNote>();
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
-			pool = new Deque<SustainNote>();
+			pool = new Array<SustainNote>();
 
 		active = false;
 	}
@@ -27,7 +26,7 @@ class SustainNoteSpawner extends FlxBasic
 	var _s(default, null):SustainNote;
 	public function spawn(chartSustainData:Array<Float>):SustainNote
 	{
-		_s = SaveData.contents.experimental.fastNoteSpawning ? pool.pop(false) : recycle();
+		_s = SaveData.contents.experimental.fastNoteSpawning ? pool.pop() : recycle();
 
 		if (_s != null)
 		{
@@ -112,7 +111,7 @@ class SustainNoteSpawner extends FlxBasic
 				{
 					s.exists = false;
 					if (SaveData.contents.experimental.fastNoteSpawning)
-						pool.add(s);
+						pool.push(s);
 					continue;
 				}
 
@@ -187,5 +186,5 @@ class SustainNoteSpawner extends FlxBasic
 		return null;
 	}
 
-	var pool(default, null):Deque<SustainNote>;
+	var pool(default, null):Array<SustainNote>;
 }
