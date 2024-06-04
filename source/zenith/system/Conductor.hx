@@ -2,6 +2,13 @@ package zenith.system;
 
 class Conductor
 {
+	var _rawStep(get, default):Float = 0.0;
+
+	function get__rawStep():Float
+	{
+		return ((songPosition - offsetTime) / stepCrochet) + offsetStep;
+	}
+
 	var _stepPos(default, null):Float = 0.0;
 	var _beatPos(default, null):Float = 0.0;
 	var _measurePos(default, null):Float = 0.0;
@@ -10,8 +17,8 @@ class Conductor
 	var _beatTracker(default, null):Float = 0.0;
 	var _measureTracker(default, null):Float = 0.0;
 
-	var stepsToLose(default, null):Float = 0.0;
-	var stepsToAdd(default, null):Float = 0.0;
+	var offsetTime(default, null):Float = 0.0;
+	var offsetStep(default, null):Float = 0.0;
 
 	public var steps(default, set):Int = 4;
 
@@ -52,8 +59,8 @@ class Conductor
 
 	inline public function executeBpmChange(newBpm:Float, position:Float):Void
 	{
-		stepsToAdd += (position - stepsToLose) / stepCrochet;
-		stepsToLose = position;
+		timeStep += (position - stepsToLose) / stepCrochet;
+		timeOffset = position;
 		bpm = newBpm;
 		
 		trace(stepsToLose);
@@ -77,7 +84,9 @@ class Conductor
 
 	function set_songPosition(value:Float):Float
 	{
-		_stepTracker = Math.ffloor((value - stepsToLose) / stepCrochet) + (stepsToAdd * (lastBpm / bpm));
+		songPosition = value;
+
+		_stepTracker = Math.ffloor(_rawStep);
 		_beatTracker = Math.ffloor(_stepTracker / steps);
 		_measureTracker = Math.ffloor(_beatTracker / beats);
 
@@ -117,7 +126,7 @@ class Conductor
 			_measurePos = _measureTracker;
 		}
 
-		return songPosition = value;
+		return value;
 	}
 
 	public var crochet(default, null):Float;
