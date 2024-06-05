@@ -1,4 +1,5 @@
 // An optimized version of list that inlines simple functions and makes improvements over the original that didn't have them.
+// Put this in the (HAXE_TOOLKIT_DIRECTORY)/std/haxe/ds folder btw so you have a faster version of the list data structure.
 
 /*
  * Copyright (C)2005-2019 Haxe Foundation
