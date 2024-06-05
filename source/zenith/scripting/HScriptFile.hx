@@ -58,12 +58,11 @@ class HScriptFile
 			mTime = sys.FileSystem.stat(path = sourcePath).mtime.getTime();
 
 			interp = new Interp();
-			interp.variables.set('Utils', Utils);
-			interp.variables.set('Std', Std);
 			interp.variables.set('Main', Main);
-			interp.variables.set('Math', Math);
-			interp.variables.set('Conductor', Conductor);
+			interp.variables.set('this', Main.hscript);
 			interp.variables.set('Gameplay', Gameplay);
+			interp.variables.set('Utils', Utils);
+			interp.variables.set('Conductor', Conductor);
 			interp.variables.set('NoteBase', NoteBase);
 			interp.variables.set('SaveData', SaveData);
 			interp.variables.set('StringTools', StringTools);
@@ -75,6 +74,9 @@ class HScriptFile
 			interp.variables.set('FlxTween', flixel.tweens.FlxTween);
 			interp.variables.set('FlxEase', flixel.tweens.FlxEase);
 			interp.variables.set('FlxSound', FlxSound);
+			interp.variables.set('Math', Math);
+			interp.variables.set('Std', Std);
+			interp.variables.set('List', _List);
 
 			// Menus and shit you can modify
 			interp.variables.set('TitleScreen', TitleScreen);

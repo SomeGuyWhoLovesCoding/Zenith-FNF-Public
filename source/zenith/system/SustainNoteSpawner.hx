@@ -13,12 +13,13 @@ class SustainNoteSpawner extends FlxBasic
 	public function new():Void
 	{
 		super();
+
 		members = [];
 
 		missable = new Map<StrumNote, SustainNote>();
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
-			pool = new Array<SustainNote>();
+			pool = new _List<SustainNote>();
 
 		active = false;
 	}
@@ -111,7 +112,7 @@ class SustainNoteSpawner extends FlxBasic
 				{
 					s.exists = false;
 					if (SaveData.contents.experimental.fastNoteSpawning)
-						pool.push(s);
+						pool.add(s);
 					continue;
 				}
 
@@ -148,6 +149,13 @@ class SustainNoteSpawner extends FlxBasic
 		}
 
 		members = null;
+
+		while (pool.length != 0)
+		{
+			pool.pop().destroy();
+		}
+
+		pool = null;
 	}
 
 	var _sk(default, null):Int = 0;
@@ -186,5 +194,5 @@ class SustainNoteSpawner extends FlxBasic
 		return null;
 	}
 
-	var pool(default, null):Array<SustainNote>;
+	var pool(default, null):_List<SustainNote>;
 }

@@ -13,12 +13,13 @@ class NoteSpawner extends FlxBasic
 	public function new():Void
 	{
 		super();
+
 		members = [];
 
 		hittable = new Map<StrumNote, Note>();
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
-			pool = new Array<Note>();
+			pool = new _List<Note>();
 
 		active = false;
 	}
@@ -116,7 +117,7 @@ class NoteSpawner extends FlxBasic
 					hittable.remove(n.strum);
 					n.exists = false;
 					if (SaveData.contents.experimental.fastNoteSpawning)
-						pool.push(n);
+						pool.add(n);
 					continue;
 				}
 
@@ -145,7 +146,7 @@ class NoteSpawner extends FlxBasic
 					{
 						Gameplay.instance.onNoteHit(n);
 						if (SaveData.contents.experimental.fastNoteSpawning)
-							pool.push(n);
+							pool.add(n);
 					}
 				}
 			}
@@ -160,6 +161,13 @@ class NoteSpawner extends FlxBasic
 		}
 
 		members = null;
+
+		while (pool.length != 0)
+		{
+			pool.pop().destroy();
+		}
+
+		pool = null;
 	}
 
 	var _nk(default, null):Int = 0;
@@ -173,7 +181,7 @@ class NoteSpawner extends FlxBasic
 			hittable[strum].state = HIT;
 			Gameplay.instance.onNoteHit(hittable[strum]);
 			if (SaveData.contents.experimental.fastNoteSpawning)
-				pool.push(hittable[strum]);
+				pool.add(hittable[strum]);
 			hittable.remove(strum);
 		}
 	}
@@ -186,5 +194,5 @@ class NoteSpawner extends FlxBasic
 		return null;
 	}
 
-	var pool(default, null):Array<Note>; // Rewritten recycler
+	var pool(default, null):_List<Note>; // Rewritten recycler
 }

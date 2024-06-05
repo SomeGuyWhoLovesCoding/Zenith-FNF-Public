@@ -26,10 +26,17 @@ class Utils
 
 	inline static public function strumlineSwap(left:Int, right:Int):Void
 	{
-		var diff1 = (Gameplay.instance.strumlines.members[left].x - Gameplay.instance.strumlines.members[right].x);
-		var diff2 = (Gameplay.instance.strumlines.members[right].x - Gameplay.instance.strumlines.members[left].x);
-		Gameplay.instance.strumlines.members[left].x -= diff1;
-		Gameplay.instance.strumlines.members[right].x -= diff2;
+		try
+		{
+			var diff1 = (Gameplay.instance.strumlines.members[left].x - Gameplay.instance.strumlines.members[right].x);
+			var diff2 = (Gameplay.instance.strumlines.members[right].x - Gameplay.instance.strumlines.members[left].x);
+			Gameplay.instance.strumlines.members[left].x -= diff1;
+			Gameplay.instance.strumlines.members[right].x -= diff2;
+		}
+		catch (e:haxe.Exception)
+		{
+			Main.hscript.error(e);
+		}
 	}
 
 	/**

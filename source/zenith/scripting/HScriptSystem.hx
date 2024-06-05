@@ -70,7 +70,7 @@ class HScriptSystem
 				}
 
 				#if debug
-				trace('HScripts loaded from directory "$sourcePath"');
+				trace('HScripts reloaded from directory "$sourcePath"');
 				#end
 			}
 		}
@@ -132,9 +132,10 @@ class HScriptSystem
 		{
 			try
 			{
-				if (list.get(script).interp.variables.exists(func))
+				var f = list[script].interp.variables[func];
+				if (f != null)
 				{
-					(list.get(script).interp.variables.get(func))(arg1,arg2,arg3,arg4,arg5);
+					f(arg1,arg2,arg3,arg4,arg5);
 				}
 			}
 			catch (e:haxe.Exception)

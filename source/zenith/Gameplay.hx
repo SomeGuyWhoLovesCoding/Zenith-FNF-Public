@@ -189,6 +189,19 @@ class Gameplay extends State
 
 	override function create():Void
 	{
+		// Fix a bug where hscript calls don't initialize before generating the song, so instead it was after generating the song.
+		if (!Main.ENABLE_MULTITHREADING)
+		{
+			#if SCRIPTING_ALLOWED
+			Main.hscript.loadScriptsFromDirectory('assets/scripts');
+	
+			for (script in Main.hscript.list.keys())
+			{
+				Main.hscript.list[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
+			}
+			#end
+		}
+
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
 
 		instance = this;
@@ -302,8 +315,6 @@ class Gameplay extends State
 		{
 			if (threadsCompleted == 0)
 			{
-				lock = new Mutex();
-
 				// What happens if you load a song with a bpm of under 10? Limit it.
 				Main.conductor.bpm = SONG.info.bpm = Math.max(SONG.info.bpm, 10.0);
 				Main.conductor.reset();
@@ -797,15 +808,20 @@ class Gameplay extends State
 
 		if (Main.ENABLE_MULTITHREADING)
 		{
+			lock = new Mutex();
 			FlxG.autoPause = false;
+
 			Thread.create(() ->
 			{
 				var preloadName:String = curSong + (curDifficulty != '' ? '-$curDifficulty' : '');
 				try
 				{
 					SONG = Song.loadFromJson(curSong + '/' + curSong + curDifficulty);
+
+					lock.acquire();
 					nd = SONG.noteData[currentNoteId];
 					threadsCompleted++;
+					lock.release();
 				}
 				catch (e)
 				{
