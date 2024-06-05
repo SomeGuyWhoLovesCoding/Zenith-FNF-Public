@@ -19,7 +19,7 @@ class SustainNoteSpawner extends FlxBasic
 		missable = new Map<StrumNote, SustainNote>();
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
-			pool = new _List<SustainNote>();
+			pool = new List<SustainNote>();
 
 		active = false;
 	}
@@ -194,5 +194,5 @@ class SustainNoteSpawner extends FlxBasic
 		return null;
 	}
 
-	var pool(default, null):_List<SustainNote>;
+	var pool(default, null):List<SustainNote>;
 }

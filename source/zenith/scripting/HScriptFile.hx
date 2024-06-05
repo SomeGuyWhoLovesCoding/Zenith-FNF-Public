@@ -76,7 +76,7 @@ class HScriptFile
 			interp.variables.set('FlxSound', FlxSound);
 			interp.variables.set('Math', Math);
 			interp.variables.set('Std', Std);
-			interp.variables.set('List', _List);
+			interp.variables.set('List', List);
 
 			// Menus and shit you can modify
 			interp.variables.set('TitleScreen', TitleScreen);

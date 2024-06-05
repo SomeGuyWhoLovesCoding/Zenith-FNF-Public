@@ -19,7 +19,7 @@ class NoteSpawner extends FlxBasic
 		hittable = new Map<StrumNote, Note>();
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
-			pool = new _List<Note>();
+			pool = new List<Note>();
 
 		active = false;
 	}
@@ -194,5 +194,5 @@ class NoteSpawner extends FlxBasic
 		return null;
 	}
 
-	var pool(default, null):_List<Note>; // Rewritten recycler
+	var pool(default, null):List<Note>; // Rewritten recycler
 }

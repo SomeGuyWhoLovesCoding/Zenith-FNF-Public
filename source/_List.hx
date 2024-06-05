@@ -22,7 +22,7 @@
  * DEALINGS IN THE SOFTWARE.
  */
 
-package;
+package haxe.ds;
 
 /**
 	A linked-list of elements. The list is composed of element container objects
@@ -31,7 +31,7 @@ package;
 
 	@see https://haxe.org/manual/std-List.html
 **/
-class _List<T> {
+class List<T> {
 	private var h:ListNode<T>;
 	private var q:ListNode<T>;
 
