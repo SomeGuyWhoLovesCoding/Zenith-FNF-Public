@@ -54,6 +54,29 @@ class Main extends Sprite
 
 		SaveData.read();
 
+		// Some benchmark I did
+		/*trace("Optimized List");
+
+		var list:linkedlist.LinkedList<linkedlist.LinkedListItem> = new linkedlist.LinkedList<linkedlist.LinkedListItem>();
+
+		trace("Add");
+		haxe.Timer.measure(function():Void
+		{
+			for (i in 0...1000000)
+			{
+				list.push(i);
+			}
+		});
+
+		trace("Pop");
+		haxe.Timer.measure(function():Void
+		{
+			for (i in 0...1000000)
+			{
+				list.pop();
+			}
+		});*/
+
 		conductor = new Conductor();
 	
 		#if SCRIPTING_ALLOWED

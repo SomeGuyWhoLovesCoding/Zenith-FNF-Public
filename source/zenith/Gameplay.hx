@@ -397,10 +397,11 @@ class Gameplay extends State
 				Thread.create(() ->
 				{
 					gf = new Character(0, 0, SONG.info.spectator);
-					gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
-					gfGroup.add(gf);
 
 					lock.acquire();
+
+					gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
+					gfGroup.add(gf);
 
 					threadsCompleted++;
 					lock.release();
@@ -409,10 +410,11 @@ class Gameplay extends State
 				Thread.create(() ->
 				{
 					dad = new Character(0, 0, SONG.info.player2);
-					dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
-					dadGroup.add(dad);
 
 					lock.acquire();
+
+					dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
+					dadGroup.add(dad);
 
 					threadsCompleted++;
 					lock.release();
@@ -421,10 +423,11 @@ class Gameplay extends State
 				Thread.create(() ->
 				{
 					bf = new Character(0, 0, SONG.info.player1, true);
-					bfGroup = new FlxSpriteGroup(BF_X, BF_Y);
-					bfGroup.add(bf);
 
 					lock.acquire();
+
+					bfGroup = new FlxSpriteGroup(BF_X, BF_Y);
+					bfGroup.add(bf);
 
 					threadsCompleted++;
 					lock.release();
