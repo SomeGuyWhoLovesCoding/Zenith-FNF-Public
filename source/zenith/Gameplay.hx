@@ -113,9 +113,6 @@ class Gameplay extends State
 	public var camFollowPos:FlxObject;
 	public var camFollowPosTween(default, null):FlxTween;
 
-	static var singAnimations(default, null):Array<String> = [CharacterAnims.L, CharacterAnims.D, CharacterAnims.U, CharacterAnims.R];
-	static var missAnimations(default, null):Array<String> = [CharacterAnims.Lm, CharacterAnims.Dm, CharacterAnims.Um, CharacterAnims.Rm];
-
 	static public var instance:Gameplay;
 
 	function p():Void
@@ -149,8 +146,8 @@ class Gameplay extends State
 			return;
 		}
 
-		if (st.animation.curAnim.name != StrumNoteAnims.HIT)
-			st.playAnim(StrumNoteAnims.PRESS);
+		if (st.animation.curAnim.name != "confirm")
+			st.playAnim("pressed");
 
 		noteSpawner.handleHittableNote(st);
 
@@ -177,8 +174,8 @@ class Gameplay extends State
 			return;
 		}
 
-		if (st.animation.curAnim.name != StrumNoteAnims.IDLE)
-			st.playAnim(StrumNoteAnims.IDLE);
+		if (st.animation.curAnim.name != "static")
+			st.playAnim("static");
 
 		sustainNoteSpawner.handleRelease(st);
 
@@ -1386,7 +1383,7 @@ class Gameplay extends State
 
 			if (null != c)
 			{
-				c.playAnim(singAnimations[note.noteData]);
+				c.playAnim(singAnimations(note.noteData));
 				c.holdTimer = 0.0;
 			}
 		}
@@ -1418,7 +1415,7 @@ class Gameplay extends State
 
 		if (!noCharacters)
 		{
-			bf.playAnim(missAnimations[note.noteData]);
+			bf.playAnim(singAnimations(note.noteData) + "miss");
 			bf.holdTimer = 0.0;
 		}
 
@@ -1448,14 +1445,14 @@ class Gameplay extends State
 			{
 				if (Gameplay.stillCharacters)
 				{
-					c.playAnim(singAnimations[sustain.noteData]);
+					c.playAnim(singAnimations(sustain.noteData));
 				}
 				else
 				{
 					// This shit is similar to amazing engine's character hold fix, but better
 
-					if (c.animation.curAnim.name == missAnimations[sustain.noteData])
-						c.playAnim(singAnimations[sustain.noteData]);
+					if (c.animation.curAnim.name == missAnimations(sustain.noteData) + "miss")
+						c.playAnim(singAnimations(sustain.noteData]);
 
 					if (c.animation.curAnim.curFrame > (c.stillCharacterFrame == -1 ? c.animation.curAnim.frames.length : c.stillCharacterFrame))
 						c.animation.curAnim.curFrame = (c.stillCharacterFrame == -1 ? c.animation.curAnim.frames.length - 2 : c.stillCharacterFrame - 1);
@@ -1470,6 +1467,12 @@ class Gameplay extends State
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts(HScriptFunctions.NOTE_HOLD_POST, sustain);
 		#end
+	}
+
+	public dynamic function singAnimations(data:Int):String
+	{
+		return data == 0 ? "singLEFT" : data == 1 ? "singDOWN" :
+			data == 2 ? "singUP" : "singRIGHT";
 	}
 
 	public var paused:Bool = false;
