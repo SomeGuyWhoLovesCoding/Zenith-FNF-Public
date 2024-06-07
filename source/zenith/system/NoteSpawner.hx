@@ -14,7 +14,7 @@ class NoteSpawner extends FlxBasic
 	{
 		super();
 
-		members = [];
+		members = new Array<Note>();
 
 		hittable = new Map<StrumNote, Note>();
 
@@ -194,5 +194,5 @@ class NoteSpawner extends FlxBasic
 		return null;
 	}
 
-	var pool(default, null):List<Note>; // Rewritten recycler
+	var pool(default, null):Array<Note>; // Rewritten recycler
 }
