@@ -186,19 +186,6 @@ class Gameplay extends State
 
 	override function create():Void
 	{
-		// Fix a bug where hscript calls don't initialize before generating the song, so instead it was after generating the song.
-		if (!Main.ENABLE_MULTITHREADING)
-		{
-			#if SCRIPTING_ALLOWED
-			Main.hscript.loadScriptsFromDirectory('assets/scripts');
-	
-			for (script in Main.hscript.list.keys())
-			{
-				Main.hscript.list[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
-			}
-			#end
-		}
-
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
 
 		instance = this;
@@ -1117,12 +1104,8 @@ class Gameplay extends State
 			addCameraZoom();
 
 			for (i in 0...SaveData.contents.controls.GAMEPLAY_BINDS.length)
-			{
 				for (j in 0...SaveData.contents.controls.GAMEPLAY_BINDS[i].length)
-				{
 					inputKeybinds.set(SaveData.contents.controls.GAMEPLAY_BINDS[i][j], strumlines.members[1].members[i]);
-				}
-			}
 
 			var swagCounter = 0;
 			_songPos = (-Main.conductor.crochet * 5.0);
@@ -1211,8 +1194,8 @@ class Gameplay extends State
 	// Camera functions
 
 	var _mp(default, null):FlxPoint;
-	var _cpx(default, null):Float = 0.0;
-	var _cpy(default, null):Float = 0.0;
+	var _cpx(default, null):Float;
+        var _cpy(default, null):Float;
 
 	private function moveCamera(whatCharacter:(Character)):Void
 	{
@@ -1367,14 +1350,14 @@ class Gameplay extends State
 
 		note.strum.playAnim(StrumNoteAnims.HIT);
 
-		health += (0.045 * FlxMath.maxInt(note.multiplier, 1)) * (note.strum.playable ? 1.0 : -1.0);
+		health += 0.045 * (note.strum.playable ? 1.0 : -1.0);
 
 		if (note.strum.playable)
 		{
-			score += 350.0 * FlxMath.maxInt(note.multiplier, 1);
+			score += 350.0;
 			accuracy_left += ((note.strumTime - Main.conductor.songPosition < 0.0 ? -(note.strumTime - Main.conductor.songPosition) :
-				note.strumTime - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0) * FlxMath.maxInt(note.multiplier, 1);
-			accuracy_right += FlxMath.maxInt(note.multiplier, 1);
+				note.strumTime - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0);
+			accuracy_right++;
 		}
 
 		if (!noCharacters)
@@ -1408,10 +1391,10 @@ class Gameplay extends State
 		note.state = MISS;
 		note.alpha = 0.6;
 
-		health -= 0.045 * FlxMath.maxInt(note.multiplier, 1);
-		score -= 100.0 * FlxMath.maxInt(note.multiplier, 1);
-		misses += FlxMath.maxInt(note.multiplier, 1);
-		accuracy_right += FlxMath.maxInt(note.multiplier, 1);
+		health -= 0.045;
+		score -= 100.0;
+		misses++;
+		accuracy_right++;
 
 		if (!noCharacters)
 		{
