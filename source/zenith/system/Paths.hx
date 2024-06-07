@@ -22,6 +22,8 @@ class Paths
 
 	public static var strumNoteAtlas:FlxAtlasFrames;
 
+	public static var idleNote:Note = null;
+
 	// Do this to be able to just copy over the note animations and not reallocate it
 	public static function initNoteShit():Void
 	{
@@ -36,6 +38,8 @@ class Paths
 
 		regularNoteFrame = noteAnimationHolder.frames.frames[0];
 		sustainNoteFrame = noteAnimationHolder.frames.frames[1];
+
+		idleNote = new Note();
 	}
 
 	inline public static function font(key:String, ext:String = "ttf"):String
