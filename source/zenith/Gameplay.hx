@@ -1429,7 +1429,7 @@ class Gameplay extends State
 					// This shit is similar to amazing engine's character hold fix, but better
 
 					if (sustain.animation.curAnim.name == singAnimations(sustain.noteData) + "miss")
-						sustain.targetCharacter.playAnim(singAnimations(sustain.noteData]);
+						sustain.targetCharacter.playAnim(singAnimations(sustain.noteData));
 
 					if (sustain.animation.curAnim.curFrame > (sustain.targetCharacter.stillCharacterFrame == -1 ?
 						sustain.targetCharacter.animation.curAnim.frames.length : sustain.targetCharacter stillCharacterFrame))
