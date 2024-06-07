@@ -1362,12 +1362,10 @@ class Gameplay extends State
 
 		if (!noCharacters)
 		{
-			var c = note.strum.playable ? bf : note.gfNote ? gf : dad;
-
-			if (null != c)
+			if (null != note.targetCharacter)
 			{
-				c.playAnim(singAnimations(note.noteData));
-				c.holdTimer = 0.0;
+				note.targetCharacter.playAnim(singAnimations(note.noteData));
+				note.targetCharacter.holdTimer = 0.0;
 			}
 		}
 
@@ -1398,8 +1396,8 @@ class Gameplay extends State
 
 		if (!noCharacters)
 		{
-			bf.playAnim(singAnimations(note.noteData) + "miss");
-			bf.holdTimer = 0.0;
+			note.targetCharacter.playAnim(singAnimations(note.noteData) + "miss");
+			note.targetCharacter.holdTimer = 0.0;
 		}
 
 		if (hudGroup != null)
@@ -1416,29 +1414,27 @@ class Gameplay extends State
 		Main.hscript.callFromAllScripts(HScriptFunctions.NOTE_HOLD, sustain);
 		#end
 
-		sustain.strum.playAnim(StrumNoteAnims.HIT);
+		sustain.strum.playAnim("confirm");
 
 		health += FlxG.elapsed * (sustain.strum.playable ? 0.125 : -0.125);
 
 		if (!noCharacters)
 		{
-			var c = (sustain.strum.playable ? bf : (sustain.gfNote ? gf : dad));
-
-			if (null != c)
+			if (null != sustain.targetCharacter)
 			{
 				if (Gameplay.stillCharacters)
-				{
-					c.playAnim(singAnimations(sustain.noteData));
-				}
+					sustain.targetCharacter.playAnim(singAnimations(sustain.noteData));
 				else
 				{
 					// This shit is similar to amazing engine's character hold fix, but better
 
-					if (c.animation.curAnim.name == singAnimations(sustain.noteData) + "miss")
-						c.playAnim(singAnimations(sustain.noteData]);
+					if (sustain.animation.curAnim.name == singAnimations(sustain.noteData) + "miss")
+						sustain.targetCharacter.playAnim(singAnimations(sustain.noteData]);
 
-					if (c.animation.curAnim.curFrame > (c.stillCharacterFrame == -1 ? c.animation.curAnim.frames.length : c.stillCharacterFrame))
-						c.animation.curAnim.curFrame = (c.stillCharacterFrame == -1 ? c.animation.curAnim.frames.length - 2 : c.stillCharacterFrame - 1);
+					if (sustain.animation.curAnim.curFrame > (sustain.targetCharacter.stillCharacterFrame == -1 ?
+						sustain.targetCharacter.animation.curAnim.frames.length : sustain.targetCharacter stillCharacterFrame))
+						sustain.targetCharacter.animation.curAnim.curFrame = (sustain.targetCharacter.stillCharacterFrame == -1 ?
+						sustain.targetCharacter.animation.curAnim.frames.length - 2 : sustain.targetCharacter.stillCharacterFrame - 1);
 				}
 
 				c.holdTimer = 0.0;
