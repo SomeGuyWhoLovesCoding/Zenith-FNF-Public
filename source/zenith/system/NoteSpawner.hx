@@ -56,7 +56,7 @@ class NoteSpawner extends FlxBasic
 		_n.noteData = Std.int(chartNoteData[1]);
 		_n.sustainLength = Std.int(chartNoteData[2]) - 32;
 		_n.lane = Std.int(chartNoteData[3]) % Gameplay.strumlineCount;
-		_n.multiplier = Std.int(chartNoteData[4]);
+		_n.targetCharacter = _n.lane == 0 ? Gameplay.instance.dad : Gameplay.instance.bf;
 
 		_nk = Gameplay.instance.strumlines.members[_n.lane].keys;
 		_n.noteData = _n.noteData % _nk;
