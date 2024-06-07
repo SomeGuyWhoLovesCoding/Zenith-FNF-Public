@@ -10,6 +10,8 @@ class NoteBase extends StaticSprite
 
 	public var strum:StrumNote;
 
+	public var targetCharacter:Character;
+
 	public var distance:Float = 0.0;
 
 	public var offsetX:Int = 0;
