@@ -57,6 +57,7 @@ class SustainNoteSpawner extends FlxBasic
 		_s.noteData = Std.int(chartSustainData[1]);
 		_s.length = chartSustainData[2] - 32.0 % Gameplay.strumlineCount;
 		_s.lane = Std.int(chartSustainData[3]);
+		_s.targetCharacter = _s.lane == 0 ? Gameplay.instance.dad : Gameplay.instance.bf;
 
 		_sk = Gameplay.instance.strumlines.members[_s.lane].keys;
 		_s.noteData = _s.noteData % _sk;
