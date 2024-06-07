@@ -14,7 +14,7 @@ class SustainNoteSpawner extends FlxBasic
 	{
 		super();
 
-		members = [];
+		members = new Array<SustainNote>();
 
 		missable = new Map<StrumNote, SustainNote>();
 
