@@ -19,7 +19,7 @@ class SustainNoteSpawner extends FlxBasic
 		missable = new Map<StrumNote, SustainNote>();
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
-			pool = new List<SustainNote>();
+			pool = new Array<SustainNote>();
 
 		active = false;
 	}
@@ -112,7 +112,7 @@ class SustainNoteSpawner extends FlxBasic
 				{
 					s.exists = false;
 					if (SaveData.contents.experimental.fastNoteSpawning)
-						pool.add(s);
+						pool.push(s);
 					continue;
 				}
 
@@ -122,7 +122,7 @@ class SustainNoteSpawner extends FlxBasic
 					if (s.strum.playable)
 					{
 						if (Main.conductor.songPosition > s.strumTime - 166.7 &&
-							(!missable.exists(s.strum) || missable[s.strum].strumTime > s.strumTime || missable[s.strum].state != IDLE))
+							(missable[s.strum] == Paths.idleSustain || missable[s.strum].strumTime > s.strumTime || missable[s.strum].state != IDLE))
 						{
 							missable[s.strum] = s;
 						}
@@ -135,7 +135,7 @@ class SustainNoteSpawner extends FlxBasic
 				}
 				else
 				{
-					missable.remove(s.strum);
+					missable[s.strum] = Paths.idleSustain;
 				}
 			}
 		}
@@ -162,7 +162,7 @@ class SustainNoteSpawner extends FlxBasic
 
 	public function handleRelease(strum:StrumNote):Void
 	{
-		if (strum != null && strum.playable && missable.exists(strum) &&
+		if (strum != null && strum.playable && missable[strum] != Paths.idleSustain &&
 			Main.conductor.songPosition > missable[strum].strumTime && missable[strum].state != MISS)
 		{
 			missable[strum].state = MISS;
@@ -194,5 +194,5 @@ class SustainNoteSpawner extends FlxBasic
 		return null;
 	}
 
-	var pool(default, null):List<SustainNote>;
+	var pool(default, null):Array<SustainNote>;
 }
