@@ -10,6 +10,20 @@ class State extends FlxState
 {
 	static public var crashHandler:Bool = false;
 
+	public function new():Void
+	{
+		#if SCRIPTING_ALLOWED
+		Main.hscript.loadScriptsFromDirectory('assets/scripts');
+
+		for (script in Main.hscript.list.keys())
+		{
+			Main.hscript.list[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
+		}
+		#end
+
+		super();
+	}
+
 	override function create():Void
 	{
 		Main.startTransition(false, null);
@@ -24,14 +38,7 @@ class State extends FlxState
 			if (!SaveData.contents.graphics.persistentGraphics)
 				openfl.system.System.gc();
 
-			#if SCRIPTING_ALLOWED
-			Main.hscript.loadScriptsFromDirectory('assets/scripts');
-
-			for (script in Main.hscript.list.keys())
-			{
-				Main.hscript.list[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
-			}
-
+			#if SCRIPTING_ALLOWED 
 			Main.hscript.callFromAllScripts(HScriptFunctions.CREATE);
 			#end
 
