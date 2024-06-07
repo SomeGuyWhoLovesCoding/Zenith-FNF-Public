@@ -39,6 +39,8 @@ class Paths
 
 		regularNoteFrame = noteAnimationHolder.frames.frames[0];
 		sustainNoteFrame = noteAnimationHolder.frames.frames[1];
+
+		idleNote.state = idleSustain.state = HIT;
 	}
 
 	inline public static function font(key:String, ext:String = "ttf"):String
