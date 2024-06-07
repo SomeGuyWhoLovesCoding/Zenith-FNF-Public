@@ -145,7 +145,7 @@ class Character extends FlxSprite
 			}
 		}
 		else
-			quickAnimAdd(CharacterAnims.IDLE, 'BF idle dance');
+			quickAnimAdd("idle", 'BF idle dance');
 
 		originalFlipX = flipX;
 
@@ -168,14 +168,7 @@ class Character extends FlxSprite
 	inline public function playAnim(AnimName:String, special:Bool = false):Void
 	{
 		specialAnim = special;
-
-		#if HXCPP_CHECK_POINTER
 		animation.play(AnimName, true);
-		#else
-		animation.curAnim = animation._animations[AnimName];
-		animation.curAnim._frameTimer = animation.curAnim.curFrame = 0;
-		animation.curAnim.finished = animation.curAnim.paused = false;
-		#end
 
 		daOffsets = animOffsets[AnimName];
 
@@ -189,27 +182,24 @@ class Character extends FlxSprite
 
 		if (namedWithGf)
 		{
-			if (AnimName == CharacterAnims.L)
+			if (AnimName == "singLEFT")
 				danced = true;
-			else if (AnimName == CharacterAnims.R)
+			else if (AnimName == "singRIGHT")
 				danced = false;
 
-			if (AnimName == CharacterAnims.U || AnimName == CharacterAnims.D)
+			if (AnimName == "singUP" || AnimName == "singDOWN")
 				danced = !danced;
 		}
 	}
 
 	public function dance():Void
 	{
-		if (danceIdle && (!debugMode && !skipDance && !specialAnim))
-		{
-			danced = !danced;
-			playAnim((danced ? CharacterAnims.DL : CharacterAnims.DR) + idleSuffix);
+		if (danceIdle && (!d);
 		}
 		else
 		{
-			if (animation.getByName(CharacterAnims.IDLE + idleSuffix) != null)
-				playAnim(CharacterAnims.IDLE + idleSuffix);
+			if (animation.getByName("idle" + idleSuffix) != null)
+				playAnim("idle" + idleSuffix);
 		}
 	}
 
@@ -235,7 +225,7 @@ class Character extends FlxSprite
 			}
 
 			// Hey timer stuff
-			if (animation.curAnim.name.startsWith(CharacterAnims.H))
+			if (animation.curAnim.name.startsWith("hey"))
 			{
 				if (heyTimer > 0.0)
 				{
@@ -267,7 +257,7 @@ class Character extends FlxSprite
 	private var settingCharacterUp:Bool = true;
 	public function recalculateDanceIdle() {
 		var lastDanceIdle:Bool = danceIdle;
-		danceIdle = (animation.getByName(CharacterAnims.DL + idleSuffix) != null && animation.getByName(CharacterAnims.DR + idleSuffix) != null);
+		danceIdle = (animation.getByName("danceLeft" + idleSuffix) != null && animation.getByName("danceRight" + idleSuffix) != null);
 
 		if(settingCharacterUp)
 		{
