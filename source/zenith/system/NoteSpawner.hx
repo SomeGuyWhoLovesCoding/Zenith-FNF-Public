@@ -19,7 +19,7 @@ class NoteSpawner extends FlxBasic
 		hittable = new Map<StrumNote, Note>();
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
-			pool = new List<Note>();
+			pool = new Array<Note>();
 
 		active = false;
 	}
@@ -114,10 +114,10 @@ class NoteSpawner extends FlxBasic
 
 				if (Main.conductor.songPosition > n.strumTime + (750.0 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
 				{
-					hittable.remove(n.strum);
+					hittable[n.strum] = Paths.idleNote;
 					n.exists = false;
 					if (SaveData.contents.experimental.fastNoteSpawning)
-						pool.add(n);
+						pool.push(n);
 					continue;
 				}
 
@@ -133,7 +133,7 @@ class NoteSpawner extends FlxBasic
 
 						// Took forever to fully polish here ofc
 						// 
-						if ((!hittable.exists(n.strum) || hittable[n.strum].strumTime > n.strumTime || hittable[n.strum].state != IDLE) &&
+						if ((hittable[n.strum] == Paths.idleNote || hittable[n.strum].strumTime > n.strumTime || hittable[n.strum].state != IDLE) &&
 							Main.conductor.songPosition > n.strumTime - 166.7)
 						{
 							hittable[n.strum] = n;
@@ -146,7 +146,7 @@ class NoteSpawner extends FlxBasic
 					{
 						Gameplay.instance.onNoteHit(n);
 						if (SaveData.contents.experimental.fastNoteSpawning)
-							pool.add(n);
+							pool.push(n);
 					}
 				}
 			}
@@ -181,8 +181,8 @@ class NoteSpawner extends FlxBasic
 			hittable[strum].state = HIT;
 			Gameplay.instance.onNoteHit(hittable[strum]);
 			if (SaveData.contents.experimental.fastNoteSpawning)
-				pool.add(hittable[strum]);
-			hittable.remove(strum);
+				pool.push(hittable[strum]);
+			hittable[strum] = Paths.idleNote;
 		}
 	}
 
