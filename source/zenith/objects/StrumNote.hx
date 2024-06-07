@@ -20,12 +20,6 @@ class StrumNote extends FlxSprite
 
 	public var parent:Strumline;
 
-	// Easter egg moment
-
-	public var PRESS_ANIM:FlxAnimation;
-	public var CONFIRM_ANIM:FlxAnimation;
-	public var STATIC_ANIM:FlxAnimation;
-
 	public function new(data:Int, plr:Int)
 	{
 		super();
@@ -36,9 +30,9 @@ class StrumNote extends FlxSprite
 		frames = Paths.strumNoteAtlas;
 		animation.copyFrom(Paths.strumNoteAnimationHolder.animation);
 
-		PRESS_ANIM = animation._animations[StrumNoteAnims.PRESS];
-		CONFIRM_ANIM = animation._animations[StrumNoteAnims.HIT];
-		STATIC_ANIM = animation._animations[StrumNoteAnims.IDLE];
+		PRESS_ANIM = animation._animations["pressed"];
+		CONFIRM_ANIM = animation._animations["confirm"];
+		STATIC_ANIM = animation._animations["static"];
 
 		pixelPerfectPosition = false;
 
@@ -46,7 +40,7 @@ class StrumNote extends FlxSprite
 
 		scale.x = scale.y = 0.7;
 
-		playAnim(StrumNoteAnims.IDLE); // Wow, am I really a dumbass?
+		playAnim("static");
 	}
 
 	override function update(elapsed:Float):Void
@@ -56,25 +50,10 @@ class StrumNote extends FlxSprite
 
 	inline public function playAnim(anim:String):Void
 	{
-		active = anim != StrumNoteAnims.IDLE;
+		active = anim != "static";
 		color = !active ? 0xffffffff : NoteBase.colorArray[noteData];
 
-		// I swear to fucking god :sob:
-		#if HXCPP_CHECK_POINTER
 		animation.play(anim, true);
-		#else
-		if (anim == StrumNoteAnims.PRESS)
-			animation.curAnim = PRESS_ANIM;
-
-		if (anim == StrumNoteAnims.HIT)
-			animation.curAnim = CONFIRM_ANIM;
-
-		if (anim == StrumNoteAnims.IDLE)
-			animation.curAnim = STATIC_ANIM;
-
-		animation.curAnim._frameTimer = animation.curAnim.curFrame = 0;
-		animation.curAnim.finished = animation.curAnim.paused = false;
-		#end
 
 		width = (scale.x < 0.0 ? -scale.x : scale.x) * frameWidth;
 		height = (scale.y < 0.0 ? -scale.y : scale.y) * frameHeight;
@@ -96,16 +75,10 @@ class StrumNote extends FlxSprite
 
 	function finishCallbackFunc(anim:String):Void
 	{
-		if (anim != StrumNoteAnims.HIT || (playable && !Gameplay.cpuControlled))
+		if (anim != "confirm" || (playable && !Gameplay.cpuControlled))
 			return;
 
-		#if HXCPP_CHECK_POINTER
-		animation.play(StrumNoteAnims.IDLE, true);
-		#else
-		animation.curAnim = STATIC_ANIM;
-		animation.curAnim._frameTimer = animation.curAnim.curFrame = 0;
-		animation.curAnim.finished = animation.curAnim.paused = false;
-		#end
+		animation.play("static", true);
 
 		active = false;
 		color = 0xffffffff;
@@ -121,6 +94,6 @@ class StrumNote extends FlxSprite
 	// This replaces Gameplay.hx's holdArray btw
 	inline public function isIdle():Bool
 	{
-		return animation.curAnim == STATIC_ANIM;
+		return animation.curAnim.name == "static";
 	}
 }
