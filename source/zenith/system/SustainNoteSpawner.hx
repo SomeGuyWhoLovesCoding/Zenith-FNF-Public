@@ -4,22 +4,23 @@ import flixel.math.FlxMath;
 import flixel.math.FlxAngle;
 
 @:access(zenith.Gameplay)
+@:access(Stack)
 
 class SustainNoteSpawner extends FlxBasic
 {
-	var members(default, null):Array<SustainNote>;
+	var members(default, null):Stack<SustainNote>;
 	var missable(default, null):Map<StrumNote, SustainNote>;
 
 	public function new():Void
 	{
 		super();
 
-		members = new Array<SustainNote>();
+		members = new Stack<SustainNote>();
 
 		missable = new Map<StrumNote, SustainNote>();
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
-			pool = new Array<SustainNote>();
+			pool = new Stack<SustainNote>(5000);
 
 		active = false;
 	}
@@ -90,7 +91,7 @@ class SustainNoteSpawner extends FlxBasic
 	{
 		for (i in 0...members.length)
 		{
-			s = members[i];
+			s = members.__items[i];
 
 			if (s.exists)
 			{
@@ -195,5 +196,5 @@ class SustainNoteSpawner extends FlxBasic
 		return null;
 	}
 
-	var pool(default, null):Array<SustainNote>;
+	var pool(default, null):Stack<SustainNote>;
 }
