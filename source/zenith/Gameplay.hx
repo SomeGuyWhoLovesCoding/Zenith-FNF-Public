@@ -136,7 +136,7 @@ class Gameplay extends State
 		Main.hscript.callFromAllScripts('onKeyDown', keyCode, keyModifier);
 		#end
 
-		if (inputKeybinds[keyCode] != null && generatedMusic && !cpuControlled)
+		if (inline inputKeybinds.exists(keyCode) && generatedMusic && !cpuControlled)
 		{
 			st = inputKeybinds[keyCode];
 
@@ -160,7 +160,7 @@ class Gameplay extends State
 		Main.hscript.callFromAllScripts('onKeyUp', keyCode, keyModifier);
 		#end
 
-		if (inputKeybinds[keyCode] != null && generatedMusic && !cpuControlled)
+		if (inline inputKeybinds.exists(keyCode) && generatedMusic && !cpuControlled)
 		{
 			st = inputKeybinds[keyCode];
 

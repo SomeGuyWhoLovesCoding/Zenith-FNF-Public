@@ -40,6 +40,7 @@ class Paths
 		regularNoteFrame = noteAnimationHolder.frames.frames[0];
 		sustainNoteFrame = noteAnimationHolder.frames.frames[1];
 
+		idleNote.state = idleSustain.state = HIT;
 		idleNote.visible = idleSustain.visible = false;
 	}
 
