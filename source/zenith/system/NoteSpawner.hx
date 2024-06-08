@@ -77,9 +77,7 @@ class NoteSpawner extends FlxBasic
 
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('newNote', _n);
-		#end
 
-		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('setupNoteDataPost', _n, chartNoteData);
 		#end
 
