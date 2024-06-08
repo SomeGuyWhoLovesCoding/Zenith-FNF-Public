@@ -194,7 +194,10 @@ class Character extends FlxSprite
 
 	public function dance():Void
 	{
-		if (danceIdle && (!d);
+		if (danceIdle && (!debugMode && !skipDance && !specialAnim))
+		{
+			danced = !danced;
+			playAnim((danced ? "danceLeft" : "danceRight") + idleSuffix);
 		}
 		else
 		{

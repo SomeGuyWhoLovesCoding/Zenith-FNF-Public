@@ -178,7 +178,7 @@ class SustainNoteSpawner extends FlxBasic
 
 			if (!Gameplay.noCharacters)
 			{
-				Gameplay.instance.bf.playAnim(Gameplay.missAnimations[missable[strum].noteData]);
+				Gameplay.instance.bf.playAnim(Gameplay.instance.singAnimations(missable[strum].noteData));
 				Gameplay.instance.bf.holdTimer = 0.0;
 			}
 
@@ -190,9 +190,9 @@ class SustainNoteSpawner extends FlxBasic
 
 	function recycle():SustainNote
 	{
-		for (sustain in members)
-			if (!sustain.exists)
-				return sustain;
+		for (i in 0...members.length)
+			if (!members.__items[i].exists)
+				return members.__items[i];
 		return null;
 	}
 

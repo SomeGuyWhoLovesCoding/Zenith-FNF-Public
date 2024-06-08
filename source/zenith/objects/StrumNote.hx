@@ -30,10 +30,6 @@ class StrumNote extends FlxSprite
 		frames = Paths.strumNoteAtlas;
 		animation.copyFrom(Paths.strumNoteAnimationHolder.animation);
 
-		PRESS_ANIM = animation._animations["pressed"];
-		CONFIRM_ANIM = animation._animations["confirm"];
-		STATIC_ANIM = animation._animations["static"];
-
 		pixelPerfectPosition = false;
 
 		angle = NoteBase.angleArray[noteData];

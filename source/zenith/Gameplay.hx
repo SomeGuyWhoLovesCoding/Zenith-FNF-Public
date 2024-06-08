@@ -1428,14 +1428,16 @@ class Gameplay extends State
 				{
 					// This shit is similar to amazing engine's character hold fix, but better
 
-					if (sustain.animation.curAnim.name == singAnimations(sustain.noteData) + "miss")
+					if (sustain.targetCharacter.animation.curAnim.name == singAnimations(sustain.noteData) + "miss")
 						sustain.targetCharacter.playAnim(singAnimations(sustain.noteData));
 
-					if (sustain.animation.curAnim.curFrame > (sustain.targetCharacter.stillCharacterFrame == -1 ? sustain.targetCharacter.animation.curAnim.frames.length : sustain.targetCharacter stillCharacterFrame))
-						sustain.targetCharacter.animation.curAnim.curFrame = (sustain.targetCharacter.stillCharacterFrame == -1 ? sustain.targetCharacter.animation.curAnim.frames.length - 2 : sustain.targetCharacter.stillCharacterFrame - 1);
+					if (sustain.targetCharacter.animation.curAnim.curFrame > (sustain.targetCharacter.stillCharacterFrame == -1 ?
+						sustain.targetCharacter.animation.curAnim.frames.length : sustain.targetCharacter.stillCharacterFrame))
+						sustain.targetCharacter.animation.curAnim.curFrame = (sustain.targetCharacter.stillCharacterFrame == -1 ?
+						sustain.targetCharacter.animation.curAnim.frames.length - 2 : sustain.targetCharacter.stillCharacterFrame - 1);
 				}
 
-				c.holdTimer = 0.0;
+				sustain.targetCharacter.holdTimer = 0.0;
 			}
 		}
 
