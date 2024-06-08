@@ -4,22 +4,25 @@ import flixel.math.FlxMath;
 import flixel.math.FlxAngle;
 
 @:access(zenith.Gameplay)
+@:access(Stack)
 
 class NoteSpawner extends FlxBasic
 {
-	var members(default, null):Array<Note>; // Members
+	var members(default, null):Stack<Note>; // Members
 	var hittable(default, null):Map<StrumNote, Note>; // Hittable
+
+	var preallocationCount:Int = 0;
 
 	public function new():Void
 	{
 		super();
 
-		members = new Array<Note>();
+		members = new Stack<Note>(preallocationCount);
 
 		hittable = new Map<StrumNote, Note>();
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
-			pool = new Array<Note>();
+			pool = new Stack<Note>(1000000);
 
 		active = false;
 	}
@@ -94,7 +97,7 @@ class NoteSpawner extends FlxBasic
 	{
 		for (i in 0...members.length)
 		{
-			n = members[i];
+			n = members.__items[i];
 
 			if (n.exists)
 			{
@@ -160,14 +163,14 @@ class NoteSpawner extends FlxBasic
 			members.pop().destroy();
 		}
 
-		members = null;
+		members.clear(true);
 
 		while (pool.length != 0)
 		{
 			pool.pop().destroy();
 		}
 
-		pool = null;
+		poolc.clear(true);
 	}
 
 	var _nk(default, null):Int = 0;
@@ -194,5 +197,5 @@ class NoteSpawner extends FlxBasic
 		return null;
 	}
 
-	var pool(default, null):Array<Note>; // Rewritten recycler
+	var pool(default, null):Stack<Note>; // Rewritten recycler
 }
