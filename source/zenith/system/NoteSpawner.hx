@@ -9,7 +9,7 @@ import flixel.math.FlxAngle;
 class NoteSpawner extends FlxBasic
 {
 	var members(default, null):Stack<Note>; // Members
-	var hittable(default, null):Map<StrumNote, Note>; // Hittable
+	var hittable(default, null):Stack<Note>; // Hittable
 
 	var preallocationCount:Int = 0;
 
@@ -19,7 +19,7 @@ class NoteSpawner extends FlxBasic
 
 		members = new Stack<Note>(preallocationCount);
 
-		hittable = new Map<StrumNote, Note>();
+		hittable = new Stack<Note>(16);
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
 			pool = new Stack<Note>(1000000);
@@ -117,7 +117,7 @@ class NoteSpawner extends FlxBasic
 
 				if (Main.conductor.songPosition > n.strumTime + (750.0 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
 				{
-					hittable[n.strum] = Paths.idleNote;
+					hittable.__items[n.strum.index] = Paths.idleNote;
 					n.exists = false;
 					if (SaveData.contents.experimental.fastNoteSpawning)
 						pool.push(n);
@@ -136,10 +136,12 @@ class NoteSpawner extends FlxBasic
 
 						// Took forever to fully polish here ofc
 						// 
-						if ((hittable[n.strum] == Paths.idleNote || hittable[n.strum].strumTime > n.strumTime || hittable[n.strum].state != IDLE) &&
+						if ((hittable.__items[n.strum.index] == Paths.idleNote ||
+						     hittable.__items[n.strum.index].strumTime > n.strumTime ||
+						     hittable.__items[n.strum.index].state != IDLE) &&
 							Main.conductor.songPosition > n.strumTime - 166.7)
 						{
-							hittable[n.strum] = n;
+							hittable.__items[n.strum.index] = n;
 						}
 					}
 				}
@@ -178,14 +180,14 @@ class NoteSpawner extends FlxBasic
 	inline public function handleHittableNote(strum:StrumNote):Void
 	{
 		// The middle checks are pretty weird but it does fix a couple bugs
-		if (strum != null && strum.playable && hittable[strum].state == IDLE &&
-			Main.conductor.songPosition > hittable[strum].strumTime - (166.7 * Gameplay.instance.songSpeed))
+		if (strum != null && strum.playable && hittable.__items[strum.index].state == IDLE &&
+			Main.conductor.songPosition > hittable.__items[strum.index].strumTime - (166.7 * Gameplay.instance.songSpeed))
 		{
-			hittable[strum].state = HIT;
-			Gameplay.instance.onNoteHit(hittable[strum]);
+			hittable.__items[strum.index].state = HIT;
+			Gameplay.instance.onNoteHit(hittable.__items[strum.index]);
 			if (SaveData.contents.experimental.fastNoteSpawning)
-				pool.push(hittable[strum]);
-			hittable[strum] = Paths.idleNote;
+				pool.push(hittable.__items[strum.index]);
+			hittable.__items[strum.index] = Paths.idleNote;
 		}
 	}
 
