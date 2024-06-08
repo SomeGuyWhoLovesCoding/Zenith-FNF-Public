@@ -15,7 +15,7 @@ class SustainNoteSpawner extends FlxBasic
 	{
 		super();
 
-		members = new Stack<SustainNote>();
+		members = new Stack<SustainNote>(500);
 
 		missable = new Stack<SustainNote>(16);
 
