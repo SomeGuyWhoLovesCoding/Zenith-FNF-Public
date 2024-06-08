@@ -1431,8 +1431,7 @@ class Gameplay extends State
 					if (sustain.animation.curAnim.name == singAnimations(sustain.noteData) + "miss")
 						sustain.targetCharacter.playAnim(singAnimations(sustain.noteData));
 
-					if (sustain.animation.curAnim.curFrame > (sustain.targetCharacter.stillCharacterFrame == -1 ?
-						sustain.targetCharacter.animation.curAnim.frames.length : sustain.targetCharacter stillCharacterFrame))
+					if (sustain.animation.curAnim.curFrame > (sustain.targetCharacter.stillCharacterFrame == -1 ? sustain.targetCharacter.animation.curAnim.frames.length : sustain.targetCharacter stillCharacterFrame))
 						sustain.targetCharacter.animation.curAnim.curFrame = (sustain.targetCharacter.stillCharacterFrame == -1 ? sustain.targetCharacter.animation.curAnim.frames.length - 2 : sustain.targetCharacter.stillCharacterFrame - 1);
 				}
 
