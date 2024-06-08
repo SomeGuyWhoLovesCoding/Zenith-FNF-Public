@@ -20,6 +20,8 @@ class StrumNote extends FlxSprite
 
 	public var parent:Strumline;
 
+	public var index:Int = 0;
+
 	public function new(data:Int, plr:Int)
 	{
 		super();
