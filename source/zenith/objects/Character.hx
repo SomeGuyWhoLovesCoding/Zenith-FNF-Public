@@ -36,6 +36,9 @@ typedef AnimArray = {
 
 @:access(flixel.animation.FlxAnimationController)
 @:access(flixel.animation.FlxAnimation)
+
+@:final
+@:generic
 class Character extends FlxSprite
 {
 	override function set_clipRect(rect:FlxRect):FlxRect

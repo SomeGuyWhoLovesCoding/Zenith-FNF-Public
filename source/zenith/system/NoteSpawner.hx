@@ -107,8 +107,8 @@ class NoteSpawner extends FlxBasic
 				n.draw();
 
 				n.scale.set(n.strum.scale.x, n.strum.scale.y);
-				n.offset.x = -0.5 * ((n.frameWidth * 0.7) - n.frameWidth);
-				n.offset.y = -0.5 * ((n.frameHeight * 0.7) - n.frameHeight);
+				n.offset.x = -0.5 * (n.frameWidth - n.frameWidth);
+				n.offset.y = -0.5 * (n.frameHeight - n.frameHeight);
 				n.origin.x = n.frameWidth * 0.5;
 				n.origin.y = n.frameHeight * 0.5;
 

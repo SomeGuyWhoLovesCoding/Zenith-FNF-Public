@@ -6,6 +6,8 @@ package zenith.objects;
 @:access(zenith.objects.StrumNote)
 @:access(Stack)
 
+@:final
+@:generic
 class Strumline extends FlxBasic
 {
 	public var keys(default, set):Int;
@@ -134,7 +136,7 @@ class Strumline extends FlxBasic
 		this.lane = lane;
 		this.keys = keys;
 		gap = 112.0;
-		scale = 0.7;
+		scale = 1.0;
 		this.playable = playable;
 
 		// Default strumline positions
@@ -145,7 +147,7 @@ class Strumline extends FlxBasic
 	{
 		keys = 4;
 		gap = 112.0;
-		scale = 0.7;
+		scale = 1.0;
 
 		// Default strumline positions
 		x = (y = 60.0) + ((FlxG.width * 0.5587511111112) * lane);
@@ -219,7 +221,15 @@ class Strumline extends FlxBasic
 
 	public dynamic function singAnimations(data:Int):String
 	{
-		return data == 0 ? "singLEFT" : data == 1 ? "singDOWN" :
-			data == 2 ? "singUP" : "singRIGHT";
+		switch (data)
+		{
+			case 0:
+				return "singLEFT";
+			case 1:
+				return "singDOWN";
+			case 2:
+				return "singUP";
+		}
+		return "singRIGHT";
 	}
 }

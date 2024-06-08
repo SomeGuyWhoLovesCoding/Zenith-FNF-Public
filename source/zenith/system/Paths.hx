@@ -8,6 +8,10 @@ import openfl.media.Sound;
 
 using StringTools;
 
+@:access(flixel.FlxSprite)
+
+@:final
+@:generic
 class Paths
 {
 	inline static public var ASSET_PATH:String = "assets";
@@ -17,10 +21,9 @@ class Paths
 
 	static public var strumNoteAnimationHolder:FlxSprite = null;
 	static public var noteAnimationHolder:FlxSprite = null;
+	static public var sustainAnimationHolder:FlxSprite = null;
 	static public var regularNoteFrame:FlxFrame = null;
 	static public var sustainNoteFrame:FlxFrame = null;
-
-	static public var strumNoteAtlas:FlxAtlasFrames;
 
 	static public var idleNote:Note = new Note();
 	static public var idleSustain:SustainNote = new SustainNote();
@@ -30,16 +33,16 @@ class Paths
 	static public function initNoteShit():Void
 	{
 		strumNoteAnimationHolder = new FlxSprite();
-		strumNoteAnimationHolder.frames = strumNoteAtlas = getSparrowAtlas('noteskins/Regular/Strums');
+		strumNoteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular/Strums');
 		strumNoteAnimationHolder.animation.addByPrefix('static', 'static', 0, false);
 		strumNoteAnimationHolder.animation.addByPrefix('pressed', 'press', 12, false);
 		strumNoteAnimationHolder.animation.addByPrefix('confirm', 'confirm', 24, false);
 
-		noteAnimationHolder = new FlxSprite();
-		noteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular/Notes');
+		noteAnimationHolder = new FlxSprite().loadGraphic(image('noteskins/Regular/Note'));
+		sustainAnimationHolder = new FlxSprite().loadGraphic(image('noteskins/Regular/Sustain'));
 
-		regularNoteFrame = noteAnimationHolder.frames.frames[0];
-		sustainNoteFrame = noteAnimationHolder.frames.frames[1];
+		regularNoteFrame = noteAnimationHolder._frame;
+		sustainNoteFrame = sustainAnimationHolder._frame;
 
 		idleNote.state = idleSustain.state = MISS;
 		idleNote.strum = idleSustain.strum = idleStrumNote;

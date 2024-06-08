@@ -1,5 +1,6 @@
 package zenith.objects;
 
+@:generic
 class NoteBase extends StaticSprite
 {
 	public var strumTime:Float = 0.0;

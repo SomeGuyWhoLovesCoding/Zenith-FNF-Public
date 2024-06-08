@@ -7,6 +7,8 @@ import flixel.math.FlxMath;
 
 @:access(zenith.Gameplay)
 
+@:final
+@:generic
 class HUDGroup extends FlxSpriteGroup
 {
 	public var oppIcon:HealthIcon;

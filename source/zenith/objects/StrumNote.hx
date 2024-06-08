@@ -5,6 +5,9 @@ import flixel.animation.FlxAnimation;
 
 @:access(flixel.animation.FlxAnimationController)
 @:access(flixel.animation.FlxAnimation)
+
+@:final
+@:generic
 class StrumNote extends FlxSprite
 {
 	public var noteData:Int = 0;
@@ -32,7 +35,7 @@ class StrumNote extends FlxSprite
 
 	inline private function init():Void
 	{
-		frames = Paths.strumNoteAtlas;
+		frames = Paths.strumNoteAnimationHolder.frames;
 		animation.copyFrom(Paths.strumNoteAnimationHolder.animation);
 		angle = NoteBase.angleArray[noteData];
 		playAnim("static");

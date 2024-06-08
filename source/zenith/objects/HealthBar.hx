@@ -50,7 +50,9 @@ class HealthBar extends FlxSpriteGroup
 		__left.pixelPerfectPosition = __right.pixelPerfectPosition = false;
 	}
 
-	override public function update(elapsed:Float):Void
+	override public function update(elapsed:Float):Void {}
+
+	override public function draw():Void
 	{
 		v = FlxMath.bound(value / maxValue, 0.0, 1.0);
 
@@ -60,10 +62,7 @@ class HealthBar extends FlxSpriteGroup
 		__right.scale.x = v;
 		__right.updateHitbox();
 		__right.x = __left.width + 340.0;
-	}
 
-	override public function draw():Void
-	{
 		__left.draw();
 		__right.draw();
 	}

@@ -27,6 +27,7 @@ typedef TransitioningInfo =
 @:access(zenith.Gameplay)
 @:access(flixel.FlxGame)
 
+@:generic
 class Main extends Sprite
 {
 	static public var conductor:Conductor;

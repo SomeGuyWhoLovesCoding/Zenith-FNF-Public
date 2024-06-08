@@ -29,6 +29,7 @@ using flixel.util.FlxColorTransformUtil;
 
 // Just a FlxSprite copy without animation and clipRect support.
 
+@:generic
 class StaticSprite extends FlxBasic
 {
 
