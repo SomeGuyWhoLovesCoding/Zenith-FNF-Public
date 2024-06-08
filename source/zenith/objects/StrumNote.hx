@@ -28,16 +28,13 @@ class StrumNote extends FlxSprite
 
 		noteData = data;
 		player = plr;
+	}
 
+	inline private function init():Void
+	{
 		frames = Paths.strumNoteAtlas;
 		animation.copyFrom(Paths.strumNoteAnimationHolder.animation);
-
-		pixelPerfectPosition = false;
-
 		angle = NoteBase.angleArray[noteData];
-
-		scale.x = scale.y = 0.7;
-
 		playAnim("static");
 	}
 

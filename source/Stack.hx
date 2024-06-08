@@ -36,12 +36,17 @@ class Stack<T>
 	*
 	* @param length Optional. The initial size of the internal array used to store elements.
 	*/
-	public function new(?length:Int)
+	public function new(?length:Int, ?objectFactory:T)
 	{
 		__items = new Array();
 		if (length != null)
 		{
-			__items.resize(length);
+			if (objectFactory == null)
+				__items.resize(length);
+			for (i in 0...length)
+			{
+				__items.push(objectFactory);
+			}
 		}
 
 		__top = 0;

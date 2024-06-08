@@ -78,7 +78,7 @@ class HUDGroup extends FlxSpriteGroup
 		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
 	}
 
-	override public function update(elapsed:Float):Void
+	override public function draw():Void
 	{
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
@@ -94,12 +94,42 @@ class HUDGroup extends FlxSpriteGroup
 		if (Gameplay.instance.startedCountdown)
 		{
 			if (timeTxt.alpha != 1.0)
-				timeTxt.alpha += elapsed * 6.0;
+				timeTxt.alpha += FlxG.elapsed * 6.0;
 			timeTxt.text = Utils.formatTime(Gameplay.instance.songLength - Main.conductor.songPosition, true, true);
 		}
 
 		updateIcons();
 
-		super.update(elapsed);
+		if (healthBar.visible)
+		{
+			healthBar.update(FlxG.elapsed);
+			healthBar.draw();
+		}
+
+		if (oppIcon.visible)
+		{
+			oppIcon.update(FlxG.elapsed);
+			oppIcon.draw();
+		}
+
+		if (plrIcon.visible)
+		{
+			plrIcon.update(FlxG.elapsed);
+			plrIcon.draw();
+		}
+
+		if (scoreTxt.visible)
+		{
+			scoreTxt.update(FlxG.elapsed);
+			scoreTxt.draw();
+		}
+
+		if (healthBar.visible)
+		{
+			timeTxt.update(FlxG.elapsed);
+			timeTxt.draw();
+		}
 	}
+
+	override public function update(elapsed:Float):Void {}
 }

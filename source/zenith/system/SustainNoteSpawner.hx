@@ -6,6 +6,8 @@ import flixel.math.FlxAngle;
 @:access(zenith.Gameplay)
 @:access(Stack)
 
+@:final
+@:generic
 class SustainNoteSpawner extends FlxBasic
 {
 	var members(default, null):Stack<SustainNote>;
@@ -15,12 +17,12 @@ class SustainNoteSpawner extends FlxBasic
 	{
 		super();
 
-		members = new Stack<SustainNote>(500);
+		members = new Stack<SustainNote>(512, Paths.idleSustain);
 
-		missable = new Stack<SustainNote>(16);
+		missable = new Stack<SustainNote>(32, Paths.idleSustain);
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
-			pool = new Stack<SustainNote>(5000);
+			pool = new Stack<SustainNote>(512, Paths.idleSustain);
 
 		active = false;
 	}
@@ -123,10 +125,11 @@ class SustainNoteSpawner extends FlxBasic
 				{
 					if (s.strum.playable)
 					{
+						_s = missable.__items[s.strum.index];
 						if (Main.conductor.songPosition > s.strumTime - 166.7 &&
-							(missable.__items[s.strum.index] == Paths.idleSustain ||
-							 missable.__items[s.strum.index].strumTime > s.strumTime ||
-							 missable.__items[s.strum.index].state != IDLE))
+							(_s == Paths.idleSustain ||
+							_s.strumTime > s.strumTime ||
+							_s.state != IDLE))
 						{
 							missable.__items[s.strum.index] = s;
 						}
@@ -166,27 +169,28 @@ class SustainNoteSpawner extends FlxBasic
 
 	public function handleRelease(strum:StrumNote):Void
 	{
-		if (strum != null && strum.playable && missable.__items[strum.index] != Paths.idleSustain &&
-		        Main.conductor.songPosition > missable.__items[strum.index].strumTime &&
-		        missable.__items[strum.index].state != MISS)
+		_s = missable.__items[strum.index];
+		if (strum != null && strum.playable && _s != Paths.idleSustain &&
+			Main.conductor.songPosition > _s.strumTime &&
+			_s.state != MISS)
 		{
-			missable.__items[strum.index].state = MISS;
-			missable.__items[strum.index].alpha = 0.3;
+			_s.state = MISS;
+			_s.alpha = 0.3;
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('onRelease', missable.__items[strum.index]);
+			Main.hscript.callFromAllScripts('onRelease', _s);
 			#end
 
 			Gameplay.instance.health -= 0.045;
 
 			if (!Gameplay.noCharacters)
 			{
-				Gameplay.instance.bf.playAnim(strum.parent.singAnimations(missable.__items[strum.index].noteData));
+				Gameplay.instance.bf.playAnim(strum.parent.singAnimations(_s.noteData));
 				Gameplay.instance.bf.holdTimer = 0.0;
 			}
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('onReleasePost', missable.__items[strum.index]);
+			Main.hscript.callFromAllScripts('onReleasePost', _s);
 			#end
 		}
 	}

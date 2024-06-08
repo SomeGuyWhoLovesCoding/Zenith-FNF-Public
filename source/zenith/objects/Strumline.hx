@@ -1,5 +1,11 @@
 package zenith.objects;
 
+@:access(zenith.Gameplay)
+@:access(zenith.system.NoteSpawner)
+@:access(zenith.system.SustainNoteSpawner)
+@:access(zenith.objects.StrumNote)
+@:access(Stack)
+
 class Strumline extends FlxBasic
 {
 	public var keys(default, set):Int;
@@ -9,19 +15,22 @@ class Strumline extends FlxBasic
 		for (i in 0...value)
 		{
 			m = members[i];
+
 			if (m == null)
 			{
 				var strumNote = new StrumNote(i, lane);
 				strumNote.scale.x = strumNote.scale.y = scale;
 				strumNote.parent = this;
-				strumNote.index = i;
-				members[i] = strumNote;
+				strumNote.index = i * lane;
+				strumNote.init();
+				members[i] = m = strumNote;
 			}
 			else
 			{
 				m.angle = NoteBase.angleArray[m.noteData];
-				m.index = i;
 			}
+
+			m.index = i * lane;
 		}
 
 		if (value <= keys)
@@ -144,22 +153,9 @@ class Strumline extends FlxBasic
 		return this;
 	}
 
+	override function update(elapsed:Float) {}
+
 	var m:StrumNote;
-	override function update(elapsed:Float)
-	{
-		if (members.length == 0)
-			return;
-
-		for (i in 0...members.length)
-		{
-			m = members[i];
-			if (m.exists && m.active)
-			{
-				m.update(elapsed);
-			}
-		}
-	}
-
 	override function draw():Void
 	{
 		if (members.length == 0)
@@ -170,6 +166,8 @@ class Strumline extends FlxBasic
 			m = members[i];
 			if (m.exists && m.visible && m.alpha != 0.0)
 			{
+				if (m.active)
+					m.update(FlxG.elapsed);
 				m.draw();
 			}
 		}

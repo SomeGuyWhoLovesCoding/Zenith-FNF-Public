@@ -27,7 +27,7 @@ class HScriptSystem
 		{
 			list.set(key, new HScriptFile(sourcePath, key, fromDirectory, directoryName));
 			#if debug
-			trace('HScript with tag $key [$fromDirectory] loaded');
+			trace('HScript with tag $key [$directoryName] loaded');
 			trace(sourcePath);
 			#end
 		}

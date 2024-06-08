@@ -24,6 +24,7 @@ class Paths
 
 	static public var idleNote:Note = new Note();
 	static public var idleSustain:SustainNote = new SustainNote();
+	static public var idleStrumNote:StrumNote = new StrumNote(0, 0);
 
 	// Do this to be able to just copy over the note animations and not reallocate it
 	static public function initNoteShit():Void
@@ -40,8 +41,9 @@ class Paths
 		regularNoteFrame = noteAnimationHolder.frames.frames[0];
 		sustainNoteFrame = noteAnimationHolder.frames.frames[1];
 
-		idleNote.state = idleSustain.state = HIT;
-		idleNote.visible = idleSustain.visible = false;
+		idleNote.state = idleSustain.state = MISS;
+		idleNote.strum = idleSustain.strum = idleStrumNote;
+		idleNote.active = idleSustain.active = idleStrumNote.active = idleNote.visible = idleSustain.visible = idleStrumNote.visible = false;
 	}
 
 	inline static public function font(key:String, ext:String = "ttf"):String

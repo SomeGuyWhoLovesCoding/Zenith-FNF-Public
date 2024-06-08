@@ -17,7 +17,10 @@ using StringTools;
 @:access(zenith.objects.HUDGroup)
 @:access(zenith.system.NoteSpawner)
 @:access(zenith.system.SustainNoteSpawner)
+@:access(Stack)
 
+@:final
+@:generic
 class Gameplay extends State
 {
 	public var strumlines:FlxTypedGroup<Strumline>;
@@ -130,7 +133,7 @@ class Gameplay extends State
 		}
 	}
 
-	public function onKeyDown(keyCode:Int, keyModifier:Int):Void
+	inline public function onKeyDown(keyCode:Int, keyModifier:Int):Void
 	{
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('onKeyDown', keyCode, keyModifier);
@@ -138,7 +141,7 @@ class Gameplay extends State
 
 		if (inline inputKeybinds.exists(keyCode) && generatedMusic && !cpuControlled)
 		{
-			st = inputKeybinds[keyCode];
+			st = inline inputKeybinds.get(keyCode);
 
 			if (!st.active)
 			{
@@ -154,7 +157,7 @@ class Gameplay extends State
 		}
 	}
 
-	public function onKeyUp(keyCode:Int, keyModifier:Int):Void
+	inline public function onKeyUp(keyCode:Int, keyModifier:Int):Void
 	{
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('onKeyUp', keyCode, keyModifier);
@@ -162,7 +165,7 @@ class Gameplay extends State
 
 		if (inline inputKeybinds.exists(keyCode) && generatedMusic && !cpuControlled)
 		{
-			st = inputKeybinds[keyCode];
+			st = inline inputKeybinds.get(keyCode);
 
 			if (st.active)
 			{
@@ -510,17 +513,18 @@ class Gameplay extends State
 				sustainNoteSpawner = new SustainNoteSpawner();
 				add(sustainNoteSpawner);
 
+				noteSpawner = new NoteSpawner();
+
 				strumlines = new FlxTypedGroup<Strumline>();
 				add(strumlines);
+
+				add(noteSpawner);
 
 				for (i in 0...strumlineCount)
 					generateStrumline(i);
 
 				if (downScroll)
 					changeDownScroll();
-
-				noteSpawner = new NoteSpawner();
-				add(noteSpawner);
 
 				if (!hideHUD)
 				{
@@ -981,17 +985,18 @@ class Gameplay extends State
 			sustainNoteSpawner = new SustainNoteSpawner();
 			add(sustainNoteSpawner);
 
+			noteSpawner = new NoteSpawner();
+
 			strumlines = new FlxTypedGroup<Strumline>();
 			add(strumlines);
+
+			add(noteSpawner);
 
 			for (i in 0...strumlineCount)
 				generateStrumline(i);
 
 			if (downScroll)
 				changeDownScroll();
-
-			noteSpawner = new NoteSpawner();
-			add(noteSpawner);
 
 			if (!hideHUD)
 			{
@@ -1097,15 +1102,11 @@ class Gameplay extends State
 		{
 			addCameraZoom();
 
+			var playerStrum = strumlines.members[1]; // Prevent redundant array access
+
 			for (i in 0...SaveData.contents.controls.GAMEPLAY_BINDS.length)
-			{
 				for (j in 0...SaveData.contents.controls.GAMEPLAY_BINDS[i].length)
-				{
-					noteSpawner.hittable[strumlines.members[1].members[i]] = Paths.idleNote;
-					sustainNoteSpawner.missable[strumlines.members[1].members[i]] = Paths.idleSustain;
-					inputKeybinds.set(SaveData.contents.controls.GAMEPLAY_BINDS[i][j], strumlines.members[1].members[i]);
-				}
-			}
+					inputKeybinds.set(SaveData.contents.controls.GAMEPLAY_BINDS[i][j], playerStrum.members[i]);
 
 			var swagCounter = 0;
 			_songPos = (-Main.conductor.crochet * 5.0);
@@ -1291,10 +1292,10 @@ class Gameplay extends State
 		}
 	}
 
-	public var inputKeybinds:Map<(Int), (StrumNote)> = new Map<(Int), (StrumNote)>();
+	public var inputKeybinds:haxe.ds.IntMap<StrumNote> = new haxe.ds.IntMap<StrumNote>();
 
-	var strumYTweens(default, null):Map<StrumNote, FlxTween> = [];
-	var strumScrollMultTweens(default, null):Map<StrumNote, FlxTween> = [];
+	var strumYTweens(default, null):Map<StrumNote, FlxTween> = new Map<StrumNote, FlxTween>();
+	var strumScrollMultTweens(default, null):Map<StrumNote, FlxTween> = new Map<StrumNote, FlxTween>();
 	public function changeDownScroll(whichStrum:Int = -1, tween:Bool = false, tweenLength:Float = 1.0):Void
 	{
 		// Strumline
@@ -1309,8 +1310,8 @@ class Gameplay extends State
 						var actualScrollMult = strum.scrollMult;
 						actualScrollMult = -actualScrollMult;
 
-						var scrollMultTween = strumScrollMultTweens.get(strum);
-						var yTween = strumYTweens.get(strum);
+						var scrollMultTween = strumScrollMultTweens[strum];
+						var yTween = strumYTweens[strum];
 
 						if (null != scrollMultTween)
 							scrollMultTween.cancel();
@@ -1429,7 +1430,7 @@ class Gameplay extends State
 					// This shit is similar to amazing engine's character hold fix, but better
 
 					if (sustain.targetCharacter.animation.curAnim.name == sustain.strum.parent.singAnimations(sustain.noteData) + "miss")
-						sustain.targetCharacter.playAnim(sustain.strun.parent.singAnimations(sustain.noteData));
+						sustain.targetCharacter.playAnim(sustain.strum.parent.singAnimations(sustain.noteData));
 
 					if (sustain.targetCharacter.animation.curAnim.curFrame > (sustain.targetCharacter.stillCharacterFrame == -1 ?
 						sustain.targetCharacter.animation.curAnim.frames.length : sustain.targetCharacter.stillCharacterFrame))

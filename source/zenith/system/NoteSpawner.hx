@@ -6,23 +6,28 @@ import flixel.math.FlxAngle;
 @:access(zenith.Gameplay)
 @:access(Stack)
 
+@:final
+@:generic
 class NoteSpawner extends FlxBasic
 {
 	var members(default, null):Stack<Note>; // Members
 	var hittable(default, null):Stack<Note>; // Hittable
 
-	var preallocationCount:Int = 0;
+	var preallocationCount:Int = 1024;
 
-	public function new():Void
+	public function new(preallocationCount:Int = 0):Void
 	{
 		super();
 
-		members = new Stack<Note>(preallocationCount);
+		if (preallocationCount != 0)
+			this.preallocationCount = preallocationCount;
 
-		hittable = new Stack<Note>(16);
+		members = new Stack<Note>(preallocationCount, Paths.idleNote);
+
+		hittable = new Stack<Note>(32, Paths.idleNote);
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
-			pool = new Stack<Note>(1000000);
+			pool = new Stack<Note>(preallocationCount, Paths.idleNote);
 
 		active = false;
 	}
@@ -133,10 +138,10 @@ class NoteSpawner extends FlxBasic
 						}
 
 						// Took forever to fully polish here ofc
-						// 
-						if ((hittable.__items[n.strum.index] == Paths.idleNote ||
-						     hittable.__items[n.strum.index].strumTime > n.strumTime ||
-						     hittable.__items[n.strum.index].state != IDLE) &&
+						_n = hittable.__items[n.strum.index];
+						if ((_n == Paths.idleNote ||
+							_n.strumTime > n.strumTime ||
+							_n.state != IDLE) &&
 							Main.conductor.songPosition > n.strumTime - 166.7)
 						{
 							hittable.__items[n.strum.index] = n;
@@ -178,13 +183,14 @@ class NoteSpawner extends FlxBasic
 	inline public function handleHittableNote(strum:StrumNote):Void
 	{
 		// The middle checks are pretty weird but it does fix a couple bugs
-		if (strum != null && strum.playable && hittable.__items[strum.index].state == IDLE &&
-			Main.conductor.songPosition > hittable.__items[strum.index].strumTime - (166.7 * Gameplay.instance.songSpeed))
+		_n = hittable.__items[strum.index];
+		if (strum != null && strum.playable && _n.state == IDLE &&
+			Main.conductor.songPosition > _n.strumTime - (166.7 * Gameplay.instance.songSpeed))
 		{
-			hittable.__items[strum.index].state = HIT;
-			Gameplay.instance.onNoteHit(hittable.__items[strum.index]);
+			_n.state = HIT;
+			Gameplay.instance.onNoteHit(_n);
 			if (SaveData.contents.experimental.fastNoteSpawning)
-				pool.push(hittable.__items[strum.index]);
+				pool.push(_n);
 			hittable.__items[strum.index] = Paths.idleNote;
 		}
 	}
