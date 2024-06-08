@@ -1364,7 +1364,7 @@ class Gameplay extends State
 		{
 			if (null != note.targetCharacter)
 			{
-				note.targetCharacter.playAnim(singAnimations(note.noteData));
+				note.targetCharacter.playAnim(note.strum.parent.singAnimations(note.noteData));
 				note.targetCharacter.holdTimer = 0.0;
 			}
 		}
@@ -1396,7 +1396,7 @@ class Gameplay extends State
 
 		if (!noCharacters)
 		{
-			note.targetCharacter.playAnim(singAnimations(note.noteData) + "miss");
+			note.targetCharacter.playAnim(note.strum.parent.singAnimations(note.noteData) + "miss");
 			note.targetCharacter.holdTimer = 0.0;
 		}
 
@@ -1423,13 +1423,13 @@ class Gameplay extends State
 			if (null != sustain.targetCharacter)
 			{
 				if (Gameplay.stillCharacters)
-					sustain.targetCharacter.playAnim(singAnimations(sustain.noteData));
+					sustain.targetCharacter.playAnim(sustain.strum.parent.singAnimations(sustain.noteData));
 				else
 				{
 					// This shit is similar to amazing engine's character hold fix, but better
 
-					if (sustain.targetCharacter.animation.curAnim.name == singAnimations(sustain.noteData) + "miss")
-						sustain.targetCharacter.playAnim(singAnimations(sustain.noteData));
+					if (sustain.targetCharacter.animation.curAnim.name == sustain.strum.parent.singAnimations(sustain.noteData) + "miss")
+						sustain.targetCharacter.playAnim(sustain.strun.parent.singAnimations(sustain.noteData));
 
 					if (sustain.targetCharacter.animation.curAnim.curFrame > (sustain.targetCharacter.stillCharacterFrame == -1 ?
 						sustain.targetCharacter.animation.curAnim.frames.length : sustain.targetCharacter.stillCharacterFrame))
@@ -1446,12 +1446,6 @@ class Gameplay extends State
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts("onHoldPost", sustain);
 		#end
-	}
-
-	public dynamic function singAnimations(data:Int):String
-	{
-		return data == 0 ? "singLEFT" : data == 1 ? "singDOWN" :
-			data == 2 ? "singUP" : "singRIGHT";
 	}
 
 	public var paused:Bool = false;
