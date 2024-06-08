@@ -14,11 +14,13 @@ class Strumline extends FlxBasic
 				var strumNote = new StrumNote(i, lane);
 				strumNote.scale.x = strumNote.scale.y = scale;
 				strumNote.parent = this;
+				strumNote.index = i;
 				members[i] = strumNote;
 			}
 			else
 			{
 				m.angle = NoteBase.angleArray[m.noteData];
+				m.index = i;
 			}
 		}
 
@@ -215,5 +217,11 @@ class Strumline extends FlxBasic
 			m.origin.x = m.offset.x + 54;
 			m.origin.y = m.offset.y + 56;
 		}
+	}
+
+	public dynamic function singAnimations(data:Int):String
+	{
+		return data == 0 ? "singLEFT" : data == 1 ? "singDOWN" :
+			data == 2 ? "singUP" : "singRIGHT";
 	}
 }
