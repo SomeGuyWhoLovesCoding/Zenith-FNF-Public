@@ -1433,8 +1433,7 @@ class Gameplay extends State
 
 					if (sustain.animation.curAnim.curFrame > (sustain.targetCharacter.stillCharacterFrame == -1 ?
 						sustain.targetCharacter.animation.curAnim.frames.length : sustain.targetCharacter stillCharacterFrame))
-						sustain.targetCharacter.animation.curAnim.curFrame = (sustain.targetCharacter.stillCharacterFrame == -1 ?
-						sustain.targetCharacter.animation.curAnim.frames.length - 2 : sustain.targetCharacter.stillCharacterFrame - 1);
+						sustain.targetCharacter.animation.curAnim.curFrame = (sustain.targetCharacter.stillCharacterFrame == -1 ? sustain.targetCharacter.animation.curAnim.frames.length - 2 : sustain.targetCharacter.stillCharacterFrame - 1);
 				}
 
 				c.holdTimer = 0.0;
