@@ -28,7 +28,7 @@ class HScriptFile
 		return interp.variables.get(variable);
 	}
 
-	inline public function setVar(variable:String, value)
+	inline public function setVar(variable:String, value:Dynamic = null)
 	{
 		return interp.variables.set(variable, value);
 	}
@@ -46,7 +46,7 @@ class HScriptFile
 			create(path, key);
 	
 			#if debug
-			trace('HScript "$key" overwritten');
+			trace('HScript $directory with tag [$key] overwritten');
 			#end
 		}
 	}

@@ -5,7 +5,7 @@ class HScriptSystem
 {
 	public var list:Map<String, HScriptFile>;
 
-	public function new():Void
+	inline public function new():Void
 	{
 		list = new Map<String, HScriptFile>();
 	}
@@ -18,7 +18,7 @@ class HScriptSystem
 		}
 	}
 
-	public function loadScript(sourcePath:String, key:String, fromDirectory:Bool = false, directoryName:String = ""):Void
+	inline public function loadScript(sourcePath:String, key:String, fromDirectory:Bool = false, directoryName:String = ""):Void
 	{
 		// If the script already exists, overwrite it with the new contents
 		if (list.exists(key))
@@ -27,13 +27,13 @@ class HScriptSystem
 		{
 			list.set(key, new HScriptFile(sourcePath, key, fromDirectory, directoryName));
 			#if debug
-			trace('HScript "$key" loaded');
+			trace('HScript with tag $key [$fromDirectory] loaded');
 			trace(sourcePath);
 			#end
 		}
 	}
 
-	public function removeScript(key:String):Void
+	inline public function removeScript(key:String):Void
 	{
 		// If the script is already removed, don't destroy it again
 
@@ -45,7 +45,7 @@ class HScriptSystem
 			list.remove(key);
 
 			#if debug
-			trace('HScript "$key" removed');
+			trace('HScript ${file.directory} with tag $key removed');
 			#end
 		}
 	}
@@ -109,7 +109,7 @@ class HScriptSystem
 		return list[key];
 	}
 
-	public function reloadScript(key:String):Void
+	inline public function reloadScript(key:String):Void
 	{
 		var file = getScript(key);
 

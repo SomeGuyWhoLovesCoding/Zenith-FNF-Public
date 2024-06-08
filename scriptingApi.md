@@ -41,9 +41,16 @@ It allows your own custom savedata to load immediately.
 
 ### State-wise
 
+``createPre()``: This function is called after the state class was created. Should only really be used for stuff that needs executed first.
+
 ``create()``: This function is called before creating the current state.
 
 ``createPost()``: This function is called after the current state was created.
+
+``updatePre(elapsed)``: This function is called before the game executes the next frame.
+
+*Only really useful for stuff you want to move first so you don't have to worry about it having the 
+frame delay*
 
 ``update(elapsed)``: This function is called before updating the current state.
 

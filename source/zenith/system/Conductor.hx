@@ -4,6 +4,7 @@ class Conductor
 {
 	var _rawStep(get, default):Float = 0.0;
 
+	// Not sure if I want to inline this because I think inling can sometimes hurt the bpm change timing but idk
 	function get__rawStep():Float
 	{
 		return ((songPosition - offsetTime) / stepCrochet) + offsetStep;
@@ -92,7 +93,7 @@ class Conductor
 			_stepPos = _stepTracker;
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts(HScriptFunctions.STEP_HIT, _stepPos);
+			Main.hscript.callFromAllScripts('onStepHit', _stepPos);
 			#end
 
 			if (onStepHit != null)
@@ -106,7 +107,7 @@ class Conductor
 			_beatPos = _beatTracker;
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts(HScriptFunctions.BEAT_HIT, _beatPos);
+			Main.hscript.callFromAllScripts('onBeatHit', _beatPos);
 			#end
 
 			if (onBeatHit != null)
@@ -120,7 +121,7 @@ class Conductor
 			_measurePos = _measureTracker;
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts(HScriptFunctions.MEASURE_HIT, _measurePos);
+			Main.hscript.callFromAllScripts('onMeasureHit', _measurePos);
 			#end
 
 			if (onMeasureHit != null)

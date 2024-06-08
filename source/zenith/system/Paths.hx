@@ -10,23 +10,23 @@ using StringTools;
 
 class Paths
 {
-	inline public static var ASSET_PATH:String = "assets";
-	inline public static var SOUND_EXT:String = "ogg";
+	inline static public var ASSET_PATH:String = "assets";
+	inline static public var SOUND_EXT:String = "ogg";
 
 	// Notes
 
-	public static var strumNoteAnimationHolder:FlxSprite = null;
-	public static var noteAnimationHolder:FlxSprite = null;
-	public static var regularNoteFrame:FlxFrame = null;
-	public static var sustainNoteFrame:FlxFrame = null;
+	static public var strumNoteAnimationHolder:FlxSprite = null;
+	static public var noteAnimationHolder:FlxSprite = null;
+	static public var regularNoteFrame:FlxFrame = null;
+	static public var sustainNoteFrame:FlxFrame = null;
 
-	public static var strumNoteAtlas:FlxAtlasFrames;
+	static public var strumNoteAtlas:FlxAtlasFrames;
 
-	public static var idleNote:Note = new Note();
-	public static var idleSustain:SustainNote = new SustainNote();
+	static public var idleNote:Note = new Note();
+	static public var idleSustain:SustainNote = new SustainNote();
 
 	// Do this to be able to just copy over the note animations and not reallocate it
-	public static function initNoteShit():Void
+	static public function initNoteShit():Void
 	{
 		strumNoteAnimationHolder = new FlxSprite();
 		strumNoteAnimationHolder.frames = strumNoteAtlas = getSparrowAtlas('noteskins/Regular/Strums');
@@ -40,13 +40,13 @@ class Paths
 		regularNoteFrame = noteAnimationHolder.frames.frames[0];
 		sustainNoteFrame = noteAnimationHolder.frames.frames[1];
 
-		idleNote.state = idleSustain.state = HIT;
+		idleNote.visible = idleSustain.visible = false;
 	}
 
-	inline public static function font(key:String, ext:String = "ttf"):String
+	inline static public function font(key:String, ext:String = "ttf"):String
 		return '$ASSET_PATH/fonts/$key.$ext';
 
-	public static function image(key:String):BitmapData
+	static public function image(key:String):BitmapData
 	{
 		var imagePath:String = '$ASSET_PATH/images/$key.png';
 
@@ -59,8 +59,8 @@ class Paths
 		return null;
 	}
 
-	private static var soundCache:Map<String, Sound> = new Map<String, Sound>();
-	private static function __soundHelper(key:String):Sound
+	static private var soundCache:Map<String, Sound> = new Map<String, Sound>();
+	static private function __soundHelper(key:String):Sound
 	{
 		var soundPath:String = '$ASSET_PATH/$key.$SOUND_EXT';
 
@@ -77,36 +77,36 @@ class Paths
 		return null;
 	}
 
-	public static function sound(key:String):Sound
+	static public function sound(key:String):Sound
 	{
 		return __soundHelper('sounds/$key');
 	}
 
-	public static function soundRandom(key:String, min:Int = 0, max:Int = flixel.math.FlxMath.MAX_VALUE_INT):Sound
+	static public function soundRandom(key:String, min:Int = 0, max:Int = flixel.math.FlxMath.MAX_VALUE_INT):Sound
 	{
 		return sound(key + FlxG.random.int(min, max));
 	}
 
-	public static function music(key:String):Sound
+	static public function music(key:String):Sound
 	{
 		return __soundHelper('music/$key');
 	}
 
-	public static function voices(song:String):Sound
+	static public function voices(song:String):Sound
 	{
 		return __soundHelper('songs/${formatToSongPath(song)}/Voices');
 	}
 
-	public static function inst(song:String):Sound
+	static public function inst(song:String):Sound
 	{
 		return __soundHelper('songs/${formatToSongPath(song)}/Inst');
 	}
 
-	public static function getSparrowAtlas(key:String):FlxAtlasFrames
+	static public function getSparrowAtlas(key:String):FlxAtlasFrames
 	{
 		return FlxAtlasFrames.fromSparrow(image(key), '$ASSET_PATH/images/$key.xml');
 	}
 
-	public static function formatToSongPath(path:String):String
+	static public function formatToSongPath(path:String):String
 		return path.replace(' ', '-').toLowerCase();
 }

@@ -149,7 +149,7 @@ class Character extends FlxSprite
 
 		originalFlipX = flipX;
 
-		if(animOffsets.exists(CharacterAnims.Lm) || animOffsets.exists(CharacterAnims.Dm) || animOffsets.exists(CharacterAnims.Um) || animOffsets.exists(CharacterAnims.Rm))
+		if(animOffsets.exists("singLEFT") || animOffsets.exists("singDOWN") || animOffsets.exists("singUP") || animOffsets.exists("singRIGHT"))
 		{
 			hasMissAnimations = true;
 		}

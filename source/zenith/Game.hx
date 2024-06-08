@@ -25,6 +25,9 @@ class Game extends FlxGame
 
 	override public function onEnterFrame(_:openfl.events.Event):Void
 	{
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts('updatePre', FlxG.elapsed);
+		#end
 		FlxG.fixedTimestep = false;
 		super.onEnterFrame((_ : openfl.events.Event));
 		Main.updateMain(FlxG.elapsed);

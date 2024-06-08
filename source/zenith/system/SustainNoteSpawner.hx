@@ -130,7 +130,7 @@ class SustainNoteSpawner extends FlxBasic
 						}
 					}
 
-					if ((!s.strum.isIdle() && s.state != MISS) || !s.strum.playable)
+					if ((s.strum.active && s.state != MISS) || !s.strum.playable)
 					{
 						Gameplay.instance.onHold(s);
 					}
@@ -171,7 +171,7 @@ class SustainNoteSpawner extends FlxBasic
 			missable[strum].alpha = 0.3;
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts(HScriptFunctions.NOTE_RELEASE, missable[strum]);
+			Main.hscript.callFromAllScripts('onRelease', missable[strum]);
 			#end
 
 			Gameplay.instance.health -= 0.045;
@@ -183,7 +183,7 @@ class SustainNoteSpawner extends FlxBasic
 			}
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts(HScriptFunctions.NOTE_RELEASE_POST, missable[strum]);
+			Main.hscript.callFromAllScripts('onReleasePost', missable[strum]);
 			#end
 		}
 	}

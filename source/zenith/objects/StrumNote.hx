@@ -86,10 +86,4 @@ class StrumNote extends FlxSprite
 		origin.x = offset.x + 54;
 		origin.y = offset.y + 56;
 	}
-
-	// This replaces Gameplay.hx's holdArray btw
-	inline public function isIdle():Bool
-	{
-		return animation.curAnim.name == "static";
-	}
 }
