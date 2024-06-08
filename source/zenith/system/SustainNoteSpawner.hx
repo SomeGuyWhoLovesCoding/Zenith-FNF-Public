@@ -9,7 +9,7 @@ import flixel.math.FlxAngle;
 class SustainNoteSpawner extends FlxBasic
 {
 	var members(default, null):Stack<SustainNote>;
-	var missable(default, null):Map<StrumNote, SustainNote>;
+	var missable(default, null):Stack<SustainNote>;
 
 	public function new():Void
 	{
@@ -17,7 +17,7 @@ class SustainNoteSpawner extends FlxBasic
 
 		members = new Stack<SustainNote>();
 
-		missable = new Map<StrumNote, SustainNote>();
+		missable = new Stack<SustainNote>(16);
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
 			pool = new Stack<SustainNote>(5000);
@@ -124,9 +124,11 @@ class SustainNoteSpawner extends FlxBasic
 					if (s.strum.playable)
 					{
 						if (Main.conductor.songPosition > s.strumTime - 166.7 &&
-							(missable[s.strum] == Paths.idleSustain || missable[s.strum].strumTime > s.strumTime || missable[s.strum].state != IDLE))
+							(missable.__items[s.strum.index] == Paths.idleSustain ||
+							 missable.__items[s.strum.index].strumTime > s.strumTime ||
+							 missable.__items[s.strum.index].state != IDLE))
 						{
-							missable[s.strum] = s;
+							missable.__items[s.strum.index] = s;
 						}
 					}
 
@@ -137,7 +139,7 @@ class SustainNoteSpawner extends FlxBasic
 				}
 				else
 				{
-					missable[s.strum] = Paths.idleSustain;
+					missable.__items[s.strum.index] = Paths.idleSustain;
 				}
 			}
 		}
@@ -164,26 +166,27 @@ class SustainNoteSpawner extends FlxBasic
 
 	public function handleRelease(strum:StrumNote):Void
 	{
-		if (strum != null && strum.playable && missable[strum] != Paths.idleSustain &&
-			Main.conductor.songPosition > missable[strum].strumTime && missable[strum].state != MISS)
+		if (strum != null && strum.playable && missable.__items[strum.index] != Paths.idleSustain &&
+		        Main.conductor.songPosition > missable.__items[strum.index].strumTime &&
+		        missable.__items[strum.index].state != MISS)
 		{
-			missable[strum].state = MISS;
-			missable[strum].alpha = 0.3;
+			missable.__items[strum.index].state = MISS;
+			missable.__items[strum.index].alpha = 0.3;
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('onRelease', missable[strum]);
+			Main.hscript.callFromAllScripts('onRelease', missable.__items[strum.index]);
 			#end
 
 			Gameplay.instance.health -= 0.045;
 
 			if (!Gameplay.noCharacters)
 			{
-				Gameplay.instance.bf.playAnim(Gameplay.instance.singAnimations(missable[strum].noteData));
+				Gameplay.instance.bf.playAnim(strum.parent.singAnimations(missable.__items[strum.index].noteData));
 				Gameplay.instance.bf.holdTimer = 0.0;
 			}
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('onReleasePost', missable[strum]);
+			Main.hscript.callFromAllScripts('onReleasePost', missable.__items[strum.index]);
 			#end
 		}
 	}
