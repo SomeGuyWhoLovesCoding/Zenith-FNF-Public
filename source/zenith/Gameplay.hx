@@ -20,7 +20,6 @@ using StringTools;
 @:access(Stack)
 
 @:final
-@:generic
 class Gameplay extends State
 {
 	public var strumlines:FlxTypedGroup<Strumline>;
@@ -261,8 +260,6 @@ class Gameplay extends State
 	{
 		if (generatedMusic)
 		{
-			p();
-
 			health = FlxMath.bound(health, 0.0, hudGroup != null && hudGroup.healthBar != null ? hudGroup.healthBar.maxValue : 2.0);
 
 			hudCameraBelow.x = hudCamera.x;
@@ -288,6 +285,11 @@ class Gameplay extends State
 			}
 
 			super.update(elapsed);
+
+			p();
+
+			if (hudGroup != null)
+				hudGroup.update();
 
 			return;
 		}
@@ -529,10 +531,7 @@ class Gameplay extends State
 				if (!hideHUD)
 				{
 					hudGroup = new HUDGroup();
-					add(hudGroup);
-
 					hudGroup.reloadHealthBar();
-					hudGroup.camera = hudCamera;
 				}
 
 				noteSpawner.camera = strumlines.camera = sustainNoteSpawner.camera = hudCamera;
@@ -1001,10 +1000,7 @@ class Gameplay extends State
 			if (!hideHUD)
 			{
 				hudGroup = new HUDGroup();
-				add(hudGroup);
-
 				hudGroup.reloadHealthBar();
-				hudGroup.camera = hudCamera;
 			}
 
 			noteSpawner.camera = strumlines.camera = sustainNoteSpawner.camera = hudCamera;

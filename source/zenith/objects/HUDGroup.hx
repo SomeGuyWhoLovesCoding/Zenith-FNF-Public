@@ -6,10 +6,10 @@ import flixel.util.FlxColor;
 import flixel.math.FlxMath;
 
 @:access(zenith.Gameplay)
+@:access(zenith.objects.HealthBar)
 
 @:final
-@:generic
-class HUDGroup extends FlxSpriteGroup
+class HUDGroup
 {
 	public var oppIcon:HealthIcon;
 	public var plrIcon:HealthIcon;
@@ -19,8 +19,6 @@ class HUDGroup extends FlxSpriteGroup
 
 	public function new():Void
 	{
-		super();
-
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
 
@@ -29,21 +27,21 @@ class HUDGroup extends FlxSpriteGroup
 
 		healthBar = new HealthBar(0, Gameplay.downScroll ? 60.0 : FlxG.height - 86.0, [0xFFFF0000], [0xFF00FF00], 600, 24);
 		healthBar.screenCenter(X);
-		add(healthBar);
+		Gameplay.instance.add(healthBar);
 
 		oppIcon.y = plrIcon.y = healthBar.y - 60.0;
 
-		add(oppIcon);
-		add(plrIcon);
+		Gameplay.instance.add(oppIcon);
+		Gameplay.instance.add(plrIcon);
 
 		scoreTxt = new FlxText(0, healthBar.y + (healthBar.height + 2), 0, 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ???', 20);
 		scoreTxt.setBorderStyle(OUTLINE, 0xFF000000);
-		add(scoreTxt);
+		Gameplay.instance.add(scoreTxt);
 
 		timeTxt = new FlxText(0, Gameplay.downScroll ? FlxG.height - 42 : 8, 0, '???', 30);
 		timeTxt.setBorderStyle(OUTLINE, 0xFF000000);
 		timeTxt.alpha = 0;
-		add(timeTxt);
+		Gameplay.instance.add(timeTxt);
 
 		scoreTxt.borderSize = timeTxt.borderSize = 1.25;
 		scoreTxt.font = timeTxt.font = Paths.font('vcr');
@@ -51,6 +49,7 @@ class HUDGroup extends FlxSpriteGroup
 		scoreTxt.active = timeTxt.active = false;
 
 		oppIcon.pixelPerfectPosition = plrIcon.pixelPerfectPosition = healthBar.pixelPerfectPosition = scoreTxt.pixelPerfectPosition = timeTxt.pixelPerfectPosition = false;
+		oppIcon.camera = plrIcon.camera = healthBar.camera = scoreTxt.camera = timeTxt.camera = Gameplay.instance.hudCamera;
 	}
 
 	public function updateScoreText():Void
@@ -68,10 +67,8 @@ class HUDGroup extends FlxSpriteGroup
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
 
-		@:privateAccess {
-			healthBar.__left.makeGraphic(healthBar.__width, healthBar.__height, FlxColor.fromRGB(Gameplay.instance.dad.healthColorArray[0], Gameplay.instance.dad.healthColorArray[1], Gameplay.instance.dad.healthColorArray[2]));
-			healthBar.__right.makeGraphic(healthBar.__width, healthBar.__height, FlxColor.fromRGB(Gameplay.instance.bf.healthColorArray[0], Gameplay.instance.bf.healthColorArray[1], Gameplay.instance.bf.healthColorArray[2]));
-		}
+		healthBar.__left.makeGraphic(healthBar.__width, healthBar.__height, FlxColor.fromRGB(Gameplay.instance.dad.healthColorArray[0], Gameplay.instance.dad.healthColorArray[1], Gameplay.instance.dad.healthColorArray[2]));
+		healthBar.__right.makeGraphic(healthBar.__width, healthBar.__height, FlxColor.fromRGB(Gameplay.instance.bf.healthColorArray[0], Gameplay.instance.bf.healthColorArray[1], Gameplay.instance.bf.healthColorArray[2]));
 	}
 
 	function updateIcons():Void
@@ -80,7 +77,7 @@ class HUDGroup extends FlxSpriteGroup
 		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
 	}
 
-	override public function draw():Void
+	public function update():Void
 	{
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
@@ -95,43 +92,11 @@ class HUDGroup extends FlxSpriteGroup
 
 		if (Gameplay.instance.startedCountdown)
 		{
-			if (timeTxt.alpha != 1.0)
+			if (timeTxt.alpha >= 1.0)
 				timeTxt.alpha += FlxG.elapsed * 6.0;
 			timeTxt.text = Utils.formatTime(Gameplay.instance.songLength - Main.conductor.songPosition, true, true);
 		}
 
 		updateIcons();
-
-		if (healthBar.visible)
-		{
-			healthBar.update(FlxG.elapsed);
-			healthBar.draw();
-		}
-
-		if (oppIcon.visible)
-		{
-			oppIcon.update(FlxG.elapsed);
-			oppIcon.draw();
-		}
-
-		if (plrIcon.visible)
-		{
-			plrIcon.update(FlxG.elapsed);
-			plrIcon.draw();
-		}
-
-		if (scoreTxt.visible)
-		{
-			scoreTxt.update(FlxG.elapsed);
-			scoreTxt.draw();
-		}
-
-		if (healthBar.visible)
-		{
-			timeTxt.update(FlxG.elapsed);
-			timeTxt.draw();
-		}
 	}
-
-	override public function update(elapsed:Float):Void {}
 }

@@ -3,7 +3,7 @@ package zenith.core;
 import lime.ui.KeyCode;
 import sys.io.File;
 
-@:generic class SaveData
+class SaveData
 {
 	// Actual savedata.
 
@@ -19,6 +19,7 @@ import sys.io.File;
 			antialiasing: true,
 			gpuCaching: true,
 			persistentGraphics: false,
+			showFPS: true,
 			fps: 60
 		},
 		experimental: {
@@ -62,7 +63,8 @@ import sys.io.File;
 
 	static public function write():Void
 	{
-		File.saveContent('savedata.sav', haxe.Serializer.run((contents : SaveFile)));
+		var output:String = haxe.Serializer.run(contents);
+		File.saveContent('savedata.sav', output);
 	}
 
 	// Custom savedata system.
@@ -105,6 +107,7 @@ typedef GraphicsData =
 	var antialiasing:Bool;
 	var gpuCaching:Bool;
 	var persistentGraphics:Bool;
+	var showFPS:Bool;
 	var fps:Int;
 }
 

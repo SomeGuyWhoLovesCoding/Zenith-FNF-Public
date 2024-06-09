@@ -7,7 +7,6 @@ import flixel.math.FlxAngle;
 @:access(Stack)
 
 @:final
-@:generic
 class NoteSpawner extends FlxBasic
 {
 	var members(default, null):Stack<Note>; // Members

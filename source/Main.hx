@@ -18,7 +18,7 @@ typedef Transitioning =
 
 typedef TransitioningInfo =
 {
-	var callback:()->Void;
+	var callback:Void->Void;
 }
 
 @:access(lime.app.Application)
@@ -79,17 +79,21 @@ class Main extends Sprite
 		addChild(game = new Game());
 		addChild(transition);
 
-		fpsTxt = new TextField();
-		fpsTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFFFFFF, true);
-		addChild(fpsTxt);
+		if (SaveData.contents.graphics.showFPS)
+		{
+			fpsTxt = new TextField();
+			fpsTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFFFFFF, true);
+			fpsTxt.selectable = false;
+			fpsTxt.width = FlxG.width;
+			addChild(fpsTxt);
+		}
 
 		volumeTxt = new TextField();
 		volumeTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFF0000, true);
-		addChild(volumeTxt);
-
-		volumeTxt.selectable = fpsTxt.selectable = false;
-		volumeTxt.width = fpsTxt.width = FlxG.width;
+		volumeTxt.selectable = false;
+		volumeTxt.width = FlxG.width;
 		volumeTxt.alpha = 0.0;
+		addChild(volumeTxt);
 
 		openfl.Lib.current.stage.quality = stage.quality = LOW;
 
@@ -219,9 +223,10 @@ class Main extends Sprite
 
 	static private var fps:Int = 60;
 	static private var fpsMax:Int = 60;
+	static private var fpsTextTimer:Float = 0.0; // Minor optimization to save 1% cpu usage
 	static public function updateMain(elapsed:Float):Void
 	{
-		if (@:privateAccess FlxG.game._lostFocus && FlxG.autoPause)
+		if (FlxG.game._lostFocus && FlxG.autoPause)
 			return;
 
 		// Framerate rework
@@ -234,13 +239,19 @@ class Main extends Sprite
 			volumeTxt.alpha -= elapsed * 2.0;
 		}
 
-		if (null != fpsTxt)
+		fpsTextTimer += elapsed;
+
+		if (null != fpsTxt && fpsTextTimer > 1.0)
 		{
 			if (fpsMax < fps)
 				fpsMax = fps;
 
 			fpsTxt.text = 'FPS: ' + fps + ' (MAX: ' + fpsMax + ')\nMEM: ' + flixel.util.FlxStringUtil.formatBytes(#if hl hl.Gc.stats().currentMemory #elseif cpp cpp.vm.Gc.memInfo(3) #end);
+			fpsTextTimer = elapsed;
 		}
+
+		transition.scaleX = FlxG.scaleMode.scale.x;
+		transition.scaleY = FlxG.scaleMode.scale.y;
 
 		transition.y = transitionY;
 
@@ -266,8 +277,5 @@ class Main extends Sprite
 				transitioning._out;
 			}
 		}
-
-		transition.scaleX = FlxG.scaleMode.scale.x;
-		transition.scaleY = FlxG.scaleMode.scale.y;
 	}
 }
