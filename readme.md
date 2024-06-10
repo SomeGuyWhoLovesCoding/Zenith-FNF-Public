@@ -2,6 +2,8 @@ This engine offers ultra performant, cross-platform, and very clean gameplay exp
 
 **We recommend you to use Haxe 4.2+**
 
+To compile on hasklink/jit, [read this.](https://haxe.org/manual/target-hl-getting-started.html)
+
 # Libraries needed to compile this engine
 
 Flixel: ``haxelib install flixel``
@@ -14,4 +16,8 @@ Openfl: ``haxelib install openfl``
 
 Emitter: ``haxelib git Emitter https://github.com/Dimensionscape/Emitter.git``
 
-To compile on hasklink, [read this.](https://haxe.org/manual/target-hl-getting-started.html)
+# Pages
+
+## [Scripting API](https://github.com/SomeGuyWhoLovesCoding/Zenith-FNF-Public/blob/main/scriptingApi.md)
+
+## Modding API (Soon)
