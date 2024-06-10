@@ -22,6 +22,8 @@ using StringTools;
 @:final
 class Gameplay extends State
 {
+	public var chartBytesData:ChartBytesData;
+
 	public var strumlines:FlxTypedGroup<Strumline>;
 	public var noteSpawner:NoteSpawner;
 	public var sustainNoteSpawner:SustainNoteSpawner;
@@ -54,7 +56,7 @@ class Gameplay extends State
 	static public var stillCharacters:Bool = false;
 
 	// Song stuff
-	static public var SONG:Song.SwagSong;
+	static public var SONG:Song;
 
 	// Gameplay stuff
 
@@ -118,19 +120,6 @@ class Gameplay extends State
 	public var camFollowPosTween(default, null):FlxTween;
 
 	static public var instance:Gameplay;
-
-	function p():Void
-	{
-		while (nd != null && nd[0] <= Main.conductor.songPosition + (1915.0 / songSpeed))
-		{
-			if (nd[0] >= 0.0 && nd[3] >= 0) // Don't spawn a note with negative time or lane
-			{
-				noteSpawner.spawn(nd);
-			}
-
-			nd = SONG.noteData[currentNoteId++];
-		}
-	}
 
 	inline public function onKeyDown(keyCode:Int, keyModifier:Int):Void
 	{
@@ -224,15 +213,15 @@ class Gameplay extends State
 		if (null == Sys.args()[0]) // What?
 			songName = 'test';
 
-		var songDifficulty:String = '-' + Sys.args()[1];
+		var songDifficulty:String = Sys.args()[1];
 
 		if (null == Sys.args()[1]) // What?
 		{
-			songDifficulty = '';
+			songDifficulty = 'normal';
 		}
 		#else
 		var songName:String = 'test';
-		var songDifficulty:String = '';
+		var songDifficulty:String = 'normal';
 		#end
 
 		generateSong(songName, songDifficulty);
@@ -270,7 +259,7 @@ class Gameplay extends State
 
 			if (startedCountdown && !songEnded)
 			{
-				_songPos = inst.time - SONG.info.offset;
+				_songPos = inst.time;
 			}
 			else
 			{
@@ -286,7 +275,7 @@ class Gameplay extends State
 
 			super.update(elapsed);
 
-			p();
+			chartBytesData.update();
 
 			if (hudGroup != null)
 				hudGroup.update();
@@ -298,15 +287,11 @@ class Gameplay extends State
 		{
 			if (threadsCompleted == 0)
 			{
+				lock = new Mutex();
+
 				// What happens if you load a song with a bpm of under 10? Limit it.
 				Main.conductor.bpm = SONG.info.bpm = Math.max(SONG.info.bpm, 10.0);
 				Main.conductor.reset();
-
-				if (null == SONG.info.spectator) // Fix gf (for vanilla charts)
-					SONG.info.spectator = 'gf';
-
-				if (null == SONG.info.offset || SONG.info.offset < 0) // Fix offset
-					SONG.info.offset = 0;
 
 				strumlineCount == SONG.info.strumlines ? 2 : SONG.info.strumlines;
 
@@ -569,7 +554,6 @@ class Gameplay extends State
 
 	var initialStrumWidth:Float = 112.0;
 	var initialStrumHeight:Float = 112.0;
-	var currentNoteId:Int = 0;
 
 	// Song events for hscript
 	public function triggerEvent(eventName:String, value1:String, value2:String, value3:String, value4:String)
@@ -792,24 +776,29 @@ class Gameplay extends State
 
 		if (Main.ENABLE_MULTITHREADING)
 		{
-			lock = new Mutex();
-			FlxG.autoPause = false;
-
 			Thread.create(() ->
 			{
-				var preloadName:String = curSong + (curDifficulty != '' ? '-$curDifficulty' : '');
-				try
+				if (State.crashHandler)
 				{
-					SONG = Song.loadFromJson(curSong + '/' + curSong + curDifficulty);
+					try
+					{
+						if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json'))
+							ChartBytesData.saveChartFromJson(curSong, curDifficulty);
 
-					lock.acquire();
-					nd = SONG.noteData[currentNoteId];
-					threadsCompleted++;
-					lock.release();
+						chartBytesData = new ChartBytesData(curSong, curDifficulty);
+					}
+					catch (e)
+					{
+						trace('Chart file "assets/data/$curSong/chart/$curDifficulty.bin" is either corrupted or nonexistent.');
+						trace(e);
+					}
 				}
-				catch (e)
+				else
 				{
-					trace('Chart file "$preloadName" is either corrupted or nonexistent.');
+					if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json'))
+						ChartBytesData.saveChartFromJson(curSong, curDifficulty);
+
+					chartBytesData = new ChartBytesData(curSong, curDifficulty);
 				}
 			});
 		}
@@ -817,27 +806,32 @@ class Gameplay extends State
 		{
 			FlxG.maxElapsed = FlxG.elapsed;
 
-			var preloadName:String = curSong + (curDifficulty != '' ? '-$curDifficulty' : '');
+			if (State.crashHandler)
+			{
+				try
+				{
+					if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json'))
+						ChartBytesData.saveChartFromJson(curSong, curDifficulty);
 
-			try
-			{
-				SONG = Song.loadFromJson(curSong + '/' + curSong + curDifficulty);
-				nd = SONG.noteData[currentNoteId];
+					chartBytesData = new ChartBytesData(curSong, curDifficulty);
+				}
+				catch (e)
+				{
+					trace('Chart file "assets/data/$curSong/chart/$curDifficulty.bin" is either corrupted or nonexistent.');
+					trace(e);
+				}
 			}
-			catch (e)
+			else
 			{
-				trace('Chart file "$preloadName" is either corrupted or nonexistent.');
+				if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json'))
+					ChartBytesData.saveChartFromJson(curSong, curDifficulty);
+
+				chartBytesData = new ChartBytesData(curSong, curDifficulty);
 			}
 
 			// What happens if you load a song with a bpm of under 10? Limit it.
 			Main.conductor.bpm = SONG.info.bpm = Math.max(SONG.info.bpm, 10.0);
 			Main.conductor.reset();
-
-			if (null == SONG.info.spectator) // Fix gf (for vanilla charts)
-				SONG.info.spectator = 'gf';
-
-			if (null == SONG.info.offset || SONG.info.offset < 0) // Fix offset
-				SONG.info.offset = 0;
 
 			strumlineCount == SONG.info.strumlines ? 2 : SONG.info.strumlines;
 

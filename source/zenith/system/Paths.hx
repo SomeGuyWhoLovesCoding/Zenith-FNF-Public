@@ -11,7 +11,6 @@ using StringTools;
 @:access(flixel.FlxSprite)
 
 @:final
-@:generic
 class Paths
 {
 	inline static public var ASSET_PATH:String = "assets";
@@ -49,8 +48,10 @@ class Paths
 		idleNote.active = idleSustain.active = idleStrumNote.active = idleNote.visible = idleSustain.visible = idleStrumNote.visible = false;
 	}
 
-	inline static public function font(key:String, ext:String = "ttf"):String
+	static public function font(key:String, ext:String = "ttf"):String
+	{
 		return '$ASSET_PATH/fonts/$key.$ext';
+	}
 
 	static public function image(key:String):BitmapData
 	{
@@ -100,12 +101,12 @@ class Paths
 
 	static public function voices(song:String):Sound
 	{
-		return __soundHelper('songs/${formatToSongPath(song)}/Voices');
+		return __soundHelper('data/${formatToSongPath(song)}/audio/vocals');
 	}
 
 	static public function inst(song:String):Sound
 	{
-		return __soundHelper('songs/${formatToSongPath(song)}/Inst');
+		return __soundHelper('data/${formatToSongPath(song)}/audio/inst');
 	}
 
 	static public function getSparrowAtlas(key:String):FlxAtlasFrames
@@ -114,5 +115,7 @@ class Paths
 	}
 
 	static public function formatToSongPath(path:String):String
+	{
 		return path.replace(' ', '-').toLowerCase();
+	}
 }

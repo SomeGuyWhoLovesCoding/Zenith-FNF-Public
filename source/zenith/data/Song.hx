@@ -1,6 +1,33 @@
 package zenith.data;
 
-using StringTools;
+typedef SwagSong =
+{
+	song:String,
+	info:SongInfo,
+	noteData:Array<Array<Float>>
+}
+
+class Song
+{
+	public var song:String;
+	public var info:SongInfo;
+
+	public function new(?song:String, ?info:SongInfo):Void
+	{
+		this.song = song;
+		this.info = info;
+	}
+
+	public function toString():String
+	{
+		return "{ song => " + song + ", info => " + info + " }";
+	}
+
+	public function stringify(noteData:Array<Array<Float>>):String
+	{
+		return '{ "song": "$song", "info": { "stage": "${info.stage}", "player1": "${info.player1}", "player2", "${info.player2}", "spectator", "${info.spectator}", "speed": ${info.speed}, "bpm": ${info.bpm}, "time_signature": ${info.time_signature}, "strumlines": ${info.strumlines} }, "noteData": $noteData }';
+	}
+}
 
 typedef SongInfo =
 {
@@ -10,28 +37,7 @@ typedef SongInfo =
 	var spectator:String;
 	var speed:Float;
 	var bpm:Float;
-	var time_signature:Array<Int>;
-	var offset:Null<Int>;
+	var time_signature:Array<#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end>;
 	var needsVoices:Bool;
-	@:optional var strumlines:Int;
-}
-
-typedef SwagSong =
-{
-	song:Null<String>,
-	info:SongInfo,
-	noteData:Array<Array<Float>>,
-	bpmChanges:Array<Array<Float>>
-}
-
-@:keep class Song
-{
-	static public function loadFromJson(jsonInput:String = "", folder:String = ""):SwagSong
-	{
-		var path:String = Paths.ASSET_PATH + '/data/' + folder.toLowerCase().replace(' ', '-') + '/' + jsonInput.toLowerCase().replace(' ', '-') + '.json';
-		var content:String = sys.io.File.getContent(path);
-		var songJson:SwagSong = haxe.Json.parse(content);
-		StageData.loadDirectory(songJson);
-		return songJson;
-	}
+	@:optional var strumlines:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end ;
 }

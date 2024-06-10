@@ -27,7 +27,7 @@ class SustainNoteSpawner extends FlxBasic
 	}
 
 	var _s(default, null):SustainNote;
-	public function spawn(chartSustainData:Array<Float>):SustainNote
+	public function spawn(chartSustainData:ChartBytesData.ChartNoteData):SustainNote
 	{
 		_s = SaveData.contents.experimental.fastNoteSpawning ? pool.pop() : recycle();
 
@@ -55,10 +55,10 @@ class SustainNoteSpawner extends FlxBasic
 		Main.hscript.callFromAllScripts('setupSustainData', _s, chartSustainData);
 		#end
 
-		_s.strumTime = chartSustainData[0];
-		_s.noteData = Std.int(chartSustainData[1]);
-		_s.length = chartSustainData[2] - 32.0 % Gameplay.strumlineCount;
-		_s.lane = Std.int(chartSustainData[3]);
+		_s.strumTime = chartSustainData.strumTime;
+		_s.noteData = chartSustainData.noteData;
+		_s.length = chartSustainData.sustainLength - 32.0 % Gameplay.strumlineCount;
+		_s.lane = chartSustainData.lane;
 		_s.targetCharacter = _s.lane == 0 ? Gameplay.instance.dad : Gameplay.instance.bf;
 
 		_sk = Gameplay.instance.strumlines.members[_s.lane].keys;

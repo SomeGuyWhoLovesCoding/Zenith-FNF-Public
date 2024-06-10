@@ -32,7 +32,7 @@ class NoteSpawner extends FlxBasic
 	}
 
 	var _n(default, null):Note;
-	public function spawn(chartNoteData:Array<Float>):Note
+	public function spawn(chartNoteData:ChartBytesData.ChartNoteData):Note
 	{
 		_n = SaveData.contents.experimental.fastNoteSpawning ? pool.pop() : recycle();
 
@@ -59,10 +59,10 @@ class NoteSpawner extends FlxBasic
 		Main.hscript.callFromAllScripts('setupNoteData', _n, chartNoteData);
 		#end
 
-		_n.strumTime = chartNoteData[0];
-		_n.noteData = Std.int(chartNoteData[1]);
-		_n.sustainLength = Std.int(chartNoteData[2]) - 32;
-		_n.lane = Std.int(chartNoteData[3]) % Gameplay.strumlineCount;
+		_n.strumTime = chartNoteData.strumTime;
+		_n.noteData = chartNoteData.noteData;
+		_n.sustainLength = chartNoteData.sustainLength - 32;
+		_n.lane = chartNoteData.lane % Gameplay.strumlineCount;
 		_n.targetCharacter = _n.lane == 0 ? Gameplay.instance.dad : Gameplay.instance.bf;
 
 		_nk = Gameplay.instance.strumlines.members[_n.lane].keys;
