@@ -7,7 +7,7 @@ import sys.io.File;
 // Only 8 bytes total for each one (without extra for pointers)
 class ChartNoteData
 {
-	public var strumTime:#if (cpp || hl) Single #else Float #end ;
+	public var strumTime:Int;
 	public var noteData:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end ;
 	public var sustainLength:#if cpp cpp.UInt16 #elseif hl hl.UI16 #else UInt #end ;
 	public var lane:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end ;
