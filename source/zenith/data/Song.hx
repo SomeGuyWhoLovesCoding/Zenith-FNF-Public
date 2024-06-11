@@ -37,7 +37,7 @@ typedef SongInfo =
 	var spectator:String;
 	var speed:Float;
 	var bpm:Float;
-	var time_signature:Array<#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end>;
+	var time_signature:Array<UInt>;
 	var needsVoices:Bool;
-	@:optional var strumlines:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end ;
+	@:optional var strumlines:UInt;
 }

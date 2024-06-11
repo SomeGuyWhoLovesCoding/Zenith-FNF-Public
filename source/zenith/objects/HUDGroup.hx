@@ -1,6 +1,5 @@
 package zenith.objects;
 
-import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.math.FlxMath;
@@ -88,11 +87,11 @@ class HUDGroup
 		oppIcon.x = healthBar.width * (1 - (healthBar.value / healthBar.maxValue) + 0.5) - 75.0;
 		plrIcon.x = oppIcon.x + 105.0;
 
-		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0.0, healthBar.maxValue), SaveData.contents.preferences.smoothHealth ? 0.08 : 1.0);
+		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0.0, healthBar.maxValue), SaveData.contents.preferences.smoothHealth ? FlxG.elapsed * 8.0 : 1.0);
 
 		if (Gameplay.instance.startedCountdown)
 		{
-			if (timeTxt.alpha >= 1.0)
+			if (timeTxt.alpha <= 1.0)
 				timeTxt.alpha += FlxG.elapsed * 6.0;
 			timeTxt.text = Utils.formatTime(Gameplay.instance.songLength - Main.conductor.songPosition, true, true);
 		}

@@ -27,19 +27,19 @@ class SustainNoteSpawner extends FlxBasic
 	}
 
 	var _s(default, null):SustainNote;
-	public function spawn(chartSustainData:ChartBytesData.ChartNoteData):SustainNote
+	public function spawn(chartSustainData:ChartBytesData.ChartNoteData):Void
 	{
 		_s = SaveData.contents.experimental.fastNoteSpawning ? pool.pop() : recycle();
 
 		if (_s != null)
 		{
-			_s.y = FlxG.height * 8.0;
+			_s.y = FlxG.height * (Gameplay.downScroll || _s.strum.scrollMult <= 0.0 ? -8.0 : 8.0);
 			_s.exists = true;
 		}
 		else
 		{
 			_s = new SustainNote();
-			_s.y = FlxG.height * 8.0;
+			_s.y = FlxG.height * (Gameplay.downScroll ? -8.0 : 8.0);
 			members.push(_s);
 		}
 
@@ -82,8 +82,6 @@ class SustainNoteSpawner extends FlxBasic
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('setupSustainDataPost', _s, chartSustainData);
 		#end
-
-		return _s;
 	}
 
 	var s(default, null):SustainNote;

@@ -1,13 +1,15 @@
 package zenith.system;
 
-import haxe.io.Bytes;
+import sys.io.FileInput;
 import sys.io.File;
 
-// The chart note data in the most optimized format possible (depending on the target)
-// Only 8 bytes total for each one (without extra for pointers)
+import haxe.Int64;
+
+// The chart note data in the most optimized format possible
+// Only 8 bytes total for each one (without extra for pointers depending on the target)
 class ChartNoteData
 {
-	public var strumTime:Int;
+	public var strumTime:#if (cpp || hl) Single #else Float #end ;
 	public var noteData:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end ;
 	public var sustainLength:#if cpp cpp.UInt16 #elseif hl hl.UI16 #else UInt #end ;
 	public var lane:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end ;
@@ -17,56 +19,35 @@ class ChartNoteData
 
 class ChartBytesData
 {
-	var position:UInt = 0;
-
-	public var bytes:Bytes;
+	public var input:FileInput;
 
 	public function new(songName:String, songDifficulty:String = 'normal'):Void
 	{
-		bytes = File.getBytes('assets/data/$songName/chart/$songDifficulty.bin');
+		input = File.read('assets/data/$songName/chart/$songDifficulty.bin');
 
-		var song_len = bytes.get(position);
-		position++;
-		var song:String = bytes.getString(position, song_len);
-		position += song.length;
+		var song_len = input.readByte();
+		var song:String = input.readString(song_len);
 
-		var speed = bytes.getFloat(position);
-		position += 4;
+		var speed = input.readFloat();
+		var bpm = input.readFloat();
 
-		var bpm = bytes.getFloat(position);
-		position += 4;
+		var player1_len = input.readByte();
+		var player1:String = input.readString(player1_len);
 
-		var player1_len = bytes.get(position);
-		position++;
-		var player1:String = bytes.getString(position, player1_len);
-		position += player1.length;
+		var player2_len = input.readByte();
+		var player2:String = input.readString(player2_len);
 
-		var player2_len = bytes.get(position);
-		position++;
-		var player2:String = bytes.getString(position, player2_len);
-		position += player2.length;
+		var spectator_len = input.readByte();
+		var spectator:String = input.readString(spectator_len);
 
-		var spectator_len = bytes.get(position);
-		position++;
-		var spectator:String = bytes.getString(position, spectator_len);
-		position += spectator.length;
+		var stage_len = input.readByte();
+		var stage:String = input.readString(stage_len);
 
-		var stage_len = bytes.get(position);
-		position++;
-		var stage:String = bytes.getString(position, stage_len);
-		position += stage.length;
+		var steps = input.readByte();
+		var beats = input.readByte();
 
-		var steps = bytes.get(position);
-		position++;
-
-		var beats = bytes.get(position);
-		position++;
-
-		var needsVoices:Bool = bytes.get(position) == 1;
-		position++;
-
-		var strumlines = bytes.get(position);
-		position++;
+		var needsVoices:Bool = input.readByte() == 1;
+		var strumlines = input.readByte();
 
 		Gameplay.SONG = new Song(song, {
 			speed: speed,
@@ -89,126 +70,119 @@ class ChartBytesData
 
 	public function update():Void
 	{
-		while (Main.conductor.songPosition > nextNote.strumTime - (1870 / Gameplay.instance.songSpeed))
+		while (!input.eof() && Main.conductor.songPosition > nextNote.strumTime - (1870 / Gameplay.instance.songSpeed))
 		{
-			trace('Spawn at ${nextNote.strumTime}');
 			Gameplay.instance.noteSpawner.spawn(nextNote);
 
-			_moveToNext();
+			// Actually a way to check if there are no more notes to spawn. At least this is one of the solutions.
+			try
+			{
+				_moveToNext();
+			}
+			catch (e)
+			{
+			}
 		}
 	}
 
 	inline function _moveToNext():Void
 	{
-		nextNote.strumTime = bytes.getInt32(position);
-		position += 4;
-		nextNote.noteData = bytes.get(position);
-		position++;
-		nextNote.sustainLength = bytes.getUInt16(position);
-		position += 2;
-		nextNote.lane = bytes.get(position);
-		position++;
+		nextNote.strumTime = inline _readFloat();
+		nextNote.noteData = inline input.readByte();
+		nextNote.sustainLength = inline _readUInt16();
+		nextNote.lane = inline input.readByte();
 	}
 
 	static public function saveChartFromJson(songName:String, songDifficulty:String):Void
 	{
 		trace("Parsing json...");
+
 		var json:Song.SwagSong = haxe.Json.parse(File.getContent('assets/data/$songName/chart/$songDifficulty.json'));
-		trace(json);
-		trace("Done! Now let's precalculate the size for the bytes and preallocate the bytes");
 
-		// (Bytes for song string) + info.speed (4) + info.bpm (4) + (Bytes for info.player1 string) + (Bytes for info.player2 string) + (Bytes for info.spectator string) + (Bytes for info.stage string) + (SONG.noteData.length) bytes total.
-		// For preallocation btw
+		trace('Done! Now let\'s start writing to "assets/data/$songName/chart/$songDifficulty.bin".');
 
-		trace(json.song.length);
-		trace(json.info.player1.length);
-		trace(json.info.player2.length);
-		trace(json.noteData.length);
-
-		var size:Int = json.song.length + 8 + json.info.player1.length + json.info.player2.length + (json.noteData.length * 8);
-
-		if (json.info.spectator != null)
-			size += json.info.spectator.length;
-
-		if (json.info.stage != null)
-			size += json.info.stage.length;
-
-		var input:Bytes = Bytes.alloc(size);
-		var position:Int = 0;
+		var output = File.write('assets/data/$songName/chart/$songDifficulty.bin');
 
 		// Song
-		input.set(position, json.song.length);
-		position++;
-		_setString(input, position, json.song);
-		position += json.song.length;
+		inline output.writeByte(json.song.length);
+		output.writeString(json.song);
 
 		// Speed
-		input.setFloat(position, json.info.speed);
-		position += 4;
+		inline output.writeFloat(json.info.speed);
 
 		// BPM
-		input.setFloat(position, json.info.bpm);
-		position += 4;
+		inline output.writeFloat(json.info.bpm);
 
 		// Player 1
-		input.set(position, json.info.player1.length);
-		position++;
-		_setString(input, position, json.info.player1);
-		position += json.info.player1.length;
+		inline output.writeByte(json.info.player1.length);
+		output.writeString(json.info.player1);
 
 		// Player 2
-		input.set(position, json.info.player2.length);
-		position++;
-		_setString(input, position, json.info.player2);
-		position += json.info.player2.length;
+		inline output.writeByte(json.info.player2.length);
+		output.writeString(json.info.player2);
 
 		// Spectator
-		input.set(position, json.info.spectator.length);
-		position++;
-		_setString(input, position, json.info.spectator);
-		position += json.info.spectator.length;
+		inline output.writeByte(json.info.spectator != null ? json.info.spectator.length : 2);
+		output.writeString(json.info.spectator != null ? json.info.spectator : "gf");
 
 		// Stage
-		input.set(position, json.info.stage.length);
-		position++;
-		_setString(input, position, json.info.stage);
-		position += json.info.stage.length;
+		inline output.writeByte(json.info.stage != null ? json.info.stage.length : 5);
+		output.writeString(json.info.stage != null ? json.info.stage : "stage");
+
+		// Time signature (steps)
+		inline output.writeByte(json.info.time_signature[0]);
 
 		// Time signature (beats)
-		input.set(position, json.info.time_signature[0]);
-		position++;
-
-		// Time signature (beats)
-		input.set(position, json.info.time_signature[1]);
-		position++;
+		inline output.writeByte(json.info.time_signature[1]);
 
 		// Needs voices
-		input.set(position, json.info.needsVoices ? 1 : 0);
-		position++;
+		inline output.writeByte(json.info.needsVoices ? 1 : 0);
 
 		// Strumline count
-		input.set(position, json.info.strumlines);
-		position++;
+		inline output.writeByte(json.info.strumlines);
 
 		for (note in json.noteData)
 		{
-			trace(note[0]);
-			input.setInt32(position, Std.int(note[0]));
-			position += 4;
-			input.set(position, Std.int(note[1]));
-			position++;
-			input.setUInt16(position, Std.int(note[2]));
-			position += 2;
-			input.set(position, Std.int(note[3]));
-			position++;
+			inline output.writeFloat(note[0]);
+			inline output.writeByte(Std.int(note[1]));
+			inline output.writeUInt16(Std.int(note[2]));
+			inline output.writeByte(Std.int(note[3]));
 		}
 
-		File.saveBytes('assets/data/$songName/chart/$songDifficulty.bin', input);
+		output.close(); // LMAO
 	}
 
-	// This was made as a workaround for setting a string in haxe.io.Bytes without even using haxe.io.BytesBuffer and with preallocation.
-	static function _setString(input:Bytes, position:Int, str:String):Void
+	// Inlined functions to improve performance when streaming bytes
+
+	inline function _readUInt16():Int
 	{
-		input.blit(position, Bytes.ofString(str), 0, str.length);
+		var ch1 = inline input.readByte();
+		var ch2 = inline input.readByte();
+		return input.bigEndian ? ch2 | (ch1 << 8) : ch1 | (ch2 << 8);
+	}
+
+	inline function _readInt32():Int {
+		var ch1 = inline input.readByte();
+		var ch2 = inline input.readByte();
+		var ch3 = inline input.readByte();
+		var ch4 = inline input.readByte();
+		#if (php || python)
+		// php will overflow integers.  Convert them back to signed 32-bit ints.
+		var n = input.bigEndian ? ch4 | (ch3 << 8) | (ch2 << 16) | (ch1 << 24) : ch1 | (ch2 << 8) | (ch3 << 16) | (ch4 << 24);
+		if (n & 0x80000000 != 0)
+			return (n | 0x80000000);
+		else
+			return n;
+		#elseif lua
+		var n = input.bigEndian ? ch4 | (ch3 << 8) | (ch2 << 16) | (ch1 << 24) : ch1 | (ch2 << 8) | (ch3 << 16) | (ch4 << 24);
+		return lua.Boot.clampInt32(n);
+		#else
+		return input.bigEndian ? ch4 | (ch3 << 8) | (ch2 << 16) | (ch1 << 24) : ch1 | (ch2 << 8) | (ch3 << 16) | (ch4 << 24);
+		#end
+	}
+
+	inline function _readFloat():Float
+	{
+		return inline haxe.io.FPHelper.i32ToFloat(_readInt32());
 	}
 }

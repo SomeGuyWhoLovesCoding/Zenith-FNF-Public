@@ -6,13 +6,11 @@ import flixel.animation.FlxAnimation;
 @:access(flixel.animation.FlxAnimationController)
 @:access(flixel.animation.FlxAnimation)
 
-@:final
-@:generic
 class StrumNote extends FlxSprite
 {
-	public var noteData:Int = 0;
-	public var player:Int = 0;
-	public var scrollMult:Float = 1.0;
+	public var noteData:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end = 0;
+	public var player:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end = 0;
+	public var scrollMult:Float32 = 1.0;
 	public var playable(default, set):Bool = false;
 
 	inline function set_playable(value:Bool):Bool
@@ -23,9 +21,9 @@ class StrumNote extends FlxSprite
 
 	public var parent:Strumline;
 
-	public var index:Int = 0;
+	public var index:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end = 0;
 
-	public function new(data:Int, plr:Int)
+	public function new(data:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end, plr:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end)
 	{
 		super();
 
@@ -33,7 +31,7 @@ class StrumNote extends FlxSprite
 		player = plr;
 	}
 
-	inline private function init():Void
+	inline public function _reset():Void
 	{
 		frames = Paths.strumNoteAnimationHolder.frames;
 		animation.copyFrom(Paths.strumNoteAnimationHolder.animation);

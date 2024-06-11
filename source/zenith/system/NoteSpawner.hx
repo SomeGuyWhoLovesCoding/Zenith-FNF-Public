@@ -32,19 +32,19 @@ class NoteSpawner extends FlxBasic
 	}
 
 	var _n(default, null):Note;
-	public function spawn(chartNoteData:ChartBytesData.ChartNoteData):Note
+	public function spawn(chartNoteData:ChartBytesData.ChartNoteData):Void
 	{
 		_n = SaveData.contents.experimental.fastNoteSpawning ? pool.pop() : recycle();
 
 		if (_n != null)
 		{
-			_n.y = FlxG.height * 8.0;
+			_n.y = FlxG.height * (Gameplay.downScroll || _n.strum.scrollMult <= 0.0 ? -8.0 : 8.0);
 			_n.exists = true;
 		}
 		else
 		{
 			_n = new Note();
-			_n.y = FlxG.height * 8.0;
+			_n.y = FlxG.height * (Gameplay.downScroll ? -8.0 : 8.0);
 			members.push(_n);
 		}
 
@@ -61,7 +61,7 @@ class NoteSpawner extends FlxBasic
 
 		_n.strumTime = chartNoteData.strumTime;
 		_n.noteData = chartNoteData.noteData;
-		_n.sustainLength = chartNoteData.sustainLength - 32;
+		_n.sustainLength = chartNoteData.sustainLength;
 		_n.lane = chartNoteData.lane % Gameplay.strumlineCount;
 		_n.targetCharacter = _n.lane == 0 ? Gameplay.instance.dad : Gameplay.instance.bf;
 
@@ -85,12 +85,10 @@ class NoteSpawner extends FlxBasic
 		Main.hscript.callFromAllScripts('setupNoteDataPost', _n, chartNoteData);
 		#end
 
-		if (_n.sustainLength > 32.0)
+		if (_n.sustainLength > 20) // Don't spawn too short sustains
 		{
 			Gameplay.instance.sustainNoteSpawner.spawn(chartNoteData);
 		}
-
-		return _n;
 	}
 
 	var n(default, null):Note;

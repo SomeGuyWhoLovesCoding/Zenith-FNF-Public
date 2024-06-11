@@ -3,13 +3,12 @@ package zenith.objects;
 import flixel.math.FlxRect;
 
 @:final
-@:generic
 class SustainNote extends NoteBase
 {
-	public var length:Float = 0.0;
+	public var length:Float32 = 0.0;
 	public var state:NoteState = IDLE;
 
-	override function set_direction(dir:Float):Float
+	override function set_direction(dir:Float32):Float32
 	{
 		return angle = (direction = dir) + (downScroll ? 180.0 : 0.0);
 	}
@@ -26,7 +25,7 @@ class SustainNote extends NoteBase
 	{
 		if (null != _frame)
 		{
-			_frame.frame.height = (1 - (_frame.frame.y = -length * (((null != Gameplay.SONG ? Gameplay.SONG.info.speed : 1.0) *
+			_frame.frame.height = (1.0 - (_frame.frame.y = -length * (((null != Gameplay.SONG ? Gameplay.SONG.info.speed : 1.0) *
 				0.6428571428571431) /* What the hell? */ / (strum.scale.y * 1.428571428571429))) * (strum.scrollMult < 0.0 ? -strum.scrollMult : strum.scrollMult)) + frameHeight;
 			height = _frame.frame.height * (scale.y < 0.0 ? -scale.y : scale.y);
 		}
