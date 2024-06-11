@@ -199,7 +199,7 @@ class ChartBytesData
 		}
 
 		// Long line
-		File.saveContent('assets/data/$songName/chart/$songDifficulty.json', '{"song":"$song","info":{"stage":"$stage","player1":"$player1","player2":"$player2","spectator":"$spectator","speed":$speed,"bpm":$bpm,"time_signature":${[beats, steps]},"strumlines":$strumlines},"noteData":$noteData}');
+		File.saveContent('assets/data/$songName/chart/$songDifficulty.json', '{"song":"$song","info":{"stage":"$stage","player1":"$player1","player2":"$player2","spectator":"$spectator","speed":$speed,"bpm":$bpm,"time_signature":${[beats, steps]},"needsVoices":$needsVoices},"strumlines":$strumlines},"noteData":$noteData}');
 	}
 
 	// Inlined functions to improve performance when streaming bytes
