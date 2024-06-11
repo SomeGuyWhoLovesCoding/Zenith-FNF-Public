@@ -20,7 +20,7 @@ class Song
 
 	public function toString():String
 	{
-		return "{ song => " + song + ", info => " + info + " }";
+		return '{song : $song, info : $info}';
 	}
 
 	public function stringify(noteData:Array<Array<Float>>):String

@@ -35,14 +35,14 @@ class Gameplay extends State
 
 	inline function set_score(value:Float):Float
 	{
-		return score = Math.ffloor(value);
+		return score = inline Math.ffloor(value);
 	}
 
 	public var misses(default, set):Float = 0.0;
 
 	inline function set_misses(value:Float):Float
 	{
-		return misses = Math.ffloor(value);
+		return misses = inline Math.ffloor(value);
 	}
 
 	var accuracy_left(default, null):Float = 0.0;

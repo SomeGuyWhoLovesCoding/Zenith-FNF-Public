@@ -21,11 +21,7 @@ class ChartBytesData
 
 	public function new(songName:String, songDifficulty:String = 'normal'):Void
 	{
-		var timeStamp = untyped __global__.__time_stamp();
-
 		input = File.read('assets/data/$songName/chart/$songDifficulty.bin');
-
-		trace(untyped __global__.__time_stamp() - timeStamp);
 
 		var song_len = input.readByte();
 		var song:String = input.readString(song_len);
