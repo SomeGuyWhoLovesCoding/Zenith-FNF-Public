@@ -59,7 +59,7 @@ class NoteSpawner extends FlxBasic
 		Main.hscript.callFromAllScripts('setupNoteData', _n, chartNoteData);
 		#end
 
-		_n.strumTime = chartNoteData.strumTime;
+		_n.position = chartNoteData.position;
 		_n.noteData = chartNoteData.noteData;
 		_n.sustainLength = chartNoteData.sustainLength;
 		_n.lane = chartNoteData.lane % Gameplay.strumlineCount;
@@ -109,13 +109,13 @@ class NoteSpawner extends FlxBasic
 				n.origin.x = n.frameWidth * 0.5;
 				n.origin.y = n.frameHeight * 0.5;
 
-				n.distance = 0.45 * (Main.conductor.songPosition - n.strumTime) * Gameplay.instance.songSpeed;
+				n.distance = 0.45 * (Main.conductor.songPosition - n.position) * Gameplay.instance.songSpeed;
 				n.x = n.strum.x + n.offsetX + (-Math.abs(n.strum.scrollMult) * n.distance) *
 					FlxMath.fastCos(FlxAngle.asRadians(n.direction - 90.0));
 				n.y = n.strum.y + n.offsetY + (n.strum.scrollMult * n.distance) *
 					FlxMath.fastSin(FlxAngle.asRadians(n.direction - 90.0));
 
-				if (Main.conductor.songPosition > n.strumTime + (750.0 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
+				if (Main.conductor.songPosition > n.position + (750.0 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
 				{
 					hittable.__items[n.strum.index] = Paths.idleNote;
 					n.exists = false;
@@ -128,7 +128,7 @@ class NoteSpawner extends FlxBasic
 				{
 					if (n.state == IDLE)
 					{
-						if (Main.conductor.songPosition > n.strumTime + 166.7)
+						if (Main.conductor.songPosition > n.position + 166.7)
 						{
 							Gameplay.instance.onNoteMiss(n);
 							n.state = MISS;
@@ -137,9 +137,9 @@ class NoteSpawner extends FlxBasic
 						// Took forever to fully polish here ofc
 						_n = hittable.__items[n.strum.index];
 						if ((_n == Paths.idleNote ||
-							_n.strumTime > n.strumTime ||
+							_n.position > n.position ||
 							_n.state != IDLE) &&
-							Main.conductor.songPosition > n.strumTime - 166.7)
+							Main.conductor.songPosition > n.position - 166.7)
 						{
 							hittable.__items[n.strum.index] = n;
 						}
@@ -147,7 +147,7 @@ class NoteSpawner extends FlxBasic
 				}
 				else
 				{
-					if (Main.conductor.songPosition > n.strumTime)
+					if (Main.conductor.songPosition > n.position)
 					{
 						Gameplay.instance.onNoteHit(n);
 						if (SaveData.contents.experimental.fastNoteSpawning)
@@ -182,7 +182,7 @@ class NoteSpawner extends FlxBasic
 		// The middle checks are pretty weird but it does fix a couple bugs
 		_n = hittable.__items[strum.index];
 		if (strum != null && strum.playable && _n.state == IDLE &&
-			Main.conductor.songPosition > _n.strumTime - (166.7 * Gameplay.instance.songSpeed))
+			Main.conductor.songPosition > _n.position - (166.7 * Gameplay.instance.songSpeed))
 		{
 			_n.state = HIT;
 			Gameplay.instance.onNoteHit(_n);

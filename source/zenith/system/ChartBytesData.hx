@@ -9,7 +9,7 @@ import haxe.Int64;
 // Only 8 bytes total for each one (without extra for pointers depending on the target)
 typedef ChartNoteData =
 {
-	var strumTime:Float32;
+	var position:Float32;
 	var noteData:UInt;
 	var sustainLength:UInt;
 	var lane:UInt;
@@ -21,7 +21,11 @@ class ChartBytesData
 
 	public function new(songName:String, songDifficulty:String = 'normal'):Void
 	{
+		var timeStamp = untyped __global__.__time_stamp();
+
 		input = File.read('assets/data/$songName/chart/$songDifficulty.bin');
+
+		trace(untyped __global__.__time_stamp() - timeStamp);
 
 		var song_len = input.readByte();
 		var song:String = input.readString(song_len);
@@ -64,11 +68,11 @@ class ChartBytesData
 		_moveToNext();
 	}
 
-	var nextNote:ChartNoteData = {strumTime: 0, noteData: 0, sustainLength: 0, lane: 0};
+	var nextNote:ChartNoteData = {position: 0, noteData: 0, sustainLength: 0, lane: 0};
 
 	public function update():Void
 	{
-		while (!input.eof() && Main.conductor.songPosition > nextNote.strumTime - (1870 / Gameplay.instance.songSpeed))
+		while (!input.eof() && Main.conductor.songPosition > nextNote.position - (1870 / Gameplay.instance.songSpeed))
 		{
 			Gameplay.instance.noteSpawner.spawn(nextNote);
 
@@ -85,7 +89,7 @@ class ChartBytesData
 
 	inline function _moveToNext():Void
 	{
-		nextNote.strumTime = _readFloat();
+		nextNote.position = _readFloat();
 		nextNote.noteData = inline input.readByte();
 		nextNote.sustainLength = _readUInt16();
 		nextNote.lane = inline input.readByte();
@@ -139,12 +143,12 @@ class ChartBytesData
 		// Strumline count
 		inline output.writeByte(json.info.strumlines);
 
-		for (note in json.noteData)
+		for (i in 0...10000000)
 		{
-			inline output.writeFloat(note[0]);
-			inline output.writeByte(Std.int(note[1]));
-			inline output.writeUInt16(Std.int(note[2]));
-			inline output.writeByte(Std.int(note[3]));
+			inline output.writeFloat(i);
+			inline output.writeByte(i % 4);
+			inline output.writeUInt16(0);
+			inline output.writeByte(0);
 		}
 
 		output.close(); // LMAO
@@ -196,8 +200,22 @@ class ChartBytesData
 			}
 		}
 
-		// Long line
-		File.saveContent('assets/data/$songName/chart/$songDifficulty.json', '{"song":"$song","info":{"stage":"$stage","player1":"$player1","player2":"$player2","spectator":"$spectator","speed":$speed,"bpm":$bpm,"time_signature":${[beats, steps]},"needsVoices":$needsVoices},"strumlines":$strumlines},"noteData":$noteData}');
+		// Make the file readable instead of making it a long line
+		File.saveContent('assets/data/$songName/chart/$songDifficulty.json', '{
+			"song":"$song",
+			"info":{
+				"stage":"$stage",
+				"player1":"$player1",
+				"player2":"$player2",
+				"spectator":"$spectator",
+				"speed":$speed,
+				"bpm":$bpm,
+				"time_signature":[$beats, $steps],
+				"needsVoices":$needsVoices,
+				"strumlines":$strumlines
+			},
+			"noteData":$noteData
+		}');
 	}
 
 	// Inlined functions to improve performance when streaming bytes

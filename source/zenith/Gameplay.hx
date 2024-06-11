@@ -272,16 +272,23 @@ class Gameplay extends State
 			hudCameraBelow.alpha = hudCamera.alpha;
 			hudCameraBelow.zoom = hudCamera.zoom;
 
-			if (startedCountdown && !songEnded)
-			{
-				_songPos = inst.time;
-			}
-			else
-			{
-				_songPos += elapsed * 1000.0;
-			}
+			// Don't progress further if the song has ended
 
-			Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, _songPos, FlxG.elapsed * 10.215);
+			if (!songEnded)
+			{
+				if (startedCountdown)
+				{
+					_songPos = inst.time;
+				}
+				else
+				{
+					_songPos += elapsed * 1000.0;
+				}
+
+				Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, _songPos, FlxG.elapsed * 10.215);
+
+				chartBytesData.update();
+			}
 
 			if (_songPos >= 0 && !startedCountdown)
 			{
@@ -289,8 +296,6 @@ class Gameplay extends State
 			}
 
 			super.update(elapsed);
-
-			chartBytesData.update();
 
 			if (hudGroup != null)
 				hudGroup.update();
@@ -1321,8 +1326,8 @@ class Gameplay extends State
 		if (note.strum.playable)
 		{
 			score += 350.0;
-			accuracy_left += ((note.strumTime - Main.conductor.songPosition < 0.0 ? -(note.strumTime - Main.conductor.songPosition) :
-				note.strumTime - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0);
+			accuracy_left += ((note.position - Main.conductor.songPosition < 0.0 ? -(note.position - Main.conductor.songPosition) :
+				note.position - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0);
 			accuracy_right++;
 		}
 
@@ -1420,12 +1425,6 @@ class Gameplay extends State
 		{
 			try
 			{
-				if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json'))
-					ChartBytesData.saveChartFromJson(curSong, curDifficulty);
-
-				if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.bin'))
-					ChartBytesData.saveJsonFromChart(curSong, curDifficulty);
-
 				chartBytesData = new ChartBytesData(curSong, curDifficulty);
 			}
 			catch (e)
@@ -1436,12 +1435,6 @@ class Gameplay extends State
 		}
 		else
 		{
-			if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json'))
-				ChartBytesData.saveChartFromJson(curSong, curDifficulty);
-
-			if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.bin'))
-				ChartBytesData.saveJsonFromChart(curSong, curDifficulty);
-
 			chartBytesData = new ChartBytesData(curSong, curDifficulty);
 		}
 	}

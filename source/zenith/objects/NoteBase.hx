@@ -2,7 +2,7 @@ package zenith.objects;
 
 class NoteBase extends StaticSprite
 {
-	public var strumTime:Float32 = 0.0;
+	public var position:Float32 = 0.0;
 	public var noteData:UInt = 0;
 	public var gfNote:Bool = false;
 

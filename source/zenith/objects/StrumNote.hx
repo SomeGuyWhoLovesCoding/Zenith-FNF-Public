@@ -21,7 +21,7 @@ class StrumNote extends FlxSprite
 
 	public var parent:Strumline;
 
-	public var index:UInt8 = 0;
+	public var index:UInt = 0;
 
 	public function new(data:UInt, plr:UInt)
 	{

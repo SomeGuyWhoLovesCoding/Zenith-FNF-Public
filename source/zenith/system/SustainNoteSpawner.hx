@@ -55,10 +55,10 @@ class SustainNoteSpawner extends FlxBasic
 		Main.hscript.callFromAllScripts('setupSustainData', _s, chartSustainData);
 		#end
 
-		_s.strumTime = chartSustainData.strumTime;
+		_s.position = chartSustainData.position;
 		_s.noteData = chartSustainData.noteData;
-		_s.length = chartSustainData.sustainLength - 32.0 % Gameplay.strumlineCount;
-		_s.lane = chartSustainData.lane;
+		_s.length = chartSustainData.sustainLength;
+		_s.lane = chartSustainData.lane % Gameplay.strumlineCount;
 		_s.targetCharacter = _s.lane == 0 ? Gameplay.instance.dad : Gameplay.instance.bf;
 
 		_sk = Gameplay.instance.strumlines.members[_s.lane].keys;
@@ -101,7 +101,7 @@ class SustainNoteSpawner extends FlxBasic
 				s.origin.x = s.frameWidth * 0.5;
 				s.origin.y = s.offset.y = 0.0;
 
-				s.distance = 0.45 * (Main.conductor.songPosition - s.strumTime) * Gameplay.instance.songSpeed;
+				s.distance = 0.45 * (Main.conductor.songPosition - s.position) * Gameplay.instance.songSpeed;
 
 				s.x = (s.strum.x + s.offsetX + (-Math.abs(s.strum.scrollMult) * s.distance) *
 					FlxMath.fastCos(FlxAngle.asRadians(s.direction - 90.0))) + ((Gameplay.instance.initialStrumWidth - (s.frameWidth * s.scale.x)) * 0.5);
@@ -109,7 +109,7 @@ class SustainNoteSpawner extends FlxBasic
 				s.y = (s.strum.y + s.offsetY + (s.strum.scrollMult * s.distance) *
 					FlxMath.fastSin(FlxAngle.asRadians(s.direction - 90.0))) + (Gameplay.instance.initialStrumHeight * 0.5);
 
-				if (Main.conductor.songPosition > (s.strumTime + s.length) + (750.0 / Gameplay.instance.songSpeed))
+				if (Main.conductor.songPosition > (s.position + s.length) + (750.0 / Gameplay.instance.songSpeed))
 				{
 					s.exists = false;
 					if (SaveData.contents.experimental.fastNoteSpawning)
@@ -117,15 +117,15 @@ class SustainNoteSpawner extends FlxBasic
 					continue;
 				}
 
-				if (Main.conductor.songPosition < (s.strumTime + s.length) - (Main.conductor.stepCrochet * 0.875) &&
-					Main.conductor.songPosition > s.strumTime && s.state != MISS)
+				if (Main.conductor.songPosition < (s.position + s.length) - (Main.conductor.stepCrochet * 0.875) &&
+					Main.conductor.songPosition > s.position && s.state != MISS)
 				{
 					if (s.strum.playable)
 					{
 						_s = missable.__items[s.strum.index];
-						if (Main.conductor.songPosition > s.strumTime - 166.7 &&
+						if (Main.conductor.songPosition > s.position - 166.7 &&
 							(_s == Paths.idleSustain ||
-							_s.strumTime > s.strumTime ||
+							_s.position > s.position ||
 							_s.state != IDLE))
 						{
 							missable.__items[s.strum.index] = s;
@@ -168,7 +168,7 @@ class SustainNoteSpawner extends FlxBasic
 	{
 		_s = missable.__items[strum.index];
 		if (strum != null && strum.playable && _s != Paths.idleSustain &&
-			Main.conductor.songPosition > _s.strumTime &&
+			Main.conductor.songPosition > _s.position &&
 			_s.state != MISS)
 		{
 			_s.state = MISS;
