@@ -25,5 +25,5 @@ class NoteBase extends StaticSprite
 	}
 
 	static public var colorArray:Array<Int> = [0xffc941d5, 0xff00ffff, 0xff0ffb3e, 0xfffa3e3e];
-	static public var angleArray:Array<Float33> = [0.0, -90.0, 90.0, 180.0];
+	static public var angleArray:Array<Float32> = [0.0, -90.0, 90.0, 180.0];
 }
