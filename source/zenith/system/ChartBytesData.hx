@@ -17,6 +17,8 @@ class ChartBytesData
 {
 	public var input:FileInput;
 
+	var bytesTotal(default, null):Float = 1;
+
 	public function new(songName:String, songDifficulty:String = 'normal'):Void
 	{
 		input = File.read('assets/data/$songName/chart/$songDifficulty.bin');
@@ -57,6 +59,8 @@ class ChartBytesData
 			strumlines: strumlines
 		});
 
+		bytesTotal = input.readFloat();
+
 		trace(Gameplay.SONG.toString());
 
 		_moveToNext();
@@ -66,18 +70,23 @@ class ChartBytesData
 
 	public function update():Void
 	{
-		while (!input.eof() && Main.conductor.songPosition > nextNote.position - (1870 / Gameplay.instance.songSpeed))
+		if (bytesTotal == 0)
+			return;
+
+		while (Main.conductor.songPosition > nextNote.position - (1880 / Gameplay.instance.songSpeed))
 		{
 			Gameplay.instance.noteSpawner.spawn(nextNote);
 
-			// Actually a way to check if there are no more notes to spawn. At least this is one of the solutions.
-			try
+			trace(bytesTotal - input.tell());
+
+			if (bytesTotal - input.tell() == 0)
 			{
-				_moveToNext();
+				input.close();
+				bytesTotal = 0;
+				break;
 			}
-			catch (e)
-			{
-			}
+
+			_moveToNext();
 		}
 	}
 
@@ -137,6 +146,10 @@ class ChartBytesData
 		// Strumline count
 		inline output.writeByte(json.info.strumlines);
 
+		// Pretty
+		inline output.writeFloat((json.song.length + 9 + (json.info.player1.length + 1) + (json.info.player2.length + 1) +
+			(json.info.spectator != null ? json.info.spectator.length + 1 : 3) + (json.info.stage != null ? json.info.stage.length + 1 : 6) + 8) + (json.noteData.length * 8));
+
 		for (note in json.noteData)
 		{
 			inline output.writeFloat(note[0]);
@@ -194,25 +207,11 @@ class ChartBytesData
 			}
 		}
 
-		// Make the file readable instead of making it a long line
-		File.saveContent('assets/data/$songName/chart/$songDifficulty.json', '{
-			"song":"$song",
-			"info":{
-				"stage":"$stage",
-				"player1":"$player1",
-				"player2":"$player2",
-				"spectator":"$spectator",
-				"speed":$speed,
-				"bpm":$bpm,
-				"time_signature":[$beats, $steps],
-				"needsVoices":$needsVoices,
-				"strumlines":$strumlines
-			},
-			"noteData":$noteData
-		}');
+		File.saveContent('assets/data/$songName/chart/$songDifficulty.json', '{"song":"$song","info":{"stage":"$stage","player1":"$player1","player2":"$player2","spectator":"$spectator","speed":$speed,"bpm":$bpm,"time_signature":[$beats, $steps],"needsVoices":$needsVoices,"strumlines":$strumlines},"noteData":$noteData}');
 	}
 
 	// Inlined functions to improve performance when streaming bytes
+	// This is just the rest of ChartBytesData lol
 
 	inline function _readUInt16():Int
 	{
