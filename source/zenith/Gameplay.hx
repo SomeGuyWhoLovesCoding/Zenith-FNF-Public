@@ -1425,6 +1425,10 @@ class Gameplay extends State
 		{
 			try
 			{
+				if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json') &&
+					!sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.bin'))
+					ChartBytesData.saveChartFromJson(curSong, curDifficulty);
+
 				chartBytesData = new ChartBytesData(curSong, curDifficulty);
 			}
 			catch (e)
@@ -1435,6 +1439,10 @@ class Gameplay extends State
 		}
 		else
 		{
+			if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json') &&
+				!sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.bin'))
+				ChartBytesData.saveChartFromJson(curSong, curDifficulty);
+
 			chartBytesData = new ChartBytesData(curSong, curDifficulty);
 		}
 	}
