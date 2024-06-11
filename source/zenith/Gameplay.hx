@@ -12,6 +12,8 @@ import flixel.text.FlxText;
 import sys.thread.Thread;
 import sys.thread.Mutex;
 
+import sys.FileSystem;
+
 using StringTools;
 
 @:access(zenith.objects.HUDGroup)
@@ -1414,8 +1416,8 @@ class Gameplay extends State
 		{
 			try
 			{
-				if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json') &&
-					!sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.bin'))
+				if (FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json') &&
+					!FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.bin'))
 					ChartBytesData.saveChartFromJson(curSong, curDifficulty);
 
 				chartBytesData = new ChartBytesData(curSong, curDifficulty);
@@ -1428,8 +1430,8 @@ class Gameplay extends State
 		}
 		else
 		{
-			if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json') &&
-				!sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.bin'))
+			if (FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json') &&
+				!FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.bin'))
 				ChartBytesData.saveChartFromJson(curSong, curDifficulty);
 
 			chartBytesData = new ChartBytesData(curSong, curDifficulty);
