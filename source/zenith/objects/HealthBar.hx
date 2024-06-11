@@ -11,9 +11,9 @@ class HealthBar extends FlxSpriteGroup
 	private var __right:FlxSprite = null;
 
 	public var value:Float = 1.0;
-	public var maxValue:Float = 2.0;
+	public var maxValue:Float32 = 2.0;
 
-	var v(default, null):Float = 0.0;
+	var v(default, null):Float32 = 0.0;
 
 	public function new(x:Float = 0.0, y:Float = 0.0, left:Array<Int>, right:Array<Int>, width:Int = 100, height:Int = 10, maxValue:Float = 2.0):Void
 	{
