@@ -87,9 +87,9 @@ class ChartBytesData
 
 	inline function _moveToNext():Void
 	{
-		nextNote.strumTime = inline _readFloat();
+		nextNote.strumTime = _readFloat();
 		nextNote.noteData = inline input.readByte();
-		nextNote.sustainLength = inline _readUInt16();
+		nextNote.sustainLength = _readUInt16();
 		nextNote.lane = inline input.readByte();
 	}
 
@@ -150,6 +150,56 @@ class ChartBytesData
 		}
 
 		output.close(); // LMAO
+	}
+
+	static public function saveJsonFromChart(songName:String, songDifficulty:String):Void
+	{
+		trace("Parsing chart...");
+
+		var _input:FileInput = File.read('assets/data/$songName/chart/$songDifficulty.bin');
+
+		trace('Done! Now let\'s start writing to "assets/data/$songName/chart/$songDifficulty.json".');
+
+		var song_len = _input.readByte();
+		var song:String = _input.readString(song_len);
+
+		var speed = _input.readFloat();
+		var bpm = _input.readFloat();
+
+		var player1_len = _input.readByte();
+		var player1:String = _input.readString(player1_len);
+
+		var player2_len = _input.readByte();
+		var player2:String = _input.readString(player2_len);
+
+		var spectator_len = _input.readByte();
+		var spectator:String = _input.readString(spectator_len);
+
+		var stage_len = _input.readByte();
+		var stage:String = _input.readString(stage_len);
+
+		var steps = _input.readByte();
+		var beats = _input.readByte();
+
+		var needsVoices:Bool = _input.readByte() == 1;
+		var strumlines = _input.readByte();
+
+		var noteData:Array<Array<Float>> = [];
+
+		while (true)
+		{
+			try
+			{
+				noteData.push([_input.readFloat(), inline _input.readByte(), _input.readUInt16(), inline _input.readByte()]);
+			}
+			catch (e)
+			{
+				break;
+			}
+		}
+
+		// Long line
+		File.saveContent('assets/data/$songName/chart/$songDifficulty.json', '{"song":"$song","info":{"stage":"$stage","player1":"$player1","player2":"$player2","spectator":"$spectator","speed":$speed,"bpm":$bpm,"time_signature":${[beats, steps]},"strumlines":$strumlines},"noteData":$noteData}');
 	}
 
 	// Inlined functions to improve performance when streaming bytes

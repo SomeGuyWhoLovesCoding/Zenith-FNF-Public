@@ -10,24 +10,24 @@ class State extends FlxState
 {
 	static public var crashHandler:Bool = false;
 
+	public var preventHScript:Bool = false;
+
 	public function new():Void
 	{
-		#if SCRIPTING_ALLOWED
-		Main.hscript.loadScriptsFromDirectory('assets/scripts');
-
-		for (script in Main.hscript.list.keys())
+		if (preventHScript)
 		{
-			Main.hscript.list[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
+			#if SCRIPTING_ALLOWED
+			Main.hscript.loadScriptsFromDirectory('assets/scripts');
+	
+			for (script in Main.hscript.list.keys())
+			{
+				Main.hscript.list[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
+			}
+	
+			Main.hscript.callFromAllScripts('createPre');
+			#end
 		}
 
-		Main.hscript.callFromAllScripts('createPre');
-		#end
-
-		super();
-	}
-
-	override function create():Void
-	{
 		Main.startTransition(false, null);
 
 		Main.conductor.reset();
@@ -35,6 +35,11 @@ class State extends FlxState
 
 		FlxG.maxElapsed = FlxG.elapsed;
 
+		super();
+	}
+
+	override function create():Void
+	{
 		try
 		{
 			if (!SaveData.contents.graphics.persistentGraphics)

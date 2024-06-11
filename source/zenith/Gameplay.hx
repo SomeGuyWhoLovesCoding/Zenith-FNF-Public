@@ -175,6 +175,21 @@ class Gameplay extends State
 
 		instance = this;
 
+		// Cause the hscript system loads all the scripts after loading in the song :sob:
+
+		preventHScript = true;
+
+		#if SCRIPTING_ALLOWED
+		Main.hscript.loadScriptsFromDirectory('assets/scripts');
+
+		for (script in Main.hscript.list.keys())
+		{
+			Main.hscript.list[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
+		}
+
+		Main.hscript.callFromAllScripts('createPre');
+		#end
+
 		// Preferences stuff
 
 		downScroll = SaveData.contents.preferences.downScroll;
@@ -535,6 +550,7 @@ class Gameplay extends State
 					moveCamera(dad);
 				}
 
+				preventHScript = false;
 				generatedMusic = true;
 
 				#if SCRIPTING_ALLOWED
@@ -778,56 +794,14 @@ class Gameplay extends State
 		{
 			Thread.create(() ->
 			{
-				if (State.crashHandler)
-				{
-					try
-					{
-						if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json'))
-							ChartBytesData.saveChartFromJson(curSong, curDifficulty);
-
-						chartBytesData = new ChartBytesData(curSong, curDifficulty);
-					}
-					catch (e)
-					{
-						trace('Chart file "assets/data/$curSong/chart/$curDifficulty.bin" is either corrupted or nonexistent.');
-						trace(e);
-					}
-				}
-				else
-				{
-					if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json'))
-						ChartBytesData.saveChartFromJson(curSong, curDifficulty);
-
-					chartBytesData = new ChartBytesData(curSong, curDifficulty);
-				}
+				loadChart();
 			});
 		}
 		else
 		{
 			FlxG.maxElapsed = FlxG.elapsed;
 
-			if (State.crashHandler)
-			{
-				try
-				{
-					if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json'))
-						ChartBytesData.saveChartFromJson(curSong, curDifficulty);
-
-					chartBytesData = new ChartBytesData(curSong, curDifficulty);
-				}
-				catch (e)
-				{
-					trace('Chart file "assets/data/$curSong/chart/$curDifficulty.bin" is either corrupted or nonexistent.');
-					trace(e);
-				}
-			}
-			else
-			{
-				if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json'))
-					ChartBytesData.saveChartFromJson(curSong, curDifficulty);
-
-				chartBytesData = new ChartBytesData(curSong, curDifficulty);
-			}
+			loadChart();
 
 			// What happens if you load a song with a bpm of under 10? Limit it.
 			Main.conductor.bpm = SONG.info.bpm = Math.max(SONG.info.bpm, 10.0);
@@ -1013,6 +987,7 @@ class Gameplay extends State
 				moveCamera(dad);
 			}
 
+			preventHScript = false;
 			generatedMusic = true;
 
 			#if SCRIPTING_ALLOWED
@@ -1437,6 +1412,38 @@ class Gameplay extends State
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts("onHoldPost", sustain);
 		#end
+	}
+
+	function loadChart():Void
+	{
+		if (State.crashHandler)
+		{
+			try
+			{
+				if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json'))
+					ChartBytesData.saveChartFromJson(curSong, curDifficulty);
+
+				if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.bin'))
+					ChartBytesData.saveJsonFromChart(curSong, curDifficulty);
+
+				chartBytesData = new ChartBytesData(curSong, curDifficulty);
+			}
+			catch (e)
+			{
+				trace('Chart file "assets/data/$curSong/chart/$curDifficulty.bin" is either corrupted or nonexistent.');
+				trace(e);
+			}
+		}
+		else
+		{
+			if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json'))
+				ChartBytesData.saveChartFromJson(curSong, curDifficulty);
+
+			if (sys.FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.bin'))
+				ChartBytesData.saveJsonFromChart(curSong, curDifficulty);
+
+			chartBytesData = new ChartBytesData(curSong, curDifficulty);
+		}
 	}
 
 	public var paused:Bool = false;
