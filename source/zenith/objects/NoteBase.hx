@@ -3,10 +3,10 @@ package zenith.objects;
 class NoteBase extends StaticSprite
 {
 	public var strumTime:Float32 = 0.0;
-	public var noteData:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end = 0;
+	public var noteData:UInt8 = 0;
 	public var gfNote:Bool = false;
 
-	public var lane:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end = 0;
+	public var lane:UInt8 = 0;
 
 	public var strum:StrumNote;
 

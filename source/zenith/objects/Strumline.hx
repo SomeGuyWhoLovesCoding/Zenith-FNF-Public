@@ -6,8 +6,6 @@ package zenith.objects;
 @:access(zenith.objects.StrumNote)
 @:access(Stack)
 
-typedef UInt8 = #if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end;
-
 class Strumline extends FlxBasic
 {
 	public var keys(default, set):UInt8;

@@ -8,8 +8,8 @@ import flixel.animation.FlxAnimation;
 
 class StrumNote extends FlxSprite
 {
-	public var noteData:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end = 0;
-	public var player:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end = 0;
+	public var noteData:UInt8 = 0;
+	public var player:UInt8 = 0;
 	public var scrollMult:Float32 = 1.0;
 	public var playable(default, set):Bool = false;
 
@@ -21,9 +21,9 @@ class StrumNote extends FlxSprite
 
 	public var parent:Strumline;
 
-	public var index:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end = 0;
+	public var index:UInt8 = 0;
 
-	public function new(data:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end, plr:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end)
+	public function new(data:UInt8, plr:UInt8)
 	{
 		super();
 
