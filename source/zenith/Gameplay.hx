@@ -31,19 +31,8 @@ class Gameplay extends State
 	private var hudGroup(default, null):HUDGroup;
 	public var health:Float = 1.0;
 
-	public var score(default, set):Float = 0.0;
-
-	inline function set_score(value:Float):Float
-	{
-		return score = inline Math.ffloor(value);
-	}
-
-	public var misses(default, set):Float = 0.0;
-
-	inline function set_misses(value:Float):Float
-	{
-		return misses = inline Math.ffloor(value);
-	}
+	public var score:Float = 0.0;
+	public var misses:Float = 0.0;
 
 	var accuracy_left(default, null):Float = 0.0;
 	var accuracy_right(default, null):Float = 0.0;

@@ -3,8 +3,6 @@ package zenith.system;
 import sys.io.FileInput;
 import sys.io.File;
 
-import haxe.Int64;
-
 // The chart note data in the most optimized format possible
 // Only 8 bytes total for each one (without extra for pointers depending on the target)
 typedef ChartNoteData =
