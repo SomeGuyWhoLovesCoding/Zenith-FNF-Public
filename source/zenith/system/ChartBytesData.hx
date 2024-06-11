@@ -143,7 +143,7 @@ class ChartBytesData
 		// Strumline count
 		inline output.writeByte(json.info.strumlines);
 
-		for (i in json.noteData)
+		for (note in json.noteData)
 		{
 			inline output.writeFloat(note[0]);
 			inline output.writeByte(Std.int(note[1]));
