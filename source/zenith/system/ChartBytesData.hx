@@ -7,14 +7,12 @@ import haxe.Int64;
 
 // The chart note data in the most optimized format possible
 // Only 8 bytes total for each one (without extra for pointers depending on the target)
-class ChartNoteData
+typedef ChartNoteData =
 {
-	public var strumTime:#if (cpp || hl) Single #else Float #end ;
-	public var noteData:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end ;
-	public var sustainLength:#if cpp cpp.UInt16 #elseif hl hl.UI16 #else UInt #end ;
-	public var lane:#if cpp cpp.UInt8 #elseif hl hl.UI8 #else UInt #end ;
-
-	public function new():Void {}
+	var strumTime:Float32;
+	var noteData:UInt;
+	var sustainLength:UInt;
+	var lane:UInt;
 }
 
 class ChartBytesData
@@ -66,7 +64,7 @@ class ChartBytesData
 		_moveToNext();
 	}
 
-	var nextNote:ChartNoteData = new ChartNoteData();
+	var nextNote:ChartNoteData = {strumTime: 0, noteData: 0, sustainLength: 0, lane: 0};
 
 	public function update():Void
 	{
@@ -231,7 +229,7 @@ class ChartBytesData
 		#end
 	}
 
-	inline function _readFloat():Float
+	inline function _readFloat():Float32
 	{
 		return inline haxe.io.FPHelper.i32ToFloat(_readInt32());
 	}
