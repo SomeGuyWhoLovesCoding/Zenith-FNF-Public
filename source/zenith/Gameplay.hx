@@ -31,22 +31,22 @@ class Gameplay extends State
 	private var hudGroup(default, null):HUDGroup;
 	public var health:Float = 1.0;
 
-	public var score(default, set):Float32 = 0.0;
+	public var score(default, set):Float = 0.0;
 
-	inline function set_score(value:Float32):Float32
+	inline function set_score(value:Float):Float
 	{
 		return score = Math.ffloor(value);
 	}
 
-	public var misses(default, set):Float32 = 0.0;
+	public var misses(default, set):Float = 0.0;
 
-	inline function set_misses(value:Float32):Float32
+	inline function set_misses(value:Float):Float
 	{
 		return misses = Math.ffloor(value);
 	}
 
-	var accuracy_left(default, null):Float32 = 0.0;
-	var accuracy_right(default, null):Float32 = 0.0;
+	var accuracy_left(default, null):Float = 0.0;
+	var accuracy_right(default, null):Float = 0.0;
 
 	// Preference stuff
 	static public var cpuControlled:Bool = false;
@@ -88,9 +88,9 @@ class Gameplay extends State
 	public var songSpeedTween(default, null):FlxTween;
 	public var songLengthTween(default, null):FlxTween;
 
-	public var songSpeed:Float32 = 1.0;
-	public var songLength:Float32 = 0.0;
-	public var cameraSpeed:Float32 = 1.0;
+	public var songSpeed:Float = 1.0;
+	public var songLength:Float = 0.0;
+	public var cameraSpeed:Float = 1.0;
 
 	public var generatedMusic:Bool = false;
 	public var inCutscene:Bool = false;
@@ -114,7 +114,7 @@ class Gameplay extends State
 	public var gameCameraZoomTween(default, null):FlxTween;
 	public var hudCameraZoomTween(default, null):FlxTween;
 
-	public var defaultCamZoom(default, set):Float32;
+	public var defaultCamZoom(default, set):Float;
 
 	public var camFollowPos:FlxObject;
 	public var camFollowPosTween(default, null):FlxTween;
@@ -1050,7 +1050,7 @@ class Gameplay extends State
 	}
 
 	// For hscript
-	public function addCameraZoom(value1:Float32 = 0.015, value2:Float32 = 0.03):Void
+	public function addCameraZoom(value1:Float = 0.015, value2:Float = 0.03):Void
 	{
 		if (!songEnded)
 		{
@@ -1202,10 +1202,10 @@ class Gameplay extends State
 		#end
 	}
 
-	private function zoomTweenFunction(cam:(FlxCamera), amount:Float32 = 1):FlxTween
+	private function zoomTweenFunction(cam:(FlxCamera), amount:Float = 1):FlxTween
 		return FlxTween.tween(cam, {zoom: amount}, 1.3, {ease: FlxEase.expoOut});
 
-	function set_defaultCamZoom(value:Float32):Float32
+	function set_defaultCamZoom(value:Float):Float
 	{
 		if (null != gameCameraZoomTween)
 			gameCameraZoomTween.cancel();
