@@ -55,8 +55,6 @@ class Main extends Sprite
 
 		SaveData.read();
 
-		Paths.STREAM = SaveData.contents.experimental.streamAudio;
-
 		conductor = new Conductor();
 	
 		#if SCRIPTING_ALLOWED
@@ -179,10 +177,10 @@ class Main extends Sprite
 				backend.parent.onUpdate.dispatch(backend.applicationEventInfo.deltaTime);
 			}
 		}, backend.applicationEventInfo);
-		NativeCFFI.lime_sensor_event_manager_register(function():Void {}, backend.sensorEventInfo);
-		NativeCFFI.lime_touch_event_manager_register(function():Void {}, backend.touchEventInfo);
-		NativeCFFI.lime_gamepad_event_manager_register(function():Void {}, backend.gamepadEventInfo);
-		NativeCFFI.lime_joystick_event_manager_register(function():Void {}, backend.joystickEventInfo);
+		NativeCFFI.lime_sensor_event_manager_register(null, backend.sensorEventInfo);
+		NativeCFFI.lime_touch_event_manager_register(null, backend.touchEventInfo);
+		NativeCFFI.lime_gamepad_event_manager_register(null, backend.gamepadEventInfo);
+		NativeCFFI.lime_joystick_event_manager_register(null, backend.joystickEventInfo);
 	}
 
 	static public function startTransition(_transIn:Bool = false, _callback:()->Void):Void

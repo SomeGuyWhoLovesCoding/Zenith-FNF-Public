@@ -158,21 +158,10 @@ class NoteSpawner extends FlxBasic
 		}
 	}
 
-	override function destroy():Void
+	public function deactivate():Void
 	{
-		while (members.length != 0)
-		{
-			members.pop().destroy();
-		}
-
-		members.clear(true);
-
-		while (pool.length != 0)
-		{
-			pool.pop().destroy();
-		}
-
-		pool.clear(true);
+		for (i in 0...members.length)
+			members.__items[i].exists = false;
 	}
 
 	var _nk(default, null):Int = 0;

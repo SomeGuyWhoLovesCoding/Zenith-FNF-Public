@@ -145,21 +145,10 @@ class SustainNoteSpawner extends FlxBasic
 		}
 	}
 
-	override function destroy():Void
+	public function deactivate():Void
 	{
-		while (members.length != 0)
-		{
-			members.pop().destroy();
-		}
-
-		members = null;
-
-		while (pool.length != 0)
-		{
-			pool.pop().destroy();
-		}
-
-		pool = null;
+		for (i in 0...members.length)
+			members.__items[i].exists = false;
 	}
 
 	var _sk(default, null):Int = 0;

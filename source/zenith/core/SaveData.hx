@@ -24,7 +24,6 @@ class SaveData
 		},
 		experimental: {
 			fastNoteSpawning: false,
-			streamAudio: false,
 			multithreading: false
 		},
 		controls: {
@@ -115,7 +114,6 @@ typedef GraphicsData =
 typedef ExperimentalData =
 {
 	var fastNoteSpawning:Bool;
-	var streamAudio:Bool;
 	var multithreading:Bool;
 }
 

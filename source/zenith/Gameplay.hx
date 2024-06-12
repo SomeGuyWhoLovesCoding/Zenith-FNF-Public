@@ -276,12 +276,10 @@ class Gameplay extends State
 					_songPos += elapsed * 1000.0;
 				}
 
+				Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, _songPos, FlxG.elapsed * 10.215);
+
 				chartBytesData.update();
 			}
-			else
-				_songPos = inst.length;
-
-			Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, _songPos, FlxG.elapsed * 10.215);
 
 			if (_songPos >= 0 && !startedCountdown)
 			{
