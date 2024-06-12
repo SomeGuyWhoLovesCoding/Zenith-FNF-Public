@@ -16,6 +16,8 @@ class Paths
 	inline static public var ASSET_PATH:String = "assets";
 	inline static public var SOUND_EXT:String = "ogg";
 
+	static public var STREAM:Bool = true;
+
 	// Notes
 
 	static public var strumNoteAnimationHolder:FlxSprite = null;
@@ -67,9 +69,14 @@ class Paths
 	}
 
 	static private var soundCache:Map<String, Sound> = new Map<String, Sound>();
-	static private function __soundHelper(key:String):Sound
+	static private function __soundHelper(key:String):Dynamic
 	{
 		var soundPath:String = '$ASSET_PATH/$key.$SOUND_EXT';
+
+		if (STREAM)
+		{
+			return Sound.fromAudioBuffer(lime.media.AudioBuffer.fromVorbisFile(lime.media.vorbis.VorbisFile.fromFile(soundPath)));
+		}
 
 		if (sys.FileSystem.exists(soundPath))
 		{
@@ -84,27 +91,27 @@ class Paths
 		return null;
 	}
 
-	static public function sound(key:String):Sound
+	static public function sound(key:String):Dynamic
 	{
 		return __soundHelper('sounds/$key');
 	}
 
-	static public function soundRandom(key:String, min:Int = 0, max:Int = flixel.math.FlxMath.MAX_VALUE_INT):Sound
+	static public function soundRandom(key:String, min:Int = 0, max:Int = flixel.math.FlxMath.MAX_VALUE_INT):Dynamic
 	{
 		return sound(key + FlxG.random.int(min, max));
 	}
 
-	static public function music(key:String):Sound
+	static public function music(key:String):Dynamic
 	{
 		return __soundHelper('music/$key');
 	}
 
-	static public function voices(song:String):Sound
+	static public function voices(song:String):Dynamic
 	{
 		return __soundHelper('data/${formatToSongPath(song)}/audio/vocals');
 	}
 
-	static public function inst(song:String):Sound
+	static public function inst(song:String):Dynamic
 	{
 		return __soundHelper('data/${formatToSongPath(song)}/audio/inst');
 	}

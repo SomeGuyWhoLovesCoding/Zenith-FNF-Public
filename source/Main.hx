@@ -55,6 +55,8 @@ class Main extends Sprite
 
 		SaveData.read();
 
+		Paths.STREAM = SaveData.contents.experimental.streamAudio;
+
 		conductor = new Conductor();
 	
 		#if SCRIPTING_ALLOWED
