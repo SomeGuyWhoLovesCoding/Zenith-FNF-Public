@@ -279,7 +279,7 @@ class Gameplay extends State
 				chartBytesData.update();
 			}
 			else
-				_songPos = inst.length;
+				_songPos += elapsed * 1000.0;
 
 			Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, _songPos, FlxG.elapsed * 10.215);
 
