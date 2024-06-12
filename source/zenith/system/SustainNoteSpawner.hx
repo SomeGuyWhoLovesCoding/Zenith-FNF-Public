@@ -145,7 +145,7 @@ class SustainNoteSpawner extends FlxBasic
 		}
 	}
 
-	public function _destroy():Void
+	override function destroy():Void
 	{
 		while (members.length != 0)
 		{
