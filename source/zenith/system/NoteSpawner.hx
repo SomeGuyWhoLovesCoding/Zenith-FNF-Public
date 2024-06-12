@@ -158,7 +158,7 @@ class NoteSpawner extends FlxBasic
 		}
 	}
 
-	override function destroy():Void
+	public function _destroy():Void
 	{
 		while (members.length != 0)
 		{

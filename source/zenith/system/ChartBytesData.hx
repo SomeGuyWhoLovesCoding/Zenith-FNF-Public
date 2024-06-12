@@ -77,8 +77,6 @@ class ChartBytesData
 		{
 			Gameplay.instance.noteSpawner.spawn(nextNote);
 
-			trace(bytesTotal - input.tell());
-
 			if (bytesTotal - input.tell() == 0)
 			{
 				input.close();

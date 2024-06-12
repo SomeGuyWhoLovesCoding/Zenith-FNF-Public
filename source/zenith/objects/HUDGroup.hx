@@ -53,6 +53,9 @@ class HUDGroup
 
 	public function updateScoreText():Void
 	{
+		if (Gameplay.hideHUD || Gameplay.noCharacters)
+			return;
+
 		scoreTxt.text = 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ' + (Gameplay.instance.accuracy_right == 0.0 ? '???' :
 			Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000.0) * 0.01 + '%');
 

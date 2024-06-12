@@ -276,10 +276,12 @@ class Gameplay extends State
 					_songPos += elapsed * 1000.0;
 				}
 
-				Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, _songPos, FlxG.elapsed * 10.215);
-
 				chartBytesData.update();
 			}
+			else
+				_songPos = inst.length;
+
+			Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, _songPos, FlxG.elapsed * 10.215);
 
 			if (_songPos >= 0 && !startedCountdown)
 			{
@@ -370,45 +372,64 @@ class Gameplay extends State
 					}
 
 					threadsCompleted++;
+
 					lock.release();
 				});
 
 				Thread.create(() ->
 				{
-					gf = new Character(0, 0, SONG.info.spectator);
+					if (!noCharacters)
+					{
+						gf = new Character(0, 0, SONG.info.spectator);
 
-					lock.acquire();
+						lock.acquire();
 
-					gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
-					gfGroup.add(gf);
+						gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
+						gfGroup.add(gf);
+					}
+					else
+						lock.acquire();
 
 					threadsCompleted++;
+
 					lock.release();
 				});
 
 				Thread.create(() ->
 				{
-					dad = new Character(0, 0, SONG.info.player2);
+					if (!noCharacters)
+					{
+						dad = new Character(0, 0, SONG.info.player2);
 
-					lock.acquire();
+						lock.acquire();
 
-					dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
-					dadGroup.add(dad);
+						dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
+						dadGroup.add(dad);
+					}
+					else
+						lock.acquire();
 
 					threadsCompleted++;
+
 					lock.release();
 				});
 
 				Thread.create(() ->
 				{
-					bf = new Character(0, 0, SONG.info.player1, true);
+					if (!noCharacters)
+					{
+						bf = new Character(0, 0, SONG.info.player1, true);
 
-					lock.acquire();
+						lock.acquire();
 
-					bfGroup = new FlxSpriteGroup(BF_X, BF_Y);
-					bfGroup.add(bf);
+						bfGroup = new FlxSpriteGroup(BF_X, BF_Y);
+						bfGroup.add(bf);
+					}
+					else
+						lock.acquire();
 
 					threadsCompleted++;
+
 					lock.release();
 				});
 
@@ -424,8 +445,10 @@ class Gameplay extends State
 					inst.looped = false;
 
 					threadsCompleted++;
+
 					lock.release();
 				});
+
 				if (SONG.info.needsVoices)
 				{
 					Thread.create(() ->
@@ -440,12 +463,14 @@ class Gameplay extends State
 						voices.looped = false;
 
 						threadsCompleted++;
+	
 						lock.release();
 					});
 				}
 				else
 				{
 					threadsCompleted++;
+
 				}
 			}
 
@@ -453,9 +478,12 @@ class Gameplay extends State
 			{
 				// Finish off stage creation and add characters finally
 
-				#if SCRIPTING_ALLOWED
-				Main.hscript.callFromAllScripts('createStage', curSong, curDifficulty);
-				#end
+				if (!noCharacters)
+				{
+					#if SCRIPTING_ALLOWED
+					Main.hscript.callFromAllScripts('createStage', curSong, curDifficulty);
+					#end
+				}
 
 				threadsCompleted = -2;
 
@@ -494,17 +522,20 @@ class Gameplay extends State
 
 			if (threadsCompleted == 7)
 			{
-				add(gfGroup);
-				add(dadGroup);
-				add(bfGroup);
+				if (!noCharacters)
+				{
+					add(gfGroup);
+					add(dadGroup);
+					add(bfGroup);
 
-				startCharacterPos(gf, false);
-				startCharacterPos(dad, true);
-				startCharacterPos(bf, false);
+					startCharacterPos(gf, false);
+					startCharacterPos(dad, true);
+					startCharacterPos(bf, false);
 
-				#if SCRIPTING_ALLOWED
-				Main.hscript.callFromAllScripts('createStagePost', curSong, curDifficulty);
-				#end
+					#if SCRIPTING_ALLOWED
+					Main.hscript.callFromAllScripts('createStagePost', curSong, curDifficulty);
+					#end
+				}
 
 				// Now time to load the UI and shit
 
@@ -788,10 +819,8 @@ class Gameplay extends State
 
 		if (Main.ENABLE_MULTITHREADING)
 		{
-			Thread.create(() ->
-			{
-				loadChart();
-			});
+			loadChart();
+			threadsCompleted = 0;
 		}
 		else
 		{
@@ -866,17 +895,20 @@ class Gameplay extends State
 				girlfriendCameraOffset = stageData.camera_girlfriend;
 			}
 
-			gf = new Character(0, 0, SONG.info.spectator);
-			gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
-			gfGroup.add(gf);
+			if (!noCharacters)
+			{
+				gf = new Character(0, 0, SONG.info.spectator);
+				gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
+				gfGroup.add(gf);
 
-			dad = new Character(0, 0, SONG.info.player2);
-			dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
-			dadGroup.add(dad);
+				dad = new Character(0, 0, SONG.info.player2);
+				dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
+				dadGroup.add(dad);
 
-			bf = new Character(0, 0, SONG.info.player1, true);
-			bfGroup = new FlxSpriteGroup(BF_X, BF_Y);
-			bfGroup.add(bf);
+				bf = new Character(0, 0, SONG.info.player1, true);
+				bfGroup = new FlxSpriteGroup(BF_X, BF_Y);
+				bfGroup.add(bf);
+			}
 
 			inst = new FlxSound();
 			inst.loadEmbedded(Paths.inst(SONG.song));
@@ -898,14 +930,14 @@ class Gameplay extends State
 
 			// Finish off stage creation and add characters finally
 
-			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('createStage', curSong, curDifficulty);
-			#end
-
 			threadsCompleted = -2;
 
 			if (!noCharacters && curStage == 'stage')
 			{
+				#if SCRIPTING_ALLOWED
+				Main.hscript.callFromAllScripts('createStage', curSong, curDifficulty);
+				#end
+
 				var bg:BGSprite = new BGSprite('stageback', -600, -200, 0.9, 0.9);
 				add(bg);
 
@@ -929,19 +961,19 @@ class Gameplay extends State
 				stageCurtains.setGraphicSize(Std.int(stageCurtains.width * 0.9));
 				stageCurtains.updateHitbox();
 				add(stageCurtains);
+
+				add(gfGroup);
+				add(dadGroup);
+				add(bfGroup);
+	
+				startCharacterPos(gf, false);
+				startCharacterPos(dad, true);
+				startCharacterPos(bf, false);
+
+				#if SCRIPTING_ALLOWED
+				Main.hscript.callFromAllScripts('createStagePost', curSong, curDifficulty);
+				#end
 			}
-
-			add(gfGroup);
-			add(dadGroup);
-			add(bfGroup);
-
-			startCharacterPos(gf, false);
-			startCharacterPos(dad, true);
-			startCharacterPos(bf, false);
-
-			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('createStagePost', curSong, curDifficulty);
-			#end
 
 			// Now time to load the UI and shit
 
@@ -1130,6 +1162,16 @@ class Gameplay extends State
 	public function endSong():Void
 	{
 		songEnded = true;
+
+		if (null != noteSpawner)
+		{
+			noteSpawner._destroy();
+		}
+
+		if (null != sustainNoteSpawner)
+		{
+			sustainNoteSpawner._destroy();
+		}
 
 		if (null != inst)
 		{
@@ -1421,6 +1463,8 @@ class Gameplay extends State
 					ChartBytesData.saveChartFromJson(curSong, curDifficulty);
 
 				chartBytesData = new ChartBytesData(curSong, curDifficulty);
+
+				loadChart();
 			}
 			catch (e)
 			{
