@@ -1163,16 +1163,6 @@ class Gameplay extends State
 	{
 		songEnded = true;
 
-		if (null != noteSpawner)
-		{
-			noteSpawner._destroy();
-		}
-
-		if (null != sustainNoteSpawner)
-		{
-			sustainNoteSpawner._destroy();
-		}
-
 		if (null != inst)
 		{
 			inst.stop();
