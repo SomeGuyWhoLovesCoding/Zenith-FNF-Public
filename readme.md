@@ -1,6 +1,6 @@
 # Welcome!
 
-This engine offers ultra performant, cross-platform, and very clean gameplay experience in mind and has global scripting support.
+This engine offers ultra performant, cross-platform, and *clean* gameplay experience in mind and has global scripting support.
 
 **WARNING: This project won't be fully compatible with MacOS as it's still untested!!!**
 
