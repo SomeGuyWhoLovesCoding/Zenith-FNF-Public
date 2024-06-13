@@ -145,12 +145,6 @@ class SustainNoteSpawner extends FlxBasic
 		}
 	}
 
-	public function deactivate():Void
-	{
-		for (i in 0...members.length)
-			members.__items[i].exists = false;
-	}
-
 	var _sk(default, null):Int = 0;
 
 	public function handleRelease(strum:StrumNote):Void

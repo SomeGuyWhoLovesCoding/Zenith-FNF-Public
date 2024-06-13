@@ -158,12 +158,6 @@ class NoteSpawner extends FlxBasic
 		}
 	}
 
-	public function deactivate():Void
-	{
-		for (i in 0...members.length)
-			members.__items[i].exists = false;
-	}
-
 	var _nk(default, null):Int = 0;
 
 	inline public function handleHittableNote(strum:StrumNote):Void

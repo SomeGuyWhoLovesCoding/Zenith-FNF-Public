@@ -8,7 +8,7 @@ import flixel.FlxBasic;
 
 class State extends FlxState
 {
-	static public var crashHandler:Bool = false;
+	static public var crashHandler:Bool = true;
 
 	public var preventHScript:Bool = false;
 

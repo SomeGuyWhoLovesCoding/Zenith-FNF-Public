@@ -177,11 +177,13 @@ class Main extends Sprite
 				backend.parent.onUpdate.dispatch(backend.applicationEventInfo.deltaTime);
 			}
 		}, backend.applicationEventInfo);
-		NativeCFFI.lime_sensor_event_manager_register(null, backend.sensorEventInfo);
-		NativeCFFI.lime_touch_event_manager_register(null, backend.touchEventInfo);
-		NativeCFFI.lime_gamepad_event_manager_register(null, backend.gamepadEventInfo);
-		NativeCFFI.lime_joystick_event_manager_register(null, backend.joystickEventInfo);
+		NativeCFFI.lime_sensor_event_manager_register(__, backend.sensorEventInfo);
+		NativeCFFI.lime_touch_event_manager_register(__, backend.touchEventInfo);
+		NativeCFFI.lime_gamepad_event_manager_register(__, backend.gamepadEventInfo);
+		NativeCFFI.lime_joystick_event_manager_register(__, backend.joystickEventInfo);
 	}
+
+	static function __():Void {}
 
 	static public function startTransition(_transIn:Bool = false, _callback:()->Void):Void
 	{

@@ -46,6 +46,9 @@
 	<!--Emitter-->
 	<haxelib name="Emitter" />
 
+	<!--Debug server-->
+	<haxelib name="hxcpp-debug-server" />
+
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
 	<!--Allow the core scripting system-->

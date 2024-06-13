@@ -380,16 +380,12 @@ class Gameplay extends State
 					{
 						gf = new Character(0, 0, SONG.info.spectator);
 
-						lock.acquire();
-
 						gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
 						gfGroup.add(gf);
 					}
-					else
-						lock.acquire();
 
+					lock.acquire();
 					threadsCompleted++;
-
 					lock.release();
 				});
 
@@ -399,16 +395,12 @@ class Gameplay extends State
 					{
 						dad = new Character(0, 0, SONG.info.player2);
 
-						lock.acquire();
-
 						dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
 						dadGroup.add(dad);
 					}
-					else
-						lock.acquire();
 
+					lock.acquire();
 					threadsCompleted++;
-
 					lock.release();
 				});
 
@@ -418,16 +410,12 @@ class Gameplay extends State
 					{
 						bf = new Character(0, 0, SONG.info.player1, true);
 
-						lock.acquire();
-
 						bfGroup = new FlxSpriteGroup(BF_X, BF_Y);
 						bfGroup.add(bf);
 					}
-					else
-						lock.acquire();
 
+					lock.acquire();
 					threadsCompleted++;
-
 					lock.release();
 				});
 
@@ -1451,8 +1439,6 @@ class Gameplay extends State
 					ChartBytesData.saveChartFromJson(curSong, curDifficulty);
 
 				chartBytesData = new ChartBytesData(curSong, curDifficulty);
-
-				loadChart();
 			}
 			catch (e)
 			{
