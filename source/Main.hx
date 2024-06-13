@@ -27,7 +27,6 @@ typedef TransitioningInfo =
 @:access(zenith.Gameplay)
 @:access(flixel.FlxGame)
 
-@:generic
 class Main extends Sprite
 {
 	static public var conductor:Conductor;
@@ -85,7 +84,7 @@ class Main extends Sprite
 			fpsTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFFFFFF, true);
 			fpsTxt.selectable = false;
 			fpsTxt.width = 240;
-			fpsTxt.text = 'FPS: 0 (MAX: 0)';
+			fpsTxt.text = 'FPS: 0 (MAX: 0)\nMEM: 0MB';
 			addChild(fpsTxt);
 		}
 
@@ -182,6 +181,10 @@ class Main extends Sprite
 		NativeCFFI.lime_touch_event_manager_register(function():Void {}, backend.touchEventInfo);
 		NativeCFFI.lime_gamepad_event_manager_register(function():Void {}, backend.gamepadEventInfo);
 		NativeCFFI.lime_joystick_event_manager_register(function():Void {}, backend.joystickEventInfo);
+		NativeCFFI.lime_mouse_event_manager_register(function():Void
+		{
+			
+		}, backend.mouseEventInfo);
 	}
 
 	static public function startTransition(_transIn:Bool = false, _callback:()->Void):Void
@@ -242,7 +245,7 @@ class Main extends Sprite
 
 		fpsTextTimer += elapsed;
 
-		if (null != fpsTxt && fpsTextTimer > 1.0)
+		if (SaveData.contents.graphics.showFPS && fpsTextTimer > 1.0)
 		{
 			if (fpsMax < fps)
 				fpsMax = fps;

@@ -47,7 +47,7 @@
 	<haxelib name="Emitter" />
 
 	<!--Debug server-->
-	<haxelib name="hxcpp-debug-server" />
+	<haxelib name="hxcpp-debug-server" if="debug" />
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
@@ -63,8 +63,8 @@
 	<!--Disable the Flixel core focus lost screen-->
 	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
 
-	<!--Disable the Flixel core debugger. Automatically gets set whenever you compile in release mode!-->
-	<haxedef name="FLX_NO_DEBUG" unless="debug" />
+	<!--Disable the Flixel core debugger.-->
+	<haxedef name="FLX_NO_DEBUG" />
 
 	<!--Disable the Flixel core sound tray-->
 	<haxedef name="FLX_NO_SOUND_TRAY" />
