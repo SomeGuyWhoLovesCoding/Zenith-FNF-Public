@@ -459,7 +459,6 @@ class StaticSprite extends FlxBasic
 	 * @param   key          Set this parameter if you're loading `BitmapData`.
 	 * @return  This `StaticSprite` instance (nice for chaining stuff together, if you're into that).
 	 */
-	var graphicCache:Map<FlxGraphicAsset, FlxGraphic> = new Map<FlxGraphicAsset, FlxGraphic>();
 	public function loadGraphic(graphic:FlxGraphicAsset, animated = false, frameWidth = 0, frameHeight = 0, unique = false, ?key:String):StaticSprite
 	{
 		var graph:FlxGraphic = FlxG.bitmap.add(graphic, unique, key);
