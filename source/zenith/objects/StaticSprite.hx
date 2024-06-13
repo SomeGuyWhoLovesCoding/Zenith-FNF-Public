@@ -459,7 +459,6 @@ class StaticSprite extends FlxBasic
 	 * @param   key          Set this parameter if you're loading `BitmapData`.
 	 * @return  This `StaticSprite` instance (nice for chaining stuff together, if you're into that).
 	 */
-	var graphicCache:Map<FlxGraphicAsset, FlxGraphic> = new Map<FlxGraphicAsset, FlxGraphic>();
 	public function loadGraphic(graphic:FlxGraphicAsset, animated = false, frameWidth = 0, frameHeight = 0, unique = false, ?key:String):StaticSprite
 	{
 		var graph:FlxGraphic = FlxG.bitmap.add(graphic, unique, key);
@@ -563,7 +562,7 @@ class StaticSprite extends FlxBasic
 	 * @param   width    How wide the graphic should be. If `<= 0`, and `height` is set, the aspect ratio will be kept.
 	 * @param   height   How high the graphic should be. If `<= 0`, and `width` is set, the aspect ratio will be kept.
 	 */
-	public function setGraphicSize(width = 0.0, height = 0.0):Void
+	public function setGraphicSize(width:Float = 0.0, height:Float = 0.0):Void
 	{
 		if (width <= 0 && height <= 0)
 			return;
@@ -730,7 +729,7 @@ class StaticSprite extends FlxBasic
 	 * @param   blueOffset        The offset for the blue color channel value, in the range from `-255` to `255`.
 	 * @param   alphaOffset       The offset for alpha transparency channel value, in the range from `-255` to `255`.
 	 */
-	inline public function setColorTransform(redMultiplier = 1.0, greenMultiplier = 1.0, blueMultiplier = 1.0, alphaMultiplier = 1.0,
+	inline public function setColorTransform(redMultiplier:Float = 1.0, greenMultiplier:Float = 1.0, blueMultiplier:Float = 1.0, alphaMultiplier:Float = 1.0,
 			redOffset = 0, greenOffset = 0, blueOffset = 0, alphaOffset = 0):Void
 	{
 		color = FlxColor.fromRGBFloat(redMultiplier, greenMultiplier, blueMultiplier).to24Bit();
@@ -739,7 +738,7 @@ class StaticSprite extends FlxBasic
 		colorTransform.setMultipliers(redMultiplier, greenMultiplier, blueMultiplier, alphaMultiplier);
 		colorTransform.setOffsets(redOffset, greenOffset, blueOffset, alphaOffset);
 
-		useColorTransform = alpha != 1 || color != 0xffffff || colorTransform.hasRGBOffsets();
+		useColorTransform = alpha != 1.0 || color != 0xffffff || colorTransform.hasRGBOffsets();
 		dirty = true;
 	}
 
@@ -748,11 +747,12 @@ class StaticSprite extends FlxBasic
 		if (colorTransform == null)
 			return;
 
-		useColorTransform = alpha != 1 || color != 0xffffff;
+		useColorTransform = alpha != 1.0 || color != 0xffffff;
+
 		if (useColorTransform)
 			colorTransform.setMultipliers(color.redFloat, color.greenFloat, color.blueFloat, alpha);
 		else
-			colorTransform.setMultipliers(1, 1, 1, 1);
+			colorTransform.setMultipliers(1.0, 1.0, 1.0, 1.0);
 
 		dirty = true;
 	}
@@ -873,12 +873,11 @@ class StaticSprite extends FlxBasic
 	@:noCompletion
 	inline function set_color(Color:FlxColor):Int
 	{
-		if (color == Color)
+		if (color != Color)
 		{
-			return Color;
+			color = Color;
+			updateColorTransform();
 		}
-		color = Color;
-		updateColorTransform();
 		return color;
 	}
 
