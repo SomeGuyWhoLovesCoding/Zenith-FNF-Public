@@ -1,6 +1,5 @@
 package zenith;
 
-@:generic
 class Game extends FlxGame
 {
 	final initState:Class<FlxState> = Gameplay;
