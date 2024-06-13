@@ -134,7 +134,7 @@ class SustainNoteSpawner extends FlxBasic
 
 					if ((s.strum.active && s.state != MISS) || !s.strum.playable)
 					{
-						Gameplay.instance.onHold(s);
+						onHold(s);
 					}
 				}
 				else
@@ -145,14 +145,30 @@ class SustainNoteSpawner extends FlxBasic
 		}
 	}
 
+	override function destroy():Void
+	{
+		while (members.length != 0)
+		{
+			members.pop().destroy();
+		}
+
+		members = null;
+
+		while (pool.length != 0)
+		{
+			pool.pop().destroy();
+		}
+
+		pool = null;
+	}
+
 	var _sk(default, null):Int = 0;
 
 	public function handleRelease(strum:StrumNote):Void
 	{
 		_s = missable.__items[strum.index];
-		if (strum != null && strum.playable && _s != Paths.idleSustain &&
-			Main.conductor.songPosition > _s.position &&
-			_s.state != MISS)
+		if (_s != Paths.idleSustain && _s.state != MISS && strum != null && strum.playable && 
+			Main.conductor.songPosition > _s.position)
 		{
 			_s.state = MISS;
 			_s.alpha = 0.3;
@@ -165,7 +181,7 @@ class SustainNoteSpawner extends FlxBasic
 
 			if (!Gameplay.noCharacters)
 			{
-				Gameplay.instance.bf.playAnim(strum.parent.singAnimations(_s.noteData));
+				Gameplay.instance.bf.playAnim(strum.parent.singAnimations(_s.noteData) + "miss");
 				Gameplay.instance.bf.holdTimer = 0.0;
 			}
 
@@ -184,4 +200,44 @@ class SustainNoteSpawner extends FlxBasic
 	}
 
 	var pool(default, null):Stack<SustainNote>;
+
+	public function onHold(sustain:SustainNote):Void
+	{
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts("onHold", sustain);
+		#end
+
+		sustain.strum.playAnim("confirm");
+
+		Gameplay.instance.health += FlxG.elapsed * (sustain.strum.playable ? 0.125 : -0.125);
+
+		if (!Gameplay.noCharacters)
+		{
+			if (null != sustain.targetCharacter)
+			{
+				if (Gameplay.stillCharacters)
+					sustain.targetCharacter.playAnim(sustain.strum.parent.singAnimations(sustain.noteData));
+				else
+				{
+					// This shit is similar to amazing engine's character hold fix, but better
+
+					if (sustain.targetCharacter.animation.curAnim.name == sustain.strum.parent.singAnimations(sustain.noteData) + "miss")
+						sustain.targetCharacter.playAnim(sustain.strum.parent.singAnimations(sustain.noteData));
+
+					if (sustain.targetCharacter.animation.curAnim.curFrame > (sustain.targetCharacter.stillCharacterFrame == -1 ?
+						sustain.targetCharacter.animation.curAnim.frames.length : sustain.targetCharacter.stillCharacterFrame))
+						sustain.targetCharacter.animation.curAnim.curFrame = (sustain.targetCharacter.stillCharacterFrame == -1 ?
+						sustain.targetCharacter.animation.curAnim.frames.length - 2 : sustain.targetCharacter.stillCharacterFrame - 1);
+				}
+
+				sustain.targetCharacter.holdTimer = 0.0;
+			}
+		}
+
+		sustain.state = HELD;
+
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts("onHoldPost", sustain);
+		#end
+	}
 }

@@ -137,6 +137,14 @@ function triggerEvent(eventName, value1, value2, value3, value4)
 }
 ```
 
+## Tips
+
+1. If you want to generate something after the song is generated, please use ``generateSong(songName, songDifficulty)``. This is a very good tip considering that mulithreading will basically call ``create()`` immediately.
+
+2. If you want to create your own save data when the game boots, use the ``onGameBoot()`` function and do what I've shown at the top of "Built-in functions".
+
+3. 
+
 # Final message
 
 Hope you enjoyed this!

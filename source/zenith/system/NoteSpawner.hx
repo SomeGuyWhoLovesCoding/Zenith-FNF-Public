@@ -130,7 +130,7 @@ class NoteSpawner extends FlxBasic
 					{
 						if (Main.conductor.songPosition > n.position + 166.7)
 						{
-							Gameplay.instance.onNoteMiss(n);
+							onNoteMiss(n);
 							n.state = MISS;
 						}
 
@@ -149,7 +149,7 @@ class NoteSpawner extends FlxBasic
 				{
 					if (Main.conductor.songPosition > n.position)
 					{
-						Gameplay.instance.onNoteHit(n);
+						onNoteHit(n);
 						if (SaveData.contents.experimental.fastNoteSpawning)
 							pool.push(n);
 					}
@@ -158,19 +158,37 @@ class NoteSpawner extends FlxBasic
 		}
 	}
 
+	override function destroy():Void
+	{
+		while (members.length != 0)
+		{
+			members.pop().destroy();
+		}
+
+		members.clear(true);
+
+		while (pool.length != 0)
+		{
+			pool.pop().destroy();
+		}
+
+		pool.clear(true);
+	}
+
 	var _nk(default, null):Int = 0;
 
 	inline public function handleHittableNote(strum:StrumNote):Void
 	{
 		// The middle checks are pretty weird but it does fix a couple bugs
 		_n = hittable.__items[strum.index];
-		if (strum != null && strum.playable && _n.state == IDLE &&
+		if (_n != Paths.idleNote && _n.state == IDLE && strum != null && strum.playable &&
 			Main.conductor.songPosition > _n.position - (166.7 * Gameplay.instance.songSpeed))
 		{
-			_n.state = HIT;
-			Gameplay.instance.onNoteHit(_n);
+			onNoteHit(_n);
+
 			if (SaveData.contents.experimental.fastNoteSpawning)
 				pool.push(_n);
+
 			hittable.__items[strum.index] = Paths.idleNote;
 		}
 	}
@@ -184,4 +202,70 @@ class NoteSpawner extends FlxBasic
 	}
 
 	var pool(default, null):Stack<Note>; // Rewritten recycler
+
+	public function onNoteHit(note:Note):Void
+	{
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts("onNoteHit", note);
+		#end
+
+		note.strum.playAnim("confirm");
+
+		Gameplay.instance.health += 0.045 * (note.strum.playable ? 1.0 : -1.0);
+
+		if (note.strum.playable)
+		{
+			Gameplay.instance.score += 350.0;
+			Gameplay.instance.accuracy_left += ((note.position - Main.conductor.songPosition < 0.0 ? -(note.position - Main.conductor.songPosition) :
+				note.position - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0);
+			Gameplay.instance.accuracy_right++;
+		}
+
+		if (!Gameplay.noCharacters)
+		{
+			if (null != note.targetCharacter)
+			{
+				note.targetCharacter.playAnim(note.strum.parent.singAnimations(note.noteData));
+				note.targetCharacter.holdTimer = 0.0;
+			}
+		}
+
+		note.state = HIT;
+		note.exists = false;
+
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts("onNoteHitPost", note);
+		#end
+
+		if (Gameplay.instance.hudGroup != null)
+			Gameplay.instance.hudGroup.updateScoreText();
+	}
+
+	public function onNoteMiss(note:Note):Void
+	{
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts("onNoteMiss", note);
+		#end
+
+		note.state = MISS;
+		note.alpha = 0.6;
+
+		Gameplay.instance.health -= 0.045;
+		Gameplay.instance.score -= 100.0;
+		Gameplay.instance.misses++;
+		Gameplay.instance.accuracy_right++;
+
+		if (!Gameplay.noCharacters)
+		{
+			note.targetCharacter.playAnim(note.strum.parent.singAnimations(note.noteData) + "miss");
+			note.targetCharacter.holdTimer = 0.0;
+		}
+
+		if (Gameplay.instance.hudGroup != null)
+			Gameplay.instance.hudGroup.updateScoreText();
+
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts("onNoteMissPost", note);
+		#end
+	}
 }

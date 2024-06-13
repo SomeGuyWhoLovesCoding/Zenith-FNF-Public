@@ -5,6 +5,8 @@ import lime.graphics.opengl.GL;
 import openfl.display.BitmapData;
 import openfl.display3D.Context3D;
 import openfl.display3D.textures.TextureBase;
+import flixel.tweens.FlxTween;
+import flixel.tweens.FlxEase;
 
 class Utils
 {
@@ -24,7 +26,7 @@ class Utils
 		return source;
 	}
 
-	inline static public function strumlineSwap(left:Int, right:Int):Void
+	static public function strumlineSwap(left:Int, right:Int):Void
 	{
 		try
 		{
@@ -36,6 +38,51 @@ class Utils
 		catch (e:haxe.Exception)
 		{
 			Main.hscript.error(e);
+		}
+	}
+
+	private static var strumYTweens(default, null):Map<StrumNote, FlxTween> = new Map<StrumNote, FlxTween>();
+	private static var strumScrollMultTweens(default, null):Map<StrumNote, FlxTween> = new Map<StrumNote, FlxTween>();
+
+	static public function strumlineChangeDownScroll(whichStrum:Int = -1, tween:Bool = false, tweenLength:Float = 1.0):Void
+	{
+		// Strumline
+		for (strumline in Gameplay.instance.strumlines.members)
+		{
+			for (strum in strumline.members)
+			{
+				if (strum.player == whichStrum || whichStrum == -1)
+				{
+					if (tween && tweenLength != 0.0)
+					{
+						var actualScrollMult = strum.scrollMult;
+						actualScrollMult = -actualScrollMult;
+
+						var scrollMultTween = strumScrollMultTweens[strum];
+						var yTween = strumYTweens[strum];
+
+						if (null != scrollMultTween)
+							scrollMultTween.cancel();
+
+						strumScrollMultTweens.set(strum, FlxTween.tween(strum, {scrollMult: strum.scrollMult > 0.0 ? -1.0 : 1.0}, (tweenLength < 0.0 ? -tweenLength : tweenLength), {ease: FlxEase.quintOut}));
+
+						if (null != yTween)
+							yTween.cancel();
+
+						strumYTweens.set(strum, FlxTween.tween(strum, {y: actualScrollMult < 0.0 ? FlxG.height - 160.0 : 60.0}, (tweenLength < 0.0 ? -tweenLength : tweenLength), {ease: FlxEase.quintOut}));
+					}
+					else
+					{
+						strum.scrollMult = -strum.scrollMult;
+					}
+				}
+
+				if (strum.noteData == strumline.keys - 1)
+				{
+					strumline.downScroll = strum.scrollMult < 0.0;
+				}
+			}
+			strumline.y = strumline.downScroll ? FlxG.height - 160.0 : 60.0;
 		}
 	}
 

@@ -1,8 +1,16 @@
-This engine offers ultra performant, cross-platform, and very clean gameplay experience in mind and has global scripting support, a brand new chart editor, and minimal screen tearing when not on vsync. **WARNING: Won't be fully compatible with MacOS, as it's still untested!!!**
+# Welcome!
 
-**We recommend you to use Haxe 4.2+**
+This engine offers ultra performant, cross-platform, and very clean gameplay experience in mind and has global scripting support.
 
-To compile on hasklink/jit, [read this.](https://haxe.org/manual/target-hl-getting-started.html)
+**WARNING: This project won't be fully compatible with MacOS as it's still untested!!!**
+
+**WARNING 2: I'll be doing some weird stuff with code to get maximum performance.**
+
+**So, if some stuff gets vile and causes a crash, undo what you've changed. The commits can be reverted in the repository if you are actually contribute to this project.**
+
+**Also, we recommend you to use Haxe 4.2+. (Read the description of the Emitter haxelib)**
+
+To compile on HL, [read this.](https://haxe.org/manual/target-hl-getting-started.html)
 
 # Libraries needed to compile this engine
 

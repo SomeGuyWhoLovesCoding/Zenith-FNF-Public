@@ -166,21 +166,6 @@ class Gameplay extends State
 
 		instance = this;
 
-		// Cause the hscript system loads all the scripts after loading in the song :sob:
-
-		preventHScript = true;
-
-		#if SCRIPTING_ALLOWED
-		Main.hscript.loadScriptsFromDirectory('assets/scripts');
-
-		for (script in Main.hscript.list.keys())
-		{
-			Main.hscript.list[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
-		}
-
-		Main.hscript.callFromAllScripts('createPre');
-		#end
-
 		// Preferences stuff
 
 		downScroll = SaveData.contents.preferences.downScroll;
@@ -370,7 +355,6 @@ class Gameplay extends State
 					}
 
 					threadsCompleted++;
-
 					lock.release();
 				});
 
@@ -380,11 +364,14 @@ class Gameplay extends State
 					{
 						gf = new Character(0, 0, SONG.info.spectator);
 
+						lock.acquire();
+
 						gfGroup = new FlxSpriteGroup(GF_X, GF_Y);
 						gfGroup.add(gf);
 					}
+					else
+						lock.acquire();
 
-					lock.acquire();
 					threadsCompleted++;
 					lock.release();
 				});
@@ -395,11 +382,14 @@ class Gameplay extends State
 					{
 						dad = new Character(0, 0, SONG.info.player2);
 
+						lock.acquire();
+
 						dadGroup = new FlxSpriteGroup(DAD_X, DAD_Y);
 						dadGroup.add(dad);
 					}
+					else
+						lock.acquire();
 
-					lock.acquire();
 					threadsCompleted++;
 					lock.release();
 				});
@@ -410,11 +400,14 @@ class Gameplay extends State
 					{
 						bf = new Character(0, 0, SONG.info.player1, true);
 
+						lock.acquire();
+
 						bfGroup = new FlxSpriteGroup(BF_X, BF_Y);
 						bfGroup.add(bf);
 					}
+					else
+						lock.acquire();
 
-					lock.acquire();
 					threadsCompleted++;
 					lock.release();
 				});
@@ -431,7 +424,6 @@ class Gameplay extends State
 					inst.looped = false;
 
 					threadsCompleted++;
-
 					lock.release();
 				});
 
@@ -449,14 +441,14 @@ class Gameplay extends State
 						voices.looped = false;
 
 						threadsCompleted++;
-	
 						lock.release();
 					});
 				}
 				else
 				{
+					lock.acquire();
 					threadsCompleted++;
-
+					lock.release();
 				}
 			}
 
@@ -464,12 +456,9 @@ class Gameplay extends State
 			{
 				// Finish off stage creation and add characters finally
 
-				if (!noCharacters)
-				{
-					#if SCRIPTING_ALLOWED
-					Main.hscript.callFromAllScripts('createStage', curSong, curDifficulty);
-					#end
-				}
+				#if SCRIPTING_ALLOWED
+				Main.hscript.callFromAllScripts('createStage', curSong, curDifficulty);
+				#end
 
 				threadsCompleted = -2;
 
@@ -508,75 +497,7 @@ class Gameplay extends State
 
 			if (threadsCompleted == 7)
 			{
-				if (!noCharacters)
-				{
-					add(gfGroup);
-					add(dadGroup);
-					add(bfGroup);
-
-					startCharacterPos(gf, false);
-					startCharacterPos(dad, true);
-					startCharacterPos(bf, false);
-
-					#if SCRIPTING_ALLOWED
-					Main.hscript.callFromAllScripts('createStagePost', curSong, curDifficulty);
-					#end
-				}
-
-				// Now time to load the UI and shit
-
-				sustainNoteSpawner = new SustainNoteSpawner();
-				add(sustainNoteSpawner);
-
-				noteSpawner = new NoteSpawner();
-
-				strumlines = new FlxTypedGroup<Strumline>();
-				add(strumlines);
-
-				add(noteSpawner);
-
-				for (i in 0...strumlineCount)
-					generateStrumline(i);
-
-				if (downScroll)
-					changeDownScroll();
-
-				if (!hideHUD)
-				{
-					hudGroup = new HUDGroup();
-					hudGroup.reloadHealthBar();
-				}
-
-				noteSpawner.camera = strumlines.camera = sustainNoteSpawner.camera = hudCamera;
-
-				var timeTakenToLoad:Float = haxe.Timer.stamp() - loadingTimestamp;
-
-				trace('Loading finished! Took ${Utils.formatTime(timeTakenToLoad * 1000.0, true, true)} to load.');
-
-				if (!noCharacters)
-				{
-					camFollowPos.setPosition(
-						gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0],
-						gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1]
-					);
-
-					moveCamera(dad);
-				}
-
-				preventHScript = false;
-				generatedMusic = true;
-
-				#if SCRIPTING_ALLOWED
-				Main.hscript.callFromAllScripts('generateSong', curSong, curDifficulty);
-				#end
-
-				openfl.system.System.gc(); // Free up inactive memory
-
-				startCountdown();
-
-				threadsCompleted = -3;
-
-				FlxG.autoPause = true;
+				generateSongPost();
 			}
 		}
 	}
@@ -584,7 +505,7 @@ class Gameplay extends State
 	var initialStrumWidth:Float = 112.0;
 	var initialStrumHeight:Float = 112.0;
 
-	// Song events for hscript
+	// Unused for now until I make my own event system.
 	public function triggerEvent(eventName:String, value1:String, value2:String, value3:String, value4:String)
 	{
 		switch (eventName)
@@ -796,7 +717,7 @@ class Gameplay extends State
 	var threadsCompleted = -1;
 
 	var loadingTimestamp = 0.0;
-	inline private function generateSong(name:String, diff:String):Void
+	function generateSong(name:String, diff:String):Void
 	{
 		loadingTimestamp = haxe.Timer.stamp();
 
@@ -805,8 +726,11 @@ class Gameplay extends State
 
 		if (Main.ENABLE_MULTITHREADING)
 		{
-			loadChart();
-			threadsCompleted = 0;
+			Thread.create(() ->
+			{
+				loadChart();
+				threadsCompleted = 0;
+			});
 		}
 		else
 		{
@@ -916,14 +840,14 @@ class Gameplay extends State
 
 			// Finish off stage creation and add characters finally
 
+			#if SCRIPTING_ALLOWED
+			Main.hscript.callFromAllScripts('createStage', curSong, curDifficulty);
+			#end
+
 			threadsCompleted = -2;
 
 			if (!noCharacters && curStage == 'stage')
 			{
-				#if SCRIPTING_ALLOWED
-				Main.hscript.callFromAllScripts('createStage', curSong, curDifficulty);
-				#end
-
 				var bg:BGSprite = new BGSprite('stageback', -600, -200, 0.9, 0.9);
 				add(bg);
 
@@ -947,73 +871,79 @@ class Gameplay extends State
 				stageCurtains.setGraphicSize(Std.int(stageCurtains.width * 0.9));
 				stageCurtains.updateHitbox();
 				add(stageCurtains);
-
-				add(gfGroup);
-				add(dadGroup);
-				add(bfGroup);
-	
-				startCharacterPos(gf, false);
-				startCharacterPos(dad, true);
-				startCharacterPos(bf, false);
-
-				#if SCRIPTING_ALLOWED
-				Main.hscript.callFromAllScripts('createStagePost', curSong, curDifficulty);
-				#end
 			}
 
-			// Now time to load the UI and shit
-
-			sustainNoteSpawner = new SustainNoteSpawner();
-			add(sustainNoteSpawner);
-
-			noteSpawner = new NoteSpawner();
-
-			strumlines = new FlxTypedGroup<Strumline>();
-			add(strumlines);
-
-			add(noteSpawner);
-
-			for (i in 0...strumlineCount)
-				generateStrumline(i);
-
-			if (downScroll)
-				changeDownScroll();
-
-			if (!hideHUD)
-			{
-				hudGroup = new HUDGroup();
-				hudGroup.reloadHealthBar();
-			}
-
-			noteSpawner.camera = strumlines.camera = sustainNoteSpawner.camera = hudCamera;
-
-			var timeTakenToLoad:Float = haxe.Timer.stamp() - loadingTimestamp;
-
-			trace('Loading finished! Took ${Utils.formatTime(timeTakenToLoad * 1000.0, true, true)} to load.');
-
-			if (!noCharacters)
-			{
-				camFollowPos.setPosition(
-					gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0],
-					gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1]
-				);
-
-				moveCamera(dad);
-			}
-
-			preventHScript = false;
-			generatedMusic = true;
-
-			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('generateSong', curSong, curDifficulty);
-			#end
-
-			openfl.system.System.gc(); // Free up inactive memory
-
-			startCountdown();
-
-			FlxG.maxElapsed = 0.1;
+			generateSongPost();
 		}
+	}
+
+	function generateSongPost():Void
+	{
+		add(gfGroup);
+		add(dadGroup);
+		add(bfGroup);
+
+		startCharacterPos(gf, false);
+		startCharacterPos(dad, true);
+		startCharacterPos(bf, false);
+
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts('createStagePost', curSong, curDifficulty);
+		#end
+
+		// Now time to load the UI and shit
+
+		sustainNoteSpawner = new SustainNoteSpawner();
+		add(sustainNoteSpawner);
+
+		noteSpawner = new NoteSpawner();
+
+		strumlines = new FlxTypedGroup<Strumline>();
+		add(strumlines);
+
+		add(noteSpawner);
+
+		for (i in 0...strumlineCount)
+			generateStrumline(i);
+
+		if (downScroll)
+			Utils.strumlineChangeDownScroll();
+
+		if (!hideHUD)
+		{
+			hudGroup = new HUDGroup();
+			hudGroup.reloadHealthBar();
+		}
+
+		noteSpawner.camera = strumlines.camera = sustainNoteSpawner.camera = hudCamera;
+
+		var timeTakenToLoad:Float = haxe.Timer.stamp() - loadingTimestamp;
+
+		trace('Loading finished! Took ${Utils.formatTime(timeTakenToLoad * 1000.0, true, true)} to load.');
+
+		if (!noCharacters)
+		{
+			camFollowPos.setPosition(
+				gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0],
+				gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1]
+			);
+
+			moveCamera(dad);
+		}
+
+		generatedMusic = true;
+
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts('generateSong', curSong, curDifficulty);
+		#end
+
+		openfl.system.System.gc(); // Free up inactive memory
+
+		startCountdown();
+
+		threadsCompleted = -3;
+
+		FlxG.autoPause = true;
 	}
 
 	static public var strumlineCount:Int = 2;
@@ -1147,6 +1077,11 @@ class Gameplay extends State
 
 	public function endSong():Void
 	{
+		if (songEnded)
+		{
+			return;
+		}
+
 		songEnded = true;
 
 		if (null != inst)
@@ -1175,7 +1110,7 @@ class Gameplay extends State
 
 	var _mp(default, null):FlxPoint;
 	var _cpx(default, null):Float;
-        var _cpy(default, null):Float;
+		var _cpy(default, null):Float;
 
 	private function moveCamera(whatCharacter:(Character)):Void
 	{
@@ -1273,160 +1208,10 @@ class Gameplay extends State
 
 	public var inputKeybinds:haxe.ds.IntMap<StrumNote> = new haxe.ds.IntMap<StrumNote>();
 
-	var strumYTweens(default, null):Map<StrumNote, FlxTween> = new Map<StrumNote, FlxTween>();
-	var strumScrollMultTweens(default, null):Map<StrumNote, FlxTween> = new Map<StrumNote, FlxTween>();
-	public function changeDownScroll(whichStrum:Int = -1, tween:Bool = false, tweenLength:Float = 1.0):Void
-	{
-		// Strumline
-		for (strumline in strumlines.members)
-		{
-			for (strum in strumline.members)
-			{
-				if (strum.player == whichStrum || whichStrum == -1)
-				{
-					if (tween && tweenLength != 0.0)
-					{
-						var actualScrollMult = strum.scrollMult;
-						actualScrollMult = -actualScrollMult;
-
-						var scrollMultTween = strumScrollMultTweens[strum];
-						var yTween = strumYTweens[strum];
-
-						if (null != scrollMultTween)
-							scrollMultTween.cancel();
-
-						strumScrollMultTweens.set(strum, FlxTween.tween(strum, {scrollMult: strum.scrollMult > 0.0 ? -1.0 : 1.0}, (tweenLength < 0.0 ? -tweenLength : tweenLength), {ease: FlxEase.quintOut}));
-
-						if (null != yTween)
-							yTween.cancel();
-
-						strumYTweens.set(strum, FlxTween.tween(strum, {y: actualScrollMult < 0.0 ? FlxG.height - 160.0 : 60.0}, (tweenLength < 0.0 ? -tweenLength : tweenLength), {ease: FlxEase.quintOut}));
-					}
-					else
-					{
-						strum.scrollMult = -strum.scrollMult;
-					}
-				}
-
-				if (strum.noteData == strumline.keys - 1)
-				{
-					strumline.downScroll = strum.scrollMult < 0.0;
-				}
-			}
-			strumline.y = strumline.downScroll ? FlxG.height - 160.0 : 60.0;
-		}
-	}
-
 	var nd(default, null):Array<Float>;
 	var st(default, null):StrumNote;
 
 	var _songPos(default, null):Float = -5000.0;
-
-	function onNoteHit(note:Note):Void
-	{
-		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts("onNoteHit", note);
-		#end
-
-		note.strum.playAnim("confirm");
-
-		health += 0.045 * (note.strum.playable ? 1.0 : -1.0);
-
-		if (note.strum.playable)
-		{
-			score += 350.0;
-			accuracy_left += ((note.position - Main.conductor.songPosition < 0.0 ? -(note.position - Main.conductor.songPosition) :
-				note.position - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0);
-			accuracy_right++;
-		}
-
-		if (!noCharacters)
-		{
-			if (null != note.targetCharacter)
-			{
-				note.targetCharacter.playAnim(note.strum.parent.singAnimations(note.noteData));
-				note.targetCharacter.holdTimer = 0.0;
-			}
-		}
-
-		note.state = HIT;
-		note.exists = false;
-
-		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts("onNoteHitPost", note);
-		#end
-
-		if (hudGroup != null)
-			hudGroup.updateScoreText();
-	}
-
-	function onNoteMiss(note:Note):Void
-	{
-		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts("onNoteMiss", note);
-		#end
-
-		note.state = MISS;
-		note.alpha = 0.6;
-
-		health -= 0.045;
-		score -= 100.0;
-		misses++;
-		accuracy_right++;
-
-		if (!noCharacters)
-		{
-			note.targetCharacter.playAnim(note.strum.parent.singAnimations(note.noteData) + "miss");
-			note.targetCharacter.holdTimer = 0.0;
-		}
-
-		if (hudGroup != null)
-			hudGroup.updateScoreText();
-
-		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts("onNoteMissPost", note);
-		#end
-	}
-
-	function onHold(sustain:SustainNote):Void
-	{
-		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts("onHold", sustain);
-		#end
-
-		sustain.strum.playAnim("confirm");
-
-		health += FlxG.elapsed * (sustain.strum.playable ? 0.125 : -0.125);
-
-		if (!noCharacters)
-		{
-			if (null != sustain.targetCharacter)
-			{
-				if (Gameplay.stillCharacters)
-					sustain.targetCharacter.playAnim(sustain.strum.parent.singAnimations(sustain.noteData));
-				else
-				{
-					// This shit is similar to amazing engine's character hold fix, but better
-
-					if (sustain.targetCharacter.animation.curAnim.name == sustain.strum.parent.singAnimations(sustain.noteData) + "miss")
-						sustain.targetCharacter.playAnim(sustain.strum.parent.singAnimations(sustain.noteData));
-
-					if (sustain.targetCharacter.animation.curAnim.curFrame > (sustain.targetCharacter.stillCharacterFrame == -1 ?
-						sustain.targetCharacter.animation.curAnim.frames.length : sustain.targetCharacter.stillCharacterFrame))
-						sustain.targetCharacter.animation.curAnim.curFrame = (sustain.targetCharacter.stillCharacterFrame == -1 ?
-						sustain.targetCharacter.animation.curAnim.frames.length - 2 : sustain.targetCharacter.stillCharacterFrame - 1);
-				}
-
-				sustain.targetCharacter.holdTimer = 0.0;
-			}
-		}
-
-		sustain.state = HELD;
-
-		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts("onHoldPost", sustain);
-		#end
-	}
 
 	function loadChart():Void
 	{

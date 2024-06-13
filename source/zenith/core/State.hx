@@ -8,25 +8,20 @@ import flixel.FlxBasic;
 
 class State extends FlxState
 {
-	static public var crashHandler:Bool = true;
-
-	public var preventHScript:Bool = false;
+	static public var crashHandler:Bool = false;
 
 	public function new():Void
 	{
-		if (preventHScript)
+		#if SCRIPTING_ALLOWED
+		Main.hscript.loadScriptsFromDirectory('assets/scripts');
+
+		for (script in Main.hscript.list.keys())
 		{
-			#if SCRIPTING_ALLOWED
-			Main.hscript.loadScriptsFromDirectory('assets/scripts');
-	
-			for (script in Main.hscript.list.keys())
-			{
-				Main.hscript.list[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
-			}
-	
-			Main.hscript.callFromAllScripts('createPre');
-			#end
+			Main.hscript.list[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
 		}
+
+		Main.hscript.callFromAllScripts('createPre');
+		#end
 
 		Main.startTransition(false, null);
 

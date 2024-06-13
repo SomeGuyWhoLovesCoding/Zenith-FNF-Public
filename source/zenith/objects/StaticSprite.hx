@@ -636,11 +636,14 @@ class StaticSprite extends FlxBasic
 	{
 		checkEmptyFrame();
 
+		var cam:FlxCamera = null;
+
 		if ((width >= 0 && height >= 0) && alpha != 0.0 && _frame.type != FlxFrameType.EMPTY)
 		{
-			for (camera in cameras)
+			for (i in 0...cameras.length)
 			{
-				if (camera.visible && camera.exists && isOnScreen(camera))
+				cam = cameras[i];
+				if (cam.visible && cam.exists && isOnScreen(cam))
 				{
 					_frame.prepareMatrix(_matrix, FlxFrameAngle.ANGLE_0, checkFlipX(), checkFlipY());
 					_matrix.translate(-origin.x, -origin.y);
@@ -655,11 +658,11 @@ class StaticSprite extends FlxBasic
 							_matrix.rotateWithTrig(_cosAngle, _sinAngle);
 					}
 
-					getScreenPosition(_point, camera).subtractPoint(offset);
+					getScreenPosition(_point, cam).subtractPoint(offset);
 					_point.add(origin.x, origin.y);
 					_matrix.translate(_point.x, _point.y);
 
-					camera.drawPixels(_frame, null, _matrix, colorTransform, blend, antialiasing, shader);
+					cam.drawPixels(_frame, null, _matrix, colorTransform, blend, antialiasing, shader);
 
 					#if FLX_DEBUG
 					FlxBasic.visibleCount++;
@@ -898,11 +901,11 @@ class StaticSprite extends FlxBasic
 		{
 			// If new graphic is not null, increase its use count
 			if (value != null)
-				value.incrementUseCount();
+				value.useCount++;
 
 			// If old graphic is not null, decrease its use count
 			if (graphic != null)
-				graphic.decrementUseCount();
+				graphic.useCount--;
 
 			graphic = value;
 		}
