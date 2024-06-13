@@ -122,10 +122,13 @@ class Gameplay extends State
 		{
 			st = inline inputKeybinds.get(keyCode);
 
-			if (!st.active)
+			if (st.isIdle)
 			{
 				if (st.animation.curAnim.name != "confirm")
+				{
+					st.isIdle = false;
 					st.playAnim("pressed");
+				}
 
 				noteSpawner.handleHittableNote(st);
 			}
@@ -146,10 +149,13 @@ class Gameplay extends State
 		{
 			st = inline inputKeybinds.get(keyCode);
 
-			if (st.active)
+			if (!st.isIdle)
 			{
 				if (st.animation.curAnim.name != "static")
+				{
+					st.isIdle = true;
 					st.playAnim("static");
+				}
 
 				sustainNoteSpawner.handleRelease(st);
 			}
@@ -219,6 +225,30 @@ class Gameplay extends State
 
 		super.create();
 
+		Main.conductor.onStepHit = (curStep:Float) ->
+		{
+			if (curStep > 0 && !songEnded && startedCountdown && Main.conductor.songPosition > 0)
+			{
+				if (inline Math.abs(_songPos - inst.time) > 35)
+				{
+					_songPos = inst.time;
+				}
+
+				if (SONG.info.needsVoices)
+				{
+					if (inline Math.abs(_songPos - voices.time) > 35)
+					{
+						voices.time = _songPos;
+					}
+
+					if (inline Math.abs(inst.time - voices.time) > 35)
+					{
+						voices.time = inst.time;
+					}
+				}
+			}
+		}
+
 		Main.conductor.onBeatHit = (curBeat:Float) ->
 		{
 			if (curBeat > 0 && !songEnded && startedCountdown && Main.conductor.songPosition > 0)
@@ -248,22 +278,15 @@ class Gameplay extends State
 			hudCameraBelow.alpha = hudCamera.alpha;
 			hudCameraBelow.zoom = hudCamera.zoom;
 
-			// Don't progress further if the song has ended
-
 			if (!songEnded)
 			{
-				if (startedCountdown)
-				{
-					_songPos = inst.time;
-				}
-				else
-				{
-					_songPos += elapsed * 1000.0;
-				}
-
-				Main.conductor.songPosition = FlxMath.lerp(Main.conductor.songPosition, _songPos, FlxG.elapsed * 10.215);
-
 				chartBytesData.update();
+			}
+
+			if (!inCutscene)
+			{
+				_songPos += elapsed * 1000.0;
+				Main.conductor.songPosition = _songPos;
 			}
 
 			if (_songPos >= 0 && !startedCountdown)
@@ -1019,7 +1042,7 @@ class Gameplay extends State
 
 			var swagCounter = 0;
 			_songPos = (-Main.conductor.crochet * 5.0);
-			Main.conductor.songPosition = _songPos - 100.0;
+			Main.conductor.songPosition = _songPos;
 
 			new flixel.util.FlxTimer().start(Main.conductor.crochet * 0.001, (?timer) ->
 			{

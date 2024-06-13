@@ -179,9 +179,8 @@ class NoteSpawner extends FlxBasic
 
 	inline public function handleHittableNote(strum:StrumNote):Void
 	{
-		// The middle checks are pretty weird but it does fix a couple bugs
 		_n = hittable.__items[strum.index];
-		if (_n != Paths.idleNote && _n.state == IDLE && strum != null && strum.playable &&
+		if (strum != null && !strum.isIdle && strum.playable && _n.state == IDLE &&
 			Main.conductor.songPosition > _n.position - (166.7 * Gameplay.instance.songSpeed))
 		{
 			onNoteHit(_n);

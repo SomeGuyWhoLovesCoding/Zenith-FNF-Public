@@ -1,6 +1,5 @@
 package zenith;
 
-@:generic
 class Game extends FlxGame
 {
 	final initState:Class<FlxState> = Gameplay;
@@ -9,7 +8,7 @@ class Game extends FlxGame
 	public var muted:Bool = false;
 	public var blockSoundKeys:Bool = false;
 
-	// Keyboard events
+	// Keyboard events (Used on states other than the gameplay state)
 	public var onKeyDown:Emitter = new Emitter();
 	public var onKeyUp:Emitter = new Emitter();
 

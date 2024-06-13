@@ -167,8 +167,9 @@ class SustainNoteSpawner extends FlxBasic
 	public function handleRelease(strum:StrumNote):Void
 	{
 		_s = missable.__items[strum.index];
-		if (_s != Paths.idleSustain && _s.state != MISS && strum != null && strum.playable && 
-			Main.conductor.songPosition > _s.position)
+		if (strum != null && strum.playable && _s != Paths.idleSustain &&
+			Main.conductor.songPosition > _s.position &&
+			_s.state != MISS)
 		{
 			_s.state = MISS;
 			_s.alpha = 0.3;

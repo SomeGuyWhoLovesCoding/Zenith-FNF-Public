@@ -23,6 +23,8 @@ class StrumNote extends FlxSprite
 
 	public var index:UInt = 0;
 
+	public var isIdle:Bool = true;
+
 	public function new(data:UInt, plr:UInt)
 	{
 		super();

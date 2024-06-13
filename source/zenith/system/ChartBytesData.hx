@@ -66,18 +66,16 @@ class ChartBytesData
 		_moveToNext();
 	}
 
-	var nextNote:ChartNoteData = {position: 0, noteData: 0, sustainLength: 0, lane: 0};
+	var nextNote:ChartNoteData = {position: 0.0, noteData: 0, sustainLength: 0, lane: 0};
 
 	public function update():Void
 	{
 		if (bytesTotal == 0)
 			return;
 
-		while (Main.conductor.songPosition > nextNote.position - (1880 / Gameplay.instance.songSpeed))
+		while (Main.conductor.songPosition > nextNote.position - (1880.0 / Gameplay.instance.songSpeed))
 		{
 			Gameplay.instance.noteSpawner.spawn(nextNote);
-
-			trace(bytesTotal - input.tell());
 
 			if (bytesTotal - input.tell() == 0)
 			{

@@ -84,14 +84,15 @@ class Main extends Sprite
 			fpsTxt = new TextField();
 			fpsTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFFFFFF, true);
 			fpsTxt.selectable = false;
-			fpsTxt.width = FlxG.width;
+			fpsTxt.width = 240;
+			fpsTxt.text = 'FPS: 0 (MAX: 0)';
 			addChild(fpsTxt);
 		}
 
 		volumeTxt = new TextField();
 		volumeTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFF0000, true);
 		volumeTxt.selectable = false;
-		volumeTxt.width = FlxG.width;
+		volumeTxt.width = 72;
 		volumeTxt.alpha = 0.0;
 		addChild(volumeTxt);
 
@@ -246,7 +247,14 @@ class Main extends Sprite
 			if (fpsMax < fps)
 				fpsMax = fps;
 
-			fpsTxt.text = 'FPS: ' + fps + ' (MAX: ' + fpsMax + ')\nMEM: ' + flixel.util.FlxStringUtil.formatBytes(#if hl hl.Gc.stats().currentMemory #elseif cpp cpp.vm.Gc.memInfo(3) #end);
+			fpsTxt.text = 'FPS: ' + fps + ' (MAX: ' + fpsMax + ')\nMEM: ' +
+			flixel.util.FlxStringUtil.formatBytes(
+				#if hl
+				hl.Gc.stats().currentMemory
+				#elseif cpp
+				cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_RESERVED)
+				#end
+			);
 			fpsTextTimer = elapsed;
 		}
 
