@@ -179,7 +179,7 @@ class Gameplay extends State
 		stillCharacters = SaveData.contents.preferences.stillCharacters;
 
 		// Reset gameplay stuff
-		FlxG.fixedTimestep = startedCountdown = songEnded = false;
+		FlxG.fixedTimestep = startedCountdown = false;
 		songSpeed = 1.0;
 
 		persistentUpdate = persistentDraw = true;
@@ -528,214 +528,6 @@ class Gameplay extends State
 	var initialStrumWidth:Float = 112.0;
 	var initialStrumHeight:Float = 112.0;
 
-	// Unused for now until I make my own event system.
-	public function triggerEvent(eventName:String, value1:String, value2:String, value3:String, value4:String)
-	{
-		switch (eventName)
-		{
-			case 'Hey!':
-				if (!noCharacters)
-				{
-					var value = 2;
-					switch (value1.toLowerCase().trim())
-					{
-						case 'bf' | 'boyfriend' | '0':
-							value = 0;
-						case 'gf' | 'girlfriend' | '1':
-							value = 1;
-					}
-
-					var time = Std.parseFloat(value2);
-					if (Math.isNaN(time) || time <= 0)
-						time = 0.6;
-
-					if (value == 1)
-					{
-						if (null != gf)
-						{
-							gf.playAnim('cheer');
-							gf.heyTimer = time;
-						}
-						if (null != dad && dad.curCharacter == gf.curCharacter)
-						{
-							dad.playAnim('cheer');
-							dad.heyTimer = time;
-						}
-					}
-					else
-					{
-						if (null != bf) {
-							bf.playAnim('hey');
-							bf.heyTimer = time;
-						}
-					}
-				}
-
-			case 'Set GF Speed':
-				var value = Std.parseInt(value1);
-				if (Math.isNaN(value) || value < 1)
-					value = 1;
-
-				gfSpeed = value;
-
-			case 'Add Camera Zoom':
-				if (FlxG.camera.zoom < 1.35)
-				{
-					var camZoom = Std.parseFloat(value1);
-					var hudZoom = Std.parseFloat(value2);
-
-					if (Math.isNaN(camZoom))
-						camZoom = 0.015;
-					if (Math.isNaN(hudZoom))
-						hudZoom = 0.03;
-
-					if (null != gameCameraZoomTween)
-						gameCameraZoomTween.cancel();
-					if (null != hudCameraZoomTween)
-						hudCameraZoomTween.cancel();
-
-					FlxG.camera.zoom += camZoom;
-					gameCameraZoomTween = zoomTweenFunction(FlxG.camera, defaultCamZoom);
-					hudCamera.zoom += hudZoom;
-					hudCameraZoomTween = zoomTweenFunction(hudCamera, 1);
-				}
-
-			case 'Play Animation':
-				if (!noCharacters)
-				{
-					var char = dad;
-					switch (value2.toLowerCase().trim())
-					{
-						case 'bf' | 'boyfriend':
-							char = bf;
-						case 'gf' | 'girlfriend':
-							char = gf;
-						default:
-							var val2 = Std.parseInt(value2);
-							if (Math.isNaN(val2))
-								val2 = 0;
-
-							switch (val2)
-							{
-								case 1: char = bf;
-								case 2: char = gf;
-							}
-					}
-
-					if (null != char)
-						char.playAnim(value1);
-				}
-
-			case 'Change Character':
-				if (!noCharacters)
-				{
-					var charType = 0;
-					switch (value1.toLowerCase().trim())
-					{
-						case 'gf' | 'girlfriend':
-							charType = 2;
-						case 'dad' | 'opponent':
-							charType = 1;
-						default:
-							charType = Std.parseInt(value1);
-							if (Math.isNaN(charType))
-								charType = 0;
-					}
-
-					switch(charType)
-					{
-						case 0:
-							if(bf.curCharacter != value2)
-							{
-								if(!bfMap.exists(value2))
-									addCharacterToList(value2, charType);
-
-								var lastAlpha = bf.alpha;
-								bf.alpha = 0.001;
-								bf = bfMap.get(value2);
-								bf.alpha = lastAlpha;
-								if (hudGroup != null && hudGroup.plrIcon != null)
-									hudGroup.plrIcon.changeIcon(bf.healthIcon);
-							}
-
-						case 1:
-							if(dad.curCharacter != value2)
-							{
-								if(!dadMap.exists(value2))
-									addCharacterToList(value2, charType);
-
-								var wasGf = dad.curCharacter.startsWith('gf');
-								var lastAlpha = dad.alpha;
-								dad.alpha = 0.001;
-								dad = dadMap.get(value2);
-
-								if(null != gf)
-									gf.visible = !dad.curCharacter.startsWith('gf') && wasGf;
-
-								dad.alpha = lastAlpha;
-								if (hudGroup != null && hudGroup.oppIcon != null)
-									hudGroup.oppIcon.changeIcon(dad.healthIcon);
-							}
-
-						case 2:
-							if(null != gf)
-							{
-								if(gf.curCharacter != value2)
-								{
-									if(!gfMap.exists(value2))
-										addCharacterToList(value2, charType);
-
-									var lastAlpha = gf.alpha;
-									gf.alpha = 0.001;
-									gf = gfMap.get(value2);
-									gf.alpha = lastAlpha;
-								}
-							}
-					}
-				}
-
-				if (hudGroup != null)
-					hudGroup.reloadHealthBar();
-
-			case 'Change Scroll Speed':
-				if (null != songSpeedTween)
-					songSpeedTween.cancel();
-
-				var val1 = Std.parseFloat(value1);
-				var val2 = Std.parseFloat(value2);
-
-				if (Math.isNaN(val1))
-					val1 = 1.0;
-				if (Math.isNaN(val2))
-					val2 = 0.0;
-
-				var newValue = SONG.info.speed * val1;
-
-				if (val2 <= 0.0)
-					songSpeed = newValue;
-				else
-					songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, val2, {ease: FlxEase.quintOut});
-
-			case 'Fake Song Length':
-				if (null != songLengthTween)
-					songLengthTween.cancel();
-
-				var v1 = Std.parseFloat(value1);
-
-				if (!Math.isNaN(v1))
-				{
-					if (value2 == 'true')
-						songLengthTween = FlxTween.tween(this, {songLength: v1 * 1000.0}, 1.0, {ease: FlxEase.quintOut});
-					else
-						songLength = v1 * 1000.0;
-				}
-		}
-
-		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('triggerEvent', eventName, value1, value2, value3, value4);
-		#end
-	}
-
 	var lock:Mutex;
 	var threadsCompleted = -1;
 
@@ -1049,13 +841,9 @@ class Gameplay extends State
 				if (swagCounter != 4)
 				{
 					if (swagCounter != 3)
-					{
 						FlxG.sound.play(Paths.sound('intro' + (3 - swagCounter)), 0.6);
-					}
 					else
-					{
 						FlxG.sound.play(Paths.sound('introGo'), 0.6);
-					}
 				}
 
 				dance(swagCounter++);
@@ -1170,7 +958,9 @@ class Gameplay extends State
 	}
 
 	private function zoomTweenFunction(cam:(FlxCamera), amount:Float = 1):FlxTween
+	{
 		return FlxTween.tween(cam, {zoom: amount}, 1.3, {ease: FlxEase.expoOut});
+	}
 
 	function set_defaultCamZoom(value:Float):Float
 	{
@@ -1196,37 +986,6 @@ class Gameplay extends State
 
 		char.x += char.positionArray[0];
 		char.y += char.positionArray[1];
-	}
-
-	public function addCharacterToList(newCharacter:String, type:Int) {
-		switch(type) {
-			case 0:
-				if(!bfMap.exists(newCharacter)) {
-					var newBoyfriend = new Character(0, 0, newCharacter, true);
-					bfMap.set(newCharacter, newBoyfriend);
-					bfGroup.add(newBoyfriend);
-					startCharacterPos(newBoyfriend);
-					newBoyfriend.alpha = 0.001;
-				}
-
-			case 1:
-				if(!dadMap.exists(newCharacter)) {
-					var newDad = new Character(0, 0, newCharacter);
-					dadMap.set(newCharacter, newDad);
-					dadGroup.add(newDad);
-					startCharacterPos(newDad, true);
-					newDad.alpha = 0.001;
-				}
-
-			case 2:
-				if(null != gf && !gfMap.exists(newCharacter)) {
-					var newGf = new Character(0, 0, newCharacter);
-					gfMap.set(newCharacter, newGf);
-					gfGroup.add(newGf);
-					startCharacterPos(newGf);
-					newGf.alpha = 0.001;
-				}
-		}
 	}
 
 	public var inputKeybinds:haxe.ds.IntMap<StrumNote> = new haxe.ds.IntMap<StrumNote>();
@@ -1262,6 +1021,30 @@ class Gameplay extends State
 
 			chartBytesData = new ChartBytesData(curSong, curDifficulty);
 		}
+	}
+
+	public function changeScrollSpeed(newSpeed:Float, tweenDuration:Float = 1.0):Void
+	{
+		if (null != songSpeedTween)
+			songSpeedTween.cancel();
+
+		var newValue = SONG.info.speed * newSpeed;
+
+		if (tweenDuration <= 0.0)
+			songSpeed = newValue;
+		else
+			songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, tweenDuration, {ease: FlxEase.quintOut});
+	}
+
+	public function changeSongLength(newLength:Float, tween:Bool = false):Void
+	{
+		if (null != songLengthTween)
+			songLengthTween.cancel();
+
+		if (tween)
+			songLengthTween = FlxTween.tween(this, {songLength: newLength * 1000.0}, 1.0, {ease: FlxEase.quintOut});
+		else
+			songLength = newLength * 1000.0;
 	}
 
 	public var paused:Bool = false;

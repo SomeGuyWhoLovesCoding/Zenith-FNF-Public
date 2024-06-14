@@ -25,11 +25,10 @@ class HUDGroup
 		plrIcon = new HealthIcon(Gameplay.instance.bf.healthIcon, true);
 
 		healthBar = new HealthBar(0, Gameplay.downScroll ? 60.0 : FlxG.height - 86.0, [0xFFFF0000], [0xFF00FF00], 600, 24);
-		healthBar.screenCenter(X);
-		Gameplay.instance.add(healthBar);
-
 		healthBar.top = new FlxSprite().loadGraphic(Paths.image('ui/healthBarBG'));
 		healthBar.add(healthBar.top);
+		healthBar.screenCenter(X);
+		Gameplay.instance.add(healthBar);
 
 		oppIcon.y = plrIcon.y = healthBar.y - 60.0;
 

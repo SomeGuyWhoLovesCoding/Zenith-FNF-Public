@@ -11,6 +11,8 @@ class WelcomeState extends State
 
 	public function new(exception:Null<String> = null):Void
 	{
+		trace('e');
+
 		if (null != exception)
 			exceptionString = exception;
 
