@@ -23,13 +23,6 @@ class State extends FlxState
 		Main.hscript.callFromAllScripts('createPre');
 		#end
 
-		Main.startTransition(false, null);
-
-		Main.conductor.reset();
-		Main.conductor.onStepHit = Main.conductor.onBeatHit = Main.conductor.onMeasureHit = null;
-
-		FlxG.maxElapsed = FlxG.elapsed;
-
 		super();
 	}
 
@@ -37,6 +30,13 @@ class State extends FlxState
 	{
 		try
 		{
+			Main.startTransition(false, null);
+
+			Main.conductor.onStepHit = Main.conductor.onBeatHit = Main.conductor.onMeasureHit = null;
+			Main.conductor.reset();
+
+			FlxG.maxElapsed = FlxG.elapsed;
+
 			if (!SaveData.contents.graphics.persistentGraphics)
 				openfl.system.System.gc();
 

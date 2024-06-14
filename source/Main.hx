@@ -8,6 +8,10 @@ import lime._internal.backend.native.NativeCFFI;
 import lime.ui.Window;
 import lime.ui.KeyCode;
 
+import openfl.events.UncaughtErrorEvent;
+import haxe.CallStack;
+import haxe.io.Path;
+
 using StringTools;
 
 typedef Transitioning =
@@ -181,13 +185,52 @@ class Main extends Sprite
 		NativeCFFI.lime_touch_event_manager_register(function():Void {}, backend.touchEventInfo);
 		NativeCFFI.lime_gamepad_event_manager_register(function():Void {}, backend.gamepadEventInfo);
 		NativeCFFI.lime_joystick_event_manager_register(function():Void {}, backend.joystickEventInfo);
-		NativeCFFI.lime_mouse_event_manager_register(function():Void
+		/*NativeCFFI.lime_mouse_event_manager_register(function():Void
 		{
 			
-		}, backend.mouseEventInfo);
+		}, backend.mouseEventInfo);*/
+
+		openfl.Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(cast "uncaughtError", onCrash);
 	}
 
-	static public function startTransition(_transIn:Bool = false, _callback:()->Void):Void
+	static function onCrash(e:UncaughtErrorEvent):Void
+	{
+		var errMsg:String = "";
+		var path:String;
+		var callStack:Array<StackItem> = CallStack.exceptionStack(true);
+		var dateNow:String = Date.now().toString();
+
+		dateNow = dateNow.replace(" ", "_");
+		dateNow = dateNow.replace(":", "'");
+
+		path = "./crash/" + "PsychEngine_" + dateNow + ".txt";
+
+		for (stackItem in callStack)
+		{
+			switch (stackItem)
+			{
+				case FilePos(s, file, line, column):
+					errMsg += file + " (line " + line + ")\n";
+				default:
+					Sys.println(stackItem);
+			}
+		}
+
+		errMsg += "\nUncaught Error: " + e.error + "\nPlease report this error to the GitHub page: https://github.com/ShadowMario/FNF-PsychEngine\n\n> Crash Handler written by: sqirra-rng";
+
+		if (!sys.FileSystem.exists("./crash/"))
+			sys.FileSystem.createDirectory("./crash/");
+
+		sys.io.File.saveContent(path, errMsg + "\n");
+
+		Sys.println(errMsg);
+		Sys.println("Crash dump saved in " + Path.normalize(path));
+
+		lime.app.Application.current.window.alert(errMsg, "Error!");
+		Sys.exit(1);
+	}
+
+	static public function startTransition(_transIn:Bool = false, _callback:Void->Void):Void
 	{
 		if (_transIn)
 		{
@@ -227,7 +270,7 @@ class Main extends Sprite
 
 	static private var fps:Int = 60;
 	static private var fpsMax:Int = 60;
-	static private var fpsTextTimer:Float = 0.0; // Minor optimization to save 1% cpu usage
+	static private var fpsTextTimer:Float = 0.0;
 	static public function updateMain(elapsed:Float):Void
 	{
 		if (FlxG.game._lostFocus && FlxG.autoPause)

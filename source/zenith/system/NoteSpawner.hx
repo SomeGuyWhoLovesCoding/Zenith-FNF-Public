@@ -158,23 +158,6 @@ class NoteSpawner extends FlxBasic
 		}
 	}
 
-	override function destroy():Void
-	{
-		while (members.length != 0)
-		{
-			members.pop().destroy();
-		}
-
-		members.clear(true);
-
-		while (pool.length != 0)
-		{
-			pool.pop().destroy();
-		}
-
-		pool.clear(true);
-	}
-
 	var _nk(default, null):Int = 0;
 
 	inline public function handleHittableNote(strum:StrumNote):Void

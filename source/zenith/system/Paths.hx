@@ -59,7 +59,7 @@ class Paths
 
 		if (sys.FileSystem.exists(imagePath))
 		{
-			return Utils.toTexture(FlxG.bitmap.add(BitmapData.fromFile(imagePath), true, imagePath).bitmap); // Fuck it. Let's just leave it there until I find out a way to remake the bitmap caching system.
+			return Utils.toTexture(FlxG.bitmap.add(BitmapData.fromFile(imagePath), true, imagePath).bitmap);
 		}
 
 		trace("Image file \"" + imagePath + "\" doesn't exist.");

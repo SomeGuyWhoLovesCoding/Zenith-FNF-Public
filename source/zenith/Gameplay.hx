@@ -1105,8 +1105,6 @@ class Gameplay extends State
 			return;
 		}
 
-		songEnded = true;
-
 		if (null != inst)
 		{
 			inst.stop();
@@ -1127,13 +1125,15 @@ class Gameplay extends State
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('endSong');
 		#end
+
+		songEnded = true;
 	}
 
 	// Camera functions
 
 	var _mp(default, null):FlxPoint;
 	var _cpx(default, null):Float;
-		var _cpy(default, null):Float;
+	var _cpy(default, null):Float;
 
 	private function moveCamera(whatCharacter:(Character)):Void
 	{

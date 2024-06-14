@@ -145,23 +145,6 @@ class SustainNoteSpawner extends FlxBasic
 		}
 	}
 
-	override function destroy():Void
-	{
-		while (members.length != 0)
-		{
-			members.pop().destroy();
-		}
-
-		members = null;
-
-		while (pool.length != 0)
-		{
-			pool.pop().destroy();
-		}
-
-		pool = null;
-	}
-
 	var _sk(default, null):Int = 0;
 
 	public function handleRelease(strum:StrumNote):Void

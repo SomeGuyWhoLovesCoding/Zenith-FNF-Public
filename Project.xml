@@ -70,7 +70,11 @@
 	<haxedef name="FLX_NO_SOUND_TRAY" />
 
 	<!--Allow working memory greater than 1 Gig-->
-	<haxedef name="HXCPP_GC_BIG_BLOCKS" if="cpp" />
+	<haxedef name="HXCPP_GC_BIG_BLOCKS" />
+
+	<!--<haxedef name="HXCPP_CHECK_POINTER" />-->
+	<haxedef name="HXCPP_STACK_LINE" />
+	<haxedef name="HXCPP_STACK_TRACE" />
 
 	<!-- _________________________________ Custom _______________________________ -->
 

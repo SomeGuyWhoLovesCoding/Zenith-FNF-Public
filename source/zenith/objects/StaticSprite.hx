@@ -901,11 +901,11 @@ class StaticSprite extends FlxBasic
 		{
 			// If new graphic is not null, increase its use count
 			if (value != null)
-				value.useCount++;
+				value.incrementUseCount();
 
 			// If old graphic is not null, decrease its use count
 			if (graphic != null)
-				graphic.useCount--;
+				graphic.decrementUseCount();
 
 			graphic = value;
 		}

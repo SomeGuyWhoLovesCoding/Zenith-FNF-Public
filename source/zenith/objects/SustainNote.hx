@@ -2,7 +2,6 @@ package zenith.objects;
 
 import flixel.math.FlxRect;
 
-@:final
 class SustainNote extends NoteBase
 {
 	public var length:Float32 = 0.0;

@@ -7,8 +7,10 @@ class HealthBar extends FlxSpriteGroup
 {
 	private var __width:Int = 100;
 	private var __height:Int = 10;
-	private var __left:FlxSprite = null;
-	private var __right:FlxSprite = null;
+	private var __left:FlxSprite;
+	private var __right:FlxSprite;
+
+	public var top:FlxSprite;
 
 	public var value:Float = 1.0;
 	public var maxValue:UInt = 2;
@@ -65,5 +67,7 @@ class HealthBar extends FlxSpriteGroup
 
 		__left.draw();
 		__right.draw();
+
+		top.draw();
 	}
 }
