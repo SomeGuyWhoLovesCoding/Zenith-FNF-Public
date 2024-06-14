@@ -221,14 +221,7 @@ class Gameplay extends State
 		var songDifficulty:String = 'normal';
 		#end
 
-		try
-		{
-			generateSong(songName, songDifficulty);
-		}
-		catch (e:String)
-		{
-			switchState(new WelcomeState(e));
-		}
+		generateSong(songName, songDifficulty);
 
 		super.create();
 

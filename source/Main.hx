@@ -189,45 +189,6 @@ class Main extends Sprite
 		{
 			
 		}, backend.mouseEventInfo);*/
-
-		openfl.Lib.current.loaderInfo.uncaughtErrorEvents.addEventListener(cast "uncaughtError", onCrash);
-	}
-
-	static function onCrash(e:UncaughtErrorEvent):Void
-	{
-		var errMsg:String = "";
-		var path:String;
-		var callStack:Array<StackItem> = CallStack.exceptionStack(true);
-		var dateNow:String = Date.now().toString();
-
-		dateNow = dateNow.replace(" ", "_");
-		dateNow = dateNow.replace(":", "'");
-
-		path = "./crash/" + "PsychEngine_" + dateNow + ".txt";
-
-		for (stackItem in callStack)
-		{
-			switch (stackItem)
-			{
-				case FilePos(s, file, line, column):
-					errMsg += file + " (line " + line + ")\n";
-				default:
-					Sys.println(stackItem);
-			}
-		}
-
-		errMsg += "\nUncaught Error: " + e.error + "\nPlease report this error to the GitHub page: https://github.com/ShadowMario/FNF-PsychEngine\n\n> Crash Handler written by: sqirra-rng";
-
-		if (!sys.FileSystem.exists("./crash/"))
-			sys.FileSystem.createDirectory("./crash/");
-
-		sys.io.File.saveContent(path, errMsg + "\n");
-
-		Sys.println(errMsg);
-		Sys.println("Crash dump saved in " + Path.normalize(path));
-
-		lime.app.Application.current.window.alert(errMsg, "Error!");
-		Sys.exit(1);
 	}
 
 	static public function startTransition(_transIn:Bool = false, _callback:Void->Void):Void
@@ -314,21 +275,19 @@ class Main extends Sprite
 
 		if (null != transitioning._in)
 		{
-			if (transitionY > -transition.height * 0.6)
+			if (transitionY > -transition.height * 0.6 && null != transitioning._in.callback)
 			{
-				if (null != transitioning._in.callback)
-					transitioning._in.callback();
-				transitioning._in;
+				transitioning._in.callback();
+				transitioning._in = null;
 			}
 		}
 
 		if (null != transitioning._out)
 		{
-			if (transitionY > 720 * transition.scaleY)
+			if (transitionY > 720 * transition.scaleY && null != transitioning._out.callback)
 			{
-				if (null != transitioning._out.callback)
-					transitioning._out.callback();
-				transitioning._out;
+				transitioning._out.callback();
+				transitioning._out = null;
 			}
 		}
 	}
