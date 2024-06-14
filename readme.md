@@ -6,7 +6,7 @@ This engine offers ultra performant, cross-platform, and *clean* gameplay experi
 
 **WARNING 2: I'll be doing some weird stuff with code to get maximum performance.**
 
-**So, if some stuff gets vile and causes a crash, undo what you've changed. The commits can be reverted in the repository if you are actually contribute to this project.**
+**So, if some stuff gets vile and causes a crash, undo what you've changed. The commits can be reverted in the repository if you actually contribute to this project.**
 
 **Also, we recommend you to use Haxe 4.2+. (Read the description of the Emitter haxelib)**
 
