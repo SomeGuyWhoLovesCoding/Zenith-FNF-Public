@@ -893,6 +893,8 @@ class Gameplay extends State
 
 	public function endSong():Void
 	{
+		trace('A');
+
 		if (songEnded)
 		{
 			return;
