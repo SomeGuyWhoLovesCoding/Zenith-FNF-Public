@@ -8,8 +8,6 @@ import flixel.FlxBasic;
 
 class State extends FlxState
 {
-	static public var crashHandler:Bool = false;
-
 	override function create():Void
 	{
 		try
@@ -49,9 +47,7 @@ class State extends FlxState
 		}
 		catch (e)
 		{
-			FlxG.maxElapsed = 0.1;
-			if (crashHandler)
-				throw e;
+			throw e;
 		}
 	}
 
@@ -71,8 +67,7 @@ class State extends FlxState
 		}
 		catch (e)
 		{
-			if (crashHandler)
-				throw e;
+			throw e;
 		}
 	}
 
@@ -98,9 +93,7 @@ class State extends FlxState
 		}
 		catch (e)
 		{
-			FlxG.maxElapsed = 0.1;
-			if (crashHandler)
-				throw e;
+			throw e;
 		}
 	}
 

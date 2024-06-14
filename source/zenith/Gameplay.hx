@@ -221,7 +221,14 @@ class Gameplay extends State
 		var songDifficulty:String = 'normal';
 		#end
 
-		generateSong(songName, songDifficulty);
+		try
+		{
+			generateSong(songName, songDifficulty);
+		}
+		catch (e:String)
+		{
+			switchState(new WelcomeState(e));
+		}
 
 		super.create();
 
@@ -459,7 +466,6 @@ class Gameplay extends State
 
 						lock.acquire();
 
-						voices.onComplete = endSong;
 						FlxG.sound.list.add(voices);
 						voices.looped = false;
 
@@ -648,7 +654,6 @@ class Gameplay extends State
 			{
 				voices = new FlxSound();
 				voices.loadEmbedded(Paths.voices(SONG.song));
-				voices.onComplete = endSong;
 				FlxG.sound.list.add(voices);
 				voices.looped = false;
 			}
@@ -893,11 +898,6 @@ class Gameplay extends State
 			return;
 		}
 
-		if (null != inst)
-		{
-			inst.stop();
-		}
-
 		if (null != voices)
 		{
 			voices.stop();
@@ -997,30 +997,11 @@ class Gameplay extends State
 
 	function loadChart():Void
 	{
-		if (State.crashHandler)
-		{
-			try
-			{
-				if (FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json') &&
-					!FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.bin'))
-					ChartBytesData.saveChartFromJson(curSong, curDifficulty);
+		if (FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json') &&
+			!FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.bin'))
+			ChartBytesData.saveChartFromJson(curSong, curDifficulty);
 
-				chartBytesData = new ChartBytesData(curSong, curDifficulty);
-			}
-			catch (e)
-			{
-				trace('Chart file "assets/data/$curSong/chart/$curDifficulty.bin" is either corrupted or nonexistent.');
-				trace(e);
-			}
-		}
-		else
-		{
-			if (FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json') &&
-				!FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.bin'))
-				ChartBytesData.saveChartFromJson(curSong, curDifficulty);
-
-			chartBytesData = new ChartBytesData(curSong, curDifficulty);
-		}
+		chartBytesData = new ChartBytesData(curSong, curDifficulty);
 	}
 
 	public function changeScrollSpeed(newSpeed:Float, tweenDuration:Float = 1.0):Void
