@@ -76,7 +76,7 @@ class ChartBytesData
 
 		while (Main.conductor.songPosition > nextNote.position - (1880.0 / Gameplay.instance.songSpeed))
 		{
-			if (inline Math.abs(prevNote.position - nextNote.position) < 0.1)
+			if (inline Math.abs(prevNote.position - nextNote.position) > 0.1)
 			{
 				Gameplay.instance.noteSpawner.spawn(nextNote);
 			}
