@@ -81,8 +81,8 @@ class ChartBytesData
 				Gameplay.instance.noteSpawner.spawn(nextNote);
 			}
 
-			prevNote.strumTime = nextNote.strumTime;
-			prevNote.noreData = nextNote.noteData;
+			prevNote.position = nextNote.position;
+			prevNote.noteData = nextNote.noteData;
 			prevNote.sustainLength = nextNote.sustainLength;
 			prevNote.lane = nextNote.lane;
 
