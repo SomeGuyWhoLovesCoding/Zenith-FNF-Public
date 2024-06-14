@@ -10,26 +10,21 @@ class State extends FlxState
 {
 	static public var crashHandler:Bool = false;
 
-	public function new():Void
-	{
-		#if SCRIPTING_ALLOWED
-		Main.hscript.loadScriptsFromDirectory('assets/scripts');
-
-		for (script in Main.hscript.list.keys())
-		{
-			Main.hscript.list[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
-		}
-
-		Main.hscript.callFromAllScripts('createPre');
-		#end
-
-		super();
-	}
-
 	override function create():Void
 	{
 		try
 		{
+			#if SCRIPTING_ALLOWED
+			Main.hscript.loadScriptsFromDirectory('assets/scripts');
+
+			for (script in Main.hscript.list.keys())
+			{
+				Main.hscript.list[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
+			}
+
+			Main.hscript.callFromAllScripts('createPre');
+			#end
+
 			Main.startTransition(false, null);
 
 			Main.conductor.onStepHit = Main.conductor.onBeatHit = Main.conductor.onMeasureHit = null;
