@@ -67,6 +67,7 @@ class ChartBytesData
 	}
 
 	var nextNote:ChartNoteData = {position: 0.0, noteData: 0, sustainLength: 0, lane: 0};
+	var prevNote:ChartNoteData = {position: 1.0, noteData: 0, sustainLength: 0, lane: 0};
 
 	public function update():Void
 	{
@@ -75,7 +76,15 @@ class ChartBytesData
 
 		while (Main.conductor.songPosition > nextNote.position - (1880.0 / Gameplay.instance.songSpeed))
 		{
-			Gameplay.instance.noteSpawner.spawn(nextNote);
+			if (inline Math.abs(prevNote.position - nextNote.position) < 0.1)
+			{
+				Gameplay.instance.noteSpawner.spawn(nextNote);
+			}
+
+			prevNote.strumTime = nextNote.strumTime;
+			prevNote.noreData = nextNote.noteData;
+			prevNote.sustainLength = nextNote.sustainLength;
+			prevNote.lane = nextNote.lane;
 
 			if (bytesTotal - input.tell() == 0)
 			{
