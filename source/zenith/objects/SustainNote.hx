@@ -4,8 +4,10 @@ import flixel.math.FlxRect;
 
 class SustainNote extends NoteBase
 {
-	public var length:Float32 = 0.0;
+    public var length:Float32 = 0.0;
 	public var state:NoteState = IDLE;
+
+	public var mult:Float32 = 1.0; // Used mostly for clipping without using cliprect
 
 	override function set_direction(dir:Float32):Float32
 	{
@@ -16,16 +18,20 @@ class SustainNote extends NoteBase
 
 	inline function set_downScroll(ds:Bool):Bool
 	{
-		angle = direction + ((downScroll = ds) ? 180.0 : 0.0); // For downscroll display, don't remove
-		return ds;
+		downScroll = ds;
+		angle = direction + (ds ? 180.0 : 0.0);
+		return downScroll = ds;
 	}
 
 	override function draw():Void
 	{
 		if (null != _frame)
 		{
-			_frame.frame.height = (1.0 - (_frame.frame.y = -length * (((null != Gameplay.SONG ? Gameplay.SONG.info.speed : 1.0) *
-				0.6428571428571431) /* What the hell? */ / (strum.scale.y * 1.428571428571429))) * (strum.scrollMult < 0.0 ? -strum.scrollMult : strum.scrollMult)) + frameHeight;
+			_frame.frame.y = -(length * mult) * (
+				((null != Gameplay.SONG ? Gameplay.SONG.info.speed : 1.0) * 0.6428571428571431) /
+				(strum.scale.y * 1.428571428571429)
+			);
+			_frame.frame.height = (-_frame.frame.y * (strum.scrollMult < 0.0 ? -strum.scrollMult : strum.scrollMult)) + frameHeight;
 			height = _frame.frame.height * (scale.y < 0.0 ? -scale.y : scale.y);
 		}
 		super.draw();

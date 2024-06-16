@@ -5,6 +5,7 @@ import flixel.math.FlxAngle;
 
 @:access(zenith.Gameplay)
 @:access(Stack)
+@:access(zenith.system.SustainNoteSpawner)
 
 @:final
 class NoteSpawner extends FlxBasic
@@ -79,6 +80,9 @@ class NoteSpawner extends FlxBasic
 		_n.color = NoteBase.colorArray[_n.noteData % _nk];
 		_n.angle = NoteBase.angleArray[_n.noteData % _nk];
 
+		_n.child = null;
+		_n.hasChild = false;
+
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('newNote', _n);
 
@@ -87,7 +91,7 @@ class NoteSpawner extends FlxBasic
 
 		if (_n.sustainLength > 20) // Don't spawn too short sustains
 		{
-			Gameplay.instance.sustainNoteSpawner.spawn(chartNoteData);
+			Gameplay.instance.sustainNoteSpawner.spawn(chartNoteData, _n);
 		}
 	}
 
@@ -119,8 +123,12 @@ class NoteSpawner extends FlxBasic
 				{
 					hittable.__items[n.strum.index] = Paths.idleNote;
 					n.exists = false;
+
 					if (SaveData.contents.experimental.fastNoteSpawning)
+					{
 						pool.push(n);
+					}
+
 					continue;
 				}
 
@@ -150,8 +158,11 @@ class NoteSpawner extends FlxBasic
 					if (Main.conductor.songPosition > n.position)
 					{
 						onNoteHit(n);
+
 						if (SaveData.contents.experimental.fastNoteSpawning)
+						{
 							pool.push(n);
+						}
 					}
 				}
 			}
@@ -160,7 +171,7 @@ class NoteSpawner extends FlxBasic
 
 	var _nk(default, null):Int = 0;
 
-	inline public function handleHittableNote(strum:StrumNote):Void
+	inline public function handlePress(strum:StrumNote):Void
 	{
 		_n = hittable.__items[strum.index];
 		if (strum != null && !strum.isIdle && strum.playable && _n.state == IDLE &&
@@ -169,7 +180,9 @@ class NoteSpawner extends FlxBasic
 			onNoteHit(_n);
 
 			if (SaveData.contents.experimental.fastNoteSpawning)
+			{
 				pool.push(_n);
+			}
 
 			hittable.__items[strum.index] = Paths.idleNote;
 		}
@@ -177,13 +190,15 @@ class NoteSpawner extends FlxBasic
 
 	function recycle():Note
 	{
-		for (i in 0...members.length)
-			if (!members.__items[i].exists)
-				return members.__items[i];
+		for (note in members)
+			if (note.exists)
+				return note;
 		return null;
 	}
 
 	var pool(default, null):Stack<Note>; // Rewritten recycler
+
+	// Called from gameplay
 
 	public function onNoteHit(note:Note):Void
 	{
@@ -213,6 +228,14 @@ class NoteSpawner extends FlxBasic
 		}
 
 		note.state = HIT;
+
+		if (note.hasChild)
+		{
+			note.child.state = HELD;
+			note.child.mult = ((note.child.position + note.child.length) - Main.conductor.songPosition) / note.child.length;
+			Gameplay.instance.sustainNoteSpawner._updatePositionOf(note.child);
+		}
+
 		note.exists = false;
 
 		#if SCRIPTING_ALLOWED
@@ -230,6 +253,13 @@ class NoteSpawner extends FlxBasic
 		#end
 
 		note.state = MISS;
+
+		if (note.hasChild)
+		{
+			note.child.state = MISS;
+			Gameplay.instance.sustainNoteSpawner.onSustainMiss(note.child);
+		}
+
 		note.alpha = 0.6;
 
 		Gameplay.instance.health -= 0.045;

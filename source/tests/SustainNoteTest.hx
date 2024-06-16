@@ -4,7 +4,6 @@ import flixel.graphics.frames.FlxFrame;
 import flixel.math.FlxRect;
 import lime.ui.KeyCode;
 
-@:access(zenith.objects.StaticSprite)
 class SustainNoteTest extends FlxState
 {
 	var sustainNote:SustainNote;
@@ -18,17 +17,18 @@ class SustainNoteTest extends FlxState
 		FlxG.cameras.bgColor = 0xFF999999;
 
 		sustainNote = new SustainNote();
-		sustainNote.scale.x = sustain.scale.y = 0.7;
-		sustainNote.downScroll = downScroll;
+		//sustainNote.scale.x = sustainNote.scale.y = 0.7;
+		sustainNote.downScroll = false;
+		sustainNote.strum = Paths.idleStrumNote;
 		sustainNote.setFrame(Paths.sustainNoteFrame);
 		sustainNote.origin.x = sustainNote.frameWidth * 0.5;
 		sustainNote.offset.x = -0.5 * ((sustainNote.frameWidth * 0.7) - sustainNote.frameWidth);
-		sustain.origin.y = sustainNote.offset.y = 0.0;
-		//sustainNote.x = sustainNote.y = 400.0;
-		sustainNote.length = 200.0;
+		sustainNote.origin.y = sustainNote.offset.y = 0.0;
+		sustainNote.x = sustainNote.y = 400.0;
+		sustainNote.length = 0.0;
 		add(sustainNote);
 
-		Game.onKeyDown.on(SignalEvent.KEY_DOWN, (code:Int, modifier:Int) ->
+		Main.game.onKeyDown.on(SignalEvent.KEY_DOWN, (code:Int, modifier:Int) ->
 		{
 			if (code == KeyCode.A)
 				sustainNote.x -= 5.0;
@@ -56,6 +56,12 @@ class SustainNoteTest extends FlxState
 
 			if (code == KeyCode.SPACE)
 				sustainNote.downScroll = !sustainNote.downScroll;
+
+			if (code == KeyCode.J)
+				sustainNote.mult -= 0.1;
+
+			if (code == KeyCode.I)
+				sustainNote.mult += 0.1;
 		});
 	}
 }

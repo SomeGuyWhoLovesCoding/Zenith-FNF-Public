@@ -27,7 +27,7 @@ class SustainNoteSpawner extends FlxBasic
 	}
 
 	var _s(default, null):SustainNote;
-	public function spawn(chartSustainData:ChartBytesData.ChartNoteData):Void
+	public function spawn(chartSustainData:ChartBytesData.ChartNoteData, parent:Note):Void
 	{
 		_s = SaveData.contents.experimental.fastNoteSpawning ? pool.pop() : recycle();
 
@@ -46,6 +46,7 @@ class SustainNoteSpawner extends FlxBasic
 		_s.alpha = 0.6;
 
 		_s.state = IDLE;
+		_s.mult = 1.0;
 
 		_s.camera = camera;
 		_s.cameras = cameras;
@@ -75,6 +76,9 @@ class SustainNoteSpawner extends FlxBasic
 
 		_s.downScroll = _s.strum.scrollMult < 0.0;
 
+		parent.child = _s;
+		parent.hasChild = true;
+
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('newSustain', _s);
 		#end
@@ -103,43 +107,42 @@ class SustainNoteSpawner extends FlxBasic
 
 				s.distance = 0.45 * (Main.conductor.songPosition - s.position) * Gameplay.instance.songSpeed;
 
-				s.x = (s.strum.x + s.offsetX + (-Math.abs(s.strum.scrollMult) * s.distance) *
-					FlxMath.fastCos(FlxAngle.asRadians(s.direction - 90.0))) + ((Gameplay.instance.initialStrumWidth - (s.frameWidth * s.scale.x)) * 0.5);
+				if (s.state == HELD)
+					s.mult = ((s.position + s.length) - Main.conductor.songPosition) / s.length;
 
-				s.y = (s.strum.y + s.offsetY + (s.strum.scrollMult * s.distance) *
-					FlxMath.fastSin(FlxAngle.asRadians(s.direction - 90.0))) + (Gameplay.instance.initialStrumHeight * 0.5);
+				_updatePositionOf(s);
 
 				if (Main.conductor.songPosition > (s.position + s.length) + (750.0 / Gameplay.instance.songSpeed))
 				{
+					missable.__items[s.strum.index] = Paths.idleSustain;
 					s.exists = false;
+
 					if (SaveData.contents.experimental.fastNoteSpawning)
+					{
 						pool.push(s);
+					}
+
 					continue;
 				}
 
-				if (Main.conductor.songPosition < (s.position + s.length) - (Main.conductor.stepCrochet * 0.875) &&
-					Main.conductor.songPosition > s.position && s.state != MISS)
+				if (Main.conductor.songPosition > s.position - 166.7 &&
+					Main.conductor.songPosition < (s.position + s.length) - (Main.conductor.stepCrochet * 0.685))
 				{
 					if (s.strum.playable)
 					{
 						_s = missable.__items[s.strum.index];
-						if (Main.conductor.songPosition > s.position - 166.7 &&
-							(_s == Paths.idleSustain ||
-							_s.position > s.position ||
-							_s.state != IDLE))
+						if (_s == Paths.idleSustain ||
+							(_s.position > s.position ||
+							s.state == IDLE))
 						{
 							missable.__items[s.strum.index] = s;
 						}
 					}
 
-					if ((s.strum.active && s.state != MISS) || !s.strum.playable)
+					if ((s.state == HELD && Main.conductor.songPosition > s.position) && (!s.strum.isIdle || !s.strum.playable))
 					{
-						onHold(s);
+						onSustainHold(s);
 					}
-				}
-				else
-				{
-					missable.__items[s.strum.index] = Paths.idleSustain;
 				}
 			}
 		}
@@ -152,43 +155,30 @@ class SustainNoteSpawner extends FlxBasic
 		_s = missable.__items[strum.index];
 		if (strum != null && strum.playable && _s != Paths.idleSustain &&
 			Main.conductor.songPosition > _s.position &&
+			Main.conductor.songPosition < (_s.position + _s.length) - (Main.conductor.stepCrochet * 0.685) &&
 			_s.state != MISS)
 		{
-			_s.state = MISS;
-			_s.alpha = 0.3;
-
-			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('onRelease', _s);
-			#end
-
-			Gameplay.instance.health -= 0.045;
-
-			if (!Gameplay.noCharacters)
-			{
-				Gameplay.instance.bf.playAnim(strum.parent.singAnimations(_s.noteData) + "miss");
-				Gameplay.instance.bf.holdTimer = 0.0;
-			}
-
-			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('onReleasePost', _s);
-			#end
+			onSustainMiss(_s);
+			missable.__items[strum.index] = Paths.idleSustain;
 		}
 	}
 
 	function recycle():SustainNote
 	{
-		for (i in 0...members.length)
-			if (!members.__items[i].exists)
-				return members.__items[i];
+		for (sustain in members)
+			if (sustain.exists)
+				return sustain;
 		return null;
 	}
 
 	var pool(default, null):Stack<SustainNote>;
 
-	public function onHold(sustain:SustainNote):Void
+	// Called from gameplay
+
+	public function onSustainHold(sustain:SustainNote):Void
 	{
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts("onHold", sustain);
+		Main.hscript.callFromAllScripts("onSustainHold", sustain);
 		#end
 
 		sustain.strum.playAnim("confirm");
@@ -218,10 +208,49 @@ class SustainNoteSpawner extends FlxBasic
 			}
 		}
 
-		sustain.state = HELD;
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts("onHoldSustainPost", sustain);
+		#end
+	}
+
+	public function onSustainMiss(sustain:SustainNote):Void
+	{
+		sustain.state = MISS;
+		sustain.alpha = 0.3;
+		sustain.mult = 1.0;
+
+		_updatePositionOf(sustain);
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts("onHoldPost", sustain);
+		Main.hscript.callFromAllScripts('onSustainMiss', sustain);
 		#end
+
+		if (!Gameplay.noCharacters)
+		{
+			Gameplay.instance.bf.playAnim(sustain.strum.parent.singAnimations(sustain.noteData) + "miss");
+			Gameplay.instance.bf.holdTimer = 0.0;
+		}
+
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts('onSustainMissPost', sustain);
+		#end
+	}
+
+	// Don't want to inline this because it could potentially make compiled code a mess and could decrease performance
+	private function _updatePositionOf(s:SustainNote):Void
+	{
+		s.x = s.state == HELD ?
+			// If held
+			s.strum.x + ((Gameplay.instance.initialStrumWidth - (s.frameWidth * s.scale.x)) * 0.5)
+			// If not held
+		: ((s.strum.x + s.offsetX + (-Math.abs(s.strum.scrollMult) * s.distance) *
+			FlxMath.fastCos(FlxAngle.asRadians(s.direction - 90.0))) + ((Gameplay.instance.initialStrumWidth - (s.frameWidth * s.scale.x)) * 0.5));
+
+		s.y = s.state == HELD ?
+			// If held
+			s.strum.y + (Gameplay.instance.initialStrumHeight * 0.5)
+			// If not held
+		: ((s.strum.y + s.offsetY + (s.strum.scrollMult * s.distance) *
+			FlxMath.fastSin(FlxAngle.asRadians(s.direction - 90.0))) + (Gameplay.instance.initialStrumHeight * 0.5));
 	}
 }

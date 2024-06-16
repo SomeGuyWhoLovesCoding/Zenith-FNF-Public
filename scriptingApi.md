@@ -27,13 +27,13 @@ Here's a fact! You can create your own custom save data by writing:
 ```haxe
 function onGameBoot(modpack)
 {
-    if (!SaveData.contents.customSaves.exists("hi"))
-    {
-        var saveFile = new SaveFile("Hi!");
-        saveFile.name = "hi"; // Change the name
-        saveFile.data = 3; // Set the data to an int,
-        SaveData.addToCustomSaves(saveFile);
-    }
+	if (!SaveData.contents.customSaves.exists("hi"))
+	{
+		var saveFile = new SaveFile("Hi!");
+		saveFile.name = "hi"; // Change the name
+		saveFile.data = 3; // Set the data to an int,
+		SaveData.addToCustomSaves(saveFile);
+	}
 }
 ```
 
@@ -41,7 +41,7 @@ It allows your own custom savedata to load immediately.
 
 ### State-wise
 
-``createPre()``: This function is called after the state class was created. Should only really be used for stuff that needs executed first.
+``createPre()``: This function is called after the state class was created. Should only really be used for stuff that needs executed first before calling create.
 
 ``create()``: This function is called before creating the current state.
 
@@ -49,7 +49,7 @@ It allows your own custom savedata to load immediately.
 
 ``updatePre(elapsed)``: This function is called before the game executes the next frame.
 
-*Only really useful for stuff you want to move first so you don't have to worry about it having the 
+*Only really useful for stuff you want to move first so you don't have to worry about it having the
 frame delay*
 
 ``update(elapsed)``: This function is called before updating the current state.
@@ -86,8 +86,6 @@ frame delay*
 
 ``moveCamera(whatCharacter)``: This function is called when the camera has moved to a specific character.
 
-``triggerEvent(eventName, value1, value2, value3, value4)``: This function is called when the current event has triggered.
-
 ``onKeyDown(keyCode, keyModifier)``: This function is called before pressing down a key. (This is only available in-game)
 
 ``onKeyDownPost(keyCode, keyModifier)``: This function is called after pressing down a key. (This is only available in-game)
@@ -95,6 +93,10 @@ frame delay*
 ``onKeyUp(keyCode, keyModifier)``: This function is called before releasing a key. (This is only available in-game)
 
 ``onKeyUpPost(keyCode, keyModifier)``: This function is called after releasing a key. (This is only available in-game)
+
+``newNote(note)``: This function is called after creating/reusing a note instance.
+
+``newSustain(sustain)``: This function is called after creating/reusing a sustain note instance.
 
 ``onNoteHit(note)``: This function is called before hitting a note.
 
@@ -104,17 +106,13 @@ frame delay*
 
 ``onNoteMissPost(note)``: This function is called after missing a note.
 
-``onHold(sustain)``: This function is called every frame before holding down a sustain note.
+``onSustainHold(sustain)``: This function is called every frame before holding down a sustain note.
 
-``onHoldPost(sustain)``: This function is called every frame after holding down a sustain note.
+``onSustainHoldPost(sustain)``: This function is called every frame after holding down a sustain note.
 
-``onRelease(sustain)``: This function is called before releasing a sustain note.
+``onSustainMiss(sustain)``: This function is called before missing a sustain note.
 
-``onReleasePost(sustain)``: This function is called after releasing a sustain note.
-
-``newNote(note)``: This function is called after creating a note instance.
-
-``newSustain(sustain)``: This function is called after creating a sustain note instance.
+``onSustainMissPost(sustain)``: This function is called after missing a sustain note.
 
 ``setupNoteData(note, chartNoteData)``: This function is called before setting up the note data for recycling.
 
@@ -143,7 +141,7 @@ function triggerEvent(eventName, value1, value2, value3, value4)
 
 2. If you want to create your own save data when the game boots, use the ``onGameBoot()`` function and do what I've shown at the top of "Built-in functions".
 
-3. 
+3.
 
 # Final message
 

@@ -112,51 +112,43 @@ class Gameplay extends State
 
 	static public var instance:Gameplay;
 
-	inline public function onKeyDown(keyCode:Int, keyModifier:Int):Void
+	public function onKeyDown(keyCode:Int, keyModifier:Int):Void
 	{
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('onKeyDown', keyCode, keyModifier);
 		#end
 
-		if (inline inputKeybinds.exists(keyCode) && generatedMusic && !cpuControlled)
+		if (inputKeybinds.exists(keyCode) && generatedMusic && !cpuControlled)
 		{
-			st = inline inputKeybinds.get(keyCode);
+			st = inputKeybinds.get(keyCode);
 
-			if (st.isIdle)
+			if (st.isIdle && st.animation.curAnim.name != "confirm")
 			{
-				if (st.animation.curAnim.name != "confirm")
-				{
-					st.isIdle = false;
-					st.playAnim("pressed");
-				}
-
-				noteSpawner.handleHittableNote(st);
+				st.isIdle = false;
+				st.playAnim("pressed");
+				noteSpawner.handlePress(st);
 			}
-
-			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('onKeyDownPost', keyCode, keyModifier);
-			#end
 		}
+
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts('onKeyDownPost', keyCode, keyModifier);
+		#end
 	}
 
-	inline public function onKeyUp(keyCode:Int, keyModifier:Int):Void
+	public function onKeyUp(keyCode:Int, keyModifier:Int):Void
 	{
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('onKeyUp', keyCode, keyModifier);
 		#end
 
-		if (inline inputKeybinds.exists(keyCode) && generatedMusic && !cpuControlled)
+		if (inputKeybinds.exists(keyCode) && generatedMusic && !cpuControlled)
 		{
-			st = inline inputKeybinds.get(keyCode);
+			st = inputKeybinds.get(keyCode);
 
-			if (!st.isIdle)
+			if (!st.isIdle && st.animation.curAnim.name != "static")
 			{
-				if (st.animation.curAnim.name != "static")
-				{
-					st.isIdle = true;
-					st.playAnim("static");
-				}
-
+				st.isIdle = true;
+				st.playAnim("static");
 				sustainNoteSpawner.handleRelease(st);
 			}
 		}
@@ -238,7 +230,7 @@ class Gameplay extends State
 				{
 					if (inline Math.abs(_songPos - voices.time) > 35)
 					{
-						voices.time = _songPos;
+						_songPos = voices.time;
 					}
 
 					if (inline Math.abs(inst.time - voices.time) > 35)
@@ -707,12 +699,12 @@ class Gameplay extends State
 		// Now time to load the UI and shit
 
 		sustainNoteSpawner = new SustainNoteSpawner();
-		add(sustainNoteSpawner);
 
 		noteSpawner = new NoteSpawner();
 
 		strumlines = new FlxTypedGroup<Strumline>();
 		add(strumlines);
+		add(sustainNoteSpawner);
 
 		add(noteSpawner);
 
@@ -886,8 +878,6 @@ class Gameplay extends State
 
 	public function endSong():Void
 	{
-		trace('A');
-
 		if (songEnded)
 		{
 			return;

@@ -73,12 +73,6 @@ class Stack<T>
 	 */
 	public inline function pop():Null<T>
 	{
-		/*if (__top == 0)
-		{
-			return null;  // Return null instead of throwing an error
-		}
-		return __items[--__top];*/
-
 		return __top > 0 ? __items[--__top] : null;
 	}
 
@@ -103,11 +97,11 @@ class Stack<T>
 	 */
 	public inline function last():Null<T>
 	{
-		/*if (__top == 0)
-		{
-			return null; // Return null instead of throwing an error
-		}
-		return __items[__top - 1];*/
 		return __top > 0 ? __items[__top - 1] : null;
+	}
+
+	public inline function iterator():Iterator<T>
+	{
+		return __items.iterator();
 	}
 }
