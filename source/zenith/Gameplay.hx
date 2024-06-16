@@ -118,9 +118,9 @@ class Gameplay extends State
 		Main.hscript.callFromAllScripts('onKeyDown', keyCode, keyModifier);
 		#end
 
-		if (inputKeybinds.exists(keyCode) && generatedMusic && !cpuControlled)
+		if (inputKeybinds[keyCode % 32] != Paths.idleStrumNote && generatedMusic && !cpuControlled)
 		{
-			st = inputKeybinds.get(keyCode);
+			st = inputKeybinds[keyCode % 32];
 
 			if (st.isIdle && st.animation.curAnim.name != "confirm")
 			{
@@ -141,9 +141,9 @@ class Gameplay extends State
 		Main.hscript.callFromAllScripts('onKeyUp', keyCode, keyModifier);
 		#end
 
-		if (inputKeybinds.exists(keyCode) && generatedMusic && !cpuControlled)
+		if (inputKeybinds[keyCode % 32] != Paths.idleStrumNote && generatedMusic && !cpuControlled)
 		{
-			st = inputKeybinds.get(keyCode);
+			st = inputKeybinds[keyCode % 32];
 
 			if (!st.isIdle && st.animation.curAnim.name != "static")
 			{
@@ -764,6 +764,17 @@ class Gameplay extends State
 		strumlines.add(new Strumline(4, player, playablelineConfiguration[player]));
 	}
 
+	// This is good for now
+	public function introHandler(tick:Int):Void
+	{
+		if (tick == 5)
+		{
+			return;
+		}
+
+		addCameraZoom(tick * 0.00375, tick * 0.00375);
+	}
+
 	public function dance(beat:Float):Void
 	{
 		if (!noCharacters)
@@ -818,9 +829,18 @@ class Gameplay extends State
 
 			var playerStrum = strumlines.members[1]; // Prevent redundant array access
 
+			for (i in 0...32)
+			{
+				inputKeybinds.push(Paths.idleStrumNote);
+			}
+
 			for (i in 0...SaveData.contents.controls.GAMEPLAY_BINDS.length)
+			{
 				for (j in 0...SaveData.contents.controls.GAMEPLAY_BINDS[i].length)
-					inputKeybinds.set(SaveData.contents.controls.GAMEPLAY_BINDS[i][j], playerStrum.members[i]);
+				{
+					inputKeybinds[SaveData.contents.controls.GAMEPLAY_BINDS[i][j] % 32] = playerStrum.members[i];
+				}
+			}
 
 			var swagCounter = 0;
 			_songPos = (-Main.conductor.crochet * 5.0);
@@ -831,12 +851,14 @@ class Gameplay extends State
 				if (swagCounter != 4)
 				{
 					if (swagCounter != 3)
-						FlxG.sound.play(Paths.sound('intro' + (3 - swagCounter)), 0.6);
+						FlxG.sound.play(Paths.sound('sounds/intro' + (3 - swagCounter)), 0.6);
 					else
-						FlxG.sound.play(Paths.sound('introGo'), 0.6);
+						FlxG.sound.play(Paths.sound('sounds/introGo'), 0.6);
 				}
 
-				dance(swagCounter++);
+				swagCounter++;
+				introHandler(swagCounter);
+				dance(swagCounter);
 			}, 4);
 
 			#if SCRIPTING_ALLOWED
@@ -933,7 +955,7 @@ class Gameplay extends State
 					y: whatCharacter == gf ? _mp.y + _cpy + girlfriendCameraOffset[1] :
 						whatCharacter == bf ? (_mp.y - 100.0) + _cpy + boyfriendCameraOffset[1] :
 						(_mp.y - 100.0) + _cpy + opponentCameraOffset[1]
-				}, 1.3 * cameraSpeed, {ease: FlxEase.expoOut});
+				}, 1.2 * cameraSpeed, {ease: FlxEase.expoOut});
 			}
 		}
 
@@ -942,9 +964,9 @@ class Gameplay extends State
 		#end
 	}
 
-	private function zoomTweenFunction(cam:(FlxCamera), amount:Float = 1):FlxTween
+	private function zoomTweenFunction(cam:FlxCamera, amount:Float = 1.0):FlxTween
 	{
-		return FlxTween.tween(cam, {zoom: amount}, 1.3, {ease: FlxEase.expoOut});
+		return FlxTween.tween(cam, {zoom: amount}, 1.2, {ease: FlxEase.expoOut});
 	}
 
 	function set_defaultCamZoom(value:Float):Float
@@ -956,7 +978,7 @@ class Gameplay extends State
 		return defaultCamZoom = value;
 	}
 
-	function startCharacterPos(char:(Character), gfCheck:Bool = false)
+	function startCharacterPos(char:Character, gfCheck:Bool = false)
 	{
 		if (gfCheck && char.curCharacter.startsWith('gf')) // IF DAD IS GIRLFRIEND, HE GOES TO HER POSITION
 		{
@@ -973,7 +995,7 @@ class Gameplay extends State
 		char.y += char.positionArray[1];
 	}
 
-	public var inputKeybinds:haxe.ds.IntMap<StrumNote> = new haxe.ds.IntMap<StrumNote>();
+	public var inputKeybinds:Array<StrumNote> = new Array<StrumNote>();
 
 	var nd(default, null):Array<Float>;
 	var st(default, null):StrumNote;

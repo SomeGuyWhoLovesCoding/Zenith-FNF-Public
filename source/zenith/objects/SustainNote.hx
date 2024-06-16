@@ -4,6 +4,9 @@ import flixel.math.FlxRect;
 
 class SustainNote extends NoteBase
 {
+	public var parent:Note;
+	public var hasParent:Bool = false;
+
     public var length:Float32 = 0.0;
 	public var state:NoteState = IDLE;
 

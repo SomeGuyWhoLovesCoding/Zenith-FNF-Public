@@ -41,7 +41,6 @@ class HUDGroup
 
 		timeTxt = new FlxText(0, Gameplay.downScroll ? FlxG.height - 42 : 8, 0, '???', 30);
 		timeTxt.setBorderStyle(OUTLINE, 0xFF000000);
-		timeTxt.alpha = 0;
 		Gameplay.instance.add(timeTxt);
 
 		scoreTxt.borderSize = timeTxt.borderSize = 1.25;
@@ -51,6 +50,7 @@ class HUDGroup
 
 		oppIcon.pixelPerfectPosition = plrIcon.pixelPerfectPosition = healthBar.pixelPerfectPosition = scoreTxt.pixelPerfectPosition = timeTxt.pixelPerfectPosition = false;
 		oppIcon.camera = plrIcon.camera = healthBar.camera = scoreTxt.camera = timeTxt.camera = Gameplay.instance.hudCamera;
+		oppIcon.alpha = plrIcon.alpha = healthBar.alpha = scoreTxt.alpha = timeTxt.alpha = 0.0;
 	}
 
 	public function updateScoreText():Void
@@ -96,8 +96,7 @@ class HUDGroup
 
 		if (Gameplay.instance.startedCountdown)
 		{
-			if (timeTxt.alpha <= 1.0)
-				timeTxt.alpha += FlxG.elapsed * 6.0;
+			oppIcon.alpha = plrIcon.alpha = healthBar.alpha = scoreTxt.alpha = timeTxt.alpha += (FlxG.elapsed * 8.0) * (1.0 - timeTxt.alpha);
 			timeTxt.text = Utils.formatTime(Gameplay.instance.songLength - Main.conductor.songPosition, true, true);
 		}
 

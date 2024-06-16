@@ -21,7 +21,7 @@ class WelcomeState extends State
 	{
 		super.create();
 
-		FlxG.sound.playMusic(Paths.music('breakfast'), 0.15);
+		FlxG.sound.playMusic(Paths.sound('music/breakfast'), 0.15);
 
 		var bkdr:FlxBackdrop = new FlxBackdrop(Paths.image('other/welcome-grid'));
 		bkdr.velocity.set(-20, -20);

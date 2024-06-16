@@ -78,6 +78,7 @@ class SustainNoteSpawner extends FlxBasic
 
 		parent.child = _s;
 		parent.hasChild = true;
+		_s.parent = parent;
 
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('newSustain', _s);
