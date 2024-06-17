@@ -15,7 +15,7 @@ class Utils
 	inline static public function toTexture(source:BitmapData):BitmapData
 	{
 		#if !hl
-		if (SaveData.contents.graphics.gpuCaching && !GL.isContextLost() && source.readable)
+		if (SaveData.contents.graphics.gpuCaching && source.readable && !GL.isContextLost())
 		{
 			var context:Context3D = Lib.current.stage.context3D;
 			var texture:TextureBase = source.getTexture(context);

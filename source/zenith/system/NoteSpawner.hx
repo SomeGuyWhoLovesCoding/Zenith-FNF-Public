@@ -171,7 +171,7 @@ class NoteSpawner extends FlxBasic
 
 	var _nk(default, null):Int = 0;
 
-	inline public function handlePress(strum:StrumNote):Void
+	public function handlePress(strum:StrumNote):Void
 	{
 		_n = hittable.__items[strum.index];
 		if (strum != null && !strum.isIdle && strum.playable && _n.state == IDLE &&
@@ -190,9 +190,9 @@ class NoteSpawner extends FlxBasic
 
 	function recycle():Note
 	{
-		for (note in members)
-			if (note.exists)
-				return note;
+		for (i in 0...members.length)
+			if (!members.__items[i].exists)
+				return members.__items[i];
 		return null;
 	}
 

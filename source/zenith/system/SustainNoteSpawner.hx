@@ -99,7 +99,10 @@ class SustainNoteSpawner extends FlxBasic
 
 			if (s.exists)
 			{
-				s.draw();
+				if (s != Paths.idleSustain)
+				{
+					s.draw();
+				}
 
 				s.scale.set(s.strum.scale.x, s.strum.scale.y);
 				s.offset.x = -0.5 * ((s.frameWidth * s.scale.x) - s.frameWidth);
@@ -166,9 +169,9 @@ class SustainNoteSpawner extends FlxBasic
 
 	function recycle():SustainNote
 	{
-		for (sustain in members)
-			if (sustain.exists)
-				return sustain;
+		for (i in 0...members.length)
+			if (!members.__items[i].exists)
+				return members.__items[i];
 		return null;
 	}
 
