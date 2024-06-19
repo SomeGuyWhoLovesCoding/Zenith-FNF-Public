@@ -212,6 +212,7 @@ class NoteSpawner extends FlxBasic
 		if (note.strum.playable)
 		{
 			Gameplay.instance.score += 350.0;
+			Gameplay.instance.combo++;
 			Gameplay.instance.accuracy_left += ((note.position
 				- Main.conductor.songPosition < 0.0 ? -(note.position - Main.conductor.songPosition) : note.position - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0);
 			Gameplay.instance.accuracy_right++;
@@ -241,8 +242,8 @@ class NoteSpawner extends FlxBasic
 		Main.hscript.callFromAllScripts("onNoteHitPost", note);
 		#end
 
-		if (Gameplay.instance.hudGroup != null)
-			Gameplay.instance.hudGroup.updateScoreText();
+		Gameplay.instance.hudGroup?.updateScoreText();
+		Gameplay.instance.hudGroup?.updateRatings();
 	}
 
 	public function onNoteMiss(note:Note):Void
@@ -262,9 +263,14 @@ class NoteSpawner extends FlxBasic
 		note.alpha = 0.6;
 
 		Gameplay.instance.health -= 0.045;
-		Gameplay.instance.score -= 100.0;
-		Gameplay.instance.misses++;
-		Gameplay.instance.accuracy_right++;
+
+		if (note.strum.playable)
+		{
+			Gameplay.instance.score -= 100.0;
+			Gameplay.instance.misses++;
+			Gameplay.instance.combo = 0.0;
+			Gameplay.instance.accuracy_right++;
+		}
 
 		if (!Gameplay.noCharacters)
 		{
@@ -272,8 +278,8 @@ class NoteSpawner extends FlxBasic
 			note.targetCharacter.holdTimer = 0.0;
 		}
 
-		if (Gameplay.instance.hudGroup != null)
-			Gameplay.instance.hudGroup.updateScoreText();
+		Gameplay.instance.hudGroup?.updateScoreText();
+		Gameplay.instance.hudGroup?.updateRatings();
 
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts("onNoteMissPost", note);

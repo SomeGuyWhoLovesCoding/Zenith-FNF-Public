@@ -33,7 +33,7 @@ class Main extends Sprite
 {
 	static public var conductor:Conductor;
 
-	#if SCRIPTING_ALLOWED
+	#if (SCRIPTING_ALLOWED && hscript)
 	static public var hscript:HScriptSystem;
 	#end
 
@@ -58,7 +58,7 @@ class Main extends Sprite
 
 		conductor = new Conductor();
 
-		#if SCRIPTING_ALLOWED
+		#if (SCRIPTING_ALLOWED && hscript)
 		hscript = new HScriptSystem();
 		hscript.callFromAllScripts('onGameBoot');
 		#end
@@ -253,8 +253,12 @@ class Main extends Sprite
 			if (fpsMax < fps)
 				fpsMax = fps;
 
-			fpsTxt.text = 'FPS: ' + fps + ' (MAX: ' + fpsMax + ')\nMEM: ' + flixel.util.FlxStringUtil.formatBytes(#if hl hl.Gc.stats()
-				.currentMemory #elseif cpp cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_RESERVED) #end);
+			fpsTxt.text = 'FPS: '
+				+ fps
+				+ ' (MAX: '
+				+ fpsMax
+				+ ')\nMEM: '
+				+ flixel.util.FlxStringUtil.formatBytes(#if hl hl.Gc.stats().currentMemory #elseif cpp cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_RESERVED) #end);
 			fpsTextTimer = elapsed;
 		}
 

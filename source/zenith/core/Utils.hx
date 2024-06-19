@@ -36,7 +36,9 @@ class Utils
 		}
 		catch (e:haxe.Exception)
 		{
+			#if (SCRIPTING_ALLOWED && hscript)
 			Main.hscript.error(e);
+			#end
 		}
 	}
 

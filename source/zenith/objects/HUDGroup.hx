@@ -6,9 +6,11 @@ import flixel.math.FlxMath;
 
 @:access(zenith.Gameplay)
 @:access(zenith.objects.HealthBar)
+@:access(zenith.objects.StaticSprite)
 @:final
 class HUDGroup
 {
+	public var comboNums:Array<Atlas>;
 	public var oppIcon:HealthIcon;
 	public var plrIcon:HealthIcon;
 	public var healthBar:HealthBar;
@@ -19,6 +21,20 @@ class HUDGroup
 	{
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
+
+		comboNums = [
+			for (i in 0...10)
+			{
+				var comboNum:Atlas = new Atlas(Paths.image('ui/comboNums'), 10, 1);
+				comboNum.scale.set(0.9, 0.9);
+				comboNum.x = 900 - ((comboNum._frame.frame.width * 0.85) * i);
+				comboNum.y = 300;
+				comboNum.antialiasing = true;
+				comboNum.camera = Gameplay.instance.hudCamera;
+				comboNum.visible = false;
+				comboNum;
+			}
+		];
 
 		oppIcon = new HealthIcon(Gameplay.instance.dad.healthIcon);
 		plrIcon = new HealthIcon(Gameplay.instance.bf.healthIcon, true);
@@ -85,6 +101,42 @@ class HUDGroup
 			FlxColor.fromRGB(Gameplay.instance.dad.healthColorArray[0], Gameplay.instance.dad.healthColorArray[1], Gameplay.instance.dad.healthColorArray[2]));
 		healthBar.__right.makeGraphic(healthBar.__width, healthBar.__height,
 			FlxColor.fromRGB(Gameplay.instance.bf.healthColorArray[0], Gameplay.instance.bf.healthColorArray[1], Gameplay.instance.bf.healthColorArray[2]));
+	}
+
+	var comboNum(default, null):Atlas;
+
+	public function drawRatings():Void
+	{
+		for (i in 0...10)
+		{
+			comboNum = comboNums[i];
+
+			if (comboNum.exists && comboNum.visible)
+			{
+				comboNum.draw();
+			}
+		}
+	}
+
+	public function updateRatings():Void
+	{
+		comboNums[0].updatePosW(Gameplay.instance.combo);
+		comboNums[1].updatePosW(Gameplay.instance.combo * 0.1);
+		comboNums[2].updatePosW(Gameplay.instance.combo * 0.01);
+		comboNums[3].updatePosW(Gameplay.instance.combo * 0.001);
+		comboNums[3].visible = Gameplay.instance.combo >= 1000;
+		comboNums[4].updatePosW(Gameplay.instance.combo * 0.0001);
+		comboNums[4].visible = Gameplay.instance.combo >= 10000;
+		comboNums[5].updatePosW(Gameplay.instance.combo * 0.00001);
+		comboNums[5].visible = Gameplay.instance.combo >= 100000;
+		comboNums[6].updatePosW(Gameplay.instance.combo * 0.000001);
+		comboNums[6].visible = Gameplay.instance.combo >= 1000000;
+		comboNums[7].updatePosW(Gameplay.instance.combo * 0.0000001);
+		comboNums[7].visible = Gameplay.instance.combo >= 10000000;
+		comboNums[8].updatePosW(Gameplay.instance.combo * 0.00000001);
+		comboNums[8].visible = Gameplay.instance.combo >= 100000000;
+		comboNums[9].updatePosW(Gameplay.instance.combo * 0.000000001);
+		comboNums[9].visible = Gameplay.instance.combo >= 1000000000;
 	}
 
 	function updateIcons():Void

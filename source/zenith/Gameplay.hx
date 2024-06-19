@@ -33,6 +33,7 @@ class Gameplay extends State
 
 	public var score:Float = 0.0;
 	public var misses:Float = 0.0;
+	public var combo:Float = 0.0;
 
 	var accuracy_left(default, null):Float = 0.0;
 	var accuracy_right(default, null):Float = 0.0;
@@ -115,9 +116,9 @@ class Gameplay extends State
 		Main.hscript.callFromAllScripts('onKeyDown', keyCode, keyModifier);
 		#end
 
-		if (inputKeybinds[keyCode % 32] != Paths.idleStrumNote && generatedMusic && !cpuControlled)
+		if (inputKeybinds[keyCode % 1024] != Paths.idleStrumNote && generatedMusic && !cpuControlled)
 		{
-			st = inputKeybinds[keyCode % 32];
+			st = inputKeybinds[keyCode % 1024];
 
 			if (st.isIdle && st.animation.curAnim.name != "confirm")
 			{
@@ -138,9 +139,9 @@ class Gameplay extends State
 		Main.hscript.callFromAllScripts('onKeyUp', keyCode, keyModifier);
 		#end
 
-		if (inputKeybinds[keyCode % 32] != Paths.idleStrumNote && generatedMusic && !cpuControlled)
+		if (inputKeybinds[keyCode % 1024] != Paths.idleStrumNote && generatedMusic && !cpuControlled)
 		{
-			st = inputKeybinds[keyCode % 32];
+			st = inputKeybinds[keyCode % 1024];
 
 			if (!st.isIdle && st.animation.curAnim.name != "static")
 			{
@@ -194,17 +195,8 @@ class Gameplay extends State
 		FlxG.worldBounds.set(0, 0, FlxG.width, FlxG.height);
 
 		#if !hl
-		var songName:String = Sys.args()[0];
-
-		if (null == Sys.args()[0]) // What?
-			songName = 'test';
-
-		var songDifficulty:String = Sys.args()[1];
-
-		if (null == Sys.args()[1]) // What?
-		{
-			songDifficulty = 'normal';
-		}
+		var songName:String = Sys.args()[0] ?? 'test';
+		var songDifficulty:String = Sys.args()[1] ?? 'normal';
 		#else
 		var songName:String = 'test';
 		var songDifficulty:String = 'normal';
@@ -255,11 +247,17 @@ class Gameplay extends State
 		}
 	}
 
+	override function draw():Void
+	{
+		super.draw();
+		hudGroup?.drawRatings();
+	}
+
 	override function update(elapsed:Float):Void
 	{
 		if (generatedMusic)
 		{
-			health = FlxMath.bound(health, 0.0, hudGroup != null && hudGroup.healthBar != null ? hudGroup.healthBar.maxValue : 2.0);
+			health = FlxMath.bound(health, 0.0, (hudGroup?.healthBar?.maxValue) ?? 2.0);
 
 			hudCameraBelow.x = hudCamera.x;
 			hudCameraBelow.y = hudCamera.y;
@@ -285,8 +283,7 @@ class Gameplay extends State
 
 			super.update(elapsed);
 
-			if (hudGroup != null)
-				hudGroup.update();
+			hudGroup?.update();
 
 			return;
 		}
@@ -305,9 +302,9 @@ class Gameplay extends State
 
 				songSpeed = SONG.info.speed;
 
-				curStage = SONG.info.stage;
+				curStage = SONG.info.stage ?? 'stage';
 
-				if (curStage == null || curStage == '') // Fix stage (For vanilla charts)
+				if (curStage == '') // For vanilla charts
 					curStage = 'stage';
 
 				var stageData:StageData.StageFile = null;
@@ -346,25 +343,10 @@ class Gameplay extends State
 					DAD_X = stageData.opponent[0];
 					DAD_Y = stageData.opponent[1];
 
-					if (null != stageData.camera_speed)
-					{
-						cameraSpeed = stageData.camera_speed;
-					}
-
-					if (null != stageData.camera_boyfriend)
-					{
-						boyfriendCameraOffset = stageData.camera_boyfriend;
-					}
-
-					if (null != stageData.camera_opponent)
-					{
-						opponentCameraOffset = stageData.camera_opponent;
-					}
-
-					if (null != stageData.camera_girlfriend)
-					{
-						girlfriendCameraOffset = stageData.camera_girlfriend;
-					}
+					cameraSpeed = stageData?.camera_speed;
+					boyfriendCameraOffset = stageData?.camera_boyfriend;
+					opponentCameraOffset = stageData?.camera_opponent;
+					girlfriendCameraOffset = stageData?.camera_girlfriend;
 
 					threadsCompleted++;
 					lock.release();
@@ -550,9 +532,9 @@ class Gameplay extends State
 
 			songSpeed = SONG.info.speed;
 
-			curStage = SONG.info.stage;
+			curStage = SONG.info.stage ?? 'stage';
 
-			if (curStage == null || curStage == '') // Fix stage (For vanilla charts)
+			if (curStage == '') // For vanilla charts
 				curStage = 'stage';
 
 			var stageData:StageData.StageFile = null;
@@ -589,25 +571,10 @@ class Gameplay extends State
 			DAD_X = stageData.opponent[0];
 			DAD_Y = stageData.opponent[1];
 
-			if (null != stageData.camera_speed)
-			{
-				cameraSpeed = stageData.camera_speed;
-			}
-
-			if (null != stageData.camera_boyfriend)
-			{
-				boyfriendCameraOffset = stageData.camera_boyfriend;
-			}
-
-			if (null != stageData.camera_opponent)
-			{
-				opponentCameraOffset = stageData.camera_opponent;
-			}
-
-			if (null != stageData.camera_girlfriend)
-			{
-				girlfriendCameraOffset = stageData.camera_girlfriend;
-			}
+			cameraSpeed = stageData?.camera_speed;
+			boyfriendCameraOffset = stageData?.camera_boyfriend;
+			opponentCameraOffset = stageData?.camera_opponent;
+			girlfriendCameraOffset = stageData?.camera_girlfriend;
 
 			if (!noCharacters)
 			{
@@ -783,23 +750,20 @@ class Gameplay extends State
 			if (null != gf
 				&& !gf.stunned
 				&& 0 == beat % Math.round(gfSpeed * gf.danceEveryNumBeats)
-				&& null != gf.animation.curAnim
-				&& !gf.animation.curAnim.name.startsWith("sing"))
+				&& !gf.animation.curAnim?.name.startsWith("sing"))
 				gf.dance();
 
 			if (null != dad
 				&& !dad.stunned
 				&& 0 == beat % dad.danceEveryNumBeats
-				&& null != dad.animation.curAnim
-				&& !dad.animation.curAnim.name.startsWith('sing')
+				&& !dad.animation.curAnim?.name.startsWith('sing')
 				&& dad.animation.curAnim.finished)
 				dad.dance();
 
 			if (null != bf
 				&& !bf.stunned
 				&& 0 == beat % bf.danceEveryNumBeats
-				&& null != bf.animation.curAnim
-				&& !bf.animation.curAnim.name.startsWith('sing')
+				&& !bf.animation.curAnim?.name.startsWith('sing')
 				&& bf.animation.curAnim.finished)
 				bf.dance();
 		}
@@ -810,10 +774,8 @@ class Gameplay extends State
 	{
 		if (!songEnded)
 		{
-			if (null != gameCameraZoomTween)
-				gameCameraZoomTween.cancel();
-			if (null != hudCameraZoomTween)
-				hudCameraZoomTween.cancel();
+			gameCameraZoomTween?.cancel();
+			hudCameraZoomTween?.cancel();
 
 			FlxG.camera.zoom += value1;
 			gameCameraZoomTween = zoomTweenFunction(FlxG.camera, defaultCamZoom);
@@ -830,7 +792,7 @@ class Gameplay extends State
 
 			var playerStrum = strumlines.members[1]; // Prevent redundant array access
 
-			for (i in 0...32)
+			for (i in 0...1024)
 			{
 				inputKeybinds.push(Paths.idleStrumNote);
 			}
@@ -839,7 +801,7 @@ class Gameplay extends State
 			{
 				for (j in 0...SaveData.contents.controls.GAMEPLAY_BINDS[i].length)
 				{
-					inputKeybinds[SaveData.contents.controls.GAMEPLAY_BINDS[i][j] % 32] = playerStrum.members[i];
+					inputKeybinds[SaveData.contents.controls.GAMEPLAY_BINDS[i][j] % 1024] = playerStrum.members[i];
 				}
 			}
 
@@ -872,21 +834,14 @@ class Gameplay extends State
 	{
 		if (!songEnded)
 		{
-			if (null != inst)
-			{
-				inst.play();
-				songLength = inst.length;
-			}
+			inst?.play();
+			songLength = inst?.length ?? 0.0;
 
-			if (null != voices)
-			{
-				voices.play();
-			}
+			voices?.play();
 
-			if (null != hudGroup && null != hudGroup.timeTxt)
-			{
-				hudGroup.timeTxt.visible = true;
-			}
+			// Just wished that null safe field access allowed modifying the variable...
+			// Had to do set_visible(true) instead of visible = true to compensate for it
+			hudGroup?.timeTxt?.set_visible(true);
 
 			startedCountdown = true;
 
@@ -906,15 +861,8 @@ class Gameplay extends State
 			return;
 		}
 
-		if (null != voices)
-		{
-			voices.stop();
-		}
-
-		if (null != hudGroup && null != hudGroup.timeTxt)
-		{
-			hudGroup.timeTxt.visible = false;
-		}
+		voices?.stop();
+		hudGroup?.timeTxt?.set_visible(false);
 
 		switchState(new WelcomeState());
 
@@ -932,15 +880,11 @@ class Gameplay extends State
 
 	private function moveCamera(whatCharacter:(Character)):Void
 	{
-		if (null != camFollowPosTween)
-			camFollowPosTween.cancel();
+		camFollowPosTween?.cancel();
 
 		if (!noCharacters)
 		{
-			if (_mp != null)
-			{
-				_mp.put();
-			}
+			_mp?.put();
 
 			_mp = whatCharacter.getMidpoint();
 			_cpx = whatCharacter.cameraPosition[0];
@@ -969,9 +913,7 @@ class Gameplay extends State
 
 	function set_defaultCamZoom(value:Float):Float
 	{
-		if (null != gameCameraZoomTween)
-			gameCameraZoomTween.cancel();
-
+		gameCameraZoomTween?.cancel();
 		gameCameraZoomTween = zoomTweenFunction(FlxG.camera, value);
 		return defaultCamZoom = value;
 	}
@@ -983,10 +925,7 @@ class Gameplay extends State
 			char.x = GF_X;
 			char.y = GF_Y;
 
-			if (null != gf)
-			{
-				gf.active = gf.visible = false;
-			}
+			gf.active = gf.visible = false;
 		}
 
 		char.x += char.positionArray[0];
@@ -1011,8 +950,7 @@ class Gameplay extends State
 
 	public function changeScrollSpeed(newSpeed:Float, tweenDuration:Float = 1.0):Void
 	{
-		if (null != songSpeedTween)
-			songSpeedTween.cancel();
+		songSpeedTween?.cancel();
 
 		var newValue = SONG.info.speed * newSpeed;
 
@@ -1024,8 +962,7 @@ class Gameplay extends State
 
 	public function changeSongLength(newLength:Float, tween:Bool = false):Void
 	{
-		if (null != songLengthTween)
-			songLengthTween.cancel();
+		songLengthTween?.cancel();
 
 		if (tween)
 			songLengthTween = FlxTween.tween(this, {songLength: newLength * 1000.0}, 1.0, {ease: FlxEase.quintOut});

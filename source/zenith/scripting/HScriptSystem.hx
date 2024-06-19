@@ -1,6 +1,6 @@
 package zenith.scripting;
 
-#if SCRIPTING_ALLOWED
+#if (SCRIPTING_ALLOWED && hscript)
 class HScriptSystem
 {
 	public var list:Map<String, HScriptFile>;

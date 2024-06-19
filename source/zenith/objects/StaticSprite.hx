@@ -12,7 +12,6 @@ import flixel.math.FlxMath;
 import flixel.math.FlxMatrix;
 import flixel.math.FlxPoint;
 import flixel.math.FlxRect;
-import flixel.system.FlxAssets.FlxGraphicAsset;
 import flixel.system.FlxAssets.FlxShader;
 import flixel.util.FlxBitmapDataUtil;
 import flixel.util.FlxColor;
@@ -341,14 +340,10 @@ class StaticSprite extends FlxBasic
 	 *
 	 * @param   X               The initial X position of the sprite.
 	 * @param   Y               The initial Y position of the sprite.
-	 * @param   SimpleGraphic   The graphic you want to display
-	 *                          (OPTIONAL - for simple stuff only, do NOT use for animated images!).
+	 * @param   SimpleGraphic   The simple graphic you want to display
 	 */
-	public function new(X:Float = 0, Y:Float = 0, ?SimpleGraphic:FlxGraphicAsset)
+	public function new()
 	{
-		x = X;
-		y = Y;
-
 		super();
 
 		flixelType = OBJECT;
@@ -365,9 +360,6 @@ class StaticSprite extends FlxBasic
 		_matrix = new FlxMatrix();
 		colorTransform = new ColorTransform();
 		_scaledOrigin = new FlxPoint();
-
-		if (SimpleGraphic != null)
-			loadGraphic(SimpleGraphic);
 	}
 
 	/**
@@ -407,116 +399,6 @@ class StaticSprite extends FlxBasic
 
 		shader = null;
 	}
-
-	public function clone():StaticSprite
-	{
-		return (new StaticSprite()).loadGraphicFromSprite(this);
-	}
-
-	/**
-	 * Load graphic from another `StaticSprite` and copy its tile sheet data.
-	 * This method can useful for non-flash targets.
-	 *
-	 * @param   Sprite   The `StaticSprite` from which you want to load graphic data.
-	 * @return  This `StaticSprite` instance (nice for chaining stuff together, if you're into that).
-	 */
-	public function loadGraphicFromSprite(Sprite:StaticSprite):StaticSprite
-	{
-		bakedRotationAngle = Sprite.bakedRotationAngle;
-		if (bakedRotationAngle > 0)
-		{
-			width = Sprite.width;
-			height = Sprite.height;
-			centerOffsets();
-		}
-		antialiasing = Sprite.antialiasing;
-		graphicLoaded();
-		return this;
-	}
-
-	/**
-	 * Load an image from an embedded graphic file.
-	 *
-	 * HaxeFlixel's graphic caching system keeps track of loaded image data.
-	 * When you load an identical copy of a previously used image, by default
-	 * HaxeFlixel copies the previous reference onto the `pixels` field instead
-	 * of creating another copy of the image data, to save memory.
-	 *
-	 * NOTE: This method updates hitbox size and frame size.
-	 *
-	 * @param   graphic      The image you want to use.
-	 * @param   animated     Whether the `Graphic` parameter is a single sprite or a row / grid of sprites.
-	 * @param   frameWidth   Specify the width of your sprite
-	 *                       (helps figure out what to do with non-square sprites or sprite sheets).
-	 * @param   frameHeight  Specify the height of your sprite
-	 *                       (helps figure out what to do with non-square sprites or sprite sheets).
-	 * @param   unique       Whether the graphic should be a unique instance in the graphics cache.
-	 *                       Set this to `true` if you want to modify the `pixels` field without changing
-	 *                       the `pixels` of other sprites with the same `BitmapData`.
-	 * @param   key          Set this parameter if you're loading `BitmapData`.
-	 * @return  This `StaticSprite` instance (nice for chaining stuff together, if you're into that).
-	 */
-	public function loadGraphic(graphic:FlxGraphicAsset, animated = false, frameWidth = 0, frameHeight = 0, unique = false, ?key:String):StaticSprite
-	{
-		var graph:FlxGraphic = FlxG.bitmap.add(graphic, unique, key);
-
-		if (graph == null)
-			return this;
-
-		if (frameWidth == 0)
-		{
-			frameWidth = animated ? graph.height : graph.width;
-			frameWidth = (frameWidth > graph.width) ? graph.width : frameWidth;
-		}
-		else if (frameWidth > graph.width)
-			FlxG.log.warn('frameWidth:$frameWidth is larger than the graphic\'s width:${graph.width}');
-
-		if (frameHeight == 0)
-		{
-			frameHeight = animated ? frameWidth : graph.height;
-			frameHeight = (frameHeight > graph.height) ? graph.height : frameHeight;
-		}
-		else if (frameHeight > graph.height)
-			FlxG.log.warn('frameHeight:$frameHeight is larger than the graphic\'s height:${graph.height}');
-
-		_frame = graph.imageFrame.frame;
-
-		return this;
-	}
-
-	/**
-	 * This function creates a flat colored rectangular image dynamically.
-	 *
-	 * HaxeFlixel's graphic caching system keeps track of loaded image data.
-	 * When you make an identical copy of a previously used image, by default
-	 * HaxeFlixel copies the previous reference onto the pixels field instead
-	 * of creating another copy of the image data, to save memory.
-	 *
-	 * NOTE: This method updates hitbox size and frame size.
-	 *
-	 * @param   Width    The width of the sprite you want to generate.
-	 * @param   Height   The height of the sprite you want to generate.
-	 * @param   Color    Specifies the color of the generated block (ARGB format).
-	 * @param   Unique   Whether the graphic should be a unique instance in the graphics cache. Default is `false`.
-	 *                   Set this to `true` if you want to modify the `pixels` field without changing the
-	 *                   `pixels` of other sprites with the same `BitmapData`.
-	 * @param   Key      An optional `String` key to identify this graphic in the cache.
-	 *                   If `null`, the key is determined by `Width`, `Height` and `Color`.
-	 *                   If `Unique` is `true` and a graphic with this `Key` already exists,
-	 *                   it is used as a prefix to find a new unique name like `"Key3"`.
-	 * @return  This `StaticSprite` instance (nice for chaining stuff together, if you're into that).
-	 */
-	public function makeGraphic(Width:Int, Height:Int, Color:FlxColor = FlxColor.WHITE, Unique:Bool = false, ?Key:String):StaticSprite
-	{
-		var graph:FlxGraphic = FlxG.bitmap.create(Width, Height, Color, Unique, Key);
-		_frame = graph.imageFrame.frame;
-		return this;
-	}
-
-	/**
-	 * Called whenever a new graphic is loaded for this sprite (after `loadGraphic()`, `makeGraphic()` etc).
-	 */
-	public function graphicLoaded():Void {}
 
 	/**
 	 * Resets some internal variables used for frame `BitmapData` calculation.
@@ -609,30 +491,11 @@ class StaticSprite extends FlxBasic
 			dirty = true;
 	}
 
-	@:noCompletion
-	function checkEmptyFrame()
-	{
-		if (_frame == null)
-			loadGraphic("flixel/images/logo/default.png");
-		else if (graphic != null)
-		{
-			// switch graphic but log and preserve size
-			final width = this.width;
-			final height = this.height;
-			FlxG.log.error('Cannot render a destroyed graphic, the placeholder image will be used instead');
-			loadGraphic("flixel/images/logo/default.png");
-			this.width = width;
-			this.height = height;
-		}
-	}
-
 	/**
 	 * Called by game loop, updates then blits or renders current frame of animation to the screen.
 	 */
 	override public function draw():Void
 	{
-		checkEmptyFrame();
-
 		var cam:FlxCamera = null;
 
 		if ((width >= 0 && height >= 0) && alpha != 0.0 && _frame.type != FlxFrameType.EMPTY)

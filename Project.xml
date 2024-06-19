@@ -52,7 +52,7 @@
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
 	<!--Allow the core scripting system-->
-	<haxedef name="SCRIPTING_ALLOWED" />
+	<haxedef name="SCRIPTING_ALLOWED" if="hscript" />
 
 	<!--Optimize inputs - Be careful because you'll get null errors if you don't use conditionals in your game-->
 	<haxedef name="FLX_NO_KEYBOARD" />
