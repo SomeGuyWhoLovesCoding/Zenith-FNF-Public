@@ -5,7 +5,6 @@ import flixel.math.FlxAngle;
 
 @:access(zenith.Gameplay)
 @:access(Stack)
-
 @:final
 class SustainNoteSpawner extends FlxBasic
 {
@@ -27,6 +26,7 @@ class SustainNoteSpawner extends FlxBasic
 	}
 
 	var _s(default, null):SustainNote;
+
 	public function spawn(chartSustainData:ChartBytesData.ChartNoteData, parent:Note):Void
 	{
 		_s = SaveData.contents.experimental.fastNoteSpawning ? pool.pop() : recycle();
@@ -129,15 +129,13 @@ class SustainNoteSpawner extends FlxBasic
 					continue;
 				}
 
-				if (Main.conductor.songPosition > s.position - 166.7 &&
-					Main.conductor.songPosition < (s.position + s.length) - (Main.conductor.stepCrochet * 0.685))
+				if (Main.conductor.songPosition > s.position - 166.7
+					&& Main.conductor.songPosition < (s.position + s.length) - (Main.conductor.stepCrochet * 0.685))
 				{
 					if (s.strum.playable)
 					{
 						_s = missable.__items[s.strum.index];
-						if (_s == Paths.idleSustain ||
-							(_s.position > s.position ||
-							s.state == IDLE))
+						if (_s == Paths.idleSustain || (_s.position > s.position || s.state == IDLE))
 						{
 							missable.__items[s.strum.index] = s;
 						}
@@ -157,10 +155,11 @@ class SustainNoteSpawner extends FlxBasic
 	public function handleRelease(strum:StrumNote):Void
 	{
 		_s = missable.__items[strum.index];
-		if (strum != null && strum.playable && _s != Paths.idleSustain &&
-			Main.conductor.songPosition > _s.position &&
-			Main.conductor.songPosition < (_s.position + _s.length) - (Main.conductor.stepCrochet * 0.685) &&
-			_s.state != MISS)
+		if (strum != null
+			&& strum.playable
+			&& _s != Paths.idleSustain
+			&& Main.conductor.songPosition > _s.position
+			&& Main.conductor.songPosition < (_s.position + _s.length) - (Main.conductor.stepCrochet * 0.685) && _s.state != MISS)
 		{
 			onSustainMiss(_s);
 			missable.__items[strum.index] = Paths.idleSustain;
@@ -202,10 +201,10 @@ class SustainNoteSpawner extends FlxBasic
 					if (sustain.targetCharacter.animation.curAnim.name == sustain.strum.parent.singAnimations(sustain.noteData) + "miss")
 						sustain.targetCharacter.playAnim(sustain.strum.parent.singAnimations(sustain.noteData));
 
-					if (sustain.targetCharacter.animation.curAnim.curFrame > (sustain.targetCharacter.stillCharacterFrame == -1 ?
-						sustain.targetCharacter.animation.curAnim.frames.length : sustain.targetCharacter.stillCharacterFrame))
-						sustain.targetCharacter.animation.curAnim.curFrame = (sustain.targetCharacter.stillCharacterFrame == -1 ?
-						sustain.targetCharacter.animation.curAnim.frames.length - 2 : sustain.targetCharacter.stillCharacterFrame - 1);
+					if (sustain.targetCharacter.animation.curAnim.curFrame > (sustain.targetCharacter.stillCharacterFrame == -1 ? sustain.targetCharacter.animation.curAnim.frames.length : sustain.targetCharacter.stillCharacterFrame))
+						sustain.targetCharacter.animation.curAnim.curFrame = (sustain.targetCharacter.stillCharacterFrame == -1 ? sustain.targetCharacter.animation.curAnim.frames.length
+							- 2 : sustain.targetCharacter.stillCharacterFrame
+							- 1);
 				}
 
 				sustain.targetCharacter.holdTimer = 0.0;
@@ -243,18 +242,14 @@ class SustainNoteSpawner extends FlxBasic
 	// Don't want to inline this because it could potentially make compiled code a mess and could decrease performance
 	private function _updatePositionOf(s:SustainNote):Void
 	{
-		s.x = s.state == HELD ?
-			// If held
-			s.strum.x + ((Gameplay.instance.initialStrumWidth - (s.frameWidth * s.scale.x)) * 0.5)
-			// If not held
-		: ((s.strum.x + s.offsetX + (-Math.abs(s.strum.scrollMult) * s.distance) *
-			FlxMath.fastCos(FlxAngle.asRadians(s.direction - 90.0))) + ((Gameplay.instance.initialStrumWidth - (s.frameWidth * s.scale.x)) * 0.5));
+		s.x = s.state == HELD ? // If held
+			s.strum.x + ((Gameplay.instance.initialStrumWidth - (s.frameWidth * s.scale.x)) * 0.5) // If not held
+			: ((s.strum.x + s.offsetX + (-Math.abs(s.strum.scrollMult) * s.distance) * FlxMath.fastCos(FlxAngle.asRadians(s.direction - 90.0)))
+				+ ((Gameplay.instance.initialStrumWidth - (s.frameWidth * s.scale.x)) * 0.5));
 
-		s.y = s.state == HELD ?
-			// If held
-			s.strum.y + (Gameplay.instance.initialStrumHeight * 0.5)
-			// If not held
-		: ((s.strum.y + s.offsetY + (s.strum.scrollMult * s.distance) *
-			FlxMath.fastSin(FlxAngle.asRadians(s.direction - 90.0))) + (Gameplay.instance.initialStrumHeight * 0.5));
+		s.y = s.state == HELD ? // If held
+			s.strum.y + (Gameplay.instance.initialStrumHeight * 0.5) // If not held
+			: ((s.strum.y + s.offsetY + (s.strum.scrollMult * s.distance) * FlxMath.fastSin(FlxAngle.asRadians(s.direction - 90.0)))
+				+ (Gameplay.instance.initialStrumHeight * 0.5));
 	}
 }

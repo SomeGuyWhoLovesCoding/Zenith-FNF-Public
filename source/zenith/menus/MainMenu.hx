@@ -7,6 +7,7 @@ class MainMenu extends State
 {
 	public var bg:FlxSprite;
 	public var options:FlxSpriteGroup;
+
 	var optionsArray:Array<String> = ["Story Mode", "Freeplay", "Achievements", "Credits"];
 
 	var curSelected:Int = 0;
@@ -36,7 +37,6 @@ class MainMenu extends State
 
 		onKeyDown = (keyCode:(Int), keyModifier:(Int)) ->
 		{
-
 			if (SaveData.contents.controls.ACCEPT == keyCode && !alreadyPressedEnter)
 			{
 				sendSignalEnter();
@@ -86,5 +86,5 @@ class MainMenu extends State
 			curSelected = 0;
 	}
 
-	private var onKeyDown:((Int), (Int))->(Void);
+	private var onKeyDown:((Int), (Int)) -> (Void);
 }

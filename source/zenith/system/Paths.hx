@@ -9,7 +9,6 @@ import openfl.media.Sound;
 using StringTools;
 
 @:access(flixel.FlxSprite)
-
 @:final
 class Paths
 {
@@ -33,6 +32,7 @@ class Paths
 	}
 
 	static private var soundCache:Map<String, Sound> = new Map<String, Sound>();
+
 	static public function sound(key:String):Sound
 	{
 		var soundPath:String = '$ASSET_PATH/$key.$SOUND_EXT';
@@ -79,7 +79,6 @@ class Paths
 	}
 
 	// Weird stuff that belongs to the end. Used for making stuff hacky while allowing you to have your custom noteskin btw
-
 	static public var strumNoteAnimationHolder:FlxSprite = new FlxSprite();
 	static public var noteAnimationHolder:FlxSprite = new FlxSprite();
 	static public var sustainAnimationHolder:FlxSprite = new FlxSprite();

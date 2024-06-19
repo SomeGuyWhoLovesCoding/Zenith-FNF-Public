@@ -25,13 +25,14 @@ typedef StageFile =
 class StageData
 {
 	public static var forceNextDirectory:String = null;
+
 	public static function loadDirectory(SONG:SwagSong):Void
 	{
 		var stage:String = '';
 
 		if (null != SONG.info.stage)
 			stage = SONG.info.stage;
-		
+
 		switch (Paths.formatToSongPath(SONG.song.toLowerCase()))
 		{
 			case 'spookeez' | 'south' | 'monster':

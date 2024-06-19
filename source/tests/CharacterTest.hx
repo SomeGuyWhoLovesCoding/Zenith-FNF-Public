@@ -25,12 +25,16 @@ class CharacterTest extends MusicBeatState
 	{
 		Conductor.songPosition = FlxG.sound.music.time;
 		super.update(elapsed);
-		for (i in 0...keys.length) {
-			if (FlxG.keys.anyJustPressed([keys[i]])) {
+		for (i in 0...keys.length)
+		{
+			if (FlxG.keys.anyJustPressed([keys[i]]))
+			{
 				char.playAnim(singAnims[i], true);
-				if (singAnims[i] == 'hey') char.heyTimer = 0.6;
+				if (singAnims[i] == 'hey')
+					char.heyTimer = 0.6;
 			}
-			if (FlxG.keys.anyPressed([keys[i]])) { // Make BF hold
+			if (FlxG.keys.anyPressed([keys[i]]))
+			{ // Make BF hold
 				char.holdTimer = 0;
 			}
 		}

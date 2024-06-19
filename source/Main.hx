@@ -7,7 +7,6 @@ import openfl.geom.Matrix;
 import lime._internal.backend.native.NativeCFFI;
 import lime.ui.Window;
 import lime.ui.KeyCode;
-
 import openfl.events.UncaughtErrorEvent;
 import haxe.CallStack;
 import haxe.io.Path;
@@ -30,7 +29,6 @@ typedef TransitioningInfo =
 @:access(lime._internal.backend.native.NativeCFFI)
 @:access(zenith.Gameplay)
 @:access(flixel.FlxGame)
-
 class Main extends Sprite
 {
 	static public var conductor:Conductor;
@@ -59,7 +57,7 @@ class Main extends Sprite
 		SaveData.read();
 
 		conductor = new Conductor();
-	
+
 		#if SCRIPTING_ALLOWED
 		hscript = new HScriptSystem();
 		hscript.callFromAllScripts('onGameBoot');
@@ -88,7 +86,7 @@ class Main extends Sprite
 			fpsTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFFFFFF, true);
 			fpsTxt.selectable = false;
 			fpsTxt.width = 240;
-			fpsTxt.text = 'FPS: 0 (MAX: 0)\nMEM: 0MB';
+			fpsTxt.text = 'FPS: 0 (MAX: 0)\nMEM: 0Bytes';
 			addChild(fpsTxt);
 		}
 
@@ -186,8 +184,8 @@ class Main extends Sprite
 		NativeCFFI.lime_gamepad_event_manager_register(function():Void {}, backend.gamepadEventInfo);
 		NativeCFFI.lime_joystick_event_manager_register(function():Void {}, backend.joystickEventInfo);
 		/*NativeCFFI.lime_mouse_event_manager_register(function():Void
-		{
-			
+			{
+				
 		}, backend.mouseEventInfo);*/
 	}
 
@@ -232,6 +230,7 @@ class Main extends Sprite
 	static private var fps:Int = 60;
 	static private var fpsMax:Int = 60;
 	static private var fpsTextTimer:Float = 0.0;
+
 	static public function updateMain(elapsed:Float):Void
 	{
 		if (FlxG.game._lostFocus && FlxG.autoPause)
@@ -254,14 +253,8 @@ class Main extends Sprite
 			if (fpsMax < fps)
 				fpsMax = fps;
 
-			fpsTxt.text = 'FPS: ' + fps + ' (MAX: ' + fpsMax + ')\nMEM: ' +
-			flixel.util.FlxStringUtil.formatBytes(
-				#if hl
-				hl.Gc.stats().currentMemory
-				#elseif cpp
-				cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_RESERVED)
-				#end
-			);
+			fpsTxt.text = 'FPS: ' + fps + ' (MAX: ' + fpsMax + ')\nMEM: ' + flixel.util.FlxStringUtil.formatBytes(#if hl hl.Gc.stats()
+				.currentMemory #elseif cpp cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_RESERVED) #end);
 			fpsTextTimer = elapsed;
 		}
 

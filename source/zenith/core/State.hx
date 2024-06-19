@@ -3,9 +3,7 @@ package zenith.core;
 import flixel.FlxBasic;
 
 // FlxState with crash handling and HScript functionality
-
 @:access(flixel.FlxCamera)
-
 class State extends FlxState
 {
 	override function create():Void

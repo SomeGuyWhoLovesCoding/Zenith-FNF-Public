@@ -66,7 +66,12 @@ class ChartBytesData
 		_moveToNext();
 	}
 
-	var nextNote:ChartNoteData = {position: 0.0, noteData: 0, sustainLength: 0, lane: 0};
+	var nextNote:ChartNoteData = {
+		position: 0.0,
+		noteData: 0,
+		sustainLength: 0,
+		lane: 0
+	};
 
 	public function update():Void
 	{
@@ -145,8 +150,14 @@ class ChartBytesData
 		inline output.writeByte(json.info.strumlines);
 
 		// Pretty
-		inline output.writeFloat((json.song.length + 9 + (json.info.player1.length + 1) + (json.info.player2.length + 1) +
-			(json.info.spectator != null ? json.info.spectator.length + 1 : 3) + (json.info.stage != null ? json.info.stage.length + 1 : 6) + 8) + (json.noteData.length * 8));
+		inline output.writeFloat((json.song.length
+			+ 9
+			+ (json.info.player1.length + 1)
+			+ (json.info.player2.length + 1)
+			+ (json.info.spectator != null ? json.info.spectator.length + 1 : 3)
+			+ (json.info.stage != null ? json.info.stage.length + 1 : 6)
+			+ 8)
+			+ (json.noteData.length * 8));
 
 		for (note in json.noteData)
 		{
@@ -205,7 +216,8 @@ class ChartBytesData
 			}
 		}
 
-		File.saveContent('assets/data/$songName/chart/$songDifficulty.json', '{"song":"$song","info":{"stage":"$stage","player1":"$player1","player2":"$player2","spectator":"$spectator","speed":$speed,"bpm":$bpm,"time_signature":[$beats, $steps],"needsVoices":$needsVoices,"strumlines":$strumlines},"noteData":$noteData}');
+		File.saveContent('assets/data/$songName/chart/$songDifficulty.json',
+			'{"song":"$song","info":{"stage":"$stage","player1":"$player1","player2":"$player2","spectator":"$spectator","speed":$speed,"bpm":$bpm,"time_signature":[$beats, $steps],"needsVoices":$needsVoices,"strumlines":$strumlines},"noteData":$noteData}');
 	}
 
 	// Inlined functions to improve performance when streaming bytes
@@ -218,7 +230,8 @@ class ChartBytesData
 		return input.bigEndian ? ch2 | (ch1 << 8) : ch1 | (ch2 << 8);
 	}
 
-	inline function _readInt32():Int {
+	inline function _readInt32():Int
+	{
 		var ch1 = inline input.readByte();
 		var ch2 = inline input.readByte();
 		var ch3 = inline input.readByte();

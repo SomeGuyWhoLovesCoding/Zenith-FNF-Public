@@ -3,12 +3,12 @@ package zenith.objects;
 import sys.io.File;
 import sys.FileSystem;
 import haxe.Json;
-
 import flixel.math.FlxRect;
 
 using StringTools;
 
-typedef CharacterFile = {
+typedef CharacterFile =
+{
 	var animations:Array<AnimArray>;
 	var image:String;
 	var scale:Float;
@@ -25,7 +25,8 @@ typedef CharacterFile = {
 	var stillCharacterFrame:Null<Int>;
 }
 
-typedef AnimArray = {
+typedef AnimArray =
+{
 	var anim:String;
 	var name:String;
 	var fps:Int;
@@ -36,7 +37,6 @@ typedef AnimArray = {
 
 @:access(flixel.animation.FlxAnimationController)
 @:access(flixel.animation.FlxAnimation)
-
 @:final
 @:generic
 class Character extends FlxSprite
@@ -56,15 +56,16 @@ class Character extends FlxSprite
 
 	public var isPlayer:Bool = false;
 	public var curCharacter:String = DEFAULT_CHARACTER;
+
 	var namedWithGf(default, null):Bool = false;
 
 	public var holdTimer:Float = 0.0;
 	public var heyTimer:Float = 0.0;
 	public var specialAnim:Bool = false;
 	public var stunned:Bool = false;
-	public var singDuration:Float = 4.0; //Multiplier of how long a character holds the sing pose
+	public var singDuration:Float = 4.0; // Multiplier of how long a character holds the sing pose
 	public var idleSuffix:String = '';
-	public var danceIdle:Bool = false; //Character use "danceLeft" and "danceRight" instead of "idle"
+	public var danceIdle:Bool = false; // Character use "danceLeft" and "danceRight" instead of "idle"
 	public var skipDance:Bool = false;
 
 	public var healthIcon:String = 'face';
@@ -75,7 +76,7 @@ class Character extends FlxSprite
 
 	public var hasMissAnimations:Bool = false;
 
-	//Used on Character Editor
+	// Used on Character Editor
 	public var imageFile:String = '';
 	public var jsonScale:Float = 1;
 	public var noAntialiasing:Bool = false;
@@ -83,7 +84,8 @@ class Character extends FlxSprite
 	public var healthColorArray:Array<Int> = [255, 0, 0];
 	public var stillCharacterFrame:Int = -1;
 
-	public static var DEFAULT_CHARACTER:String = 'bf'; //In case a character is missing, it will use BF on its place
+	public static var DEFAULT_CHARACTER:String = 'bf'; // In case a character is missing, it will use BF on its place
+
 	public function new(x:Float, y:Float, character:String = 'bf', isPlayer:Bool = false)
 	{
 		super(x, y);
@@ -98,14 +100,16 @@ class Character extends FlxSprite
 		var path:String = Paths.ASSET_PATH + '/' + characterPath;
 
 		if (!FileSystem.exists(path))
-			path = Paths.ASSET_PATH + '/characters/' + DEFAULT_CHARACTER + '.json'; //If a character couldn't be found, change him to BF just to prevent a crash
+			path = Paths.ASSET_PATH + '/characters/' + DEFAULT_CHARACTER +
+				'.json'; // If a character couldn't be found, change him to BF just to prevent a crash
 
 		var json:CharacterFile = Json.parse(File.getContent(path));
 
 		frames = Paths.getSparrowAtlas(json.image);
 		imageFile = json.image;
 
-		if(json.scale != 1.0) {
+		if (json.scale != 1.0)
+		{
 			jsonScale = json.scale;
 			setGraphicSize(Std.int(width * jsonScale));
 			updateHitbox();
@@ -117,15 +121,16 @@ class Character extends FlxSprite
 		healthIcon = json.healthicon;
 		singDuration = json.sing_duration;
 		flipX = !!json.flip_x;
-		if(json.no_antialiasing) {
+		if (json.no_antialiasing)
+		{
 			antialiasing = false;
 			noAntialiasing = true;
 		}
 
-		if(json.healthbar_colors != null && json.healthbar_colors.length > 2)
+		if (json.healthbar_colors != null && json.healthbar_colors.length > 2)
 			healthColorArray = json.healthbar_colors;
 
-		if(json.stillCharacterFrame != null)
+		if (json.stillCharacterFrame != null)
 			stillCharacterFrame = json.stillCharacterFrame;
 
 		antialiasing = !noAntialiasing && SaveData.contents.graphics.antialiasing;
@@ -136,14 +141,14 @@ class Character extends FlxSprite
 			for (i in 0...animationsArray.length)
 			{
 				var anim = animationsArray[i];
-				var animLoop = !!anim.loop; //Bruh
+				var animLoop = !!anim.loop; // Bruh
 
 				if (anim.indices != null && anim.indices.length > 0)
 					animation.addByIndices('' + anim.anim, '' + anim.name, anim.indices, "", anim.fps, animLoop);
 				else
 					animation.addByPrefix('' + anim.anim, '' + anim.name, anim.fps, animLoop);
 
-				if(anim.offsets != null && anim.offsets.length > 1)
+				if (anim.offsets != null && anim.offsets.length > 1)
 					addOffset('' + anim.anim, anim.offsets[0], anim.offsets[1]);
 			}
 		}
@@ -152,7 +157,7 @@ class Character extends FlxSprite
 
 		originalFlipX = flipX;
 
-		if(animOffsets.exists("singLEFT") || animOffsets.exists("singDOWN") || animOffsets.exists("singUP") || animOffsets.exists("singRIGHT"))
+		if (animOffsets.exists("singLEFT") || animOffsets.exists("singDOWN") || animOffsets.exists("singUP") || animOffsets.exists("singRIGHT"))
 		{
 			hasMissAnimations = true;
 		}
@@ -167,6 +172,7 @@ class Character extends FlxSprite
 	}
 
 	var daOffsets(default, null):Array<Float>;
+
 	// This shit is simple and only has 1 function call for debug
 	inline public function playAnim(AnimName:String, special:Bool = false):Void
 	{
@@ -260,20 +266,23 @@ class Character extends FlxSprite
 	public var danced:Bool = true;
 
 	public var danceEveryNumBeats:Int = 2;
+
 	private var settingCharacterUp:Bool = true;
-	public function recalculateDanceIdle() {
+
+	public function recalculateDanceIdle()
+	{
 		var lastDanceIdle:Bool = danceIdle;
 		danceIdle = (animation.getByName("danceLeft" + idleSuffix) != null && animation.getByName("danceRight" + idleSuffix) != null);
 
-		if(settingCharacterUp)
+		if (settingCharacterUp)
 		{
 			danceEveryNumBeats = (danceIdle ? 1 : 2);
 		}
-		else if(lastDanceIdle != danceIdle)
+		else if (lastDanceIdle != danceIdle)
 		{
 			var calc:Float = danceEveryNumBeats;
 
-			if(danceIdle)
+			if (danceIdle)
 				calc *= 0.5;
 			else
 				calc *= 2;

@@ -5,7 +5,6 @@ package zenith.objects;
 @:access(zenith.system.SustainNoteSpawner)
 @:access(zenith.objects.StrumNote)
 @:access(Stack)
-
 class Strumline extends FlxBasic
 {
 	public var keys(default, set):UInt;
@@ -156,6 +155,7 @@ class Strumline extends FlxBasic
 	override function update(elapsed:Float) {}
 
 	var m:StrumNote;
+
 	override function draw():Void
 	{
 		if (members.length == 0)

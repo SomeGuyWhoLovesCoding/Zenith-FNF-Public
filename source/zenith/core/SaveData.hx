@@ -6,7 +6,6 @@ import sys.io.File;
 class SaveData
 {
 	// Actual savedata.
-
 	static public var contents(default, null):SaveFile = {
 		preferences: {
 			downScroll: false,

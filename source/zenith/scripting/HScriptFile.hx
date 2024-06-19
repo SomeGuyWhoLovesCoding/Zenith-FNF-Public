@@ -42,9 +42,9 @@ class HScriptFile
 
 			if (sourcePath != "")
 				path = sourcePath;
-	
+
 			create(path, key);
-	
+
 			#if debug
 			trace('HScript $directory with tag [$key] overwritten');
 			#end
@@ -82,10 +82,10 @@ class HScriptFile
 			interp.variables.set('TitleScreen', TitleScreen);
 			interp.variables.set('TitleScreen', TitleScreen);
 			interp.variables.set('MainMenu', MainMenu);
-			//interp.variables.set('FreeplayMenu', FreeplayMenu);
-			//interp.variables.set('AchievementsMenu', AchievementsMenu);
-			//interp.variables.set('CreditsMenu', CreditsMenu);
-			//interp.variables.set('SettingsMenu', SettingsMenu);
+			// interp.variables.set('FreeplayMenu', FreeplayMenu);
+			// interp.variables.set('AchievementsMenu', AchievementsMenu);
+			// interp.variables.set('CreditsMenu', CreditsMenu);
+			// interp.variables.set('SettingsMenu', SettingsMenu);
 
 			parser = new Parser();
 			parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;

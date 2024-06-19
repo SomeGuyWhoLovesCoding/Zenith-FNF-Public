@@ -25,7 +25,8 @@ class Song
 
 	public function stringify(noteData:Array<Array<Float>>):String
 	{
-		return '{ "song": "$song", "info": { "stage": "${info.stage}", "player1": "${info.player1}", "player2", "${info.player2}", "spectator", "${info.spectator}", "speed": ${info.speed}, "bpm": ${info.bpm}, "time_signature": ${info.time_signature}, "strumlines": ${info.strumlines} }, "noteData": $noteData }';
+		return
+			'{ "song": "$song", "info": { "stage": "${info.stage}", "player1": "${info.player1}", "player2", "${info.player2}", "spectator", "${info.spectator}", "speed": ${info.speed}, "bpm": ${info.bpm}, "time_signature": ${info.time_signature}, "strumlines": ${info.strumlines} }, "noteData": $noteData }';
 	}
 }
 

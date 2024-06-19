@@ -7,7 +7,7 @@ class SustainNote extends NoteBase
 	public var parent:Note;
 	public var hasParent:Bool = false;
 
-    public var length:Float32 = 0.0;
+	public var length:Float32 = 0.0;
 	public var state:NoteState = IDLE;
 
 	public var mult:Float32 = 1.0; // Used mostly for clipping without using cliprect
@@ -30,10 +30,7 @@ class SustainNote extends NoteBase
 	{
 		if (null != _frame)
 		{
-			_frame.frame.y = -(length * mult) * (
-				((null != Gameplay.SONG ? Gameplay.SONG.info.speed : 1.0) * 0.6428571428571431) /
-				(strum.scale.y * 1.428571428571429)
-			);
+			_frame.frame.y = -(length * mult) * (((null != Gameplay.SONG ? Gameplay.SONG.info.speed : 1.0) * 0.6428571428571431) / (strum.scale.y * 1.428571428571429));
 			_frame.frame.height = (-_frame.frame.y * (strum.scrollMult < 0.0 ? -strum.scrollMult : strum.scrollMult)) + frameHeight;
 			height = _frame.frame.height * (scale.y < 0.0 ? -scale.y : scale.y);
 		}

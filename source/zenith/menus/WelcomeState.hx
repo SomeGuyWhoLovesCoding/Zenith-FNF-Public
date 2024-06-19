@@ -4,7 +4,6 @@ import flixel.addons.display.FlxBackdrop;
 import flixel.text.FlxText;
 
 // Don't mind this
-
 class WelcomeState extends State
 {
 	var exceptionString:String = 'No Error';
@@ -27,11 +26,12 @@ class WelcomeState extends State
 		bkdr.velocity.set(-20, -20);
 		add(bkdr);
 
-		var txtStr:String = 'Hey there, welcome to ' + lime.app.Application.current.meta.get('name') +
-			'\n\nPlease type in an existing song name and difficulty using' +
-			'\nthe command prompt. Or, you can just type in the song name.' +
-			'\n(Just make sure the chart for it exists)' +
-		'\n\nThanks for downloading!';
+		var txtStr:String = 'Hey there, welcome to '
+			+ lime.app.Application.current.meta.get('name')
+			+ '\n\nPlease type in an existing song name and difficulty using'
+			+ '\nthe command prompt. Or, you can just type in the song name.'
+			+ '\n(Just make sure the chart for it exists)'
+			+ '\n\nThanks for downloading!';
 
 		var txt:FlxText = new FlxText(0, 0, 0, txtStr, 33);
 		txt.alignment = "center";

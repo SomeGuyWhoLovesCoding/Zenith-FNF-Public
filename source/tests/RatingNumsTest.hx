@@ -1,5 +1,4 @@
 // I think I should combine the combo numbers to a flxtypedgroup cause WHAT THE FUCK! This is hurting readibility if you go to huge numbers
-
 package tests;
 
 import flixel.math.FlxMath;
@@ -8,7 +7,6 @@ import flixel.graphics.frames.FlxFrame;
 import lime.ui.KeyCode;
 
 @:access(zenith.objects.StaticSprite)
-
 class RatingNumsTest extends FlxState
 {
 	var comboPopup1:StaticSprite;
@@ -45,9 +43,7 @@ class RatingNumsTest extends FlxState
 		comboPopup9 = new StaticSprite();
 
 		comboPopup1.x = 900.0;
-		comboPopup1.y = comboPopup2.y = comboPopup3.y =
-			comboPopup4.y = comboPopup5.y = comboPopup6.y =
-		comboPopup7.y = comboPopup8.y = comboPopup9.y = 200.0;
+		comboPopup1.y = comboPopup2.y = comboPopup3.y = comboPopup4.y = comboPopup5.y = comboPopup6.y = comboPopup7.y = comboPopup8.y = comboPopup9.y = 200.0;
 
 		comboPopup2.x = comboPopup1.x - comboPopup1.width;
 		comboPopup3.x = comboPopup2.x - comboPopup2.width;
@@ -69,7 +65,7 @@ class RatingNumsTest extends FlxState
 			comboPopup7.setFrame(comboNumFrames[Std.int(Math.abs(index % 10000000) * 0.000001)]);
 			comboPopup8.setFrame(comboNumFrames[Std.int(Math.abs(index % 100000000) * 0.0000001)]);
 			comboPopup9.setFrame(comboNumFrames[Std.int(Math.abs(index % 1000000000) * 0.00000001)]);
-	
+
 			comboPopup2.x = comboPopup1.x - comboPopup1.width;
 			comboPopup3.x = comboPopup2.x - comboPopup2.width;
 			comboPopup4.x = comboPopup3.x - comboPopup3.width;
@@ -78,7 +74,7 @@ class RatingNumsTest extends FlxState
 			comboPopup7.x = comboPopup6.x - comboPopup6.width;
 			comboPopup8.x = comboPopup7.x - comboPopup7.width;
 			comboPopup9.x = comboPopup8.x - comboPopup8.width;
-	
+
 			// Why I cover ``index`` with Math.abs: There will be an integer overflow
 			var v:Int = FlxMath.absInt(index); // Avoid calling FlxMath.absInt 8 times for less redundancy
 			comboPopup4.visible = v >= 1000;
@@ -108,5 +104,5 @@ class RatingNumsTest extends FlxState
 		});
 	}
 
-	var updatePopup:()->(Void); // For better readibility
+	var updatePopup:() -> (Void); // For better readibility
 }

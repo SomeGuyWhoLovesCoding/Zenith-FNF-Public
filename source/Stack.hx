@@ -4,14 +4,13 @@ package;
  * ...
  * @author Chris__topher Speciale
  */
-
 /**
-* A generic stack implementation.
-*
-* This class represents a simple stack data structure, which operates on the Last In, First Out (LIFO) principle.
-*
-* @param T The type of elements held in this stack.
-*/
+ * A generic stack implementation.
+ *
+ * This class represents a simple stack data structure, which operates on the Last In, First Out (LIFO) principle.
+ *
+ * @param T The type of elements held in this stack.
+ */
 @:final
 @:generic
 class Stack<T>
@@ -32,10 +31,10 @@ class Stack<T>
 	}
 
 	/**
-	* Creates a new stack.
-	*
-	* @param length Optional. The initial size of the internal array used to store elements.
-	*/
+	 * Creates a new stack.
+	 *
+	 * @param length Optional. The initial size of the internal array used to store elements.
+	 */
 	public function new(?length:Int, ?objectFactory:T)
 	{
 		__items = new Array();

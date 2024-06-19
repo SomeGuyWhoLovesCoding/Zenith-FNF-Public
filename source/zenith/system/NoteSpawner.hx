@@ -6,7 +6,6 @@ import flixel.math.FlxAngle;
 @:access(zenith.Gameplay)
 @:access(Stack)
 @:access(zenith.system.SustainNoteSpawner)
-
 @:final
 class NoteSpawner extends FlxBasic
 {
@@ -33,6 +32,7 @@ class NoteSpawner extends FlxBasic
 	}
 
 	var _n(default, null):Note;
+
 	public function spawn(chartNoteData:ChartBytesData.ChartNoteData):Void
 	{
 		_n = SaveData.contents.experimental.fastNoteSpawning ? pool.pop() : recycle();
@@ -114,10 +114,8 @@ class NoteSpawner extends FlxBasic
 				n.origin.y = n.frameHeight * 0.5;
 
 				n.distance = 0.45 * (Main.conductor.songPosition - n.position) * Gameplay.instance.songSpeed;
-				n.x = n.strum.x + n.offsetX + (-Math.abs(n.strum.scrollMult) * n.distance) *
-					FlxMath.fastCos(FlxAngle.asRadians(n.direction - 90.0));
-				n.y = n.strum.y + n.offsetY + (n.strum.scrollMult * n.distance) *
-					FlxMath.fastSin(FlxAngle.asRadians(n.direction - 90.0));
+				n.x = n.strum.x + n.offsetX + (-Math.abs(n.strum.scrollMult) * n.distance) * FlxMath.fastCos(FlxAngle.asRadians(n.direction - 90.0));
+				n.y = n.strum.y + n.offsetY + (n.strum.scrollMult * n.distance) * FlxMath.fastSin(FlxAngle.asRadians(n.direction - 90.0));
 
 				if (Main.conductor.songPosition > n.position + (750.0 / Gameplay.instance.songSpeed)) // Remove them if they're offscreen
 				{
@@ -144,10 +142,8 @@ class NoteSpawner extends FlxBasic
 
 						// Took forever to fully polish here ofc
 						_n = hittable.__items[n.strum.index];
-						if ((_n == Paths.idleNote ||
-							_n.position > n.position ||
-							_n.state != IDLE) &&
-							Main.conductor.songPosition > n.position - 166.7)
+						if ((_n == Paths.idleNote || _n.position > n.position || _n.state != IDLE)
+							&& Main.conductor.songPosition > n.position - 166.7)
 						{
 							hittable.__items[n.strum.index] = n;
 						}
@@ -174,8 +170,11 @@ class NoteSpawner extends FlxBasic
 	public function handlePress(strum:StrumNote):Void
 	{
 		_n = hittable.__items[strum.index];
-		if (strum != null && !strum.isIdle && strum.playable && _n.state == IDLE &&
-			Main.conductor.songPosition > _n.position - (166.7 * Gameplay.instance.songSpeed))
+		if (strum != null
+			&& !strum.isIdle
+			&& strum.playable
+			&& _n.state == IDLE
+			&& Main.conductor.songPosition > _n.position - (166.7 * Gameplay.instance.songSpeed))
 		{
 			onNoteHit(_n);
 
@@ -213,8 +212,8 @@ class NoteSpawner extends FlxBasic
 		if (note.strum.playable)
 		{
 			Gameplay.instance.score += 350.0;
-			Gameplay.instance.accuracy_left += ((note.position - Main.conductor.songPosition < 0.0 ? -(note.position - Main.conductor.songPosition) :
-				note.position - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0);
+			Gameplay.instance.accuracy_left += ((note.position
+				- Main.conductor.songPosition < 0.0 ? -(note.position - Main.conductor.songPosition) : note.position - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0);
 			Gameplay.instance.accuracy_right++;
 		}
 

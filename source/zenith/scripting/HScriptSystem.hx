@@ -135,7 +135,7 @@ class HScriptSystem
 				var f = list[script].interp.variables[func];
 				if (f != null)
 				{
-					f(arg1,arg2,arg3,arg4,arg5);
+					f(arg1, arg2, arg3, arg4, arg5);
 				}
 			}
 			catch (e:haxe.Exception)

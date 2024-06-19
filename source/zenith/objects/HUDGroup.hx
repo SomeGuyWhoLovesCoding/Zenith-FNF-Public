@@ -6,7 +6,6 @@ import flixel.math.FlxMath;
 
 @:access(zenith.Gameplay)
 @:access(zenith.objects.HealthBar)
-
 @:final
 class HUDGroup
 {
@@ -35,7 +34,13 @@ class HUDGroup
 		Gameplay.instance.add(oppIcon);
 		Gameplay.instance.add(plrIcon);
 
-		scoreTxt = new FlxText(0, healthBar.y + (healthBar.height + 2), 0, 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ???', 20);
+		scoreTxt = new FlxText(0, healthBar.y
+			+ (healthBar.height + 2), 0,
+			'Score: '
+			+ Gameplay.instance.score
+			+ ' | Misses: '
+			+ Gameplay.instance.misses
+			+ ' | Accuracy: ???', 20);
 		scoreTxt.setBorderStyle(OUTLINE, 0xFF000000);
 		Gameplay.instance.add(scoreTxt);
 
@@ -58,8 +63,13 @@ class HUDGroup
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
 
-		scoreTxt.text = 'Score: ' + Gameplay.instance.score + ' | Misses: ' + Gameplay.instance.misses + ' | Accuracy: ' + (Gameplay.instance.accuracy_right == 0.0 ? '???' :
-			Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000.0) * 0.01 + '%');
+		scoreTxt.text = 'Score: '
+			+ Gameplay.instance.score
+			+ ' | Misses: '
+			+ Gameplay.instance.misses
+			+ ' | Accuracy: '
+			+ (Gameplay.instance.accuracy_right == 0.0 ? '???' : Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000.0) * 0.01
+				+ '%');
 
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('onUpdateScore');
@@ -71,8 +81,10 @@ class HUDGroup
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
 
-		healthBar.__left.makeGraphic(healthBar.__width, healthBar.__height, FlxColor.fromRGB(Gameplay.instance.dad.healthColorArray[0], Gameplay.instance.dad.healthColorArray[1], Gameplay.instance.dad.healthColorArray[2]));
-		healthBar.__right.makeGraphic(healthBar.__width, healthBar.__height, FlxColor.fromRGB(Gameplay.instance.bf.healthColorArray[0], Gameplay.instance.bf.healthColorArray[1], Gameplay.instance.bf.healthColorArray[2]));
+		healthBar.__left.makeGraphic(healthBar.__width, healthBar.__height,
+			FlxColor.fromRGB(Gameplay.instance.dad.healthColorArray[0], Gameplay.instance.dad.healthColorArray[1], Gameplay.instance.dad.healthColorArray[2]));
+		healthBar.__right.makeGraphic(healthBar.__width, healthBar.__height,
+			FlxColor.fromRGB(Gameplay.instance.bf.healthColorArray[0], Gameplay.instance.bf.healthColorArray[1], Gameplay.instance.bf.healthColorArray[2]));
 	}
 
 	function updateIcons():Void
@@ -92,7 +104,8 @@ class HUDGroup
 		oppIcon.x = healthBar.width * (1 - (healthBar.value / healthBar.maxValue) + 0.5) - 75.0;
 		plrIcon.x = oppIcon.x + 105.0;
 
-		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0.0, healthBar.maxValue), SaveData.contents.preferences.smoothHealth ? FlxG.elapsed * 8.0 : 1.0);
+		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0.0, healthBar.maxValue),
+			SaveData.contents.preferences.smoothHealth ? FlxG.elapsed * 8.0 : 1.0);
 
 		if (Gameplay.instance.startedCountdown)
 		{

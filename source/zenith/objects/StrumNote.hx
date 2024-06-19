@@ -5,7 +5,6 @@ import flixel.animation.FlxAnimation;
 
 @:access(flixel.animation.FlxAnimationController)
 @:access(flixel.animation.FlxAnimation)
-
 class StrumNote extends FlxSprite
 {
 	public var noteData:UInt = 0;

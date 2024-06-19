@@ -16,7 +16,9 @@ class HealthIcon extends FlxSprite
 	}
 
 	private var iconOffsets(default, null):Array<Float> = [0.0, 0.0];
-	public function changeIcon(char:String):Void {
+
+	public function changeIcon(char:String):Void
+	{
 		// Finally revamp the icon check shit
 		var file:String = Paths.ASSET_PATH + '/images/icons/icon-' + char + '.png';
 
@@ -33,7 +35,7 @@ class HealthIcon extends FlxSprite
 			}
 		}
 
-		if(this.char != char)
+		if (this.char != char)
 		{
 			loadGraphic(file); // Get the file size of the graphic
 			loadGraphic(file, true, Std.int(width * 0.5), Std.int(height)); // Then load it with the animation frames

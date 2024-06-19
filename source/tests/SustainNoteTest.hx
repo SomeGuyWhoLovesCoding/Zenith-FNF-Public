@@ -17,7 +17,7 @@ class SustainNoteTest extends FlxState
 		FlxG.cameras.bgColor = 0xFF999999;
 
 		sustainNote = new SustainNote();
-		//sustainNote.scale.x = sustainNote.scale.y = 0.7;
+		// sustainNote.scale.x = sustainNote.scale.y = 0.7;
 		sustainNote.downScroll = false;
 		sustainNote.strum = Paths.idleStrumNote;
 		sustainNote.setFrame(Paths.sustainNoteFrame);
@@ -65,5 +65,4 @@ class SustainNoteTest extends FlxState
 		});
 	}
 }
-
 // You must set the ``length`` first to display, even when adding the object to the game

@@ -4,7 +4,6 @@ import flixel.addons.display.FlxBackdrop;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 import flixel.text.FlxText;
-
 import lime.app.Application;
 import lime.ui.KeyCode;
 
@@ -57,10 +56,10 @@ class TitleScreen extends State
 			{
 				cameraZoomTween.cancel();
 			}
-	
+
 			FlxG.camera.zoom = 1.0085;
 			cameraZoomTween = FlxTween.tween(FlxG.camera, {zoom: 1}, Main.conductor.crochet * 0.00175, {ease: FlxEase.quintOut});
-	
+
 			if (!initialized)
 			{
 				switch (curBeat)
@@ -166,6 +165,7 @@ class TitleScreen extends State
 	var tempIntroText:Array<String> = [];
 
 	public var titleText:FlxText;
+
 	private function makeTitleText(text:String):Void
 	{
 		if (null != titleText)

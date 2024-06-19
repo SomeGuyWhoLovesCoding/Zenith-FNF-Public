@@ -1,7 +1,6 @@
 package zenith.objects;
 
 import openfl.display.Graphics;
-
 import flixel.FlxBasic.IFlxBasic;
 import flixel.animation.FlxAnimationController;
 import flixel.graphics.FlxGraphic;
@@ -28,11 +27,9 @@ import openfl.geom.Rectangle;
 using flixel.util.FlxColorTransformUtil;
 
 // Just a FlxSprite copy without animation and clipRect support.
-
 @:generic
 class StaticSprite extends FlxBasic
 {
-
 	/**
 	 * Set the angle (in degrees) of a sprite to rotate it. WARNING: rotating sprites
 	 * decreases their rendering performance by a factor of ~10x when using blitting!
@@ -201,8 +198,8 @@ class StaticSprite extends FlxBasic
 	public var bakedRotationAngle(default, null):Float = 0;
 
 	/**
-	 * Set alpha to a number between `0` and `1` to change the opacity of the sprite.
-	 @see https://snippets.haxeflixel.com/sprites/alpha/
+		* Set alpha to a number between `0` and `1` to change the opacity of the sprite.
+		@see https://snippets.haxeflixel.com/sprites/alpha/
 	 */
 	public var alpha(default, set):Float = 1.0;
 
@@ -732,8 +729,8 @@ class StaticSprite extends FlxBasic
 	 * @param   blueOffset        The offset for the blue color channel value, in the range from `-255` to `255`.
 	 * @param   alphaOffset       The offset for alpha transparency channel value, in the range from `-255` to `255`.
 	 */
-	inline public function setColorTransform(redMultiplier = 1.0, greenMultiplier = 1.0, blueMultiplier = 1.0, alphaMultiplier = 1.0,
-			redOffset = 0, greenOffset = 0, blueOffset = 0, alphaOffset = 0):Void
+	inline public function setColorTransform(redMultiplier = 1.0, greenMultiplier = 1.0, blueMultiplier = 1.0, alphaMultiplier = 1.0, redOffset = 0,
+			greenOffset = 0, blueOffset = 0, alphaOffset = 0):Void
 	{
 		color = FlxColor.fromRGBFloat(redMultiplier, greenMultiplier, blueMultiplier).to24Bit();
 		alpha = alphaMultiplier;

@@ -8,10 +8,8 @@ import flixel.math.FlxAngle;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 import flixel.text.FlxText;
-
 import sys.thread.Thread;
 import sys.thread.Mutex;
-
 import sys.FileSystem;
 
 using StringTools;
@@ -20,7 +18,6 @@ using StringTools;
 @:access(zenith.system.NoteSpawner)
 @:access(zenith.system.SustainNoteSpawner)
 @:access(Stack)
-
 @:final
 class Gameplay extends State
 {
@@ -31,6 +28,7 @@ class Gameplay extends State
 	public var sustainNoteSpawner:SustainNoteSpawner;
 
 	private var hudGroup(default, null):HUDGroup;
+
 	public var health:Float = 1.0;
 
 	public var score:Float = 0.0;
@@ -50,7 +48,6 @@ class Gameplay extends State
 	static public var SONG:Song;
 
 	// Gameplay stuff
-
 	// For events
 	public var curSong:String = 'test';
 	public var curDifficulty:String = '';
@@ -523,6 +520,7 @@ class Gameplay extends State
 	var threadsCompleted = -1;
 
 	var loadingTimestamp = 0.0;
+
 	function generateSong(name:String, diff:String):Void
 	{
 		loadingTimestamp = haxe.Timer.stamp();
@@ -728,10 +726,12 @@ class Gameplay extends State
 
 		if (!noCharacters)
 		{
-			camFollowPos.setPosition(
-				gf.getMidpoint().x + gf.cameraPosition[0] + girlfriendCameraOffset[0],
-				gf.getMidpoint().y + gf.cameraPosition[1] + girlfriendCameraOffset[1]
-			);
+			camFollowPos.setPosition(gf.getMidpoint().x
+				+ gf.cameraPosition[0]
+				+ girlfriendCameraOffset[0],
+				gf.getMidpoint().y
+				+ gf.cameraPosition[1]
+				+ girlfriendCameraOffset[1]);
 
 			moveCamera(dad);
 		}
@@ -753,6 +753,7 @@ class Gameplay extends State
 
 	static public var strumlineCount:Int = 2;
 	static public var playablelineConfiguration:Array<Bool> = [false, true];
+
 	public function generateStrumline(player:Int = 0):Void
 	{
 		// If the array's length is not above or equal to the strumline count, compensate for it
@@ -925,7 +926,6 @@ class Gameplay extends State
 	}
 
 	// Camera functions
-
 	var _mp(default, null):FlxPoint;
 	var _cpx(default, null):Float;
 	var _cpy(default, null):Float;
@@ -949,12 +949,10 @@ class Gameplay extends State
 			if (null != whatCharacter)
 			{
 				camFollowPosTween = FlxTween.tween(camFollowPos, {
-					x: whatCharacter == gf ? _mp.x + _cpx + girlfriendCameraOffset[0] :
-						whatCharacter == bf ? (_mp.x - 100.0) - _cpx - boyfriendCameraOffset[0] :
-						(_mp.x + 150.0) + _cpx + opponentCameraOffset[0],
-					y: whatCharacter == gf ? _mp.y + _cpy + girlfriendCameraOffset[1] :
-						whatCharacter == bf ? (_mp.y - 100.0) + _cpy + boyfriendCameraOffset[1] :
-						(_mp.y - 100.0) + _cpy + opponentCameraOffset[1]
+					x: whatCharacter == gf ? _mp.x + _cpx + girlfriendCameraOffset[0] : whatCharacter == bf ? (_mp.x - 100.0) - _cpx
+						- boyfriendCameraOffset[0] : (_mp.x + 150.0) + _cpx + opponentCameraOffset[0],
+					y: whatCharacter == gf ? _mp.y + _cpy + girlfriendCameraOffset[1] : whatCharacter == bf ? (_mp.y - 100.0) + _cpy
+						+ boyfriendCameraOffset[1] : (_mp.y - 100.0) + _cpy + opponentCameraOffset[1]
 				}, 1.2 * cameraSpeed, {ease: FlxEase.expoOut});
 			}
 		}
@@ -1004,8 +1002,8 @@ class Gameplay extends State
 
 	function loadChart():Void
 	{
-		if (FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json') &&
-			!FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.bin'))
+		if (FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json')
+			&& !FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.bin'))
 			ChartBytesData.saveChartFromJson(curSong, curDifficulty);
 
 		chartBytesData = new ChartBytesData(curSong, curDifficulty);
