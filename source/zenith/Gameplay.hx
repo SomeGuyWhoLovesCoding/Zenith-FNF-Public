@@ -841,7 +841,7 @@ class Gameplay extends State
 
 			// Just wished that null safe field access allowed modifying the variable...
 			// Had to do set_visible(true) instead of visible = true to compensate for it
-			hudGroup?.timeTxt?.set_visible(true);
+			@:privateAccess hudGroup?.timeTxt?.set_text(Utils.formatTime(Gameplay.instance.songLength, true, false));
 
 			startedCountdown = true;
 
@@ -862,7 +862,6 @@ class Gameplay extends State
 		}
 
 		voices?.stop();
-		hudGroup?.timeTxt?.set_visible(false);
 
 		switchState(new WelcomeState());
 

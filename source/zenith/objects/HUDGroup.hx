@@ -142,12 +142,13 @@ class HUDGroup
 		comboNums[9].visible = Gameplay.instance.combo > 999999999;
 	}
 
-	function updateIcons():Void
+	public function updateIcons():Void
 	{
 		plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;
 		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
 	}
 
+	var _timeTxtValue:Float = 0.0;
 	public function update():Void
 	{
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
@@ -165,9 +166,11 @@ class HUDGroup
 		if (Gameplay.instance.startedCountdown)
 		{
 			oppIcon.alpha = plrIcon.alpha = healthBar.alpha = scoreTxt.alpha = timeTxt.alpha += (FlxG.elapsed * 8.0) * (1.0 - timeTxt.alpha);
-			timeTxt.text = Utils.formatTime(Gameplay.instance.songLength - Main.conductor.songPosition, true, true);
+			if (Main.conductor.songPosition - _timeTxtValue > 1000.0)
+			{
+				_timeTxtValue = Main.conductor.songPosition;
+				timeTxt.text = Utils.formatTime(Gameplay.instance.songLength - _timeTxtValue, true, false);
+			}
 		}
-
-		updateIcons();
 	}
 }

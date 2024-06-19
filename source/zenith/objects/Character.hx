@@ -60,6 +60,12 @@ class Character extends FlxSprite
 	var namedWithGf(default, null):Bool = false;
 
 	public var holdTimer:Float = 0.0;
+
+	inline public function set_holdTimer(value:Float):Float
+	{
+		return holdTimer = value;
+	}
+
 	public var heyTimer:Float = 0.0;
 	public var specialAnim:Bool = false;
 	public var stunned:Bool = false;

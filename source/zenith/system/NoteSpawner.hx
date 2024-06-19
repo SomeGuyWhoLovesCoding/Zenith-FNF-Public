@@ -221,11 +221,8 @@ class NoteSpawner extends FlxBasic
 
 		if (!Gameplay.noCharacters)
 		{
-			if (null != note.targetCharacter)
-			{
-				note.targetCharacter.playAnim(note.strum.parent.singAnimations(note.noteData));
-				note.targetCharacter.holdTimer = 0.0;
-			}
+			note.targetCharacter?.playAnim(note.strum.parent.singAnimations(note.noteData));
+			note.targetCharacter?.set_holdTimer(0.0);
 		}
 
 		note.state = HIT;
@@ -244,6 +241,7 @@ class NoteSpawner extends FlxBasic
 		#end
 
 		Gameplay.instance.hudGroup?.updateScoreText();
+		Gameplay.instance.hudGroup?.updateIcons();
 	}
 
 	public function onNoteMiss(note:Note):Void
@@ -270,16 +268,17 @@ class NoteSpawner extends FlxBasic
 			Gameplay.instance.misses++;
 			Gameplay.instance.combo = 0.0;
 			Gameplay.instance.accuracy_right++;
+			Gameplay.instance.hudGroup?.updateRatings();
 		}
 
 		if (!Gameplay.noCharacters)
 		{
-			note.targetCharacter.playAnim(note.strum.parent.singAnimations(note.noteData) + "miss");
-			note.targetCharacter.holdTimer = 0.0;
+			note.targetCharacter?.playAnim(note.strum.parent.singAnimations(note.noteData) + "miss");
+			note.targetCharacter?.set_holdTimer(0.0);
 		}
 
 		Gameplay.instance.hudGroup?.updateScoreText();
-		Gameplay.instance.hudGroup?.updateRatings();
+		Gameplay.instance.hudGroup?.updateIcons();
 
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts("onNoteMissPost", note);

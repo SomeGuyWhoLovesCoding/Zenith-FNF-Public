@@ -190,25 +190,22 @@ class SustainNoteSpawner extends FlxBasic
 
 		if (!Gameplay.noCharacters)
 		{
-			if (null != sustain.targetCharacter)
+			if (Gameplay.stillCharacters)
+				sustain.targetCharacter?.playAnim(sustain.strum.parent.singAnimations(sustain.noteData));
+			else
 			{
-				if (Gameplay.stillCharacters)
-					sustain.targetCharacter.playAnim(sustain.strum.parent.singAnimations(sustain.noteData));
-				else
-				{
-					// This shit is similar to amazing engine's character hold fix, but better
+				// This shit is similar to amazing engine's character hold fix, but better
 
-					if (sustain.targetCharacter.animation.curAnim.name == sustain.strum.parent.singAnimations(sustain.noteData) + "miss")
-						sustain.targetCharacter.playAnim(sustain.strum.parent.singAnimations(sustain.noteData));
+				if (sustain.targetCharacter?.animation.curAnim.name == sustain.strum.parent.singAnimations(sustain.noteData) + "miss")
+					sustain.targetCharacter?.playAnim(sustain.strum.parent.singAnimations(sustain.noteData));
 
-					if (sustain.targetCharacter.animation.curAnim.curFrame > (sustain.targetCharacter.stillCharacterFrame == -1 ? sustain.targetCharacter.animation.curAnim.frames.length : sustain.targetCharacter.stillCharacterFrame))
-						sustain.targetCharacter.animation.curAnim.curFrame = (sustain.targetCharacter.stillCharacterFrame == -1 ? sustain.targetCharacter.animation.curAnim.frames.length
-							- 2 : sustain.targetCharacter.stillCharacterFrame
-							- 1);
-				}
-
-				sustain.targetCharacter.holdTimer = 0.0;
+				if (sustain.targetCharacter?.animation.curAnim.curFrame > (sustain.targetCharacter?.stillCharacterFrame == -1 ? sustain.targetCharacter?.animation.curAnim.frames.length : sustain.targetCharacter?.stillCharacterFrame))
+					@:privateAccess sustain.targetCharacter?.animation.curAnim.set_curFrame(sustain.targetCharacter?.stillCharacterFrame == -1 ? sustain.targetCharacter?.animation.curAnim.frames.length
+						- 2 : sustain.targetCharacter?.stillCharacterFrame
+						- 1);
 			}
+
+			sustain.targetCharacter?.set_holdTimer(0.0);
 		}
 
 		#if SCRIPTING_ALLOWED
@@ -230,8 +227,8 @@ class SustainNoteSpawner extends FlxBasic
 
 		if (!Gameplay.noCharacters)
 		{
-			Gameplay.instance.bf.playAnim(sustain.strum.parent.singAnimations(sustain.noteData) + "miss");
-			Gameplay.instance.bf.holdTimer = 0.0;
+			sustain.targetCharacter?.playAnim(sustain.strum.parent.singAnimations(sustain.noteData) + "miss");
+			sustain.targetCharacter?.set_holdTimer(0.0);
 		}
 
 		#if SCRIPTING_ALLOWED
