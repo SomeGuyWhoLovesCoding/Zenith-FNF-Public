@@ -925,7 +925,7 @@ class Gameplay extends State
 			char.x = GF_X;
 			char.y = GF_Y;
 
-			gf.active = gf.visible = false;
+			gf?.set_active(gf?.set_visible(false));
 		}
 
 		char.x += char.positionArray[0];

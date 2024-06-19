@@ -216,6 +216,7 @@ class NoteSpawner extends FlxBasic
 			Gameplay.instance.accuracy_left += ((note.position
 				- Main.conductor.songPosition < 0.0 ? -(note.position - Main.conductor.songPosition) : note.position - Main.conductor.songPosition) > 83.35 ? 0.75 : 1.0);
 			Gameplay.instance.accuracy_right++;
+			Gameplay.instance.hudGroup?.updateRatings();
 		}
 
 		if (!Gameplay.noCharacters)
@@ -243,7 +244,6 @@ class NoteSpawner extends FlxBasic
 		#end
 
 		Gameplay.instance.hudGroup?.updateScoreText();
-		Gameplay.instance.hudGroup?.updateRatings();
 	}
 
 	public function onNoteMiss(note:Note):Void
