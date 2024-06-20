@@ -1,16 +1,17 @@
 package zenith.objects;
 
+import flixel.group.FlxGroup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.math.FlxMath;
 
 @:access(zenith.Gameplay)
 @:access(zenith.objects.HealthBar)
-@:access(zenith.objects.StaticSprite)
+@:access(flixel.FlxSprite)
 @:final
-class HUDGroup
+class HUDGroup extends FlxGroup // This is a FlxGroup because there are rating groups with it as well!
 {
-	public var comboNums:Array<Atlas>;
+	public var comboNums:FlxTypedGroup<Atlas>;
 	public var oppIcon:HealthIcon;
 	public var plrIcon:HealthIcon;
 	public var healthBar:HealthBar;
@@ -19,36 +20,40 @@ class HUDGroup
 
 	public function new():Void
 	{
+		super();
+
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
 
-		comboNums = [
-			for (i in 0...10)
-			{
-				var comboNum:Atlas = new Atlas(Paths.image('ui/comboNums'), 10, 1);
-				comboNum.scale.set(0.9, 0.9);
-				comboNum.x = 900 - ((comboNum._frame.frame.width * 0.85) * i);
-				comboNum.y = 300;
-				comboNum.antialiasing = true;
-				comboNum.camera = Gameplay.instance.hudCamera;
-				comboNum.visible = false;
-				comboNum;
-			}
-		];
+		comboNums = new FlxTypedGroup<Atlas>();
+		add(comboNums);
 
-		oppIcon = new HealthIcon(Gameplay.instance.dad.healthIcon);
-		plrIcon = new HealthIcon(Gameplay.instance.bf.healthIcon, true);
+		for (i in 0...10)
+		{
+			var comboNum:Atlas = new Atlas(Paths.image('ui/comboNums'), 10, 1);
+			comboNum.scale.set(0.9, 0.9);
+			comboNum.x = 900 - ((comboNum._frame.frame.width * 0.85) * i);
+			comboNum.y = 300;
+			comboNum.antialiasing = true;
+			comboNum.camera = Gameplay.instance.hudCamera;
+			comboNum.visible = false;
+			comboNums.add(comboNum);
+		}
+
+		oppIcon = new HealthIcon(Gameplay.instance.dad);
+		plrIcon = new HealthIcon(Gameplay.instance.bf);
+		plrIcon.flipX = true;
 
 		healthBar = new HealthBar(0, Gameplay.downScroll ? 60.0 : FlxG.height - 86.0, [0xFFFF0000], [0xFF00FF00], 600, 24);
 		healthBar.top = new FlxSprite().loadGraphic(Paths.image('ui/healthBarBG'));
 		healthBar.add(healthBar.top);
 		healthBar.screenCenter(X);
-		Gameplay.instance.add(healthBar);
+		add(healthBar);
 
 		oppIcon.y = plrIcon.y = healthBar.y - 60.0;
 
-		Gameplay.instance.add(oppIcon);
-		Gameplay.instance.add(plrIcon);
+		add(oppIcon);
+		add(plrIcon);
 
 		scoreTxt = new FlxText(0, healthBar.y
 			+ (healthBar.height + 2), 0,
@@ -58,20 +63,22 @@ class HUDGroup
 			+ Gameplay.instance.misses
 			+ ' | Accuracy: ???', 20);
 		scoreTxt.setBorderStyle(OUTLINE, 0xFF000000);
-		Gameplay.instance.add(scoreTxt);
+		add(scoreTxt);
 
 		timeTxt = new FlxText(0, Gameplay.downScroll ? FlxG.height - 42 : 8, 0, '???', 30);
 		timeTxt.setBorderStyle(OUTLINE, 0xFF000000);
-		Gameplay.instance.add(timeTxt);
+		add(timeTxt);
 
 		scoreTxt.borderSize = timeTxt.borderSize = 1.25;
 		scoreTxt.font = timeTxt.font = Paths.font('vcr');
 		scoreTxt.alignment = timeTxt.alignment = "center";
 		scoreTxt.active = timeTxt.active = false;
 
-		oppIcon.pixelPerfectPosition = plrIcon.pixelPerfectPosition = healthBar.pixelPerfectPosition = scoreTxt.pixelPerfectPosition = timeTxt.pixelPerfectPosition = false;
+		healthBar.pixelPerfectPosition = scoreTxt.pixelPerfectPosition = timeTxt.pixelPerfectPosition = false;
 		oppIcon.camera = plrIcon.camera = healthBar.camera = scoreTxt.camera = timeTxt.camera = Gameplay.instance.hudCamera;
 		oppIcon.alpha = plrIcon.alpha = healthBar.alpha = scoreTxt.alpha = timeTxt.alpha = 0.0;
+
+		active = false;
 	}
 
 	public function updateScoreText():Void
@@ -105,51 +112,24 @@ class HUDGroup
 
 	var comboNum(default, null):Atlas;
 
-	public function drawRatings():Void
+	public function updateRatings():Void
 	{
 		for (i in 0...10)
 		{
-			comboNum = comboNums[i];
-
-			if (comboNum.exists && comboNum.visible)
-			{
-				comboNum.draw();
-			}
+			comboNum = comboNums.members[i];
+			comboNum.updatePosW(Gameplay.instance.combo / Math.pow(10, i));
+			comboNum.visible = Gameplay.instance.combo >= Math.pow(10, i) || (Gameplay.instance.combo != 0 && i < 3); 
 		}
-	}
-
-	public function updateRatings():Void
-	{
-		comboNums[0].updatePosW(Gameplay.instance.combo);
-		comboNums[0].visible = Gameplay.instance.combo > 0;
-		comboNums[1].updatePosW(Gameplay.instance.combo * 0.1);
-		comboNums[1].visible = Gameplay.instance.combo > 0;
-		comboNums[2].updatePosW(Gameplay.instance.combo * 0.01);
-		comboNums[2].visible = Gameplay.instance.combo > 0;
-		comboNums[3].updatePosW(Gameplay.instance.combo * 0.001);
-		comboNums[3].visible = Gameplay.instance.combo > 999;
-		comboNums[4].updatePosW(Gameplay.instance.combo * 0.0001);
-		comboNums[4].visible = Gameplay.instance.combo > 9999;
-		comboNums[5].updatePosW(Gameplay.instance.combo * 0.00001);
-		comboNums[5].visible = Gameplay.instance.combo > 99999;
-		comboNums[6].updatePosW(Gameplay.instance.combo * 0.000001);
-		comboNums[6].visible = Gameplay.instance.combo > 999999;
-		comboNums[7].updatePosW(Gameplay.instance.combo * 0.0000001);
-		comboNums[7].visible = Gameplay.instance.combo > 9999999;
-		comboNums[8].updatePosW(Gameplay.instance.combo * 0.00000001);
-		comboNums[8].visible = Gameplay.instance.combo > 99999999;
-		comboNums[9].updatePosW(Gameplay.instance.combo * 0.000000001);
-		comboNums[9].visible = Gameplay.instance.combo > 999999999;
 	}
 
 	public function updateIcons():Void
 	{
-		plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;
-		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
+		plrIcon.updatePosW(healthBar.value < 0.4 ? 1 : 0);
+		oppIcon.updatePosW(healthBar.value > 1.6 ? 1 : 0);
 	}
 
 	var _timeTxtValue:Float = 0.0;
-	public function update():Void
+	override function draw():Void
 	{
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
@@ -172,5 +152,9 @@ class HUDGroup
 				timeTxt.text = Utils.formatTime(Gameplay.instance.songLength - _timeTxtValue, true, false);
 			}
 		}
+
+		super.draw();
 	}
+
+	override function update(elapsed:Float):Void {}
 }

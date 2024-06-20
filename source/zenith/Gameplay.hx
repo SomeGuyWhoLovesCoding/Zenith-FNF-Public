@@ -235,6 +235,8 @@ class Gameplay extends State
 			if (curBeat > 0 && !songEnded && startedCountdown && Main.conductor.songPosition > 0)
 			{
 				dance(curBeat);
+				hudGroup?.oppIcon?.bop();
+				hudGroup?.plrIcon?.bop();
 			}
 		}
 
@@ -245,12 +247,6 @@ class Gameplay extends State
 				addCameraZoom();
 			}
 		}
-	}
-
-	override function draw():Void
-	{
-		super.draw();
-		hudGroup?.drawRatings();
 	}
 
 	override function update(elapsed:Float):Void
@@ -282,8 +278,6 @@ class Gameplay extends State
 			}
 
 			super.update(elapsed);
-
-			hudGroup?.update();
 
 			return;
 		}
@@ -683,6 +677,7 @@ class Gameplay extends State
 		{
 			hudGroup = new HUDGroup();
 			hudGroup.reloadHealthBar();
+			add(hudGroup);
 		}
 
 		noteSpawner.camera = strumlines.camera = sustainNoteSpawner.camera = hudCamera;

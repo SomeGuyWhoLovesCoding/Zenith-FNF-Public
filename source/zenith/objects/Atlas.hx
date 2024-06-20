@@ -2,18 +2,11 @@ package zenith.objects;
 
 import flixel.system.FlxAssets;
 
-class Atlas extends StaticSprite
+class Atlas extends FlxSprite
 {
-	public var parent:FlxSprite;
-
 	public function new(img:FlxGraphicAsset, lenWidth:Int, lenHeight:Int):Void
 	{
-		super();
-
-		parent = new FlxSprite().loadGraphic(img);
-
-		@:privateAccess
-		setFrame(parent._frame);
+		super(img);
 
 		_frame.frame.width /= lenWidth;
 		_frame.frame.height /= lenHeight;

@@ -22,7 +22,7 @@ class WelcomeState extends State
 
 		FlxG.sound.playMusic(Paths.sound('music/breakfast'), 0.15);
 
-		var bkdr:FlxBackdrop = new FlxBackdrop(Paths.image('other/welcome-grid'));
+		var bkdr:FlxBackdrop = new FlxBackdrop(Paths.image('mainmenu/welcome-grid'));
 		bkdr.velocity.set(-20, -20);
 		add(bkdr);
 

@@ -91,13 +91,13 @@ class Paths
 
 	static public function initNoteShit():Void
 	{
-		strumNoteAnimationHolder.frames = getSparrowAtlas('noteskins/Regular/Strums');
+		strumNoteAnimationHolder.frames = getSparrowAtlas('ui/noteskins/Regular/Strums');
 		strumNoteAnimationHolder.animation.addByPrefix('static', 'static', 0, false);
 		strumNoteAnimationHolder.animation.addByPrefix('pressed', 'press', 12, false);
 		strumNoteAnimationHolder.animation.addByPrefix('confirm', 'confirm', 24, false);
 
-		noteAnimationHolder.loadGraphic(image('noteskins/Regular/Note'));
-		sustainAnimationHolder.loadGraphic(image('noteskins/Regular/Sustain'));
+		noteAnimationHolder.loadGraphic(image('ui/noteskins/Regular/Note'));
+		sustainAnimationHolder.loadGraphic(image('ui/noteskins/Regular/Sustain'));
 
 		regularNoteFrame = noteAnimationHolder._frame;
 		sustainNoteFrame = sustainAnimationHolder._frame;

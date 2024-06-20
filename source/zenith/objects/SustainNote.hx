@@ -34,6 +34,10 @@ class SustainNote extends NoteBase
 			_frame.frame.height = (-_frame.frame.y * (strum.scrollMult < 0.0 ? -strum.scrollMult : strum.scrollMult)) + frameHeight;
 			height = _frame.frame.height * (scale.y < 0.0 ? -scale.y : scale.y);
 		}
+
+		if (_frame.frame.height < 0)
+			return;
+
 		super.draw();
 	}
 

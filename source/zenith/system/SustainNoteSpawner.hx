@@ -50,7 +50,7 @@ class SustainNoteSpawner extends FlxBasic
 
 		_s.camera = camera;
 		_s.cameras = cameras;
-		_s.setFrame(Paths.sustainNoteFrame);
+		_s.frame = Paths.sustainNoteFrame.copyTo(null);
 
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('setupSustainData', _s, chartSustainData);
@@ -229,6 +229,12 @@ class SustainNoteSpawner extends FlxBasic
 		{
 			sustain.targetCharacter?.playAnim(sustain.strum.parent.singAnimations(sustain.noteData) + "miss");
 			sustain.targetCharacter?.set_holdTimer(0.0);
+		}
+
+		if (sustain.strum.playable)
+		{
+			Gameplay.instance.combo = 0;
+			Gameplay.instance.hudGroup?.updateRatings();
 		}
 
 		#if SCRIPTING_ALLOWED

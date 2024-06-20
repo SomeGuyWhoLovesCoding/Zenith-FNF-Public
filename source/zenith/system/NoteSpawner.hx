@@ -54,7 +54,7 @@ class NoteSpawner extends FlxBasic
 
 		_n.camera = camera;
 		_n.cameras = cameras;
-		_n.setFrame(Paths.regularNoteFrame);
+		_n.frame = Paths.regularNoteFrame.copyTo(null);
 
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('setupNoteData', _n, chartNoteData);
