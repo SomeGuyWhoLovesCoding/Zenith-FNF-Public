@@ -5,7 +5,8 @@ import flixel.math.FlxMath;
 @:access(flixel.FlxSprite)
 class HealthIcon extends Atlas
 {
-	var _scale(default, null):Float = 1.0;
+	var _scaleA(default, null):Float = 1.0;
+	var _scaleB(default, null):Float = 1.0;
 
 	public function new(character:Character)
 	{
@@ -16,18 +17,22 @@ class HealthIcon extends Atlas
 		if (character.isPlayer)
 			offset.x += 150.0;
 
-		active = false;
+		active = moves = false;
 	}
 
-	public function bop():Void
+	inline public function bop():Void
 	{
-		_scale += 0.15;
+		_scaleA += 0.5;
+		_scaleB += 0.075;
 	}
 
 	override function draw():Void
 	{
+		_scaleA = FlxMath.lerp(_scaleA, 1.0, FlxG.elapsed * 46.0);
+		_scaleB = FlxMath.lerp(_scaleB, 0.0, FlxG.elapsed * 8.0);
+		scale.x = scale.y = _scaleA + _scaleB;
+		y = Gameplay.instance.hudGroup?.healthBar?.y - (60 / scale.y);
+
 		super.draw();
-		_scale = FlxMath.lerp(_scale, 1.0, FlxG.elapsed * 32.0);
-		scale.set(_scale, _scale);
 	}
 }

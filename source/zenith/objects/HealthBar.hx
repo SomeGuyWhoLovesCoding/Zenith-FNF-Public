@@ -28,7 +28,7 @@ class HealthBar extends FlxSpriteGroup
 
 		reloadBar(left, right);
 
-		moves = false;
+		active = moves = false;
 	}
 
 	public function reloadBar(left:Array<Int>, right:Array<Int>):Void

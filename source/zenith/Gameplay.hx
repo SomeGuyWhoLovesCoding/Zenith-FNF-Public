@@ -18,16 +18,17 @@ using StringTools;
 @:access(zenith.system.NoteSpawner)
 @:access(zenith.system.SustainNoteSpawner)
 @:access(Stack)
+@:access(flixel.text.FlxText)
 @:final
 class Gameplay extends State
 {
-	public var chartBytesData:ChartBytesData;
+	private var chartBytesData(default, null):ChartBytesData;
 
-	public var strumlines:FlxTypedGroup<Strumline>;
-	public var noteSpawner:NoteSpawner;
-	public var sustainNoteSpawner:SustainNoteSpawner;
+	public var strumlines(default, null):FlxTypedGroup<Strumline>;
+	public var noteSpawner(default, null):NoteSpawner;
+	public var sustainNoteSpawner(default, null):SustainNoteSpawner;
 
-	private var hudGroup(default, null):HUDGroup;
+	public var hudGroup(default, null):HUDGroup;
 
 	public var health:Float = 1.0;
 
@@ -210,19 +211,19 @@ class Gameplay extends State
 		{
 			if (curStep > 0 && !songEnded && startedCountdown && Main.conductor.songPosition > 0)
 			{
-				if (inline Math.abs(_songPos - inst.time) > 35)
+				if (Math.abs(_songPos - inst.time) > 35)
 				{
 					_songPos = inst.time;
 				}
 
 				if (SONG.info.needsVoices)
 				{
-					if (inline Math.abs(_songPos - voices.time) > 35)
+					if (Math.abs(_songPos - voices.time) > 35)
 					{
 						_songPos = voices.time;
 					}
 
-					if (inline Math.abs(inst.time - voices.time) > 35)
+					if (Math.abs(inst.time - voices.time) > 35)
 					{
 						voices.time = inst.time;
 					}
@@ -836,7 +837,7 @@ class Gameplay extends State
 
 			// Just wished that null safe field access allowed modifying the variable...
 			// Had to do set_visible(true) instead of visible = true to compensate for it
-			@:privateAccess hudGroup?.timeTxt?.set_text(Utils.formatTime(Gameplay.instance.songLength, true, false));
+			hudGroup?.timeTxt?.set_text(Utils.formatTime(Gameplay.instance.songLength, true, false));
 
 			startedCountdown = true;
 

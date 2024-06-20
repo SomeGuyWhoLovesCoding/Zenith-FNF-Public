@@ -30,6 +30,6 @@ class NoteBase extends FlxSprite
 	public function new():Void
 	{
 		super();
-		active = false;
+		active = moves = false;
 	}
 }

@@ -1,6 +1,6 @@
 package zenith.objects;
 
-import flixel.group.FlxGroup;
+import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.math.FlxMath;
@@ -9,9 +9,9 @@ import flixel.math.FlxMath;
 @:access(zenith.objects.HealthBar)
 @:access(flixel.FlxSprite)
 @:final
-class HUDGroup extends FlxGroup // This is a FlxGroup because there are rating groups with it as well!
+class HUDGroup extends FlxSpriteGroup
 {
-	public var comboNums:FlxTypedGroup<Atlas>;
+	public var comboNums:Array<Atlas>;
 	public var oppIcon:HealthIcon;
 	public var plrIcon:HealthIcon;
 	public var healthBar:HealthBar;
@@ -25,20 +25,19 @@ class HUDGroup extends FlxGroup // This is a FlxGroup because there are rating g
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
 
-		comboNums = new FlxTypedGroup<Atlas>();
-		add(comboNums);
-
-		for (i in 0...10)
-		{
-			var comboNum:Atlas = new Atlas(Paths.image('ui/comboNums'), 10, 1);
-			comboNum.scale.set(0.9, 0.9);
-			comboNum.x = 900 - ((comboNum._frame.frame.width * 0.85) * i);
-			comboNum.y = 300;
-			comboNum.antialiasing = true;
-			comboNum.camera = Gameplay.instance.hudCamera;
-			comboNum.visible = false;
-			comboNums.add(comboNum);
-		}
+		comboNums = [
+			for (i in 0...10)
+			{
+				var comboNum:Atlas = new Atlas(Paths.image('ui/comboNums'), 10, 1);
+				comboNum.scale.set(0.9, 0.9);
+				comboNum.x = 900 - ((comboNum._frame.frame.width * 0.85) * i);
+				comboNum.y = 350;
+				comboNum.antialiasing = true;
+				comboNum.camera = Gameplay.instance.hudCamera;
+				comboNum.active = comboNum.moves = comboNum.visible = false;
+				comboNum;
+			}
+		];
 
 		oppIcon = new HealthIcon(Gameplay.instance.dad);
 		plrIcon = new HealthIcon(Gameplay.instance.bf);
@@ -72,11 +71,10 @@ class HUDGroup extends FlxGroup // This is a FlxGroup because there are rating g
 		scoreTxt.borderSize = timeTxt.borderSize = 1.25;
 		scoreTxt.font = timeTxt.font = Paths.font('vcr');
 		scoreTxt.alignment = timeTxt.alignment = "center";
-		scoreTxt.active = timeTxt.active = false;
 
-		healthBar.pixelPerfectPosition = scoreTxt.pixelPerfectPosition = timeTxt.pixelPerfectPosition = false;
 		oppIcon.camera = plrIcon.camera = healthBar.camera = scoreTxt.camera = timeTxt.camera = Gameplay.instance.hudCamera;
 		oppIcon.alpha = plrIcon.alpha = healthBar.alpha = scoreTxt.alpha = timeTxt.alpha = 0.0;
+		oppIcon.moves = plrIcon.moves = scoreTxt.active = timeTxt.active = scoreTxt.moves = timeTxt.moves = false;
 
 		active = false;
 	}
@@ -116,9 +114,11 @@ class HUDGroup extends FlxGroup // This is a FlxGroup because there are rating g
 	{
 		for (i in 0...10)
 		{
-			comboNum = comboNums.members[i];
+			comboNum = comboNums[i];
 			comboNum.updatePosW(Gameplay.instance.combo / Math.pow(10, i));
-			comboNum.visible = Gameplay.instance.combo >= Math.pow(10, i) || (Gameplay.instance.combo != 0 && i < 3); 
+			comboNum.visible = Gameplay.instance.combo >= Math.pow(10, i) || (Gameplay.instance.combo != 0 && i < 3);
+			comboNum.y = 320;
+			comboNum.alpha = 1.0;
 		}
 	}
 
@@ -149,8 +149,20 @@ class HUDGroup extends FlxGroup // This is a FlxGroup because there are rating g
 			if (Main.conductor.songPosition - _timeTxtValue > 1000.0)
 			{
 				_timeTxtValue = Main.conductor.songPosition;
-				timeTxt.text = Utils.formatTime(Gameplay.instance.songLength - _timeTxtValue, true, false);
+				timeTxt.text = Utils.formatTime(FlxMath.bound(Gameplay.instance.songLength - _timeTxtValue, 0.0, Gameplay.instance.songLength), true, false);
 			}
+		}
+
+		for (i in 0...10)
+		{
+			comboNum = comboNums[i];
+
+			if (!comboNum.visible)
+				break;
+
+			comboNum.y = FlxMath.lerp(comboNum.y, 350, FlxG.elapsed * 8.0);
+			comboNum.alpha = FlxMath.lerp(comboNum.alpha, 0.0, FlxG.elapsed * 4.0);
+			comboNum.draw();
 		}
 
 		super.draw();
