@@ -120,26 +120,12 @@ class HUDGroup
 
 	public function updateRatings():Void
 	{
-		comboNums[0].updatePosW(Gameplay.instance.combo);
-		comboNums[0].visible = Gameplay.instance.combo > 0;
-		comboNums[1].updatePosW(Gameplay.instance.combo * 0.1);
-		comboNums[1].visible = Gameplay.instance.combo > 0;
-		comboNums[2].updatePosW(Gameplay.instance.combo * 0.01);
-		comboNums[2].visible = Gameplay.instance.combo > 0;
-		comboNums[3].updatePosW(Gameplay.instance.combo * 0.001);
-		comboNums[3].visible = Gameplay.instance.combo > 999;
-		comboNums[4].updatePosW(Gameplay.instance.combo * 0.0001);
-		comboNums[4].visible = Gameplay.instance.combo > 9999;
-		comboNums[5].updatePosW(Gameplay.instance.combo * 0.00001);
-		comboNums[5].visible = Gameplay.instance.combo > 99999;
-		comboNums[6].updatePosW(Gameplay.instance.combo * 0.000001);
-		comboNums[6].visible = Gameplay.instance.combo > 999999;
-		comboNums[7].updatePosW(Gameplay.instance.combo * 0.0000001);
-		comboNums[7].visible = Gameplay.instance.combo > 9999999;
-		comboNums[8].updatePosW(Gameplay.instance.combo * 0.00000001);
-		comboNums[8].visible = Gameplay.instance.combo > 99999999;
-		comboNums[9].updatePosW(Gameplay.instance.combo * 0.000000001);
-		comboNums[9].visible = Gameplay.instance.combo > 999999999;
+		for (i in 0...10)
+		{
+			comboNum = comboNums[i];
+			comboNum.updatePosW(Gameplay.instance.combo / Math.pow(10, i));
+			comboNum.visible = Gameplay.instance.combo >= Math.pow(10, i) || (Gameplay.instance.combo != 0 && i < 3);
+		}
 	}
 
 	public function updateIcons():Void
