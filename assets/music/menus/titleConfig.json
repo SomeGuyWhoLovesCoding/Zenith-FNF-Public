@@ -1,5 +1,7 @@
 {
 	"bpm": 102,
 	"titleImage": "title/titleImage",
-	"titleBG": "title/titleBG"
+	"titleImageScale": 0.65,
+	"titleBG": "title/titleBG",
+	"titleBGScale": 120.0
 }

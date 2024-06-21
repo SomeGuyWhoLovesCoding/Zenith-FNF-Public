@@ -20,50 +20,31 @@ class MainMenu extends State
 
 	override function create():Void
 	{
-		trace("Nice");
-
 		FlxG.camera.zoom = 1.0;
 
 		bg = new FlxSprite().loadGraphic(Paths.image('mainmenu/bg'));
 		bg.screenCenter();
 		add(bg);
 
+		options = new FlxSpriteGroup();
+		add(options);
+
 		watermark = new FlxText(0, 0, 0, 'Friday Night Funkin\': Zenith (Version ${lime.app.Application.current.meta.get('version')}) (Github)', 20);
 		watermark.setBorderStyle(OUTLINE, 0xFF000000);
 		watermark.y = FlxG.height - watermark.size;
 		watermark.font = Paths.font('vcr');
 		watermark.antialiasing = SaveData.contents.graphics.antialiasing;
+		watermark.active = false;
 		add(watermark);
 
-		onKeyDown = (keyCode:(Int), keyModifier:(Int)) ->
-		{
-			if (SaveData.contents.controls.ACCEPT == keyCode && !alreadyPressedEnter)
-			{
-				sendSignalEnter();
-				alreadyPressedEnter = true;
-				return;
-			}
-
-			if (SaveData.contents.controls.BACK == keyCode)
-			{
-				switchState(new TitleScreen());
-			}
-
-			if (SaveData.contents.controls.UP == keyCode)
-				sendSignalUp();
-
-			if (SaveData.contents.controls.DOWN == keyCode)
-				sendSignalDown();
-		}
-
-		Main.game.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
+		Main.game.onKeyDown.add(onKeyDown);
 
 		super.create();
 	}
 
 	override function destroy():Void
 	{
-		Main.game.onKeyDown.off(SignalEvent.KEY_DOWN, onKeyDown);
+		Main.game.onKeyDown.remove(onKeyDown);
 		super.destroy();
 	}
 
@@ -86,5 +67,30 @@ class MainMenu extends State
 			curSelected = 0;
 	}
 
-	private var onKeyDown:((Int), (Int)) -> (Void);
+	function onKeyDown(keyCode:Int, keyModifier:Int):Void
+	{
+		if (alreadyPressedEnter)
+		{
+			return;
+		}
+
+		if (SaveData.contents.controls.ACCEPT == keyCode)
+		{
+			sendSignalEnter();
+			alreadyPressedEnter = true;
+			return;
+		}
+
+		if (SaveData.contents.controls.BACK == keyCode)
+		{
+			alreadyPressedEnter = true;
+			switchState(new TitleScreen());
+		}
+
+		if (SaveData.contents.controls.UP == keyCode)
+			sendSignalUp();
+
+		if (SaveData.contents.controls.DOWN == keyCode)
+			sendSignalDown();
+	}
 }

@@ -21,7 +21,7 @@ class State extends FlxState
 			Main.hscript.callFromAllScripts('createPre');
 			#end
 
-			Main.startTransition(false, null);
+			Main.startTransition(false, function():Void {});
 
 			Main.conductor.onStepHit = Main.conductor.onBeatHit = Main.conductor.onMeasureHit = null;
 			Main.conductor.reset();

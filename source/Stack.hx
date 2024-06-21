@@ -38,17 +38,22 @@ class Stack<T>
 	public function new(?length:Int, ?objectFactory:T)
 	{
 		__items = new Array();
-		if (length != null)
+		__top = 0;
+
+		if (length == null)
 		{
-			if (objectFactory == null)
-				__items.resize(length);
+			return;
+		}
+
+		if (objectFactory == null)
+			__items.resize(length);
+		else
+		{
 			for (i in 0...length)
 			{
 				__items.push(objectFactory);
 			}
 		}
-
-		__top = 0;
 	}
 
 	/**
@@ -72,7 +77,7 @@ class Stack<T>
 	 */
 	public inline function pop():Null<T>
 	{
-		return __top > 0 ? __items[--__top] : null;
+		return __top != 0 ? __items[--__top] : null;
 	}
 
 	/**
@@ -96,7 +101,7 @@ class Stack<T>
 	 */
 	public inline function last():Null<T>
 	{
-		return __top > 0 ? __items[__top - 1] : null;
+		return __top != 0 ? __items[__top - 1] : null;
 	}
 
 	public inline function iterator():Iterator<T>

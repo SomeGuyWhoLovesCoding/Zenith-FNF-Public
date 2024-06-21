@@ -2,15 +2,17 @@ package zenith;
 
 class Game extends FlxGame
 {
-	final initState:Class<FlxState> = Gameplay;
+	final initState:Class<FlxState> = TitleScreen;
 
 	public var volume:Float = 1.0;
 	public var muted:Bool = false;
 	public var blockSoundKeys:Bool = false;
 
-	// Keyboard events (Used on states other than the gameplay state)
-	public var onKeyDown:Emitter = new Emitter();
-	public var onKeyUp:Emitter = new Emitter();
+	// Input events
+	public var onKeyDown:FlxTypedSignal<(Int, Int)->Void> = new FlxTypedSignal<(Int, Int)->Void>();
+	public var onKeyUp:FlxTypedSignal<(Int, Int)->Void> = new FlxTypedSignal<(Int, Int)->Void>();
+	public var onMouseDown:FlxTypedSignal<(Float, Float, Int)->Void> = new FlxTypedSignal<(Float, Float, Int)->Void>();
+	public var onMouseUp:FlxTypedSignal<(Float, Float, Int)->Void> = new FlxTypedSignal<(Float, Float, Int)->Void>();
 
 	public static var frameRate(default, null):Int;
 

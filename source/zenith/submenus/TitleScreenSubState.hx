@@ -6,8 +6,8 @@ using StringTools;
 
 class TitleScreenSubState extends FlxSubState
 {
-	var textSelection:FlxText;
-	var textSelectionArray:Array<String> = ["Main Menu", "Settings"];
+	var optionsTxt:FlxText;
+	var optionsArray:Array<String> = ["Main Menu", "Settings"];
 
 	var curSelected:Int = 0;
 
@@ -19,19 +19,18 @@ class TitleScreenSubState extends FlxSubState
 
 		instance = this;
 
-		textSelection = new FlxText(0, FlxG.height - 200, 0, 'Main Menu       Settings', 24);
-		textSelection.font = Paths.font('vcr');
-		textSelection.screenCenter(X);
-		add(textSelection);
-
-		// trace("Test");
+		optionsTxt = new FlxText(0, FlxG.height - 200, 0, 'Main Menu       Settings', 24);
+		optionsTxt.font = Paths.font('vcr');
+		optionsTxt.screenCenter(X);
+		optionsTxt.active = false;
+		add(optionsTxt);
 	}
 
 	override public function update(elapsed:Float):Void
 	{
 		super.update(elapsed);
 
-		textSelection.applyMarkup(textSelection.text.replace(textSelectionArray[curSelected], '[]${textSelectionArray[curSelected]}[]'), [
+		optionsTxt.applyMarkup(optionsTxt.text.replace(optionsArray[curSelected], '[]${optionsArray[curSelected]}[]'), [
 			new FlxTextFormatMarkerPair(new FlxTextFormat(0xFFFFFF00, false, false, 0xFFFFFF00), '[]')
 		]);
 	}
@@ -40,28 +39,19 @@ class TitleScreenSubState extends FlxSubState
 	{
 		curSelected--;
 		if (curSelected < 0)
-			curSelected = textSelectionArray.length - 1;
+			curSelected = optionsArray.length - 1;
 	}
 
 	public inline function sendSignalRight():Void
 	{
 		curSelected++;
-		if (curSelected >= textSelectionArray.length)
+		if (curSelected >= optionsArray.length)
 			curSelected = 0;
 	}
 
-	public function sendSignalEnter():Void
+	public inline function sendSignalEnter():Void
 	{
-		// trace('Test $curSelected');
-
-		if (curSelected == 0)
-		{
-			TitleScreen.instance.switchState(new MainMenu());
-		}
-
-		if (curSelected == 1)
-		{
-			// TitleScreen.instance.switchState(new SettingsMenu());
-		}
+		TitleScreen.alreadyPressedEnter = true;
+		TitleScreen.instance.switchState(new MainMenu() /*curSelected == 0 ? new MainMenu() : new SettingsMenu()*/);
 	}
 }

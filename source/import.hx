@@ -14,7 +14,7 @@ import flixel.sound.FlxSound;
 import flixel.util.*;
 import flixel.ui.*;
 // Signals
-import emitter.signals.*;
+import flixel.util.FlxSignal;
 
 #if !debug
 @:noDebug

@@ -1,17 +1,17 @@
 package zenith.menus;
 
-import flixel.addons.display.FlxBackdrop;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 import flixel.text.FlxText;
-import lime.app.Application;
 import lime.ui.KeyCode;
 
 typedef TitleConfigurations =
 {
 	var bpm:Float;
 	var titleImage:String;
+	var titleImageScale:Float;
 	var titleBG:String;
+	var titleBGScale:Float;
 }
 
 class TitleScreen extends State
@@ -24,7 +24,7 @@ class TitleScreen extends State
 		['Finally', 'finished', 'this']
 	];
 
-	public var titleBG:FlxBackdrop;
+	public var titleBG:FlxSprite;
 	public var titleImage:FlxSprite;
 
 	static public var titleConfig:TitleConfigurations;
@@ -41,21 +41,18 @@ class TitleScreen extends State
 		if (null == titleConfig)
 			titleConfig = haxe.Json.parse(sys.io.File.getContent(Paths.ASSET_PATH + '/music/menus/titleConfig.json'));
 
-		alreadyPressedEnter = false;
+		inSubMenu = alreadyPressedEnter = false;
 
 		loadTitleScreenShit();
 		titleBG.visible = titleImage.visible = initialized;
 
-		Main.game.onKeyDown.on(SignalEvent.KEY_DOWN, onKeyDown);
+		Main.game.onKeyDown.add(onKeyDown);
 
 		super.create();
 
 		Main.conductor.onBeatHit = (curBeat:Float) ->
 		{
-			if (null != cameraZoomTween)
-			{
-				cameraZoomTween.cancel();
-			}
+			cameraZoomTween?.cancel();
 
 			FlxG.camera.zoom = 1.0085;
 			cameraZoomTween = FlxTween.tween(FlxG.camera, {zoom: 1}, Main.conductor.crochet * 0.00175, {ease: FlxEase.quintOut});
@@ -90,7 +87,7 @@ class TitleScreen extends State
 
 	override function destroy():Void
 	{
-		Main.game.onKeyDown.off(SignalEvent.KEY_DOWN, onKeyDown);
+		Main.game.onKeyDown.remove(onKeyDown);
 		super.destroy();
 	}
 
@@ -118,20 +115,18 @@ class TitleScreen extends State
 			FlxG.camera.zoom = 1.0085;
 		}
 
-		titleBG = new FlxBackdrop(Paths.image(titleConfig.titleBG));
-		titleBG.setGraphicSize(Std.int(FlxG.width), Std.int(FlxG.height));
+		titleBG = new FlxSprite().loadGraphic(Paths.image(titleConfig.titleBG));
+		titleBG.scale.x = titleBG.scale.y = titleConfig.titleBGScale;
 		titleBG.updateHitbox();
-		titleBG.velocity.set(-32, 0);
 		add(titleBG);
 
 		titleImage = new FlxSprite().loadGraphic(Paths.image(titleConfig.titleImage));
-		titleImage.setGraphicSize(Std.int(FlxG.width * 0.5), Std.int(FlxG.height * 0.5));
+		titleImage.scale.x = titleImage.scale.y = titleConfig.titleImageScale;
 		titleImage.updateHitbox();
 		titleImage.screenCenter();
 		add(titleImage);
 
-		if (null != cameraZoomTween)
-			cameraZoomTween.cancel();
+		cameraZoomTween?.cancel();
 
 		FlxG.camera.zoom = 1.0085;
 		cameraZoomTween = FlxTween.tween(FlxG.camera, {zoom: 1.0}, Main.conductor.crochet * 0.00175, {ease: FlxEase.quintOut});
@@ -145,6 +140,7 @@ class TitleScreen extends State
 			titleText.alignment = "center";
 			titleText.screenCenter();
 			titleText.antialiasing = SaveData.contents.graphics.antialiasing;
+			titleText.active = false;
 			add(titleText);
 		}
 
@@ -153,10 +149,7 @@ class TitleScreen extends State
 
 	override public function update(elapsed:Float):Void
 	{
-		if (null != FlxG.sound.music)
-		{
-			Main.conductor.songPosition = FlxG.sound.music.time;
-		}
+		Main.conductor.songPosition = FlxG.sound?.music?.time;
 
 		super.update(elapsed);
 	}
@@ -197,11 +190,7 @@ class TitleScreen extends State
 	{
 		if (skipIntroMusicInstantly)
 		{
-			if (null != FlxG.sound.music.fadeTween)
-			{
-				FlxG.sound.music.fadeTween.cancel();
-			}
-
+			FlxG.sound?.music?.fadeTween?.cancel();
 			FlxG.sound.music.volume = 1.0;
 			FlxG.sound.music.time = Main.conductor.crochet * 16.0;
 		}
@@ -214,21 +203,23 @@ class TitleScreen extends State
 		FlxG.camera.flash(0xFFFFFFFF, 0.75, null, true);
 		FlxG.camera.zoom = 1.0085;
 
-		if (null != cameraZoomTween)
-		{
-			cameraZoomTween.cancel();
-		}
-
+		cameraZoomTween?.cancel();
 		cameraZoomTween = FlxTween.tween(FlxG.camera, {zoom: 1.0}, Main.conductor.crochet * 0.001, {ease: FlxEase.quintOut});
 	}
 
+	static public var inSubMenu:Bool = false;
 	static public var alreadyPressedEnter:Bool = false;
 
-	function onKeyDown(keyCode:(Int), keyModifier:(Int)):Void
+	function onKeyDown(keyCode:Int, keyModifier:Int):Void
 	{
+		if (alreadyPressedEnter)
+		{
+			return;
+		}
+
 		if (SaveData.contents.controls.ACCEPT == keyCode)
 		{
-			if (alreadyPressedEnter)
+			if (inSubMenu)
 				TitleScreenSubState.instance.sendSignalEnter();
 			else
 			{
@@ -239,11 +230,11 @@ class TitleScreen extends State
 				}
 
 				openSubState(new TitleScreenSubState());
-				alreadyPressedEnter = true;
+				inSubMenu = true;
 			}
 		}
 
-		if (!alreadyPressedEnter)
+		if (!inSubMenu)
 			return;
 
 		if (SaveData.contents.controls.LEFT == keyCode)
@@ -255,7 +246,7 @@ class TitleScreen extends State
 		if (SaveData.contents.controls.BACK == keyCode)
 		{
 			closeSubState();
-			alreadyPressedEnter = false;
+			inSubMenu = false;
 		}
 	}
 }
