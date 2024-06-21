@@ -2,10 +2,7 @@ package zenith;
 
 class Game extends FlxGame
 {
-	final initState:Class<FlxState> = TitleScreen;
-
-	public var volume:Float = 1.0;
-	public var muted:Bool = false;
+	final initState:Class<FlxState> = Gameplay;
 	public var blockSoundKeys:Bool = false;
 
 	// Input events
