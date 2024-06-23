@@ -7,12 +7,12 @@ class SustainNote extends NoteBase
 	public var parent:Note;
 	public var hasParent:Bool = false;
 
-	public var length:Float32 = 0.0;
+	public var length:Single = 0.0;
 	public var state:NoteState = IDLE;
 
-	public var mult:Float32 = 1.0; // Used mostly for clipping without using cliprect
+	public var clip:Single = 1.0;
 
-	override function set_direction(dir:Float32):Float32
+	override function set_direction(dir:Single):Single
 	{
 		return angle = (direction = dir) + (downScroll ? 180.0 : 0.0);
 	}
@@ -30,12 +30,12 @@ class SustainNote extends NoteBase
 	{
 		if (null != _frame)
 		{
-			_frame.frame.y = -(length * mult) * (((null != Gameplay.SONG ? Gameplay.SONG.info.speed : 1.0) * 0.6428571428571431) / (strum.scale.y * 1.428571428571429));
+			_frame.frame.y = -(length * clip) * (((null != Gameplay.SONG ? Gameplay.SONG.info.speed : 1.0) * 0.6428571428571431) / (strum.scale.y * 1.428571428571429));
 			_frame.frame.height = (-_frame.frame.y * (strum.scrollMult < 0.0 ? -strum.scrollMult : strum.scrollMult)) + frameHeight;
 			height = _frame.frame.height * (scale.y < 0.0 ? -scale.y : scale.y);
 		}
 
-		if (_frame.frame.height < 0)
+		if (_frame.frame.height < 0.0)
 			return;
 
 		super.draw();

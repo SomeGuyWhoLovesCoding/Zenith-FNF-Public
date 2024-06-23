@@ -25,9 +25,23 @@ class SustainNoteSpawner extends FlxBasic
 		active = false;
 	}
 
+	inline function updateMissCheck(s:SustainNote):Void
+	{
+		if (s.strum.playable)
+		{
+			_s = missable.__items[s.strum.index];
+			if (_s == Paths.idleSustain ||
+				_s.position  > s.position ||
+				s.state == IDLE)
+			{
+				missable.__items[s.strum.index] = s;
+			}
+		}
+	}
+
 	var _s(default, null):SustainNote;
 
-	public function spawn(chartSustainData:ChartBytesData.ChartNoteData, parent:Note):Void
+	public function spawn(parent:Note):Void
 	{
 		_s = SaveData.contents.experimental.fastNoteSpawning ? pool.pop() : recycle();
 
@@ -46,20 +60,24 @@ class SustainNoteSpawner extends FlxBasic
 		_s.alpha = 0.6;
 
 		_s.state = IDLE;
-		_s.mult = 1.0;
+		_s.clip = 1.0;
 
 		_s.camera = camera;
 		_s.cameras = cameras;
 		_s.frame = Paths.sustainNoteFrame.copyTo(null);
 
+		parent.child = _s;
+		parent.hasChild = true;
+		_s.parent = parent;
+
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('setupSustainData', _s, chartSustainData);
+		Main.hscript.callFromAllScripts('setupSustainData', _s);
 		#end
 
-		_s.position = chartSustainData.position;
-		_s.noteData = chartSustainData.noteData;
-		_s.length = chartSustainData.sustainLength;
-		_s.lane = chartSustainData.lane % Gameplay.strumlineCount;
+		_s.position = parent.position;
+		_s.noteData = parent.noteData;
+		_s.length = parent.sustainLength;
+		_s.lane = parent.lane % Gameplay.strumlineCount;
 		_s.targetCharacter = _s.lane == 0 ? Gameplay.instance.dad : Gameplay.instance.bf;
 
 		_sk = Gameplay.instance.strumlines.members[_s.lane].keys;
@@ -76,16 +94,12 @@ class SustainNoteSpawner extends FlxBasic
 
 		_s.downScroll = _s.strum.scrollMult < 0.0;
 
-		parent.child = _s;
-		parent.hasChild = true;
-		_s.parent = parent;
-
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('newSustain', _s);
 		#end
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('setupSustainDataPost', _s, chartSustainData);
+		Main.hscript.callFromAllScripts('setupSustainDataPost', _s);
 		#end
 	}
 
@@ -112,7 +126,7 @@ class SustainNoteSpawner extends FlxBasic
 				s.distance = 0.45 * (Main.conductor.songPosition - s.position) * Gameplay.instance.songSpeed;
 
 				if (s.state == HELD)
-					s.mult = ((s.position + s.length) - Main.conductor.songPosition) / s.length;
+					s.clip = ((s.position + s.length) - Main.conductor.songPosition) / s.length;
 
 				_updatePositionOf(s);
 
@@ -132,14 +146,7 @@ class SustainNoteSpawner extends FlxBasic
 				if (Main.conductor.songPosition > s.position - 166.7
 					&& Main.conductor.songPosition < (s.position + s.length) - (Main.conductor.stepCrochet * 0.685))
 				{
-					if (s.strum.playable)
-					{
-						_s = missable.__items[s.strum.index];
-						if (_s == Paths.idleSustain || (_s.position > s.position || s.state == IDLE))
-						{
-							missable.__items[s.strum.index] = s;
-						}
-					}
+					updateMissCheck(s);
 
 					if ((s.state == HELD && Main.conductor.songPosition > s.position) && (!s.strum.isIdle || !s.strum.playable))
 					{
@@ -217,7 +224,8 @@ class SustainNoteSpawner extends FlxBasic
 	{
 		sustain.state = MISS;
 		sustain.alpha = 0.3;
-		sustain.mult = 1.0;
+		sustain.clip = 1.0;
+		updateMissCheck(sustain);
 
 		_updatePositionOf(sustain);
 

@@ -12,28 +12,36 @@ class NoteSpawner extends FlxBasic
 	var members(default, null):Stack<Note>; // Members
 	var hittable(default, null):Stack<Note>; // Hittable
 
-	var preallocationCount:Int = 1024;
-
-	public function new(preallocationCount:Int = 0):Void
+	public function new():Void
 	{
 		super();
 
-		if (preallocationCount != 0)
-			this.preallocationCount = preallocationCount;
-
-		members = new Stack<Note>(preallocationCount, Paths.idleNote);
+		members = new Stack<Note>(2048, Paths.idleNote);
 
 		hittable = new Stack<Note>(32, Paths.idleNote);
 
 		if (SaveData.contents.experimental.fastNoteSpawning)
-			pool = new Stack<Note>(preallocationCount, Paths.idleNote);
+			pool = new Stack<Note>(2048, Paths.idleNote);
 
 		active = false;
 	}
 
+	inline function updateHitCheck(n:Note):Void
+	{
+		// Took forever to fully polish here ofc
+		_n = hittable.__items[n.strum.index];
+		if ((_n == Paths.idleNote ||
+			_n.position  > n.position ||
+			_n.state != IDLE)
+			&& Main.conductor.songPosition > n.position - 166.7)
+		{
+			hittable.__items[n.strum.index] = n;
+		}
+	}
+
 	var _n(default, null):Note;
 
-	public function spawn(chartNoteData:ChartBytesData.ChartNoteData):Void
+	public function spawn(position:Single, noteData:UInt8, length:UInt16, lane:UInt8):Void
 	{
 		_n = SaveData.contents.experimental.fastNoteSpawning ? pool.pop() : recycle();
 
@@ -57,13 +65,13 @@ class NoteSpawner extends FlxBasic
 		_n.frame = Paths.regularNoteFrame.copyTo(null);
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('setupNoteData', _n, chartNoteData);
+		Main.hscript.callFromAllScripts('setupNoteData', _n);
 		#end
 
-		_n.position = chartNoteData.position;
-		_n.noteData = chartNoteData.noteData;
-		_n.sustainLength = chartNoteData.sustainLength;
-		_n.lane = chartNoteData.lane % Gameplay.strumlineCount;
+		_n.position = position;
+		_n.noteData = noteData;
+		_n.sustainLength = length;
+		_n.lane = lane % Gameplay.strumlineCount;
 		_n.targetCharacter = _n.lane == 0 ? Gameplay.instance.dad : Gameplay.instance.bf;
 
 		_nk = Gameplay.instance.strumlines.members[_n.lane].keys;
@@ -86,12 +94,12 @@ class NoteSpawner extends FlxBasic
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('newNote', _n);
 
-		Main.hscript.callFromAllScripts('setupNoteDataPost', _n, chartNoteData);
+		Main.hscript.callFromAllScripts('setupNoteDataPost', _n);
 		#end
 
 		if (_n.sustainLength > 20) // Don't spawn too short sustains
 		{
-			Gameplay.instance.sustainNoteSpawner.spawn(chartNoteData, _n);
+			Gameplay.instance.sustainNoteSpawner.spawn(_n);
 		}
 	}
 
@@ -140,13 +148,7 @@ class NoteSpawner extends FlxBasic
 							n.state = MISS;
 						}
 
-						// Took forever to fully polish here ofc
-						_n = hittable.__items[n.strum.index];
-						if ((_n == Paths.idleNote || _n.position > n.position || _n.state != IDLE)
-							&& Main.conductor.songPosition > n.position - 166.7)
-						{
-							hittable.__items[n.strum.index] = n;
-						}
+						updateHitCheck(n);
 					}
 				}
 				else
@@ -226,12 +228,14 @@ class NoteSpawner extends FlxBasic
 		}
 
 		note.state = HIT;
+		updateHitCheck(note);
 
 		if (note.hasChild)
 		{
 			note.child.state = HELD;
-			note.child.mult = ((note.child.position + note.child.length) - Main.conductor.songPosition) / note.child.length;
+			note.child.clip = ((note.child.position + note.child.length) - Main.conductor.songPosition) / note.child.length;
 			Gameplay.instance.sustainNoteSpawner._updatePositionOf(note.child);
+			Gameplay.instance.sustainNoteSpawner.updateMissCheck(note.child);
 		}
 
 		note.exists = false;
@@ -251,6 +255,7 @@ class NoteSpawner extends FlxBasic
 		#end
 
 		note.state = MISS;
+		updateHitCheck(note);
 
 		if (note.hasChild)
 		{

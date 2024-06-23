@@ -43,8 +43,6 @@ class Main extends Sprite
 	static public var skipTransIn:Bool = false;
 	static public var skipTransOut:Bool = false;
 
-	static public var ENABLE_MULTITHREADING:Bool = false;
-
 	public function new()
 	{
 		super();
@@ -70,7 +68,6 @@ class Main extends Sprite
 		transition.x = -transition.width * 0.5;
 
 		flixel.graphics.FlxGraphic.defaultPersist = SaveData.contents.graphics.persistentGraphics;
-		ENABLE_MULTITHREADING = SaveData.contents.experimental.multithreading;
 
 		addChild(game = new Game());
 		addChild(transition);

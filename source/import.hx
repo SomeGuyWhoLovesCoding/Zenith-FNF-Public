@@ -1,3 +1,4 @@
+#if !macro
 // Engine
 import zenith.*;
 import zenith.core.*;
@@ -15,6 +16,10 @@ import flixel.util.*;
 import flixel.ui.*;
 // Signals
 import flixel.util.FlxSignal;
+// Primitive helpers (So that number types actually show the right byte size)
+import primitiveHelpers.*;
+#end
+
 
 #if !debug
 @:noDebug

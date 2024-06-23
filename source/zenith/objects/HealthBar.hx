@@ -33,23 +33,21 @@ class HealthBar extends FlxSpriteGroup
 
 	public function reloadBar(left:Array<Int>, right:Array<Int>):Void
 	{
-		if (null != __left)
+		if (__left?.exists)
 			remove(__left);
 
-		if (left.length > 1)
-			add(__left = flixel.util.FlxGradient.overlayGradientOnFlxSprite(new FlxSprite(), __width, __height, left));
-		else
+		if (left.length == 1)
 			add(__left = new FlxSprite().makeGraphic(__width, __height, left[0]));
+		else
+			add(__left = flixel.util.FlxGradient.overlayGradientOnFlxSprite(new FlxSprite(), __width, __height, left));
 
-		if (null != __right)
+		if (__right?.exists)
 			remove(__right);
 
-		if (right.length > 1)
-			add(__right = flixel.util.FlxGradient.overlayGradientOnFlxSprite(new FlxSprite(), __width, __height, right));
-		else
+		if (right.length == 1)
 			add(__right = new FlxSprite().makeGraphic(__width, __height, right[0]));
-
-		__left.pixelPerfectPosition = __right.pixelPerfectPosition = false;
+		else
+			add(__right = flixel.util.FlxGradient.overlayGradientOnFlxSprite(new FlxSprite(), __width, __height, right));
 	}
 
 	override public function update(elapsed:Float):Void {}

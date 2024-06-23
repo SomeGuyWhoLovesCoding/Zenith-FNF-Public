@@ -114,13 +114,13 @@ frame delay*
 
 ``onSustainMissPost(sustain)``: This function is called after missing a sustain note.
 
-``setupNoteData(note, chartNoteData)``: This function is called before setting up the note data for recycling.
+``setupNoteData(note)``: This function is called before setting up the note data for recycling.
 
-``setupNoteDataPost(note, chartNoteData)``: This function is called after setting up the note data for recycling.
+``setupNoteDataPost(note)``: This function is called after setting up the note data for recycling.
 
-``setupSustainData(sustain, chartNoteData)``: This function is called before setting up the sustain note data for recycling.
+``setupSustainData(sustain)``: This function is called before setting up the sustain note data for recycling.
 
-``setupSustainDataPost(sustain, chartNoteData)``: This function is called after setting up the sustain note data for recycling.
+``setupSustainDataPost(sustain)``: This function is called after setting up the sustain note data for recycling.
 
 ## Example usage
 

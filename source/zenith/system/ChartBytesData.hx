@@ -1,23 +1,14 @@
 package zenith.system;
 
 import sys.io.FileInput;
+import sys.io.FileOutput;
 import sys.io.File;
-
-// The chart note data in the most optimized format possible
-// Only 8 bytes total for each one (without extra for pointers depending on the target)
-typedef ChartNoteData =
-{
-	var position:Float32;
-	var noteData:UInt;
-	var sustainLength:UInt;
-	var lane:UInt;
-}
 
 class ChartBytesData
 {
 	public var input:FileInput;
 
-	var bytesTotal(default, null):Float = 1;
+	var bytesTotal(default, null):Int = 1;
 
 	public function new(songName:String, songDifficulty:String = 'normal'):Void
 	{
@@ -59,30 +50,28 @@ class ChartBytesData
 			strumlines: strumlines
 		});
 
-		bytesTotal = input.readFloat();
-
-		trace(Gameplay.SONG.toString());
+		bytesTotal = sys.FileSystem.stat('assets/data/$songName/chart/$songDifficulty.bin').size;
+		_readFloat();
 
 		_moveToNext();
 	}
 
-	var nextNote:ChartNoteData = {
-		position: 0.0,
-		noteData: 0,
-		sustainLength: 0,
-		lane: 0
-	};
+	// Chart note data (but with raw variables)
+	var position(default, null):Single = 0.0;
+	var noteData(default, null):UInt8 = 0;
+	var length(default, null):UInt16 = 0;
+	var lane(default, null):UInt8 = 0;
 
 	public function update():Void
 	{
 		if (bytesTotal == 0)
 			return;
 
-		while (Main.conductor.songPosition > nextNote.position - (1880.0 / Gameplay.instance.songSpeed))
+		while (Main.conductor.songPosition > position - (1880.0 / Gameplay.instance.songSpeed))
 		{
-			Gameplay.instance.noteSpawner.spawn(nextNote);
+			Gameplay.instance.noteSpawner.spawn(position, noteData, length, lane);
 
-			if (bytesTotal - input.tell() == 0)
+			if (input.tell() == bytesTotal)
 			{
 				input.close();
 				bytesTotal = 0;
@@ -95,10 +84,10 @@ class ChartBytesData
 
 	inline function _moveToNext():Void
 	{
-		nextNote.position = _readFloat();
-		nextNote.noteData = inline input.readByte();
-		nextNote.sustainLength = _readUInt16();
-		nextNote.lane = inline input.readByte();
+		position = _readFloat();
+		noteData = inline input.readByte();
+		length = _readUInt16();
+		lane = inline input.readByte();
 	}
 
 	static public function saveChartFromJson(songName:String, songDifficulty:String):Void
@@ -109,7 +98,7 @@ class ChartBytesData
 
 		trace('Done! Now let\'s start writing to "assets/data/$songName/chart/$songDifficulty.bin".');
 
-		var output = File.write('assets/data/$songName/chart/$songDifficulty.bin');
+		var output:FileOutput = File.write('assets/data/$songName/chart/$songDifficulty.bin');
 
 		// Song
 		inline output.writeByte(json.song.length);
@@ -130,12 +119,12 @@ class ChartBytesData
 		output.writeString(json.info.player2);
 
 		// Spectator
-		inline output.writeByte(json.info.spectator != null ? json.info.spectator.length : 2);
-		output.writeString(json.info.spectator != null ? json.info.spectator : "gf");
+		inline output.writeByte(json.info.spectator.length ?? 2);
+		output.writeString(json.info.spectator ?? "gf");
 
 		// Stage
-		inline output.writeByte(json.info.stage != null ? json.info.stage.length : 5);
-		output.writeString(json.info.stage != null ? json.info.stage : "stage");
+		inline output.writeByte(json.info.stage.length ?? 5);
+		output.writeString(json.info.stage ?? "stage");
 
 		// Time signature (steps)
 		inline output.writeByte(json.info.time_signature[0]);
@@ -148,16 +137,6 @@ class ChartBytesData
 
 		// Strumline count
 		inline output.writeByte(json.info.strumlines);
-
-		// Pretty
-		inline output.writeFloat((json.song.length
-			+ 9
-			+ (json.info.player1.length + 1)
-			+ (json.info.player2.length + 1)
-			+ (json.info.spectator != null ? json.info.spectator.length + 1 : 3)
-			+ (json.info.stage != null ? json.info.stage.length + 1 : 6)
-			+ 8)
-			+ (json.noteData.length * 8));
 
 		for (note in json.noteData)
 		{
@@ -223,7 +202,7 @@ class ChartBytesData
 	// Inlined functions to improve performance when streaming bytes
 	// This is just the rest of ChartBytesData lol
 
-	inline function _readUInt16():Int
+	inline function _readUInt16():UInt16
 	{
 		var ch1 = inline input.readByte();
 		var ch2 = inline input.readByte();
@@ -251,7 +230,7 @@ class ChartBytesData
 		#end
 	}
 
-	inline function _readFloat():Float32
+	inline function _readFloat():Single
 	{
 		return inline haxe.io.FPHelper.i32ToFloat(_readInt32());
 	}

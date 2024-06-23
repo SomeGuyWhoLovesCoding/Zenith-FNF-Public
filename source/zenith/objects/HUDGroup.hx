@@ -11,7 +11,7 @@ import flixel.math.FlxMath;
 @:final
 class HUDGroup extends FlxSpriteGroup
 {
-	public var comboNums:Array<Atlas>;
+	public var comboNums:Array<FlxSprite>;
 	public var oppIcon:HealthIcon;
 	public var plrIcon:HealthIcon;
 	public var healthBar:HealthBar;
@@ -28,20 +28,21 @@ class HUDGroup extends FlxSpriteGroup
 		comboNums = [
 			for (i in 0...10)
 			{
-				var comboNum:Atlas = new Atlas(Paths.image('ui/comboNums'), 10, 1);
+				var comboNum:FlxSprite = new FlxSprite().loadGraphic(Paths.image('ui/comboNums'), true, 94, 119);
 				comboNum.scale.set(0.9, 0.9);
-				comboNum.x = 900 - ((comboNum._frame.frame.width * 0.85) * i);
+				comboNum.x = 900 - ((comboNum.width * 0.85) * i);
 				comboNum.y = 350;
 				comboNum.antialiasing = true;
 				comboNum.camera = Gameplay.instance.hudCamera;
-				comboNum.active = comboNum.moves = comboNum.visible = false;
+				comboNum.active = comboNum.moves = false;
+				comboNum.animation.add('preview', [for (i in 0...10) i], 0);
+				comboNum.animation.play('preview');
 				comboNum;
 			}
 		];
 
-		oppIcon = new HealthIcon(Gameplay.instance.dad);
-		plrIcon = new HealthIcon(Gameplay.instance.bf);
-		plrIcon.flipX = true;
+		oppIcon = new HealthIcon(Gameplay.instance.dad.healthIcon);
+		plrIcon = new HealthIcon(Gameplay.instance.bf.healthIcon, true);
 
 		healthBar = new HealthBar(0, Gameplay.downScroll ? 60.0 : FlxG.height - 86.0, [0xFFFF0000], [0xFF00FF00], 600, 24);
 		healthBar.top = new FlxSprite().loadGraphic(Paths.image('ui/healthBarBG'));
@@ -50,6 +51,7 @@ class HUDGroup extends FlxSpriteGroup
 		add(healthBar);
 
 		oppIcon.y = plrIcon.y = healthBar.y - 60.0;
+		oppIcon.parent = plrIcon.parent = healthBar;
 
 		add(oppIcon);
 		add(plrIcon);
@@ -108,24 +110,28 @@ class HUDGroup extends FlxSpriteGroup
 			FlxColor.fromRGB(Gameplay.instance.bf.healthColorArray[0], Gameplay.instance.bf.healthColorArray[1], Gameplay.instance.bf.healthColorArray[2]));
 	}
 
-	var comboNum(default, null):Atlas;
+	var comboNum(default, null):FlxSprite;
 
 	public function updateRatings():Void
 	{
 		for (i in 0...10)
 		{
+			if (Gameplay.instance.combo <= Math.pow(10, i) && (Gameplay.instance.combo == 0 || i > 2))
+			{
+				break;
+			}
+
 			comboNum = comboNums[i];
-			comboNum.updatePosW(Gameplay.instance.combo / Math.pow(10, i));
-			comboNum.visible = Gameplay.instance.combo >= Math.pow(10, i) || (Gameplay.instance.combo != 0 && i < 3);
+			comboNum.animation.curAnim.curFrame = Std.int(Gameplay.instance.combo / Math.pow(10, i)) % 10;
 			comboNum.y = 320;
 			comboNum.alpha = 1.0;
 		}
 	}
 
-	public function updateIcons():Void
+	inline public function updateIcons():Void
 	{
-		plrIcon.updatePosW(healthBar.value < 0.4 ? 1 : 0);
-		oppIcon.updatePosW(healthBar.value > 1.6 ? 1 : 0);
+		plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;
+		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
 	}
 
 	var _timeTxtValue:Float = 0.0;
@@ -136,9 +142,6 @@ class HUDGroup extends FlxSpriteGroup
 
 		scoreTxt.screenCenter(X);
 		timeTxt.screenCenter(X);
-
-		oppIcon.x = healthBar.width * (1 - (healthBar.value / healthBar.maxValue) + 0.5) - 75.0;
-		plrIcon.x = oppIcon.x + 105.0;
 
 		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0.0, healthBar.maxValue),
 			SaveData.contents.preferences.smoothHealth ? FlxG.elapsed * 8.0 : 1.0);
@@ -155,11 +158,12 @@ class HUDGroup extends FlxSpriteGroup
 
 		for (i in 0...10)
 		{
-			comboNum = comboNums[i];
-
-			if (!comboNum.visible)
+			if (Gameplay.instance.combo <= Math.pow(10, i) && (Gameplay.instance.combo == 0 || i > 2))
+			{
 				break;
+			}
 
+			comboNum = comboNums[i];
 			comboNum.y = FlxMath.lerp(comboNum.y, 350, FlxG.elapsed * 8.0);
 			comboNum.alpha = FlxMath.lerp(comboNum.alpha, 0.0, FlxG.elapsed * 4.0);
 			comboNum.draw();
