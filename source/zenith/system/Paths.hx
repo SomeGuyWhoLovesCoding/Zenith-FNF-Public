@@ -96,6 +96,8 @@ class Paths
 		strumNoteAnimationHolder.animation.addByPrefix('pressed', 'press', 12, false);
 		strumNoteAnimationHolder.animation.addByPrefix('confirm', 'confirm', 24, false);
 
+		idleStrumNote._reset();
+
 		noteAnimationHolder.loadGraphic(image('ui/noteskins/Regular/Note'));
 		sustainAnimationHolder.loadGraphic(image('ui/noteskins/Regular/Sustain'));
 

@@ -61,6 +61,7 @@ class HScriptFile
 			interp.variables.set('Main', Main);
 			interp.variables.set('this', Main.hscript);
 			interp.variables.set('Gameplay', Gameplay);
+			interp.variables.set('game', Gameplay.instance);
 			interp.variables.set('Utils', Utils);
 			interp.variables.set('Conductor', Conductor);
 			interp.variables.set('NoteBase', NoteBase);
@@ -76,7 +77,7 @@ class HScriptFile
 			interp.variables.set('FlxSound', FlxSound);
 			interp.variables.set('Math', Math);
 			interp.variables.set('Std', Std);
-			interp.variables.set('List', List);
+			interp.variables.set('Array', Array);
 
 			// Menus and shit you can modify
 			interp.variables.set('TitleScreen', TitleScreen);

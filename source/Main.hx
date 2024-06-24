@@ -136,11 +136,13 @@ class Main extends Sprite
 
 	static public function updateMain(elapsed:Float):Void
 	{
-		if (FlxG.game._lostFocus && FlxG.autoPause)
+		if (game._lostFocus && FlxG.autoPause)
+		{
 			return;
+		}
 
 		// Framerate rework
-		fps += fps > Math.round(1 / elapsed) ? -1 : 1;
+		fps += fps > Std.int(1.0 / elapsed) ? -1 : 1;
 
 		if (volumeTxt != null)
 		{
@@ -171,7 +173,9 @@ class Main extends Sprite
 		transition.y = transitionY;
 
 		if (transitionY < 720 * transition.scaleY)
+		{
 			transitionY += (1585 * transition.scaleY) * elapsed;
+		}
 
 		if (transitionY > -transition.height * 0.6)
 		{
@@ -193,7 +197,7 @@ class Main extends Sprite
 		var window:Window;
 		NativeCFFI.lime_key_event_manager_register(function():Void
 		{
-			if (FlxG.game._lostFocus && FlxG.autoPause) // How come none other fnf engines do this? I wonder why lol
+			if (game._lostFocus && FlxG.autoPause) // How come none other fnf engines do this? I wonder why lol
 			{
 				return;
 			}
@@ -254,7 +258,7 @@ class Main extends Sprite
 
 		NativeCFFI.lime_application_event_manager_register(function():Void
 		{
-			if (FlxG.game._lostFocus && FlxG.autoPause) // How come none other fnf engines do this? I wonder why lol
+			if (game._lostFocus && FlxG.autoPause) // How come none other fnf engines do this? I wonder why lol
 			{
 				return;
 			}
@@ -271,7 +275,7 @@ class Main extends Sprite
 		NativeCFFI.lime_joystick_event_manager_register(null, backend.joystickEventInfo);
 		NativeCFFI.lime_mouse_event_manager_register(function():Void
 		{
-			if (FlxG.game._lostFocus && FlxG.autoPause) // How come none other fnf engines do this? I wonder why lol
+			if (game._lostFocus && FlxG.autoPause) // How come none other fnf engines do this? I wonder why lol
 			{
 				return;
 			}

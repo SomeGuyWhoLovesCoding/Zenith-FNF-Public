@@ -3,6 +3,7 @@ package zenith.objects;
 import flixel.math.FlxRect;
 import flixel.math.FlxMath;
 
+@:access(flixel.FlxGame)
 class HealthIcon extends FlxSprite
 {
 	public var isPlayer:Bool = false;
@@ -84,6 +85,13 @@ class HealthIcon extends FlxSprite
 
 	override function draw():Void
 	{
+		super.draw();
+
+		if (FlxG.game._lostFocus && FlxG.autoPause)
+		{
+			return;
+		}
+
 		_scaleB = FlxMath.lerp(_scaleB, 0.0, FlxG.elapsed * 8.0);
 		scale.x = scale.y = _scaleA + _scaleB;
 		_scaleA -= (_scaleA - 1.0) * (60.0 * FlxG.elapsed);
@@ -94,7 +102,5 @@ class HealthIcon extends FlxSprite
 			x = (parent.x + (parent.width * (1.0 - (parent.value / parent.maxValue))) - (150.0 * scale.x) * 0.5) - 22.0 * 2.0;
 
 		y = parent.y - (60.0 / scale.y);
-
-		super.draw();
 	}
 }

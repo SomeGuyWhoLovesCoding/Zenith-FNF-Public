@@ -35,7 +35,7 @@ class Stack<T>
 	 *
 	 * @param length Optional. The initial size of the internal array used to store elements.
 	 */
-	public function new(?length:Int, ?objectFactory:T)
+	inline public function new(?length:Int, ?objectFactory:T)
 	{
 		__items = new Array();
 		__top = 0;
@@ -61,7 +61,7 @@ class Stack<T>
 	 *
 	 * @param item The element to push onto the stack.
 	 */
-	public inline function push(item:T):Void
+	inline public function push(item:T):Void
 	{
 		if (__top >= __items.length)
 		{
@@ -75,7 +75,7 @@ class Stack<T>
 	 *
 	 * @return The element at the top of the stack, or `null` if the stack is empty.
 	 */
-	public inline function pop():Null<T>
+	inline public function pop():Null<T>
 	{
 		return __top != 0 ? __items[--__top] : null;
 	}
@@ -85,7 +85,7 @@ class Stack<T>
 	 *
 	 * @param dispose Optional. If `true`, the internal array is resized to zero.
 	 */
-	public inline function clear(dispose:Bool = false):Void
+	inline public function clear(dispose:Bool = false):Void
 	{
 		__top = 0;
 		if (dispose)
@@ -99,12 +99,12 @@ class Stack<T>
 	 *
 	 * @return The element at the top of the stack, or `null` if the stack is empty.
 	 */
-	public inline function last():Null<T>
+	inline public function last():Null<T>
 	{
 		return __top != 0 ? __items[__top - 1] : null;
 	}
 
-	public inline function iterator():Iterator<T>
+	inline public function iterator():Iterator<T>
 	{
 		return __items.iterator();
 	}

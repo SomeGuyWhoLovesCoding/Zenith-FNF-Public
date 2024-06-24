@@ -40,6 +40,8 @@
 
 	<!-- _______________________________ Libraries ______________________________ -->
 
+	<haxelib name="hscript" />
+
 	<haxelib name="flixel" />
 	<haxelib name="flixel-addons" />
 

@@ -115,11 +115,11 @@ class Gameplay extends State
 		Main.hscript.callFromAllScripts('onKeyDown', keyCode, keyModifier);
 		#end
 
-		if (inputKeybinds[keyCode % 1024] != Paths.idleStrumNote && generatedMusic && !cpuControlled)
+		if (generatedMusic && !cpuControlled)
 		{
-			st = inputKeybinds[keyCode % 1024];
+			st = inputKeybinds[keyCode % 1024] ?? Paths.idleStrumNote;
 
-			if (st.isIdle && st.animation.curAnim.name != "confirm")
+			if (st.isIdle && st.animation?.curAnim?.name != "confirm")
 			{
 				st.isIdle = false;
 				st.playAnim("pressed");
@@ -138,11 +138,11 @@ class Gameplay extends State
 		Main.hscript.callFromAllScripts('onKeyUp', keyCode, keyModifier);
 		#end
 
-		if (inputKeybinds[keyCode % 1024] != Paths.idleStrumNote && generatedMusic && !cpuControlled)
+		if (generatedMusic && !cpuControlled)
 		{
-			st = inputKeybinds[keyCode % 1024];
+			st = inputKeybinds[keyCode % 1024] ?? Paths.idleStrumNote;
 
-			if (!st.isIdle && st.animation.curAnim.name != "static")
+			if (!st.isIdle && st.animation?.curAnim?.name != "static")
 			{
 				st.isIdle = true;
 				st.playAnim("static");
@@ -555,10 +555,12 @@ class Gameplay extends State
 		hudCameraZoomTween = zoomTweenFunction(hudCamera, 1);
 	}
 
-	private function resetKeybinds(?customBinds:Array<Array<Int>>):Void
+	public function resetKeybinds(?customBinds:Array<Array<Int>>):Void
 	{
 		final playerStrum = strumlines.members[1]; // Prevent redundant array access
 		final binds = customBinds ?? SaveData.contents.controls.GAMEPLAY_BINDS;
+
+		inputKeybinds.resize(0);
 
 		for (i in 0...1024)
 		{

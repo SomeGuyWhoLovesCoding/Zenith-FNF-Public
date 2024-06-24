@@ -147,9 +147,7 @@ class HScriptSystem
 
 	public dynamic function error(e:haxe.Exception):Void
 	{
-		#if debug
 		trace(e.message);
-		#end
 	}
 }
 #end

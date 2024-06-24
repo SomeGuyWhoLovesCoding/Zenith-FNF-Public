@@ -7,9 +7,9 @@ package zenith.objects;
 @:access(Stack)
 class Strumline extends FlxBasic
 {
-	public var keys(default, set):UInt8;
+	public var keys(default, set):UInt;
 
-	function set_keys(value:UInt8):UInt8
+	function set_keys(value:UInt):UInt
 	{
 		for (i in 0...value)
 		{
@@ -42,29 +42,29 @@ class Strumline extends FlxBasic
 		return keys = value;
 	}
 
-	public var lane:UInt8 = 0;
+	public var lane:UInt = 0;
 	public var player:Bool = false;
 	public var downScroll:Bool = false;
 
-	public var x(default, set):Single;
+	public var x(default, set):Float;
 
-	function set_x(value:Single):Single
+	function set_x(value:Float):Float
 	{
 		moveX(value);
 		return x = value;
 	}
 
-	public var y(default, set):Single;
+	public var y(default, set):Float;
 
-	function set_y(value:Single):Single
+	function set_y(value:Float):Float
 	{
 		moveY(value);
 		return y = value;
 	}
 
-	public var alpha(default, set):Single;
+	public var alpha(default, set):Float;
 
-	function set_alpha(value:Single):Single
+	function set_alpha(value:Float):Float
 	{
 		if (members.length == 0)
 			return alpha;
@@ -79,9 +79,9 @@ class Strumline extends FlxBasic
 
 	public var members:Array<StrumNote> = [];
 
-	public var gap(default, set):Single;
+	public var gap(default, set):Float;
 
-	function set_gap(value:Single):Single
+	function set_gap(value:Float):Float
 	{
 		if (members.length == 0)
 			return gap;
@@ -92,9 +92,9 @@ class Strumline extends FlxBasic
 		return gap = value;
 	}
 
-	public var scale(default, set):Single;
+	public var scale(default, set):Float;
 
-	function set_scale(value:Single):Single
+	function set_scale(value:Float):Float
 	{
 		if (members.length == 0)
 			return scale;
@@ -126,7 +126,7 @@ class Strumline extends FlxBasic
 		return playable = value;
 	}
 
-	public function new(keys:UInt8 = 4, lane:UInt8 = 0, playable:Bool = false):Void
+	public function new(keys:UInt = 4, lane:UInt = 0, playable:Bool = false):Void
 	{
 		super();
 
@@ -173,7 +173,7 @@ class Strumline extends FlxBasic
 		}
 	}
 
-	public function moveX(x:Single):Void
+	public function moveX(x:Float):Void
 	{
 		if (members.length == 0)
 			return;
@@ -184,7 +184,7 @@ class Strumline extends FlxBasic
 		}
 	}
 
-	public function moveY(y:Single):Void
+	public function moveY(y:Float):Void
 	{
 		if (members.length == 0)
 			return;
@@ -217,7 +217,7 @@ class Strumline extends FlxBasic
 		}
 	}
 
-	public dynamic function singAnimations(data:UInt8):String
+	public dynamic function singAnimations(data:UInt):String
 	{
 		switch (data)
 		{

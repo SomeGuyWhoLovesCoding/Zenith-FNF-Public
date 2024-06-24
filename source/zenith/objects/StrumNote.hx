@@ -7,8 +7,8 @@ import flixel.animation.FlxAnimation;
 @:access(flixel.animation.FlxAnimation)
 class StrumNote extends FlxSprite
 {
-	public var noteData:UInt8 = 0;
-	public var player:UInt8 = 0;
+	public var noteData:UInt = 0;
+	public var player:UInt = 0;
 	public var scrollMult:Float = 1.0;
 	public var playable(default, set):Bool = false;
 
@@ -20,7 +20,7 @@ class StrumNote extends FlxSprite
 
 	public var parent:Strumline;
 
-	public var index:UInt8 = 0;
+	public var index:UInt = 0;
 
 	public var isIdle:Bool = true;
 
