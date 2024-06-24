@@ -116,13 +116,13 @@ class HUDGroup extends FlxSpriteGroup
 	{
 		for (i in 0...10)
 		{
-			if (Gameplay.instance.combo <= Math.pow(10, i) && (Gameplay.instance.combo == 0 || i > 2))
+			if (game.combo <= Math.pow(10, i) && (game.combo == 0 || i > 2))
 			{
 				break;
 			}
 
 			comboNum = comboNums[i];
-			comboNum.animation.curAnim.curFrame = Std.int(Gameplay.instance.combo / Math.pow(10, i)) % 10;
+			comboNum.animation.curAnim.curFrame = Std.int(game.combo / Math.pow(10, i)) % 10;
 			comboNum.y = 320;
 			comboNum.alpha = 1.0;
 		}
@@ -134,7 +134,7 @@ class HUDGroup extends FlxSpriteGroup
 		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
 	}
 
-	var _timeTxtValue:Float = 0.0;
+	var _timeTxtValue:Single = 0.0;
 	override function draw():Void
 	{
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
@@ -143,22 +143,22 @@ class HUDGroup extends FlxSpriteGroup
 		scoreTxt.screenCenter(X);
 		timeTxt.screenCenter(X);
 
-		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0.0, healthBar.maxValue),
+		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(game.health, 0.0, healthBar.maxValue),
 			SaveData.contents.preferences.smoothHealth ? FlxG.elapsed * 8.0 : 1.0);
 
-		if (Gameplay.instance.startedCountdown)
+		if (game.startedCountdown)
 		{
 			oppIcon.alpha = plrIcon.alpha = healthBar.alpha = scoreTxt.alpha = timeTxt.alpha += (FlxG.elapsed * 8.0) * (1.0 - timeTxt.alpha);
 			if (Main.conductor.songPosition - _timeTxtValue > 1000.0)
 			{
 				_timeTxtValue = Main.conductor.songPosition;
-				timeTxt.text = Utils.formatTime(FlxMath.bound(Gameplay.instance.songLength - _timeTxtValue, 0.0, Gameplay.instance.songLength), true, false);
+				timeTxt.text = Utils.formatTime(FlxMath.bound(gamr.songLength - _timeTxtValue, 0.0, game.songLength), true, false);
 			}
 		}
 
 		for (i in 0...10)
 		{
-			if (Gameplay.instance.combo <= Math.pow(10, i) && (Gameplay.instance.combo == 0 || i > 2))
+			if (game.combo <= Math.pow(10, i) && (game.combo == 0 || i > 2))
 			{
 				break;
 			}
