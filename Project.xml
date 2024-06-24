@@ -78,6 +78,11 @@
 	<haxedef name="HXCPP_STACK_LINE" />
 	<haxedef name="HXCPP_STACK_TRACE" />
 
+	<!-- Haxe 4.3.0+: Enable pretty syntax errors and stuff. -->
+	<!-- pretty (haxeflixel default), indent, classic (haxe compiler default) -->
+	<haxedef name="message.reporting" value="pretty" />
+	<!-- (Love you haxe) />
+
 	<!-- _________________________________ Custom _______________________________ -->
 
 	<!--Place custom nodes like icons here (higher priority to override the HaxeFlixel icon)-->

@@ -710,9 +710,7 @@ class Gameplay extends State
 
 	public var inputKeybinds:Array<StrumNote> = new Array<StrumNote>();
 
-	var nd(default, null):Array<Single>;
 	var st(default, null):StrumNote;
-
 	var _songPos(default, null):Single = -5000.0;
 
 	function loadChart():Void
