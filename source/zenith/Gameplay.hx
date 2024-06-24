@@ -107,6 +107,8 @@ class Gameplay extends State
 	public var camFollowPos:FlxObject;
 	public var camFollowPosTween(default, null):FlxTween;
 
+	static public var instance:Gameplay;
+
 	public function onKeyDown(keyCode:Int, keyModifier:Int):Void
 	{
 		#if SCRIPTING_ALLOWED
@@ -157,7 +159,7 @@ class Gameplay extends State
 	{
 		Paths.initNoteShit(); // Do NOT remove this or the game will crash
 
-		game = this;
+		instance = this;
 
 		// Preferences stuff
 
