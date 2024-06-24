@@ -18,6 +18,8 @@ import flixel.ui.*;
 import flixel.util.FlxSignal;
 // Primitive helpers (So that number types actually show the right byte size)
 import primitiveHelpers.*;
+// Shortcuts
+using zenith.Shortcuts;
 #end
 
 
