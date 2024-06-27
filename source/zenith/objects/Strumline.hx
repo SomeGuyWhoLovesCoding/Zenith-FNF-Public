@@ -7,9 +7,9 @@ package zenith.objects;
 @:access(Stack)
 class Strumline extends FlxBasic
 {
-	public var keys(default, set):UInt;
+	public var keys(default, set):Int;
 
-	function set_keys(value:UInt):UInt
+	function set_keys(value:Int):Int
 	{
 		for (i in 0...value)
 		{
@@ -42,7 +42,7 @@ class Strumline extends FlxBasic
 		return keys = value;
 	}
 
-	public var lane:UInt = 0;
+	public var lane:Int = 0;
 	public var player:Bool = false;
 	public var downScroll:Bool = false;
 
@@ -126,7 +126,7 @@ class Strumline extends FlxBasic
 		return playable = value;
 	}
 
-	public function new(keys:UInt = 4, lane:UInt = 0, playable:Bool = false):Void
+	public function new(keys:Int = 4, lane:Int = 0, playable:Bool = false):Void
 	{
 		super();
 
@@ -217,7 +217,7 @@ class Strumline extends FlxBasic
 		}
 	}
 
-	public dynamic function singAnimations(data:UInt):String
+	public dynamic function singAnimations(data:Int):String
 	{
 		switch (data)
 		{
