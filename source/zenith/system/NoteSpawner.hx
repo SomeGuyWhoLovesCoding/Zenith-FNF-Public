@@ -41,7 +41,7 @@ class NoteSpawner extends FlxBasic
 
 	var _n(default, null):Note;
 
-	public function spawn(position:Single, noteData:UInt8, length:UInt16, lane:UInt8):Void
+	public function spawn(position:Single, noteData:Int, length:Int, lane:Int):Void
 	{
 		_n = SaveData.contents.experimental.fastNoteSpawning ? pool.pop() : recycle();
 
@@ -70,7 +70,7 @@ class NoteSpawner extends FlxBasic
 
 		_n.position = position;
 		_n.noteData = noteData;
-		_n.sustainLength = length;
+		_n.sustainLength = length << 5; // Equivalent to lengt * 32
 		_n.lane = lane % Gameplay.strumlineCount;
 		_n.targetCharacter = _n.lane == 0 ? Gameplay.instance.dad : Gameplay.instance.bf;
 
@@ -80,10 +80,10 @@ class NoteSpawner extends FlxBasic
 		_n.strum = Gameplay.instance.strumlines.members[_n.lane].members[_n.noteData % _nk];
 		_n.scale.set(_n.strum.scale.x, _n.strum.scale.y);
 
-		_n.offset.x = -0.5 * ((_n.frameWidth * _n.scale.x) - _n.frameWidth);
-		_n.offset.y = -0.5 * ((_n.frameHeight * _n.scale.y) - _n.frameHeight);
-		_n.origin.x = _n.frameWidth * 0.5;
-		_n.origin.y = _n.frameHeight * 0.5;
+		_n.offset.x = Std.int((-_n.frameWidth * _n.scale.x) + _n.frameWidth) >> 1;
+		_n.offset.y = Std.int((-_n.frameHeight * _n.scale.y) + _n.frameHeight) >> 1;
+		_n.origin.x = _n.frameWidth >> 1;
+		_n.origin.y = _n.frameHeight >> 1;
 
 		_n.color = NoteBase.colorArray[_n.noteData % _nk];
 		_n.angle = NoteBase.angleArray[_n.noteData % _nk];
@@ -116,10 +116,9 @@ class NoteSpawner extends FlxBasic
 				n.draw();
 
 				n.scale.set(n.strum.scale.x, n.strum.scale.y);
-				n.offset.x = -0.5 * (n.frameWidth - n.frameWidth);
-				n.offset.y = -0.5 * (n.frameHeight - n.frameHeight);
-				n.origin.x = n.frameWidth * 0.5;
-				n.origin.y = n.frameHeight * 0.5;
+				n.offset.x = n.offset.y = 0.0;
+				n.origin.x = n.frameWidth >> 1;
+				n.origin.y = n.frameHeight >> 1;
 
 				n.distance = 0.45 * (Main.conductor.songPosition - n.position) * Gameplay.instance.songSpeed;
 				n.x = n.strum.x + n.offsetX + (-Math.abs(n.strum.scrollMult) * n.distance) * FlxMath.fastCos(FlxAngle.asRadians(n.direction - 90.0));
@@ -172,20 +171,28 @@ class NoteSpawner extends FlxBasic
 	public function handlePress(strum:StrumNote):Void
 	{
 		_n = hittable.__items[strum.index];
-		if (strum != null
-			&& !strum.isIdle
-			&& strum.playable
-			&& _n.state == IDLE
-			&& Main.conductor.songPosition > _n.position - (166.7 * Gameplay.instance.songSpeed))
+
+		try
 		{
-			onNoteHit(_n);
-
-			if (SaveData.contents.experimental.fastNoteSpawning)
+			if (strum != null
+				&& !strum.isIdle
+				&& strum.playable
+				&& _n.state == IDLE
+				&& Main.conductor.songPosition > _n.position - (166.7 * Gameplay.instance.songSpeed))
 			{
-				pool.push(_n);
+				onNoteHit(_n);
+	
+				if (SaveData.contents.experimental.fastNoteSpawning)
+				{
+					pool.push(_n);
+				}
+	
+				hittable.__items[strum.index] = Paths.idleNote;
 			}
-
-			hittable.__items[strum.index] = Paths.idleNote;
+		}
+		catch (e)
+		{
+			trace(e);
 		}
 	}
 

@@ -301,7 +301,7 @@ class Gameplay extends State
 
 		FlxG.maxElapsed = FlxG.elapsed;
 
-		loadChart();
+		chartBytesData = new ChartBytesData(curSong, curDifficulty);
 
 		// What happens if you load a song with a bpm of under 10? Limit it.
 		Main.conductor.bpm = SONG.info.bpm = Math.max(SONG.info.bpm, 10.0);
@@ -712,15 +712,6 @@ class Gameplay extends State
 
 	var st(default, null):StrumNote;
 	var _songPos(default, null):Single = -5000.0;
-
-	function loadChart():Void
-	{
-		if (FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.json')
-			&& !FileSystem.exists('assets/data/$curSong/chart/$curDifficulty.bin'))
-			ChartBytesData.saveChartFromJson(curSong, curDifficulty);
-
-		chartBytesData = new ChartBytesData(curSong, curDifficulty);
-	}
 
 	public function changeScrollSpeed(newSpeed:Single, tweenDuration:Single = 1.0):Void
 	{

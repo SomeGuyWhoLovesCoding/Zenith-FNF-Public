@@ -86,8 +86,8 @@ class SustainNoteSpawner extends FlxBasic
 		_s.strum = Gameplay.instance.strumlines.members[_s.lane].members[_s.noteData % _sk];
 		_s.scale.set(_s.strum.scale.x, _s.strum.scale.y);
 
-		_s.offset.x = -0.5 * ((_s.frameWidth * _s.scale.x) - _s.frameWidth);
-		_s.origin.x = _s.frameWidth * 0.5;
+		_s.offset.x = Std.int((-_s.frameWidth * _s.scale.x) + _s.frameWidth) >> 1;
+		_s.origin.x = _s.frameWidth >> 1;
 		_s.origin.y = _s.offset.y = 0.0;
 
 		_s.color = NoteBase.colorArray[_s.noteData % _sk];
@@ -119,8 +119,8 @@ class SustainNoteSpawner extends FlxBasic
 				}
 
 				s.scale.set(s.strum.scale.x, s.strum.scale.y);
-				s.offset.x = -0.5 * ((s.frameWidth * s.scale.x) - s.frameWidth);
-				s.origin.x = s.frameWidth * 0.5;
+				s.offset.x = Std.int((-s.frameWidth * s.scale.x) + s.frameWidth) >> 1;
+				s.origin.x = s.frameWidth >> 1;
 				s.origin.y = s.offset.y = 0.0;
 
 				s.distance = 0.45 * (Main.conductor.songPosition - s.position) * Gameplay.instance.songSpeed;

@@ -1,6 +1,6 @@
 package zenith.enums;
 
-enum abstract NoteState(UInt8) to UInt8
+enum abstract NoteState(Int) to Int
 {
 	var IDLE;
 	var HELD;

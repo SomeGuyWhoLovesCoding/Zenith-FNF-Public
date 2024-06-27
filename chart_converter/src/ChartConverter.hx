@@ -28,7 +28,6 @@ typedef PsychSwagSong =
 	var gfVersion:String;
 	var stage:String;
 
-	@:optional var offset:Null<Int>; // For the "Sync notes to beat" option
 	@:optional var strumlines:Int;
 }
 
@@ -41,7 +40,6 @@ typedef SongInfo =
 	var speed:Float;
 	var bpm:Float;
 	var time_signature:Array<Int>;
-	var offset:Null<Int>;
 	var needsVoices:Bool;
 	@:optional var strumlines:Int;
 }
@@ -71,7 +69,8 @@ class ChartConverter
 			var songPosition:Float = 0.0;
 			var currentBPM:Float = 0.0;
 
-			var songImported:PsychSwagSong = haxe.Json.parse(sys.io.File.getContent(Sys.args()[0])).song;
+			var contents:String = sys.io.File.getContent(Sys.args()[0]);
+			var songImported:PsychSwagSong = haxe.Json.parse(contents).song;
 
 			var result:SwagSong = {
 				song: songImported.song,
@@ -83,7 +82,6 @@ class ChartConverter
 					speed: songImported.speed,
 					bpm: currentBPM = songImported.bpm,
 					time_signature: [4, 4],
-					offset: songImported.offset,
 					needsVoices: songImported.needsVoices,
 					strumlines: 2
 				},
@@ -97,19 +95,12 @@ class ChartConverter
 			for (i in 0...songImported.notes.length)
 			{
 				var section:SwagSection = songImported.notes[i];
-				songPosition += (60000.0 / currentBPM) * getBeatsOnSection(songImported, i);
+				songPosition += (60000.0 / currentBPM) * (songImported.notes[i].sectionBeats ?? 4);
 
 				if (section.changeBPM)
 					result.bpmChanges.push([currentBPM, songPosition]);
 
-				for (songNotes in section.sectionNotes)
-					result.noteData.push([
-						songNotes[0],
-						Std.int(songNotes[1] % 4),
-						songNotes[2],
-						section.mustHitSection || songNotes[1] > 3 ? result.info.strumlines - 1 : 0,
-						0
-					]);
+				convertSectionNotes(section, result);
 			}
 
 			result.noteData.sort((a:Array<Float>, b:Array<Float>) -> Std.int(a[0] - b[0]));
@@ -121,10 +112,15 @@ class ChartConverter
 		}
 	}
 
-	inline static function getBeatsOnSection(SONG:PsychSwagSong, curSection:Int):Float
+	static function convertSectionNotes(section:SwagSection, result:SwagSong):Void
 	{
-		var val:Null<Float> = 4;
-		if (null != SONG && null != SONG.notes[curSection]) val = SONG.notes[curSection].sectionBeats;
-		return null == val ? 4 : val;
+		for (songNotes in section.sectionNotes)
+		result.noteData.push([
+			songNotes[0],
+			Std.int(songNotes[1] % 4),
+			songNotes[2],
+			songNotes[1] > 3 || !section.mustHitSection ? result.info.strumlines - 1 : 0,
+			0
+		]);
 	}
 }

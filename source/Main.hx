@@ -197,11 +197,6 @@ class Main extends Sprite
 		var window:Window;
 		NativeCFFI.lime_key_event_manager_register(function():Void
 		{
-			if (game._lostFocus && FlxG.autoPause) // How come none other fnf engines do this? I wonder why lol
-			{
-				return;
-			}
-
 			if (backend.keyEventInfo.type == KEY_UP)
 			{
 				if (Gameplay.instance == FlxG.state && !Gameplay.instance?.paused)
@@ -258,12 +253,7 @@ class Main extends Sprite
 
 		NativeCFFI.lime_application_event_manager_register(function():Void
 		{
-			if (game._lostFocus && FlxG.autoPause) // How come none other fnf engines do this? I wonder why lol
-			{
-				return;
-			}
-
-			if (backend.applicationEventInfo.type == UPDATE)
+			if (backend.applicationEventInfo.type == UPDATE && (!game._lostFocus || !FlxG.autoPause))
 			{
 				backend.updateTimer();
 				backend.parent.onUpdate.dispatch(backend.applicationEventInfo.deltaTime);
@@ -275,11 +265,6 @@ class Main extends Sprite
 		NativeCFFI.lime_joystick_event_manager_register(null, backend.joystickEventInfo);
 		NativeCFFI.lime_mouse_event_manager_register(function():Void
 		{
-			if (game._lostFocus && FlxG.autoPause) // How come none other fnf engines do this? I wonder why lol
-			{
-				return;
-			}
-
 			if (backend.mouseEventInfo.type == cast 0)
 			{
 				game.onMouseDown.dispatch(backend.mouseEventInfo.x, backend.mouseEventInfo.y, backend.mouseEventInfo.button);

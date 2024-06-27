@@ -28,15 +28,14 @@ class SustainNote extends NoteBase
 
 	override function draw():Void
 	{
-		if (null != _frame)
+		if (_frame.frame.height < 0.0)
 		{
-			_frame.frame.y = -(length * clip) * (((null != Gameplay.SONG ? Gameplay.SONG.info.speed : 1.0) * 0.6428571428571431) / (strum.scale.y * 1.428571428571429));
-			_frame.frame.height = (-_frame.frame.y * (strum.scrollMult < 0.0 ? -strum.scrollMult : strum.scrollMult)) + frameHeight;
-			height = _frame.frame.height * (scale.y < 0.0 ? -scale.y : scale.y);
+			return;
 		}
 
-		if (_frame.frame.height < 0.0)
-			return;
+		_frame.frame.y = -(length * clip) * (((Gameplay.instance.songSpeed ?? 1.0) * 0.6428571428571431) / (strum.scale.y * 1.428571428571429));
+		_frame.frame.height = (-_frame.frame.y * (strum.scrollMult < 0.0 ? -strum.scrollMult : strum.scrollMult)) + frameHeight;
+		height = _frame.frame.height * (scale.y < 0.0 ? -scale.y : scale.y);
 
 		super.draw();
 	}
