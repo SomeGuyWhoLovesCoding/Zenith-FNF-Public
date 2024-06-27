@@ -20,16 +20,16 @@ class Strumline extends FlxBasic
 				var strumNote = new StrumNote(i, lane);
 				strumNote.scale.x = strumNote.scale.y = scale;
 				strumNote.parent = this;
-				strumNote.index = i * lane;
 				strumNote._reset();
 				members[i] = m = strumNote;
 			}
 			else
 			{
 				m.angle = NoteBase.angleArray[m.noteData];
+				n.color = NoteBase.colorArray[m.noteData];
 			}
 
-			m.index = i * lane;
+			m.index = i + (keys * lane);
 		}
 
 		if (value <= keys)
