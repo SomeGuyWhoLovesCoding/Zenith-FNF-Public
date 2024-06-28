@@ -100,9 +100,9 @@ class ChartBytesData
 	inline function _moveToNext():Void
 	{
 		position = inline input.readInt32();
-		noteData = (inline input.readByte()) & 0xFF;
-		length = (inline input.readByte()) & 0xFF;
-		lane = (inline input.readByte()) & 0xFF;
+		noteData = inline input.readByte();
+		length = inline input.readByte();
+		lane = inline input.readByte();
 	}
 
 	static public function saveChartFromJson(songName:String, songDifficulty:String):Void
@@ -158,9 +158,9 @@ class ChartBytesData
 		for (note in json.noteData)
 		{
 			inline output.writeInt32(Std.int(note[0]));
-			inline output.writeByte(Std.int(note[1]) & 0xFF);
-			inline output.writeByte((Std.int(note[2]) & 0xFF) >> 5);
-			inline output.writeByte(Std.int(note[3]) & 0xFF);
+			inline output.writeByte(Std.int(note[1]));
+			inline output.writeByte(Std.int(note[2]) >> 5);
+			inline output.writeByte(Std.int(note[3]));
 		}
 
 		output.close(); // LMAO
