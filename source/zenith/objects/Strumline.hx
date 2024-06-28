@@ -26,7 +26,7 @@ class Strumline extends FlxBasic
 			else
 			{
 				m.angle = NoteBase.angleArray[m.noteData];
-				n.color = NoteBase.colorArray[m.noteData];
+				m.color = NoteBase.colorArray[m.noteData];
 			}
 
 			m.index = i + (keys * lane);
