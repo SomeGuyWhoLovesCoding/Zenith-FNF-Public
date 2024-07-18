@@ -53,14 +53,17 @@
 
 	<!-- ______________________________ Haxedefines _____________________________ -->
 
+	<!--Remove the legacy health system-->
+	<haxedef name="FLX_NO_HEALTH" />
+
 	<!--Allow the core scripting system-->
 	<haxedef name="SCRIPTING_ALLOWED" if="hscript" />
 
 	<!--Optimize inputs - Be careful because you'll get null errors if you don't use conditionals in your game-->
-	<haxedef name="FLX_NO_KEYBOARD" />
+	<haxedef name="FLX_NO_KEYBOARD" unless="debug" />
 	<haxedef name="FLX_NO_TOUCH" />
 	<haxedef name="FLX_NO_GAMEPAD" />
-	<haxedef name="FLX_NO_MOUSE" />
+	<haxedef name="FLX_NO_MOUSE" unless="debug" />
 
 	<!--Disable the Flixel core focus lost screen-->
 	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />

@@ -18,7 +18,7 @@ class HUDGroup extends FlxSpriteGroup
 	public var scoreTxt:FlxText;
 	public var timeTxt:FlxText;
 
-	public function new():Void
+	public function new()
 	{
 		super();
 
@@ -32,9 +32,8 @@ class HUDGroup extends FlxSpriteGroup
 				comboNum.scale.set(0.9, 0.9);
 				comboNum.x = 900 - ((comboNum.width * 0.85) * i);
 				comboNum.y = 350;
-				comboNum.antialiasing = true;
 				comboNum.camera = Gameplay.instance.hudCamera;
-				comboNum.active = comboNum.moves = false;
+				comboNum.active = @:bypassAccessor comboNum.moves = false;
 				comboNum.animation.add('preview', [for (i in 0...10) i], 0);
 				comboNum.animation.play('preview');
 				comboNum;
@@ -44,13 +43,13 @@ class HUDGroup extends FlxSpriteGroup
 		oppIcon = new HealthIcon(Gameplay.instance.dad.healthIcon);
 		plrIcon = new HealthIcon(Gameplay.instance.bf.healthIcon, true);
 
-		healthBar = new HealthBar(0, Gameplay.downScroll ? 60.0 : FlxG.height - 86.0, [0xFFFF0000], [0xFF00FF00], 600, 24);
+		healthBar = new HealthBar(0, Gameplay.downScroll ? 60 : FlxG.height - 86, [0xFFFF0000], [0xFF00FF00], 600, 24);
 		healthBar.top = new FlxSprite().loadGraphic(Paths.image('ui/healthBarBG'));
 		healthBar.add(healthBar.top);
 		healthBar.screenCenter(X);
 		add(healthBar);
 
-		oppIcon.y = plrIcon.y = healthBar.y - 60.0;
+		oppIcon.y = plrIcon.y = healthBar.y - 60;
 		oppIcon.parent = plrIcon.parent = healthBar;
 
 		add(oppIcon);
@@ -75,13 +74,13 @@ class HUDGroup extends FlxSpriteGroup
 		scoreTxt.alignment = timeTxt.alignment = "center";
 
 		oppIcon.camera = plrIcon.camera = healthBar.camera = scoreTxt.camera = timeTxt.camera = Gameplay.instance.hudCamera;
-		oppIcon.alpha = plrIcon.alpha = healthBar.alpha = scoreTxt.alpha = timeTxt.alpha = 0.0;
+		oppIcon.alpha = plrIcon.alpha = healthBar.alpha = scoreTxt.alpha = timeTxt.alpha = 0.;
 		oppIcon.moves = plrIcon.moves = scoreTxt.active = timeTxt.active = scoreTxt.moves = timeTxt.moves = false;
 
 		active = false;
 	}
 
-	public function updateScoreText():Void
+	public function updateScoreText()
 	{
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
@@ -91,7 +90,7 @@ class HUDGroup extends FlxSpriteGroup
 			+ ' | Misses: '
 			+ Gameplay.instance.misses
 			+ ' | Accuracy: '
-			+ (Gameplay.instance.accuracy_right == 0.0 ? '???' : Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000.0) * 0.01
+			+ (Gameplay.instance.accuracy_right == 0 ? '???' : Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000) * 0.01
 				+ '%');
 
 		#if SCRIPTING_ALLOWED
@@ -99,7 +98,7 @@ class HUDGroup extends FlxSpriteGroup
 		#end
 	}
 
-	function reloadHealthBar():Void
+	function reloadHealthBar()
 	{
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
@@ -112,30 +111,31 @@ class HUDGroup extends FlxSpriteGroup
 
 	var comboNum(default, null):FlxSprite;
 
-	public function updateRatings():Void
+	public function updateRatings()
 	{
+		var combo = Gameplay.instance.combo;
 		for (i in 0...10)
 		{
-			if (Gameplay.instance.combo <= Math.pow(10, i) && (Gameplay.instance.combo == 0 || i > 2))
+			if (combo <= Math.pow(10, i) && (combo == 0 || i > 2))
 			{
 				break;
 			}
 
 			comboNum = comboNums[i];
-			comboNum.animation.curAnim.curFrame = Std.int(Gameplay.instance.combo / Math.pow(10, i)) % 10;
+			comboNum.animation.curAnim.curFrame = Std.int(combo / Math.pow(10, i)) % 10;
 			comboNum.y = 320;
-			comboNum.alpha = 1.0;
+			comboNum.alpha = 1;
 		}
 	}
 
-	inline public function updateIcons():Void
+	inline public function updateIcons()
 	{
 		plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;
 		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
 	}
 
-	var _timeTxtValue:Float = 0.0;
-	override function draw():Void
+	var _timeTxtValue:Float = 0;
+	override function draw()
 	{
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
@@ -143,34 +143,35 @@ class HUDGroup extends FlxSpriteGroup
 		scoreTxt.screenCenter(X);
 		timeTxt.screenCenter(X);
 
-		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0.0, healthBar.maxValue),
-			SaveData.contents.preferences.smoothHealth ? FlxG.elapsed * 8.0 : 1.0);
+		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0, healthBar.maxValue),
+			SaveData.contents.preferences.smoothHealth ? FlxG.elapsed * 8 : 1);
 
 		if (Gameplay.instance.startedCountdown)
 		{
-			oppIcon.alpha = plrIcon.alpha = healthBar.alpha = scoreTxt.alpha = timeTxt.alpha += (FlxG.elapsed * 8.0) * (1.0 - timeTxt.alpha);
-			if (Main.conductor.songPosition - _timeTxtValue > 1000.0)
+			oppIcon.alpha = plrIcon.alpha = healthBar.alpha = scoreTxt.alpha = timeTxt.alpha += (FlxG.elapsed * 8) * (1 - timeTxt.alpha);
+			if (Main.conductor.songPosition - _timeTxtValue > 1000)
 			{
 				_timeTxtValue = Main.conductor.songPosition;
-				timeTxt.text = Utils.formatTime(FlxMath.bound(Gameplay.instance.songLength - _timeTxtValue, 0.0, Gameplay.instance.songLength), true, false);
+				timeTxt.text = Utils.formatTime(FlxMath.bound(Gameplay.instance.songLength - _timeTxtValue, 0, Gameplay.instance.songLength), true, false);
 			}
 		}
 
+		var combo = Gameplay.instance.combo;
 		for (i in 0...10)
 		{
-			if (Gameplay.instance.combo <= Math.pow(10, i) && (Gameplay.instance.combo == 0 || i > 2))
+			if (combo <= Math.pow(10, i) && (combo == 0 || i > 2))
 			{
 				break;
 			}
 
 			comboNum = comboNums[i];
-			comboNum.y = FlxMath.lerp(comboNum.y, 350, FlxG.elapsed * 8.0);
-			comboNum.alpha = FlxMath.lerp(comboNum.alpha, 0.0, FlxG.elapsed * 4.0);
+			comboNum.y = FlxMath.lerp(comboNum.y, 350, FlxG.elapsed * 8);
+			comboNum.alpha = FlxMath.lerp(comboNum.alpha, 0, FlxG.elapsed * 4);
 			comboNum.draw();
 		}
 
 		super.draw();
 	}
 
-	override function update(elapsed:Float):Void {}
+	override function update(elapsed:Float) {}
 }

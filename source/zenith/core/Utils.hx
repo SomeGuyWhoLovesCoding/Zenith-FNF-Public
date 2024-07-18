@@ -10,7 +10,6 @@ import flixel.tweens.FlxEase;
 
 class Utils
 {
-	// If you want to reduce RAM usage, this is for you. Only for non-integrated GPU's.
 	inline static public function toTexture(source:BitmapData):BitmapData
 	{
 		#if !hl
@@ -29,10 +28,10 @@ class Utils
 	{
 		try
 		{
-			var diff1 = (Gameplay.instance.strumlines.members[left].x - Gameplay.instance.strumlines.members[right].x);
-			var diff2 = (Gameplay.instance.strumlines.members[right].x - Gameplay.instance.strumlines.members[left].x);
-			Gameplay.instance.strumlines.members[left].x -= diff1;
-			Gameplay.instance.strumlines.members[right].x -= diff2;
+			var diff1 = (Gameplay.instance.strumlines[left].x - Gameplay.instance.strumlines[right].x);
+			var diff2 = (Gameplay.instance.strumlines[right].x - Gameplay.instance.strumlines[left].x);
+			Gameplay.instance.strumlines[left].x -= diff1;
+			Gameplay.instance.strumlines[right].x -= diff2;
 		}
 		catch (e:haxe.Exception)
 		{
@@ -48,7 +47,9 @@ class Utils
 	static public function strumlineChangeDownScroll(whichStrum:Int = -1, tween:Bool = false, tweenLength:Float = 1.0):Void
 	{
 		// Strumline
-		for (strumline in Gameplay.instance.strumlines.members)
+		var strumlines = Gameplay.instance.strumlines;
+
+		for (strumline in strumlines)
 		{
 			for (strum in strumline.members)
 			{
@@ -73,7 +74,7 @@ class Utils
 							yTween.cancel();
 
 						strumYTweens.set(strum,
-							FlxTween.tween(strum, {y: actualScrollMult < 0.0 ? FlxG.height - 160.0 : 60.0}, (tweenLength < 0.0 ? -tweenLength : tweenLength),
+							FlxTween.tween(strum, {y: actualScrollMult < 0.0 ? FlxG.height - 160 : 60}, (tweenLength < 0.0 ? -tweenLength : tweenLength),
 								{ease: FlxEase.quintOut}));
 					}
 					else
@@ -87,7 +88,7 @@ class Utils
 					strumline.downScroll = strum.scrollMult < 0.0;
 				}
 			}
-			strumline.y = strumline.downScroll ? FlxG.height - 160.0 : 60.0;
+			strumline.y = strumline.downScroll ? FlxG.height - 160 : 60;
 		}
 	}
 

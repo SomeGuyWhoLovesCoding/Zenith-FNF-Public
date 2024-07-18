@@ -2,24 +2,24 @@ package zenith.system;
 
 class Conductor
 {
-	var _rawStep(get, default):Single = 0.0;
+	var _rawStep(get, default):Float = 0;
 
 	// Not sure if I want to inline this because I think inling can sometimes hurt the bpm change timing but idk
-	function get__rawStep():Single
+	function get__rawStep():Float
 	{
 		return ((songPosition - offsetTime) / stepCrochet) + offsetStep;
 	}
 
-	var _stepPos(default, null):Single = 0.0;
-	var _beatPos(default, null):Single = 0.0;
-	var _measurePos(default, null):Single = 0.0;
+	var _stepPos(default, null):Float = 0;
+	var _beatPos(default, null):Float = 0;
+	var _measurePos(default, null):Float = 0;
 
-	var _stepTracker(default, null):Single = 0.0;
-	var _beatTracker(default, null):Single = 0.0;
-	var _measureTracker(default, null):Single = 0.0;
+	var _stepTracker(default, null):Float = 0;
+	var _beatTracker(default, null):Float = 0;
+	var _measureTracker(default, null):Float = 0;
 
-	var offsetTime(default, null):Single = 0.0;
-	var offsetStep(default, null):Single = 0.0;
+	var offsetTime(default, null):Float = 0;
+	var offsetStep(default, null):Float = 0;
 
 	public var steps(default, set):Int = 4;
 
@@ -35,7 +35,7 @@ class Conductor
 		return beats = value;
 	}
 
-	public function new(initialBpm:Single = 100.0):Void
+	public function new(initialBpm:Float = 100):Void
 	{
 		bpm = initialBpm;
 	}
@@ -53,12 +53,12 @@ class Conductor
 		beats = newBeats;
 	}
 
-	public var lastBpm(default, null):Single = 100.0;
-	public var bpm(default, set):Single = 100.0;
+	public var lastBpm(default, null):Float = 100;
+	public var bpm(default, set):Float = 100;
 
 	// Ensure that the bpm change executes at the right spot
 
-	public function executeBpmChange(newBpm:Single, position:Single):Void
+	public function executeBpmChange(newBpm:Float, position:Float):Void
 	{
 		offsetStep += (position - offsetTime) / stepCrochet;
 		offsetTime = position;
@@ -67,7 +67,7 @@ class Conductor
 		trace(offsetStep, offsetTime);
 	}
 
-	inline function set_bpm(value:Single):Single
+	inline function set_bpm(value:Float):Float
 	{
 		lastBpm = bpm;
 		bpm = value;
@@ -78,9 +78,9 @@ class Conductor
 		return value;
 	}
 
-	public var songPosition(default, set):Single = 0.0;
+	public var songPosition(default, set):Float = 0;
 
-	function set_songPosition(value:Single):Single
+	function set_songPosition(value:Float):Float
 	{
 		songPosition = value;
 
@@ -133,11 +133,11 @@ class Conductor
 		return value;
 	}
 
-	public var crochet(default, null):Single;
+	public var crochet(default, null):Float;
 
-	public var stepCrochet(default, null):Single;
+	public var stepCrochet(default, null):Float;
 
-	public var onStepHit:Single->Void;
-	public var onBeatHit:Single->Void;
-	public var onMeasureHit:Single->Void;
+	public var onStepHit:Float->Void;
+	public var onBeatHit:Float->Void;
+	public var onMeasureHit:Float->Void;
 }

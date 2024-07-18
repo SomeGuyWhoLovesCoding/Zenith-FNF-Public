@@ -253,7 +253,7 @@ class Main extends Sprite
 
 		NativeCFFI.lime_application_event_manager_register(function():Void
 		{
-			if (backend.applicationEventInfo.type == UPDATE && (!game._lostFocus || !FlxG.autoPause))
+			if (backend.applicationEventInfo.type == UPDATE)
 			{
 				backend.updateTimer();
 				backend.parent.onUpdate.dispatch(backend.applicationEventInfo.deltaTime);

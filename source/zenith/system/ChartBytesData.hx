@@ -4,36 +4,44 @@ import sys.io.FileInput;
 import sys.io.FileOutput;
 import sys.io.File;
 
+@:access(zenith.objects.StrumNote)
 class ChartBytesData
 {
 	public var input:FileInput;
+	public var global_noteskin:String;
 
 	var bytesTotal(default, null):Int = 1;
 
-	public function new(songName:String, songDifficulty:String = 'normal'):Void
+	public function new(songName:String, curDifficulty:String)
 	{
-		if (sys.FileSystem.exists('assets/data/$songName/chart/$songDifficulty.json'))
-			saveChartFromJson(songName, songDifficulty);
+		if (sys.FileSystem.exists('assets/data/$songName/chart/$curDifficulty.json'))
+			saveChartFromJson(songName, curDifficulty);
 
-		input = File.read('assets/data/$songName/chart/$songDifficulty.bin');
+		if (!sys.FileSystem.exists('assets/data/$songName/chart/$curDifficulty.bin'))
+			curDifficulty = 'normal';
+
+		input = File.read('assets/data/$songName/chart/$curDifficulty.bin');
+
+		var global_noteskin_len = input.readByte();
+		global_noteskin = input.readString(global_noteskin_len);
 
 		var song_len = input.readByte();
-		var song:String = input.readString(song_len);
+		var song = input.readString(song_len);
 
-		var speed = input.readByte() * 0.0392156862745098;
-		var bpm = input.readFloat();
+		var speed = input.readDouble();
+		var bpm = input.readDouble();
 
 		var player1_len = input.readByte();
-		var player1:String = input.readString(player1_len);
+		var player1 = input.readString(player1_len);
 
 		var player2_len = input.readByte();
-		var player2:String = input.readString(player2_len);
+		var player2 = input.readString(player2_len);
 
 		var spectator_len = input.readByte();
-		var spectator:String = input.readString(spectator_len);
+		var spectator = input.readString(spectator_len);
 
 		var stage_len = input.readByte();
-		var stage:String = input.readString(stage_len);
+		var stage = input.readString(stage_len);
 
 		var steps = input.readByte();
 		var beats = input.readByte();
@@ -53,6 +61,7 @@ class ChartBytesData
 			strumlines: strumlines
 		});
 
+		// The 10 traces are just for testing... don't worry about it
 		trace(Gameplay.SONG.song);
 		trace(Gameplay.SONG.info.speed);
 		trace(Gameplay.SONG.info.bpm);
@@ -64,27 +73,27 @@ class ChartBytesData
 		trace(Gameplay.SONG.info.needsVoices);
 		trace(Gameplay.SONG.info.strumlines);
 
-		bytesTotal = sys.FileSystem.stat('assets/data/$songName/chart/$songDifficulty.bin').size;
+		bytesTotal = sys.FileSystem.stat('assets/data/$songName/chart/$curDifficulty.bin').size;
 
 		_moveToNext();
 	}
 
-	// Chart note data (but with raw variables)
-	// This is 7 bytes in size for each note
-	// Proof: Int32 (4 bytes), UInt8 (1 byte), UInt8 (another 1 byte), and UInt8 (1 byte yet again)
+	// This chart note data is 8 bytes in size for each note
+	// Proof: Int32 (4 bytes), UInt8 (1 byte), UInt16 (2 bytes), and UInt8 (1 byte again)
 	var position(default, null):Int = 0;
-	var noteData(default, null):Int = 0;
-	var length(default, null):Int = 0;
-	var lane(default, null):Int = 0;
 
-	public function update():Void
+	public function update()
 	{
 		if (bytesTotal == 0)
 			return;
 
 		while (Main.conductor.songPosition > position - (1880.0 / Gameplay.instance.songSpeed))
 		{
-			Gameplay.instance.noteSpawner.spawn(position, noteData, length, lane);
+			var lane = inline input.readByte(),
+				noteData = inline input.readByte(),
+				length = inline input.readByte() | (inline input.readByte() << 8);
+
+			Gameplay.instance.strumlines[lane].members[noteData].spawnNote(position, length);
 
 			if (input.tell() == bytesTotal)
 			{
@@ -97,33 +106,35 @@ class ChartBytesData
 		}
 	}
 
-	inline function _moveToNext():Void
+	// Internal helper function
+	function _moveToNext()
 	{
-		position = inline input.readInt32();
-		noteData = inline input.readByte();
-		length = inline input.readByte();
-		lane = inline input.readByte();
+		position = (inline input.readByte()) | (inline input.readByte() << 8) | (inline input.readByte() << 16) | (inline input.readByte() << 24);
 	}
 
-	static public function saveChartFromJson(songName:String, songDifficulty:String):Void
+	static public function saveChartFromJson(songName:String, curDifficulty:String)
 	{
 		trace("Parsing json...");
 
-		var json:Song.SwagSong = haxe.Json.parse(File.getContent('assets/data/$songName/chart/$songDifficulty.json'));
+		var json = haxe.Json.parse(File.getContent('assets/data/$songName/chart/$curDifficulty.json'));
 
-		trace('Done! Now let\'s start writing to "assets/data/$songName/chart/$songDifficulty.bin".');
+		trace('Done! Now let\'s start writing to "assets/data/$songName/chart/$curDifficulty.bin".');
 
-		var output:FileOutput = File.write('assets/data/$songName/chart/$songDifficulty.bin');
+		var output:FileOutput = File.write('assets/data/$songName/chart/$curDifficulty.bin');
+
+		json.noteskin = json.noteskin ?? "Regular";
+		inline output.writeByte(json.noteskin.length);
+		output.writeString(json.noteskin);
 
 		// Song
 		inline output.writeByte(json.song.length);
 		output.writeString(json.song);
 
 		// Speed
-		inline output.writeByte(Std.int(json.info.speed * 25.5));
+		inline output.writeDouble(json.info.speed);
 
 		// BPM
-		inline output.writeFloat(json.info.bpm);
+		inline output.writeDouble(json.info.bpm);
 
 		// Player 1
 		inline output.writeByte(json.info.player1.length);
@@ -155,42 +166,61 @@ class ChartBytesData
 		// Strumline count
 		inline output.writeByte(json.info.strumlines);
 
-		for (note in json.noteData)
+		var nd:Array<Array<Float>> = json.noteData; // Workaround for the dynamic iteration error
+
+		for (i in 0...nd.length)
 		{
-			inline output.writeInt32(Std.int(note[0]));
-			inline output.writeByte(Std.int(note[1]));
-			inline output.writeByte(Std.int(note[2]) >> 5);
+			var note = nd[i];
+
+			var position = Std.int(note[0]);
+
+			// Basically writeInt32
+			inline output.writeByte(position & 0xFF);
+			inline output.writeByte((position >> 8) & 0xFF);
+			inline output.writeByte((position >> 16) & 0xFF);
+			inline output.writeByte(position >>> 24);
+
 			inline output.writeByte(Std.int(note[3]));
+			inline output.writeByte(Std.int(note[1]));
+
+			var length = Std.int(note[2]);
+
+			// Basically writeUInt16
+			inline output.writeByte(length & 0xFF);
+			inline output.writeByte(length >> 8);
 		}
 
 		output.close(); // LMAO
 	}
 
-	static public function saveJsonFromChart(songName:String, songDifficulty:String):Void
+	static public function saveJsonFromChart(songName:String, curDifficulty:String)
 	{
 		trace("Parsing chart...");
 
-		var _input:FileInput = File.read('assets/data/$songName/chart/$songDifficulty.bin');
+		var _input:FileInput = File.read('assets/data/$songName/chart/$curDifficulty.bin');
 
-		trace('Done! Now let\'s start writing to "assets/data/$songName/chart/$songDifficulty.json".');
+		trace('Done! Now let\'s start writing to "assets/data/$songName/chart/$curDifficulty.json".');
+
+		var noteskin_len = _input.readByte();
+		var noteskin = _input.readString(noteskin_len);
 
 		var song_len = _input.readByte();
-		var song:String = _input.readString(song_len);
+		var song = _input.readString(song_len);
 
-		var speed = _input.readByte() * 0.0392156862745098;
-		var bpm = _input.readFloat();
+		var speed = _input.readDouble();
+		var bpm = _input.readDouble();
 
 		var player1_len = _input.readByte();
-		var player1:String = _input.readString(player1_len);
+		var player1 = _input.readString(player1_len);
 
 		var player2_len = _input.readByte();
-		var player2:String = _input.readString(player2_len);
+		var player2 = _input.readString(player2_len);
 
 		var spectator_len = _input.readByte();
-		var spectator:String = _input.readString(spectator_len);
+		var spectator = _input.readString(spectator_len);
 
 		var stage_len = _input.readByte();
-		var stage:String = _input.readString(stage_len);
+		var stage = _input.readString(stage_len);
 
 		var steps = _input.readByte();
 		var beats = _input.readByte();
@@ -199,44 +229,18 @@ class ChartBytesData
 		var strumlines = _input.readByte();
 
 		var noteData:Array<Array<Float>> = [];
+		var _lane = 0, _noteData = 0, _susLen = 0, _position = 0;
 
-		while (true)
+		while (!_input.eof())
 		{
-			try
-			{
-				noteData.push([_input.readInt32(), inline _input.readByte(), inline _input.readByte() << 5, inline _input.readByte()]);
-			}
-			catch (e)
-			{
-				break;
-			}
+			_position = (inline _input.readByte()) | (inline _input.readByte() << 8) | (inline _input.readByte() << 16) | (inline _input.readByte() << 24);
+			_lane = inline _input.readByte();
+			_noteData = inline _input.readByte();
+			_susLen = (inline _input.readByte()) | (inline _input.readByte() << 8);
+			noteData.push([_position, _noteData, _susLen, _lane]);
 		}
 
-		File.saveContent('assets/data/$songName/chart/$songDifficulty.json',
-			'{"song":"$song","info":{"stage":"$stage","player1":"$player1","player2":"$player2","spectator":"$spectator","speed":$speed,"bpm":$bpm,"time_signature":[$beats, $steps],"needsVoices":$needsVoices,"strumlines":$strumlines},"noteData":$noteData}');
-	}
-
-	// Inlined functions to improve performance when streaming bytes
-	// This is just the rest of ChartBytesData lol
-
-	inline function _readInt32():Int
-	{
-		var ch1 = inline input.readByte();
-		var ch2 = inline input.readByte();
-		var ch3 = inline input.readByte();
-		var ch4 = inline input.readByte();
-		#if (php || python)
-		// php will overflow integers.  Convert them back to signed 32-bit ints.
-		var n = input.bigEndian ? ch4 | (ch3 << 8) | (ch2 << 16) | (ch1 << 24) : ch1 | (ch2 << 8) | (ch3 << 16) | (ch4 << 24);
-		if (n & 0x80000000 != 0)
-			return (n | 0x80000000);
-		else
-			return n;
-		#elseif lua
-		var n = input.bigEndian ? ch4 | (ch3 << 8) | (ch2 << 16) | (ch1 << 24) : ch1 | (ch2 << 8) | (ch3 << 16) | (ch4 << 24);
-		return lua.Boot.clampInt32(n);
-		#else
-		return input.bigEndian ? ch4 | (ch3 << 8) | (ch2 << 16) | (ch1 << 24) : ch1 | (ch2 << 8) | (ch3 << 16) | (ch4 << 24);
-		#end
+		File.saveContent('assets/data/$songName/chart/$curDifficulty.json',
+			'{"noteskin":"$noteskin","song":"$song","info":{"stage":"$stage","player1":"$player1","player2":"$player2","spectator":"$spectator","speed":$speed,"bpm":$bpm,"time_signature":[$beats, $steps],"needsVoices":$needsVoices,"strumlines":$strumlines},"noteData":$noteData}');
 	}
 }

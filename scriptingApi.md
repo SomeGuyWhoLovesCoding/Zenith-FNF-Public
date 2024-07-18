@@ -98,29 +98,25 @@ frame delay*
 
 ``newSustain(sustain)``: This function is called after creating/reusing a sustain note instance.
 
-``onNoteHit(note)``: This function is called before hitting a note.
+``onNoteHit(noteData)``: This function is called before hitting a note.
 
-``onNoteHitPost(note)``: This function is called after hitting a note.
+``onNoteHitPost(noteData)``: This function is called after hitting a note.
 
-``onNoteMiss(note)``: This function is called before missing a note.
+``onNoteMiss(noteDataData)``: This function is called before missing a note.
 
-``onNoteMissPost(note)``: This function is called after missing a note.
+``onNoteMissPost(noteDataData)``: This function is called after missing a note.
 
-``onSustainHold(sustain)``: This function is called every frame before holding down a sustain note.
+``onHold(noteData)``: This function is called every frame before holding down a sustain note.
 
-``onSustainHoldPost(sustain)``: This function is called every frame after holding down a sustain note.
+``onHoldPost(noteData)``: This function is called every frame after holding down a sustain note.
 
-``onSustainMiss(sustain)``: This function is called before missing a sustain note.
+``onSustainMiss(noteData)``: This function is called before missing a sustain note.
 
-``onSustainMissPost(sustain)``: This function is called after missing a sustain note.
+``onSustainMissPost(noteData)``: This function is called after missing a sustain note.
 
-``setupNoteData(note)``: This function is called before setting up the note data for recycling.
+``setupNoteData(note)``: This function is called after setting up the note data for recycling.
 
-``setupNoteDataPost(note)``: This function is called after setting up the note data for recycling.
-
-``setupSustainData(sustain)``: This function is called before setting up the sustain note data for recycling.
-
-``setupSustainDataPost(sustain)``: This function is called after setting up the sustain note data for recycling.
+``setupSustainData(sustain)``: This function is called after setting up the sustain note data for recycling.
 
 ## Example usage
 

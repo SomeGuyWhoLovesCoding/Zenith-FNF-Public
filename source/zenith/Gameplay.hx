@@ -22,20 +22,18 @@ class Gameplay extends State
 {
 	private var chartBytesData(default, null):ChartBytesData;
 
-	public var strumlines(default, null):FlxTypedGroup<Strumline>;
-	public var noteSpawner(default, null):NoteSpawner;
-	public var sustainNoteSpawner(default, null):SustainNoteSpawner;
+	public var strumlines(default, null):Array<Strumline> = [];
 
 	public var hudGroup(default, null):HUDGroup;
 
-	public var health:Single = 1.0;
+	public var health:Float = 1;
 
-	public var score:Single = 0.0;
-	public var misses:Single = 0.0;
-	public var combo:Single = 0.0;
+	public var score:Float = 0;
+	public var misses:Float = 0;
+	public var combo:Float = 0;
 
-	var accuracy_left(default, null):Single = 0.0;
-	var accuracy_right(default, null):Single = 0.0;
+	var accuracy_left(default, null):Float = 0;
+	var accuracy_right(default, null):Float = 0;
 
 	// Preference stuff
 	static public var cpuControlled:Bool = false;
@@ -76,9 +74,9 @@ class Gameplay extends State
 	public var songSpeedTween(default, null):FlxTween;
 	public var songLengthTween(default, null):FlxTween;
 
-	public var songSpeed:Single = 1.0;
-	public var songLength:Single = 0.0;
-	public var cameraSpeed:Float = 1.0;
+	public var songSpeed:Float = 1;
+	public var songLength:Float = 0;
+	public var cameraSpeed:Float = 1;
 
 	public var generatedMusic:Bool = false;
 	public var inCutscene:Bool = false;
@@ -95,9 +93,7 @@ class Gameplay extends State
 	public var bf:Character;
 
 	public var gameCamera:FlxCamera;
-	public var hudCameraBelow:FlxCamera;
 	public var hudCamera:FlxCamera;
-	public var loadingScreenCamera:FlxCamera;
 
 	public var gameCameraZoomTween(default, null):FlxTween;
 	public var hudCameraZoomTween(default, null):FlxTween;
@@ -109,7 +105,7 @@ class Gameplay extends State
 
 	static public var instance:Gameplay;
 
-	public function onKeyDown(keyCode:Int, keyModifier:Int):Void
+	public function onKeyDown(keyCode:Int, keyModifier:Int)
 	{
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('onKeyDown', keyCode, keyModifier);
@@ -117,13 +113,11 @@ class Gameplay extends State
 
 		if (generatedMusic && !cpuControlled)
 		{
-			st = inputKeybinds[keyCode % 1024] ?? Paths.idleStrumNote;
+			st = inputKeybinds[keyCode % 1024] ?? NoteskinHandler.idleStrumNote;
 
-			if (st.isIdle && st.animation?.curAnim?.name != "confirm")
+			if (!st.active)
 			{
-				st.isIdle = false;
-				st.playAnim("pressed");
-				noteSpawner.handlePress(st);
+				st.handlePress();
 			}
 		}
 
@@ -132,7 +126,7 @@ class Gameplay extends State
 		#end
 	}
 
-	public function onKeyUp(keyCode:Int, keyModifier:Int):Void
+	public function onKeyUp(keyCode:Int, keyModifier:Int)
 	{
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('onKeyUp', keyCode, keyModifier);
@@ -140,13 +134,11 @@ class Gameplay extends State
 
 		if (generatedMusic && !cpuControlled)
 		{
-			st = inputKeybinds[keyCode % 1024] ?? Paths.idleStrumNote;
+			st = inputKeybinds[keyCode % 1024] ?? NoteskinHandler.idleStrumNote;
 
-			if (!st.isIdle && st.animation?.curAnim?.name != "static")
+			if (st.active)
 			{
-				st.isIdle = true;
-				st.playAnim("static");
-				sustainNoteSpawner.handleRelease(st);
+				st.handleRelease();
 			}
 		}
 
@@ -155,10 +147,8 @@ class Gameplay extends State
 		#end
 	}
 
-	override function create():Void
+	override function create()
 	{
-		Paths.initNoteShit(); // Do NOT remove this or the game will crash
-
 		instance = this;
 
 		// Preferences stuff
@@ -174,16 +164,12 @@ class Gameplay extends State
 		persistentUpdate = persistentDraw = true;
 
 		gameCamera = new FlxCamera();
-		hudCameraBelow = new FlxCamera();
 		hudCamera = new FlxCamera();
-		loadingScreenCamera = new FlxCamera();
 
-		gameCamera.bgColor.alpha = hudCameraBelow.bgColor.alpha = hudCamera.bgColor.alpha = loadingScreenCamera.bgColor.alpha = 0;
+		gameCamera.bgColor.alpha = hudCamera.bgColor.alpha = 0;
 
 		FlxG.cameras.reset(gameCamera);
-		FlxG.cameras.add(hudCameraBelow, false);
 		FlxG.cameras.add(hudCamera, false);
-		FlxG.cameras.add(loadingScreenCamera, false);
 
 		camFollowPos = new FlxObject(0, 0, 1, 1);
 		camFollowPos.pixelPerfectPosition = false;
@@ -255,17 +241,11 @@ class Gameplay extends State
 		}
 	}
 
-	override function update(elapsed:Float):Void
+	override function update(elapsed:Float)
 	{
 		if (generatedMusic)
 		{
-			health = FlxMath.bound(health, 0.0, (hudGroup?.healthBar?.maxValue) ?? 2.0);
-
-			hudCameraBelow.x = hudCamera.x;
-			hudCameraBelow.y = hudCamera.y;
-			hudCameraBelow.angle = hudCamera.angle;
-			hudCameraBelow.alpha = hudCamera.alpha;
-			hudCameraBelow.zoom = hudCamera.zoom;
+			health = FlxMath.bound(health, 0, hudGroup?.healthBar?.maxValue ?? 2);
 
 			if (!songEnded)
 			{
@@ -274,7 +254,7 @@ class Gameplay extends State
 
 			if (!inCutscene)
 			{
-				_songPos += elapsed * 1000.0;
+				_songPos += elapsed * 1000;
 				Main.conductor.songPosition = _songPos;
 			}
 
@@ -287,12 +267,21 @@ class Gameplay extends State
 		}
 	}
 
-	var initialStrumWidth:Single = 112.0;
-	var initialStrumHeight:Single = 112.0;
+	override function draw()
+	{
+		super.draw();
 
-	var loadingTimestamp = 0.0;
+		var len = strumlines.length;
 
-	function generateSong(name:String, diff:String):Void
+		for (i in 0...len)
+		{
+			strumlines[i].draw();
+		}
+	}
+
+	var loadingTimestamp:Float = 0;
+
+	function generateSong(name:String, diff:String)
 	{
 		loadingTimestamp = haxe.Timer.stamp();
 
@@ -303,8 +292,10 @@ class Gameplay extends State
 
 		chartBytesData = new ChartBytesData(curSong, curDifficulty);
 
+		NoteskinHandler.reload(chartBytesData.global_noteskin);
+
 		// What happens if you load a song with a bpm of under 10? Limit it.
-		Main.conductor.bpm = SONG.info.bpm = Math.max(SONG.info.bpm, 10.0);
+		Main.conductor.bpm = SONG.info.bpm = Math.max(SONG.info.bpm, 10);
 		Main.conductor.reset();
 
 		strumlineCount == SONG.info.strumlines ? 2 : SONG.info.strumlines;
@@ -333,7 +324,7 @@ class Gameplay extends State
 				camera_boyfriend: [0, 0],
 				camera_opponent: [0, 0],
 				camera_girlfriend: [0, 0],
-				camera_speed: 1.0
+				camera_speed: 1
 			};
 		}
 
@@ -417,7 +408,7 @@ class Gameplay extends State
 		generateSongPost();
 	}
 
-	function generateSongPost():Void
+	function generateSongPost()
 	{
 		add(gfGroup);
 		add(dadGroup);
@@ -433,16 +424,6 @@ class Gameplay extends State
 
 		// Now time to load the UI and shit
 
-		sustainNoteSpawner = new SustainNoteSpawner();
-
-		noteSpawner = new NoteSpawner();
-
-		strumlines = new FlxTypedGroup<Strumline>();
-		add(strumlines);
-		add(sustainNoteSpawner);
-
-		add(noteSpawner);
-
 		for (i in 0...strumlineCount)
 			generateStrumline(i);
 
@@ -453,14 +434,13 @@ class Gameplay extends State
 		{
 			hudGroup = new HUDGroup();
 			hudGroup.reloadHealthBar();
+			hudGroup.camera = hudCamera;
 			add(hudGroup);
 		}
 
-		noteSpawner.camera = strumlines.camera = sustainNoteSpawner.camera = hudCamera;
-
 		var timeTakenToLoad:Single = haxe.Timer.stamp() - loadingTimestamp;
 
-		trace('Loading finished! Took ${Utils.formatTime(timeTakenToLoad * 1000.0, true, true)} to load.');
+		trace('Loading finished! Took ${Utils.formatTime(timeTakenToLoad * 1000, true, true)} to load.');
 
 		if (!noCharacters)
 		{
@@ -490,7 +470,7 @@ class Gameplay extends State
 	static public var strumlineCount:Int = 2;
 	static public var playablelineConfiguration:Array<Bool> = [false, true];
 
-	public function generateStrumline(player:Int = 0):Void
+	public function generateStrumline(player:Int = 0)
 	{
 		// If the array's length is not above or equal to the strumline count, compensate for it
 		while (playablelineConfiguration.length <= strumlineCount)
@@ -498,11 +478,13 @@ class Gameplay extends State
 			playablelineConfiguration.push(false);
 		}
 
-		strumlines.add(new Strumline(4, player, playablelineConfiguration[player]));
+		var strumline = new Strumline(4, player, playablelineConfiguration[player]);
+		strumline.targetCharacter = !strumline.playable ? dad : bf;
+		strumlines.push(strumline);
 	}
 
 	// This is good for now
-	public function introHandler(tick:Int):Void
+	public function introHandler(tick:Int)
 	{
 		if (tick == 5)
 		{
@@ -512,7 +494,7 @@ class Gameplay extends State
 		addCameraZoom(tick * 0.00375, tick * 0.00375);
 	}
 
-	public function dance(beat:Single):Void
+	public function dance(beat:Float)
 	{
 		if (!noCharacters)
 		{
@@ -539,7 +521,7 @@ class Gameplay extends State
 	}
 
 	// For hscript
-	public function addCameraZoom(value1:Float = 0.015, value2:Float = 0.03):Void
+	public function addCameraZoom(value1:Float = 0.015, value2:Float = 0.03)
 	{
 		if (songEnded)
 		{
@@ -555,16 +537,16 @@ class Gameplay extends State
 		hudCameraZoomTween = zoomTweenFunction(hudCamera, 1);
 	}
 
-	public function resetKeybinds(?customBinds:Array<Array<Int>>):Void
+	public function resetKeybinds(?customBinds:Array<Array<Int>>)
 	{
-		final playerStrum = strumlines.members[1]; // Prevent redundant array access
+		final playerStrum = strumlines[1]; // Prevent redundant array access
 		final binds = customBinds ?? SaveData.contents.controls.GAMEPLAY_BINDS;
 
 		inputKeybinds.resize(0);
 
 		for (i in 0...1024)
 		{
-			inputKeybinds.push(Paths.idleStrumNote);
+			inputKeybinds.push(NoteskinHandler.idleStrumNote);
 		}
 
 		for (i in 0...binds.length)
@@ -576,7 +558,7 @@ class Gameplay extends State
 		}
 	}
 
-	private function startCountdown():Void
+	private function startCountdown()
 	{
 		if (songEnded)
 		{
@@ -587,7 +569,7 @@ class Gameplay extends State
 		resetKeybinds();
 
 		var swagCounter = 0;
-		_songPos = (-Main.conductor.crochet * 5.0);
+		_songPos = (-Main.conductor.crochet * 5);
 		Main.conductor.songPosition = _songPos;
 
 		new flixel.util.FlxTimer().start(Main.conductor.crochet * 0.001, (?timer) ->
@@ -605,7 +587,7 @@ class Gameplay extends State
 		#end
 	}
 
-	private function startSong():Void
+	private function startSong()
 	{
 		if (songEnded)
 		{
@@ -613,7 +595,7 @@ class Gameplay extends State
 		}
 
 		inst?.play();
-		songLength = inst?.length ?? 0.0;
+		songLength = inst?.length ?? 0;
 
 		voices?.play();
 
@@ -628,10 +610,10 @@ class Gameplay extends State
 		#end
 
 		addCameraZoom();
-		dance(0.0);
+		dance(0);
 	}
 
-	public function endSong():Void
+	public function endSong()
 	{
 		if (songEnded)
 		{
@@ -651,10 +633,10 @@ class Gameplay extends State
 
 	// Camera functions
 	var _mp(default, null):FlxPoint;
-	var _cpx(default, null):Single;
-	var _cpy(default, null):Single;
+	var _cpx(default, null):Float;
+	var _cpy(default, null):Float;
 
-	private function moveCamera(whatCharacter:(Character)):Void
+	private function moveCamera(whatCharacter:(Character))
 	{
 		camFollowPosTween?.cancel();
 
@@ -669,10 +651,10 @@ class Gameplay extends State
 			if (null != whatCharacter)
 			{
 				camFollowPosTween = FlxTween.tween(camFollowPos, {
-					x: whatCharacter == gf ? _mp.x + _cpx + girlfriendCameraOffset[0] : whatCharacter == bf ? (_mp.x - 100.0) - _cpx
-						- boyfriendCameraOffset[0] : (_mp.x + 150.0) + _cpx + opponentCameraOffset[0],
-					y: whatCharacter == gf ? _mp.y + _cpy + girlfriendCameraOffset[1] : whatCharacter == bf ? (_mp.y - 100.0) + _cpy
-						+ boyfriendCameraOffset[1] : (_mp.y - 100.0) + _cpy + opponentCameraOffset[1]
+					x: whatCharacter == gf ? _mp.x + _cpx + girlfriendCameraOffset[0] : whatCharacter == bf ? (_mp.x - 100) - _cpx
+						- boyfriendCameraOffset[0] : (_mp.x + 150) + _cpx + opponentCameraOffset[0],
+					y: whatCharacter == gf ? _mp.y + _cpy + girlfriendCameraOffset[1] : whatCharacter == bf ? (_mp.y - 100) + _cpy
+						+ boyfriendCameraOffset[1] : (_mp.y - 100) + _cpy + opponentCameraOffset[1]
 				}, 1.2 * cameraSpeed, {ease: FlxEase.expoOut});
 			}
 		}
@@ -682,7 +664,7 @@ class Gameplay extends State
 		#end
 	}
 
-	private function zoomTweenFunction(cam:FlxCamera, amount:Float = 1.0):FlxTween
+	private function zoomTweenFunction(cam:FlxCamera, amount:Float = 1):FlxTween
 	{
 		return FlxTween.tween(cam, {zoom: amount}, 1.2, {ease: FlxEase.expoOut});
 	}
@@ -711,28 +693,28 @@ class Gameplay extends State
 	public var inputKeybinds:Array<StrumNote> = new Array<StrumNote>();
 
 	var st(default, null):StrumNote;
-	var _songPos(default, null):Single = -5000.0;
+	var _songPos(default, null):Float = -5000;
 
-	public function changeScrollSpeed(newSpeed:Single, tweenDuration:Single = 1.0):Void
+	public function changeScrollSpeed(newSpeed:Float, tweenDuration:Float = 1)
 	{
 		songSpeedTween?.cancel();
 
 		var newValue = SONG.info.speed * newSpeed;
 
-		if (tweenDuration <= 0.0)
+		if (tweenDuration <= 0)
 			songSpeed = newValue;
 		else
 			songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, tweenDuration, {ease: FlxEase.quintOut});
 	}
 
-	public function changeSongLength(newLength:Single, tween:Bool = false):Void
+	public function changeSongLength(newLength:Float, tween:Bool = false)
 	{
 		songLengthTween?.cancel();
 
 		if (tween)
-			songLengthTween = FlxTween.tween(this, {songLength: newLength * 1000.0}, 1.0, {ease: FlxEase.quintOut});
+			songLengthTween = FlxTween.tween(this, {songLength: newLength * 1000}, 1, {ease: FlxEase.quintOut});
 		else
-			songLength = newLength * 1000.0;
+			songLength = newLength * 1000;
 	}
 
 	public var paused:Bool = false;

@@ -149,7 +149,7 @@ class TitleScreen extends State
 
 	override public function update(elapsed:Float):Void
 	{
-		Main.conductor.songPosition = (FlxG.sound?.music?.time : Single); // HL moment
+		Main.conductor.songPosition = FlxG.sound?.music?.time;
 
 		super.update(elapsed);
 	}
