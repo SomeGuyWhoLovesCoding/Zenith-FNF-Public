@@ -32,7 +32,7 @@ class Main extends Sprite
 	static public var hscript:HScriptSystem;
 	#end
 
-	static private final transitioning:Transitioning = {_in: function():Void {}, _out: function():Void {}};
+	static private final transitioning:Transitioning = {_in: function() {}, _out: function() {}};
 
 	static public var game:Game;
 	static public var transition:Sprite;
@@ -94,7 +94,7 @@ class Main extends Sprite
 		___initInternalModifications();
 	}
 
-	static public function startTransition(_transIn:Bool = false, _callback:Void->Void):Void
+	static public function startTransition(_transIn:Bool = false, _callback:Void->Void)
 	{
 		if (_transIn)
 		{
@@ -134,7 +134,7 @@ class Main extends Sprite
 	static private var fpsMax:Int = 60;
 	static private var fpsTextTimer:Float = 0.0;
 
-	static public function updateMain(elapsed:Float):Void
+	static public function updateMain(elapsed:Float)
 	{
 		if (game._lostFocus && FlxG.autoPause)
 		{
@@ -180,22 +180,22 @@ class Main extends Sprite
 		if (transitionY > -transition.height * 0.6)
 		{
 			transitioning?._in();
-			transitioning._in = function():Void {}
+			transitioning._in = function() {}
 		}
 
 		if (transitionY > 720 * transition.scaleY)
 		{
 			transitioning?._out();
-			transitioning._out = function():Void {}
+			transitioning._out = function() {}
 		}
 	}
 
-	static function ___initInternalModifications():Void
+	static function ___initInternalModifications()
 	{
 		var backend = lime.app.Application.current.__backend;
 
 		var window:Window;
-		NativeCFFI.lime_key_event_manager_register(function():Void
+		NativeCFFI.lime_key_event_manager_register(function()
 		{
 			if (backend.keyEventInfo.type == KEY_UP)
 			{
@@ -251,19 +251,7 @@ class Main extends Sprite
 			}
 		}, backend.keyEventInfo);
 
-		NativeCFFI.lime_application_event_manager_register(function():Void
-		{
-			if (backend.applicationEventInfo.type == UPDATE)
-			{
-				backend.updateTimer();
-				backend.parent.onUpdate.dispatch(backend.applicationEventInfo.deltaTime);
-			}
-		}, backend.applicationEventInfo);
-		NativeCFFI.lime_sensor_event_manager_register(null, backend.sensorEventInfo);
-		NativeCFFI.lime_touch_event_manager_register(null, backend.touchEventInfo);
-		NativeCFFI.lime_gamepad_event_manager_register(null, backend.gamepadEventInfo);
-		NativeCFFI.lime_joystick_event_manager_register(null, backend.joystickEventInfo);
-		NativeCFFI.lime_mouse_event_manager_register(function():Void
+		NativeCFFI.lime_mouse_event_manager_register(function()
 		{
 			if (backend.mouseEventInfo.type == cast 0)
 			{
@@ -275,5 +263,20 @@ class Main extends Sprite
 				game.onMouseUp.dispatch(backend.mouseEventInfo.x, backend.mouseEventInfo.y, backend.mouseEventInfo.button);
 			}
 		}, backend.mouseEventInfo);
+
+		NativeCFFI.lime_application_event_manager_register(function()
+		{
+			if (backend.applicationEventInfo.type == UPDATE)
+			{
+				backend.updateTimer();
+				backend.parent.onUpdate.dispatch(backend.applicationEventInfo.deltaTime);
+			}
+		}, backend.applicationEventInfo);
+
+		// You don't really need those as they're either very hard to press keys or they're flat out unneeded
+		NativeCFFI.lime_sensor_event_manager_register(function() {}, backend.sensorEventInfo);
+		NativeCFFI.lime_touch_event_manager_register(function() {}, backend.touchEventInfo); // Might do android support for fnf zenith but idk about that since it's not in my priority list lmao
+		NativeCFFI.lime_gamepad_event_manager_register(function() {}, backend.gamepadEventInfo);
+		NativeCFFI.lime_joystick_event_manager_register(function() {}, backend.joystickEventInfo);
 	}
 }

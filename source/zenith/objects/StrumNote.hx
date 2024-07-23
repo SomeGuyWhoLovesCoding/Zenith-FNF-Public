@@ -155,14 +155,12 @@ class StrumNote extends FlxSprite
 	{
 		super.destroy();
 
-		var len = notes.length;
-		for (i in 0...len)
+		for (i in 0...notes.length)
 		{
 			notes[i].destroy();
 		}
 
-		var len = sustains.length;
-		for (i in 0...len)
+		for (i in 0...sustains.length)
 		{
 			sustains[i].destroy();
 		}
@@ -175,11 +173,10 @@ class StrumNote extends FlxSprite
 			return;
 		}
 
-		var _songPosition = Main.conductor.songPosition, _songSpeed = Gameplay.instance.songSpeed, _notePosition, _scrollMult = scrollMult,
-			_note = NoteskinHandler.idleNote, _idleNote = NoteskinHandler.idleNote,
-		    len = sustains.length;
+		var _songPosition = Main.conductor.songPosition, _songSpeed = Gameplay.instance.songSpeed, _notePosition, _scrollMult = scrollMult;
+		var _note = NoteskinHandler.idleNote, _idleNote = NoteskinHandler.idleNote;
 
-		for (i in 0...len)
+		for (i in 0...sustains.length)
 		{
 			_note = sustains[i];
 			_notePosition = _note.position;
@@ -242,11 +239,11 @@ class StrumNote extends FlxSprite
 
 		// Variables list (For even faster field access)
 		var _songPosition = Main.conductor.songPosition, _songSpeed = Gameplay.instance.songSpeed,
-			_notePosition, _hittablePosition = _hittableNote.position, _noteHitbox = Std.int(250 / _songSpeed), _scrollMult = scrollMult,
-			_note = NoteskinHandler.idleNote, _idleNote = NoteskinHandler.idleNote,
-		    len = notes.length, _hittableAlreadyHit = _hittableNote.state == NoteState.HIT, _hittableValid = _hittableNote != _idleNote;
+			_notePosition, _hittablePosition = _hittableNote.position, _noteHitbox = Std.int(250 / _songSpeed), _scrollMult = scrollMult;
+		var _note = NoteskinHandler.idleNote, _idleNote = NoteskinHandler.idleNote;
+		var _hittableAlreadyHit = _hittableNote.state == NoteState.HIT, _hittableValid = _hittableNote != _idleNote;
 
-		for (i in 0...len)
+		for (i in 0...notes.length)
 		{
 			_note = notes[i];
 			_notePosition = _note.position;
