@@ -271,11 +271,19 @@ class Gameplay extends State
 	{
 		super.draw();
 
-		var len = strumlines.length;
+		var strums = strumlines;
+		var len = strums.length;
 
 		for (i in 0...len)
 		{
-			strumlines[i].draw();
+			strums[i].draw();
+		}
+
+		var hud = hudGroup;
+
+		if (hud != null)
+		{
+			hud.draw();
 		}
 	}
 
@@ -435,7 +443,6 @@ class Gameplay extends State
 			hudGroup = new HUDGroup();
 			hudGroup.reloadHealthBar();
 			hudGroup.camera = hudCamera;
-			add(hudGroup);
 		}
 
 		var timeTakenToLoad:Single = haxe.Timer.stamp() - loadingTimestamp;

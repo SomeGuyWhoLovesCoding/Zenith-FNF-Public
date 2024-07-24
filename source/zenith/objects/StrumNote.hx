@@ -175,6 +175,7 @@ class StrumNote extends FlxSprite
 
 		var _songPosition = Main.conductor.songPosition, _songSpeed = Gameplay.instance.songSpeed, _notePosition, _scrollMult = scrollMult;
 		var _note = NoteskinHandler.idleNote, _idleNote = NoteskinHandler.idleNote;
+		var playingConfAnim = animation.curAnim.name == "confirm";
 
 		for (i in 0...sustains.length)
 		{
@@ -206,7 +207,7 @@ class StrumNote extends FlxSprite
 			{
 				// Literally the sustain logic system
 
-				if (_holding = @:bypassAccessor animation.curAnim.name == "confirm"
+				if (_holding = playingConfAnim
 					&& _songPosition > _notePosition
 					&& _songPosition < _notePosition + (_note.length - 50))
 				{
@@ -218,15 +219,13 @@ class StrumNote extends FlxSprite
 			_note.distance = 0.45 * (_songPosition - _notePosition) * _songSpeed;
 			_note._updateNoteFrame(this);
 
-			@:bypassAccessor
-			{
-				_note.x = x
-					+ (initial_width - Std.int(@:bypassAccessor _note.width) >> 1)
-					+ ((_scrollMult < 0 ? -_scrollMult : _scrollMult) * _note.distance) * FlxMath.fastCos(FlxAngle.asRadians(_note.direction - 90));
-				_note.y = y
-					+ (initial_height >> 1)
-					+ (_scrollMult * _note.distance) * FlxMath.fastSin(FlxAngle.asRadians(_note.direction - 90));
-			}
+			@:bypassAccessor _note.x = @:bypassAccessor x
+				+ (initial_width - Std.int(@:bypassAccessor _note.width) >> 1)
+				+ ((_scrollMult < 0 ? -_scrollMult : _scrollMult) * _note.distance) * FlxMath.fastCos(FlxAngle.asRadians(_note.direction - 90));
+
+			@:bypassAccessor _note.y = @:bypassAccessor y
+				+ (initial_height >> 1)
+				+ (_scrollMult * _note.distance) * FlxMath.fastSin(FlxAngle.asRadians(_note.direction - 90));
 		}
 	}
 
@@ -307,13 +306,11 @@ class StrumNote extends FlxSprite
 			_note.distance = 0.45 * (_songPosition - _notePosition) * _songSpeed;
 			_note._updateNoteFrame(this);
 
-			@:bypassAccessor
-			{
-				_note.x = x
-					+ ((_scrollMult < 0 ? -_scrollMult : _scrollMult) * _note.distance) * FlxMath.fastCos(FlxAngle.asRadians(_note.direction - 90));
-				_note.y = y
-					+ (_scrollMult * _note.distance) * FlxMath.fastSin(FlxAngle.asRadians(_note.direction - 90));
-			}
+			@:bypassAccessor _note.x = @:bypassAccessor x
+				+ ((_scrollMult < 0 ? -_scrollMult : _scrollMult) * _note.distance) * FlxMath.fastCos(FlxAngle.asRadians(_note.direction - 90));
+
+			@:bypassAccessor _note.y = @:bypassAccessor y
+				+ (_scrollMult * _note.distance) * FlxMath.fastSin(FlxAngle.asRadians(_note.direction - 90));
 		}
 	}
 

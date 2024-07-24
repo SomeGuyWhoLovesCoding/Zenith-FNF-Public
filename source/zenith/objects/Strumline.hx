@@ -12,7 +12,7 @@ class Strumline extends FlxBasic
 		for (i in 0...val)
 		{
 			m = members[i] = new StrumNote(i, lane);
-			m.scale.x = m.scale.y = scale;
+			@:bypassAccessor m.scale.x = m.scale.y = scale;
 			m.parent = this;
 			m.index = i * lane;
 			m._reset();

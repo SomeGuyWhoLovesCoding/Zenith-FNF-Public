@@ -1,3 +1,5 @@
+// This shit will be reworked soon cause animations with indices are fucked here lmao
+
 package zenith.objects;
 
 import sys.io.File;
@@ -37,17 +39,10 @@ typedef AnimArray =
 
 @:access(flixel.animation.FlxAnimationController)
 @:access(flixel.animation.FlxAnimation)
-@:final
-@:generic
 class Character extends FlxSprite
 {
 	override function set_clipRect(rect:FlxRect):FlxRect
 	{
-		if (clipRect != null)
-		{
-			clipRect.put();
-		}
-
 		return clipRect = rect;
 	}
 
@@ -59,7 +54,7 @@ class Character extends FlxSprite
 
 	var namedWithGf(default, null):Bool = false;
 
-	public var holdTimer:Float = 0.0;
+	public var holdTimer:Float = 0;
 
 	inline public function set_holdTimer(value:Float):Float
 	{
@@ -185,15 +180,18 @@ class Character extends FlxSprite
 		specialAnim = special;
 		animation.play(AnimName, true);
 
-		daOffsets = animOffsets[AnimName];
-
-		if (daOffsets != null)
+		@:bypassAccessor
 		{
-			offset.x = daOffsets[0];
-			offset.y = daOffsets[1];
+			daOffsets = animOffsets[AnimName];
+
+			if (daOffsets != null)
+			{
+				offset.x = daOffsets[0];
+				offset.y = daOffsets[1];
+			}
+			else
+				offset.x = offset.y = 0;
 		}
-		else
-			offset.x = offset.y = 0.0;
 
 		if (namedWithGf)
 		{
@@ -223,15 +221,17 @@ class Character extends FlxSprite
 
 	override function update(elapsed:Float)
 	{
-		if (!debugMode && animation.curAnim != null)
+		var anim = animation.curAnim;
+		var animName = anim.name;
+		if (!debugMode && anim != null)
 		{
-			if (specialAnim && animation.curAnim.finished)
+			if (specialAnim && anim.finished)
 			{
 				specialAnim = false;
 				dance();
 			}
 
-			if (animation.curAnim.name.startsWith('sing'))
+			if (animName.startsWith('sing'))
 			{
 				holdTimer += elapsed;
 			}
@@ -243,7 +243,7 @@ class Character extends FlxSprite
 			}
 
 			// Hey timer stuff
-			if (animation.curAnim.name.startsWith("hey"))
+			if (animName.startsWith("hey"))
 			{
 				if (heyTimer > 0.0)
 				{
@@ -256,9 +256,9 @@ class Character extends FlxSprite
 				}
 			}
 
-			if (animation.curAnim.finished && animation.getByName(animation.curAnim.name + '-loop') != null)
+			if (anim.finished && animation.getByName(animName + '-loop') != null)
 			{
-				playAnim(animation.curAnim.name + '-loop');
+				playAnim(animName + '-loop');
 			}
 		}
 
@@ -293,13 +293,13 @@ class Character extends FlxSprite
 			else
 				calc *= 2;
 
-			danceEveryNumBeats = Std.int(Math.max(calc, 1.0));
+			danceEveryNumBeats = Std.int(inline Math.max(calc, 1));
 		}
 		settingCharacterUp = false;
 	}
 
-	public function addOffset(name:String, x:Float = 0.0, y:Float = 0.0)
-		animOffsets[name] = [x, y];
+	public function addOffset(name:String, x:Float = 0, y:Float = 0)
+		@:bypassAccessor animOffsets[name] = [x, y];
 
 	public function quickAnimAdd(name:String, anim:String)
 		animation.addByPrefix(name, anim, 24, false);

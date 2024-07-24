@@ -84,7 +84,7 @@
 	<!-- Haxe 4.3.0+: Enable pretty syntax errors and stuff. -->
 	<!-- pretty (haxeflixel default), indent, classic (haxe compiler default) -->
 	<haxedef name="message.reporting" value="pretty" />
-	<!-- (Love you haxe) />
+	<!-- (Love you haxe) -->
 
 	<!-- _________________________________ Custom _______________________________ -->
 
