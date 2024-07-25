@@ -149,7 +149,11 @@ class HUDGroup extends FlxSpriteGroup
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
 
-		@:bypassAccessor scoreTxt.screenCenter(X);
+		@:bypassAccessor
+		{
+			scoreTxt.screenCenter(X);
+			timeTxt.screenCenter(X);
+		}
 
 		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0, healthBar.maxValue),
 			SaveData.contents.preferences.smoothHealth ? FlxG.elapsed * 8 : 1);
@@ -160,8 +164,7 @@ class HUDGroup extends FlxSpriteGroup
 			if (Main.conductor.songPosition - _timeTxtValue > 1000)
 			{
 				_timeTxtValue = Main.conductor.songPosition;
-				timeTxt.text = Tools.formatTime(FlxMath.bound(Gameplay.instance.songLength - _timeTxtValue, 0, Gameplay.instance.songLength), true, false);
-				@:bypassAccessor timeTxt.screenCenter(X);
+				timeTxt.text = Tools.formatTime(FlxMath.bound(Gameplay.instance.songLength - _timeTxtValue, 0, Gameplay.instance.songLength), true);
 			}
 		}
 
