@@ -164,7 +164,7 @@ class HUDGroup extends FlxSpriteGroup
 			if (Main.conductor.songPosition - _timeTxtValue > 1000)
 			{
 				_timeTxtValue = Main.conductor.songPosition;
-				timeTxt.text = Tools.formatTime(FlxMath.bound(Gameplay.instance.songLength - _timeTxtValue, 0, Gameplay.instance.songLength), true);
+				timeTxt.text = Tools.formatTime(FlxMath.bound(Gameplay.instance.songLength - _timeTxtValue, 0, Gameplay.instance.songLength), true, false);
 			}
 		}
 
