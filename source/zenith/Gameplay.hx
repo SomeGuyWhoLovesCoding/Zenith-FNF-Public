@@ -13,9 +13,6 @@ import sys.FileSystem;
 using StringTools;
 
 @:access(zenith.objects.HUDGroup)
-@:access(zenith.system.NoteSpawner)
-@:access(zenith.system.SustainNoteSpawner)
-@:access(Stack)
 @:access(flixel.text.FlxText)
 @:final
 class Gameplay extends State
@@ -159,7 +156,7 @@ class Gameplay extends State
 
 		// Reset gameplay stuff
 		FlxG.fixedTimestep = startedCountdown = false;
-		songSpeed = 1.0;
+		songSpeed = 1;
 
 		persistentUpdate = persistentDraw = true;
 
@@ -366,7 +363,7 @@ class Gameplay extends State
 		}
 
 		inst = new FlxSound();
-		inst.loadEmbedded(Paths.inst(SONG.song));
+		inst.loadEmbedded(AssetManager.inst(SONG.song));
 
 		inst.onComplete = endSong;
 		FlxG.sound.list.add(inst);
@@ -375,7 +372,7 @@ class Gameplay extends State
 		if (SONG.info.needsVoices)
 		{
 			voices = new FlxSound();
-			voices.loadEmbedded(Paths.voices(SONG.song));
+			voices.loadEmbedded(AssetManager.voices(SONG.song));
 			FlxG.sound.list.add(voices);
 			voices.looped = false;
 		}
@@ -436,7 +433,7 @@ class Gameplay extends State
 			generateStrumline(i);
 
 		if (downScroll)
-			Utils.strumlineChangeDownScroll();
+			Tools.strumlineChangeDownScroll();
 
 		if (!hideHUD)
 		{
@@ -447,7 +444,7 @@ class Gameplay extends State
 
 		var timeTakenToLoad:Single = haxe.Timer.stamp() - loadingTimestamp;
 
-		trace('Loading finished! Took ${Utils.formatTime(timeTakenToLoad * 1000, true, true)} to load.');
+		trace('Loading finished! Took ${Tools.formatTime(timeTakenToLoad * 1000, true, true)} to load.');
 
 		if (!noCharacters)
 		{
@@ -535,8 +532,15 @@ class Gameplay extends State
 			return;
 		}
 
-		gameCameraZoomTween?.cancel();
-		hudCameraZoomTween?.cancel();
+		if (gameCameraZoomTween != null)
+		{
+			gameCameraZoomTween.cancel();
+		}
+
+		if (hudCameraZoomTween != null)
+		{
+			hudCameraZoomTween.cancel();
+		}
 
 		FlxG.camera.zoom += value1;
 		gameCameraZoomTween = zoomTweenFunction(FlxG.camera, defaultCamZoom);
@@ -582,7 +586,7 @@ class Gameplay extends State
 		new flixel.util.FlxTimer().start(Main.conductor.crochet * 0.001, (?timer) ->
 		{
 			if (swagCounter != 4)
-				FlxG.sound.play(Paths.sound('sounds/intro' + (swagCounter != 3 ? Std.string(3 - swagCounter) : 'Go')), 0.6);
+				FlxG.sound.play(AssetManager.sound('intro' + (swagCounter != 3 ? Std.string(3 - swagCounter) : 'Go')), 0.6);
 
 			swagCounter++;
 			introHandler(swagCounter);
@@ -601,14 +605,20 @@ class Gameplay extends State
 			return;
 		}
 
-		inst?.play();
-		songLength = inst?.length ?? 0;
+		if (inst != null)
+		{
+			inst.play();
+			songLength = inst.length;
+		}
+		else
+			songLength = 0;
 
 		voices?.play();
 
-		// Just wished that null safe field access allowed modifying the variable...
-		// Had to do set_visible(true) instead of visible = true to compensate for it
-		hudGroup?.timeTxt?.set_text(Utils.formatTime(Gameplay.instance.songLength, true, false));
+		if (hudGroup != null && hudGroup.timeTxt != null)
+		{
+			hudGroup.timeTxt.text = Tools.formatTime(songLength, true, false);
+		}
 
 		startedCountdown = true;
 
@@ -627,7 +637,10 @@ class Gameplay extends State
 			return;
 		}
 
-		voices?.stop();
+		if (voices != null)
+		{
+			voices.stop();
+		}
 
 		switchState(new WelcomeState());
 
@@ -639,21 +652,16 @@ class Gameplay extends State
 	}
 
 	// Camera functions
-	var _mp(default, null):FlxPoint;
-	var _cpx(default, null):Float;
-	var _cpy(default, null):Float;
 
-	private function moveCamera(whatCharacter:(Character))
+	private function moveCamera(whatCharacter:Character)
 	{
 		camFollowPosTween?.cancel();
 
 		if (!noCharacters)
 		{
-			_mp?.put();
-
-			_mp = whatCharacter.getMidpoint();
-			_cpx = whatCharacter.cameraPosition[0];
-			_cpy = whatCharacter.cameraPosition[1];
+			var _mp = whatCharacter.getMidpoint();
+			var _cpx = whatCharacter.cameraPosition[0];
+			var _cpy = whatCharacter.cameraPosition[1];
 
 			if (null != whatCharacter)
 			{
@@ -685,26 +693,35 @@ class Gameplay extends State
 
 	function startCharacterPos(char:Character, gfCheck:Bool = false)
 	{
-		if (gfCheck && char.curCharacter.startsWith('gf')) // IF DAD IS GIRLFRIEND, HE GOES TO HER POSITION
+		@:bypassAccessor
 		{
-			char.x = GF_X;
-			char.y = GF_Y;
+			if (gfCheck && char.curCharacter.startsWith('gf')) // IF DAD IS GIRLFRIEND, HE GOES TO HER POSITION
+			{
+				char.x = GF_X;
+				char.y = GF_Y;
 
-			gf?.set_active(gf?.set_visible(false));
+				if (gf != null)
+				{
+					gf.active = gf.visible = false;
+				}
+			}
+
+			char.x += char.positionArray[0];
+			char.y += char.positionArray[1];
 		}
-
-		char.x += char.positionArray[0];
-		char.y += char.positionArray[1];
 	}
 
-	public var inputKeybinds:Array<StrumNote> = new Array<StrumNote>();
+	public var inputKeybinds:Array<StrumNote> = [];
 
 	var st(default, null):StrumNote;
 	var _songPos(default, null):Float = -5000;
 
 	public function changeScrollSpeed(newSpeed:Float, tweenDuration:Float = 1)
 	{
-		songSpeedTween?.cancel();
+		if (songSpeedTween != null)
+		{
+			songSpeedTween.cancel();
+		}
 
 		var newValue = SONG.info.speed * newSpeed;
 
@@ -716,7 +733,10 @@ class Gameplay extends State
 
 	public function changeSongLength(newLength:Float, tween:Bool = false)
 	{
-		songLengthTween?.cancel();
+		if (songLengthTween != null)
+		{
+			songLengthTween.cancel();
+		}
 
 		if (tween)
 			songLengthTween = FlxTween.tween(this, {songLength: newLength * 1000}, 1, {ease: FlxEase.quintOut});

@@ -12,12 +12,12 @@ class HealthBar extends FlxSpriteGroup
 
 	public var top:FlxSprite;
 
-	public var value:Float = 1.0;
-	public var maxValue:UInt = 2;
+	public var value:Float = 1;
+	public var maxValue:Int = 2;
 
-	var v(default, null):Float = 0.0;
+	var v(default, null):Float = 0;
 
-	public function new(x:Float = 0.0, y:Float = 0.0, left:Array<Int>, right:Array<Int>, width:Int = 100, height:Int = 10, maxValue:UInt = 2):Void
+	public function new(x:Float = 0, y:Float = 0, left:Array<Int>, right:Array<Int>, width:Int = 100, height:Int = 10, maxValue:Int = 2):Void
 	{
 		super(x, y);
 
@@ -54,14 +54,14 @@ class HealthBar extends FlxSpriteGroup
 
 	override public function draw():Void
 	{
-		v = FlxMath.bound(value / maxValue, 0.0, 1.0);
+		v = FlxMath.bound(value / maxValue, 0, 1);
 
-		__left.scale.x = 1.0 - v;
+		__left.scale.x = 1 - v;
 		__left.updateHitbox();
 
 		__right.scale.x = v;
 		__right.updateHitbox();
-		__right.x = __left.width + 340.0;
+		__right.x = __left.width + 340;
 
 		__left.draw();
 		__right.draw();

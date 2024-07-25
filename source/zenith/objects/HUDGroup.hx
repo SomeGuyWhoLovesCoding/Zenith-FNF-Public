@@ -28,7 +28,7 @@ class HUDGroup extends FlxSpriteGroup
 		comboNums = [
 			for (i in 0...10)
 			{
-				var comboNum:FlxSprite = new FlxSprite().loadGraphic(Paths.image('ui/comboNums'), true, 94, 119);
+				var comboNum = new FlxSprite().loadGraphic(AssetManager.image('ui/comboNums'), true, 94, 119);
 				comboNum.scale.set(0.9, 0.9);
 				comboNum.x = 900 - ((comboNum.width * 0.85) * i);
 				comboNum.y = 350;
@@ -44,19 +44,19 @@ class HUDGroup extends FlxSpriteGroup
 		plrIcon = new HealthIcon(Gameplay.instance.bf.healthIcon, true);
 
 		healthBar = new HealthBar(0, Gameplay.downScroll ? 60 : FlxG.height - 86, [0xFFFF0000], [0xFF00FF00], 600, 24);
-		healthBar.top = new FlxSprite().loadGraphic(Paths.image('ui/healthBarBG'));
+		healthBar.top = new FlxSprite().loadGraphic(AssetManager.image('ui/healthBarBG'));
 		healthBar.add(healthBar.top);
-		healthBar.screenCenter(X);
+		@:bypassAccessor healthBar.screenCenter(X);
 		add(healthBar);
 
-		oppIcon.y = plrIcon.y = healthBar.y - 60;
+		@:bypassAccessor oppIcon.y = plrIcon.y = healthBar.y - 60;
 		oppIcon.parent = plrIcon.parent = healthBar;
 
 		add(oppIcon);
 		add(plrIcon);
 
-		scoreTxt = new FlxText(0, healthBar.y
-			+ (healthBar.height + 2), 0,
+		scoreTxt = new FlxText(0, @:bypassAccessor healthBar.y
+			+ (@:bypassAccessor healthBar.height + 2), 0,
 			'Score: '
 			+ Gameplay.instance.score
 			+ ' | Misses: '
@@ -70,14 +70,17 @@ class HUDGroup extends FlxSpriteGroup
 		add(timeTxt);
 
 		scoreTxt.borderSize = timeTxt.borderSize = 1.25;
-		scoreTxt.font = timeTxt.font = Paths.font('vcr');
+		scoreTxt.font = timeTxt.font = AssetManager.font('vcr');
 		scoreTxt.alignment = timeTxt.alignment = "center";
 
 		oppIcon.camera = plrIcon.camera = healthBar.camera = scoreTxt.camera = timeTxt.camera = Gameplay.instance.hudCamera;
-		oppIcon.alpha = plrIcon.alpha = healthBar.alpha = scoreTxt.alpha = timeTxt.alpha = 0.;
-		oppIcon.moves = plrIcon.moves = scoreTxt.active = timeTxt.active = scoreTxt.moves = timeTxt.moves = false;
 
-		active = false;
+		@:bypassAccessor
+		{
+			oppIcon.alpha = plrIcon.alpha = healthBar.alpha = scoreTxt.alpha = timeTxt.alpha = 0;
+			oppIcon.moves = plrIcon.moves = scoreTxt.active = timeTxt.active = scoreTxt.moves = timeTxt.moves = false;
+			active = moves = false;
+		}
 	}
 
 	public function updateScoreText()
@@ -109,21 +112,27 @@ class HUDGroup extends FlxSpriteGroup
 			FlxColor.fromRGB(Gameplay.instance.bf.healthColorArray[0], Gameplay.instance.bf.healthColorArray[1], Gameplay.instance.bf.healthColorArray[2]));
 	}
 
-	var comboNum(default, null):FlxSprite;
-
 	public function updateRatings()
 	{
 		var combo = Gameplay.instance.combo;
+
+		if (combo == 0)
+		{
+			return;
+		}
+
 		for (i in 0...10)
 		{
-			if (combo <= Math.pow(10, i) && (combo == 0 || i > 2))
+			var pow = Math.pow(10, i);
+
+			if (combo <= pow && i > 2)
 			{
 				break;
 			}
 
-			comboNum = comboNums[i];
-			comboNum.animation.curAnim.curFrame = Std.int(combo / Math.pow(10, i)) % 10;
-			comboNum.y = 320;
+			var comboNum = comboNums[i];
+			comboNum.animation.curAnim.curFrame = Std.int(combo / pow) % 10;
+			@:bypassAccessor comboNum.y = 320;
 			comboNum.alpha = 1;
 		}
 	}
@@ -140,8 +149,7 @@ class HUDGroup extends FlxSpriteGroup
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
 
-		scoreTxt.screenCenter(X);
-		timeTxt.screenCenter(X);
+		@:bypassAccessor scoreTxt.screenCenter(X);
 
 		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0, healthBar.maxValue),
 			SaveData.contents.preferences.smoothHealth ? FlxG.elapsed * 8 : 1);
@@ -152,25 +160,32 @@ class HUDGroup extends FlxSpriteGroup
 			if (Main.conductor.songPosition - _timeTxtValue > 1000)
 			{
 				_timeTxtValue = Main.conductor.songPosition;
-				timeTxt.text = Utils.formatTime(FlxMath.bound(Gameplay.instance.songLength - _timeTxtValue, 0, Gameplay.instance.songLength), true, false);
+				timeTxt.text = Tools.formatTime(FlxMath.bound(Gameplay.instance.songLength - _timeTxtValue, 0, Gameplay.instance.songLength), true, false);
+				@:bypassAccessor timeTxt.screenCenter(X);
 			}
 		}
 
+		super.draw();
+
 		var combo = Gameplay.instance.combo;
+
+		if (combo == 0)
+		{
+			return;
+		}
+
 		for (i in 0...10)
 		{
-			if (combo <= Math.pow(10, i) && (combo == 0 || i > 2))
+			if (combo <= Math.pow(10, i) && i > 2)
 			{
 				break;
 			}
 
-			comboNum = comboNums[i];
-			comboNum.y = FlxMath.lerp(comboNum.y, 350, FlxG.elapsed * 8);
+			var comboNum = comboNums[i];
+			@:bypassAccessor comboNum.y = FlxMath.lerp(comboNum.y, 350, FlxG.elapsed * 8);
 			comboNum.alpha = FlxMath.lerp(comboNum.alpha, 0, FlxG.elapsed * 4);
 			comboNum.draw();
 		}
-
-		super.draw();
 	}
 
 	override function update(elapsed:Float) {}

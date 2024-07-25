@@ -20,7 +20,7 @@ class TitleScreenSubState extends FlxSubState
 		instance = this;
 
 		optionsTxt = new FlxText(0, FlxG.height - 200, 0, 'Main Menu       Settings', 24);
-		optionsTxt.font = Paths.font('vcr');
+		optionsTxt.font = AssetManager.font('vcr');
 		optionsTxt.screenCenter(X);
 		optionsTxt.active = false;
 		add(optionsTxt);

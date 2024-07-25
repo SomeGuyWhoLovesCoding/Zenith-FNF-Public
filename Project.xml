@@ -16,7 +16,7 @@
 	<!-- ____________________________ Window Settings ___________________________ -->
 
 	<!--These window settings apply to all targets-->
-	<window width="1280" height="720" fps="60" background="000000" hardware="true" vsync="false"
+	<window width="1280" height="720" fps="60" background="" hardware="true" vsync="false"
 		allow-shaders="true" require-shaders="true" depth-buffer="false" stencil-buffer="false" />
 
 	<!--Desktop-specific-->
@@ -60,16 +60,16 @@
 	<haxedef name="SCRIPTING_ALLOWED" if="hscript" />
 
 	<!--Optimize inputs - Be careful because you'll get null errors if you don't use conditionals in your game-->
-	<haxedef name="FLX_NO_KEYBOARD" unless="debug" />
+	<haxedef name="FLX_NO_KEYBOARD" />
 	<haxedef name="FLX_NO_TOUCH" />
 	<haxedef name="FLX_NO_GAMEPAD" />
-	<haxedef name="FLX_NO_MOUSE" unless="debug" />
+	<haxedef name="FLX_NO_MOUSE" />
 
 	<!--Disable the Flixel core focus lost screen-->
 	<haxedef name="FLX_NO_FOCUS_LOST_SCREEN" />
 
 	<!--Disable the Flixel core debugger.-->
-	<haxedef name="FLX_NO_DEBUG" />
+	<haxedef name="FLX_NO_DEBUG" unless="debug" />
 
 	<!--Disable the Flixel core sound tray-->
 	<haxedef name="FLX_NO_SOUND_TRAY" />

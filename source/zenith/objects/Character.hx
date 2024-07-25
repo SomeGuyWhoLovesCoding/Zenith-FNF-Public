@@ -98,15 +98,15 @@ class Character extends FlxSprite
 
 		var characterPath:String = 'characters/' + curCharacter + '.json';
 
-		var path:String = Paths.ASSET_PATH + '/' + characterPath;
+		var path:String = AssetManager.ASSET_PATH + '/' + characterPath;
 
 		if (!FileSystem.exists(path))
-			path = Paths.ASSET_PATH + '/characters/' + DEFAULT_CHARACTER +
+			path = AssetManager.ASSET_PATH + '/characters/' + DEFAULT_CHARACTER +
 				'.json'; // If a character couldn't be found, change him to BF just to prevent a crash
 
 		var json:CharacterFile = Json.parse(File.getContent(path));
 
-		frames = Paths.getSparrowAtlas(json.image);
+		frames = AssetManager.getSparrowAtlas(json.image);
 		imageFile = json.image;
 
 		if (json.scale != 1.0)

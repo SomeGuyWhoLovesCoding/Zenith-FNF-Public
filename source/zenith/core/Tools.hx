@@ -8,7 +8,7 @@ import openfl.display3D.textures.TextureBase;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 
-class Utils
+class Tools
 {
 	inline static public function toTexture(source:BitmapData):BitmapData
 	{

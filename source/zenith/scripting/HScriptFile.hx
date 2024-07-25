@@ -9,7 +9,7 @@ class HScriptFile
 	public var stringCode(default, null):String = '';
 	public var key(default, null):String = '';
 	public var path(default, null):String = '';
-	public var isFromDirectory(default, null):Bool = false;
+	public var isFromDirectory(default, null):Bool;
 	public var directory(default, null):String;
 	public var interp(default, null):Interp;
 	public var parser(default, null):Parser;
@@ -62,12 +62,12 @@ class HScriptFile
 			interp.variables.set('this', Main.hscript);
 			interp.variables.set('Gameplay', Gameplay);
 			interp.variables.set('game', Gameplay.instance);
-			interp.variables.set('Utils', Utils);
+			interp.variables.set('Tools', Tools);
 			interp.variables.set('Conductor', Conductor);
 			interp.variables.set('NoteObject', NoteObject);
 			interp.variables.set('SaveData', SaveData);
 			interp.variables.set('StringTools', StringTools);
-			interp.variables.set('Paths', Paths);
+			interp.variables.set('AssetManager', AssetManager);
 			interp.variables.set('FlxG', FlxG);
 			interp.variables.set('FlxSprite', FlxSprite);
 			interp.variables.set('FlxCamera', FlxCamera);

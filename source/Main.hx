@@ -7,9 +7,6 @@ import openfl.geom.Matrix;
 import lime._internal.backend.native.NativeCFFI;
 import lime.ui.Window;
 import lime.ui.KeyCode;
-import openfl.events.UncaughtErrorEvent;
-import haxe.CallStack;
-import haxe.io.Path;
 
 using StringTools;
 
@@ -71,11 +68,12 @@ class Main extends Sprite
 
 		addChild(game = new Game());
 		addChild(transition);
+		FlxG.signals.postStateSwitch.add(openfl.system.System.gc);
 
 		if (SaveData.contents.graphics.showFPS)
 		{
 			fpsTxt = new TextField();
-			fpsTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFFFFFF, true);
+			fpsTxt.defaultTextFormat = new TextFormat(AssetManager.font('vcr'), 18, 0xFFFFFFFF, true);
 			fpsTxt.selectable = false;
 			fpsTxt.width = 240;
 			fpsTxt.text = 'FPS: 0 (MAX: 0)\nMEM: 0Bytes';
@@ -83,10 +81,10 @@ class Main extends Sprite
 		}
 
 		volumeTxt = new TextField();
-		volumeTxt.defaultTextFormat = new TextFormat(Paths.font('vcr'), 18, 0xFFFF0000, true);
+		volumeTxt.defaultTextFormat = new TextFormat(AssetManager.font('vcr'), 18, 0xFFFF0000, true);
 		volumeTxt.selectable = false;
 		volumeTxt.width = 72;
-		volumeTxt.alpha = 0.0;
+		volumeTxt.alpha = 0;
 		addChild(volumeTxt);
 
 		openfl.Lib.current.stage.quality = stage.quality = LOW;
@@ -100,7 +98,7 @@ class Main extends Sprite
 		{
 			if (skipTransIn)
 			{
-				transitionY = 720.0;
+				transitionY = 720;
 
 				if (null != _callback)
 					_callback();
@@ -117,7 +115,7 @@ class Main extends Sprite
 		{
 			if (skipTransOut)
 			{
-				transitionY = 720.0;
+				transitionY = 720;
 				skipTransOut = false;
 				return;
 			}
@@ -128,11 +126,11 @@ class Main extends Sprite
 		}
 	}
 
-	static private var transitionY:Float = 0.0;
+	static private var transitionY:Float = 0;
 
 	static private var fps:Int = 60;
 	static private var fpsMax:Int = 60;
-	static private var fpsTextTimer:Float = 0.0;
+	static private var fpsTextTimer:Float = 0;
 
 	static public function updateMain(elapsed:Float)
 	{
@@ -142,18 +140,18 @@ class Main extends Sprite
 		}
 
 		// Framerate rework
-		fps += fps > Std.int(1.0 / elapsed) ? -1 : 1;
+		fps += fps > Std.int(1 / elapsed) ? -1 : 1;
 
 		if (volumeTxt != null)
 		{
-			volumeTxt.y = (FlxG.height * FlxG.scaleMode.scale.y) - 20.0;
-			volumeTxt.text = (FlxG.sound.muted ? 0.0 : Std.int(FlxG.sound.volume * 100.0)) + '%';
-			volumeTxt.alpha -= elapsed * 2.0;
+			volumeTxt.y = (FlxG.height * FlxG.scaleMode.scale.y) - 20;
+			volumeTxt.text = (FlxG.sound.muted ? 0 : Std.int(FlxG.sound.volume * 100)) + '%';
+			volumeTxt.alpha -= elapsed * 2;
 		}
 
 		fpsTextTimer += elapsed;
 
-		if (SaveData.contents.graphics.showFPS && fpsTextTimer > 1.0)
+		if (SaveData.contents.graphics.showFPS && fpsTextTimer > 1)
 		{
 			if (fpsMax < fps)
 				fpsMax = fps;
@@ -177,15 +175,15 @@ class Main extends Sprite
 			transitionY += (1585 * transition.scaleY) * elapsed;
 		}
 
-		if (transitionY > -transition.height * 0.6)
+		if (transitioning._in != (function() {}) && transitionY > -transition.height * 0.6)
 		{
-			transitioning?._in();
+			transitioning._in();
 			transitioning._in = function() {}
 		}
 
-		if (transitionY > 720 * transition.scaleY)
+		if (transitioning._out != (function() {}) && transitionY > 720 * transition.scaleY)
 		{
-			transitioning?._out();
+			transitioning._out();
 			transitioning._out = function() {}
 		}
 	}
@@ -231,21 +229,21 @@ class Main extends Sprite
 					if (backend.keyEventInfo.keyCode == KeyCode.EQUALS)
 					{
 						FlxG.sound.muted = false;
-						FlxG.sound.volume = Math.min(FlxG.sound.volume + 0.1, 1.0);
-						Main.volumeTxt.alpha = 1.0;
+						FlxG.sound.volume = Math.min(FlxG.sound.volume + 0.1, 1);
+						Main.volumeTxt.alpha = 1;
 					}
 
 					if (backend.keyEventInfo.keyCode == KeyCode.MINUS)
 					{
 						FlxG.sound.muted = false;
-						FlxG.sound.volume = Math.max(FlxG.sound.volume - 0.1, 0.0);
-						Main.volumeTxt.alpha = 1.0;
+						FlxG.sound.volume = Math.max(FlxG.sound.volume - 0.1, 0);
+						Main.volumeTxt.alpha = 1;
 					}
 
 					if (backend.keyEventInfo.keyCode == KeyCode.NUMBER_0)
 					{
 						FlxG.sound.muted = !FlxG.sound.muted;
-						Main.volumeTxt.alpha = 1.0;
+						Main.volumeTxt.alpha = 1;
 					}
 				}
 			}

@@ -13,32 +13,31 @@ class BGSprite extends FlxSprite
 
 		if (animArray != null)
 		{
-			frames = Paths.getSparrowAtlas(image);
+			frames = AssetManager.getSparrowAtlas(image);
 			for (i in 0...animArray.length)
 			{
-				var anim:String = animArray[i];
+				var anim = animArray[i];
 				animation.addByPrefix(anim, anim, 24, loop);
-				if (null == idleAnim)
+
+				if (idleAnim == null)
 				{
 					idleAnim = anim;
-					inline animation.play(anim);
+					animation.play(anim);
 				}
 			}
 		}
 		else
 		{
-			if (null != image)
-				loadGraphic(Paths.ASSET_PATH + '/images/stage/$image.png');
-
-			active = moves = false;
+			if (image != null) loadGraphic(AssetManager.image('stage/$image'));
+			@:bypassAccessor active = moves = false;
 		}
-		scrollFactor.set(scrollX, scrollY);
+		@:bypassAccessor scrollFactor.set(scrollX, scrollY);
 		antialiasing = true;
 	}
 
 	public function dance(?forceplay:Bool = false)
 	{
-		if (null != idleAnim)
+		if (idleAnim != null)
 		{
 			animation.play(idleAnim, forceplay);
 		}
@@ -46,11 +45,6 @@ class BGSprite extends FlxSprite
 
 	override function set_clipRect(rect:FlxRect):FlxRect
 	{
-		if (clipRect != null)
-		{
-			clipRect.put();
-		}
-
 		return clipRect = rect;
 	}
 }

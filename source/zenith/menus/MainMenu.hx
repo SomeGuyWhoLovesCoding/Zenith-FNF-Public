@@ -22,7 +22,7 @@ class MainMenu extends State
 	{
 		FlxG.camera.zoom = 1.0;
 
-		bg = new FlxSprite().loadGraphic(Paths.image('mainmenu/bg'));
+		bg = new FlxSprite().loadGraphic(AssetManager.image('mainmenu/bg'));
 		bg.screenCenter();
 		add(bg);
 
@@ -32,7 +32,7 @@ class MainMenu extends State
 		watermark = new FlxText(0, 0, 0, 'Friday Night Funkin\': Zenith (Version ${lime.app.Application.current.meta.get('version')}) (Github)', 20);
 		watermark.setBorderStyle(OUTLINE, 0xFF000000);
 		watermark.y = FlxG.height - watermark.size;
-		watermark.font = Paths.font('vcr');
+		watermark.font = AssetManager.font('vcr');
 		watermark.antialiasing = SaveData.contents.graphics.antialiasing;
 		watermark.active = false;
 		add(watermark);

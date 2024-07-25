@@ -33,7 +33,7 @@ class StageData
 		if (null != SONG.info.stage)
 			stage = SONG.info.stage;
 
-		switch (Paths.formatToSongPath(SONG.song.toLowerCase()))
+		switch (AssetManager.formatToSongPath(SONG.song.toLowerCase()))
 		{
 			case 'spookeez' | 'south' | 'monster':
 				stage = 'spooky';
@@ -45,7 +45,7 @@ class StageData
 	public static function getStageFile(stage:String):StageFile
 	{
 		var rawJson:String = null;
-		var path:String = Paths.ASSET_PATH + '/stages/' + stage + '.json';
+		var path:String = AssetManager.ASSET_PATH + '/stages/' + stage + '.json';
 		var contents:String = sys.io.File.getContent(path);
 
 		return sys.FileSystem.exists(path) ? cast Json.parse(contents) : null;

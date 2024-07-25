@@ -174,8 +174,8 @@ class StrumNote extends FlxSprite
 		}
 
 		var _songPosition = Main.conductor.songPosition, _songSpeed = Gameplay.instance.songSpeed, _notePosition, _scrollMult = scrollMult;
-		var _note = NoteskinHandler.idleNote, _idleNote = NoteskinHandler.idleNote;
-		var playingConfAnim = animation.curAnim.name == "confirm";
+		var _note, _idleNote = NoteskinHandler.idleNote;
+		var playingConfAnim = animation.curAnim != null && animation.curAnim.name == "confirm";
 
 		for (i in 0...sustains.length)
 		{
@@ -211,7 +211,7 @@ class StrumNote extends FlxSprite
 					&& _songPosition > _notePosition
 					&& _songPosition < _notePosition + (_note.length - 50))
 				{
-					//_note.clipRect = ; Will do it tomorrow.
+					//@:bypassAccessor _note.clipRect = ; Will do it tomorrow.
 					_onSustainHold();
 				}
 			}
@@ -403,15 +403,17 @@ class StrumNote extends FlxSprite
 			game.score += 350;
 			++game.combo;
 			var hitDiff = note.position - Main.conductor.songPosition;
-			game.accuracy_left += (hitDiff < 0.0 ? -hitDiff : hitDiff) > 83.35 ? 0.75 : 1.0;
+			game.accuracy_left += (hitDiff < 0 ? -hitDiff : hitDiff) > 83.35 ? 0.75 : 1;
 			++game.accuracy_right;
 			game.hudGroup?.updateRatings();
 		}
 
-		if (!Gameplay.noCharacters && parent.targetCharacter != null)
+		var char = parent.targetCharacter;
+
+		if (!Gameplay.noCharacters && char != null)
 		{
-			parent.targetCharacter.playAnim(parent.singPrefix + parent.singAnimations[noteData] + parent.singSuffix);
-			parent.targetCharacter.holdTimer = 0.0;
+			char.playAnim(parent.singPrefix + parent.singAnimations[noteData] + parent.singSuffix);
+			char.holdTimer = 0;
 		}
 
 		#if SCRIPTING_ALLOWED
@@ -436,24 +438,27 @@ class StrumNote extends FlxSprite
 		Gameplay.instance.health += FlxG.elapsed * (playable ? 0.125 : -0.125);
 
 		var char = parent.targetCharacter;
+		var singAnim = parent.singAnimations[noteData];
 
 		if (!Gameplay.noCharacters && char != null)
 		{
 			if (Gameplay.stillCharacters)
-				char.playAnim(parent.singPrefix + parent.singAnimations[noteData]);
+				char.playAnim(parent.singPrefix + singAnim);
 			else
 			{
 				// This shit is similar to amazing engine's character hold fix, but better
 
 				var charAnim = char.animation.curAnim;
+				var charStutterFrame = char.stillCharacterFrame;
+				var charSingAnimName = parent.singPrefix + singAnim;
 
-				if (charAnim.name == parent.singPrefix + parent.singAnimations[noteData] + parent.missSuffix)
-					char.playAnim(parent.singPrefix + parent.singAnimations[noteData]);
+				if (charAnim.name == charSingAnimName + parent.missSuffix)
+					char.playAnim(charSingAnimName);
 
 				// Prefixing shit actually made this smaller lmao
-				if (charAnim.curFrame > (char.stillCharacterFrame == -1 ? charAnim.frames.length : char.stillCharacterFrame))
-					@:privateAccess charAnim.curFrame = (char.stillCharacterFrame == -1 ? charAnim.frames.length
-						- 2 : char.stillCharacterFrame
+				if (charAnim.curFrame > (charStutterFrame == -1 ? charAnim.frames.length : charStutterFrame))
+					@:privateAccess charAnim.curFrame = (charStutterFrame == -1 ? charAnim.frames.length
+						- 2 : charStutterFrame
 						- 1);
 			}
 

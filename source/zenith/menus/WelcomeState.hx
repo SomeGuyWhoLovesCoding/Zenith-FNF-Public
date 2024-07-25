@@ -8,9 +8,9 @@ class WelcomeState extends State
 {
 	var exceptionString:String = 'No Error';
 
-	public function new(exception:Null<String> = null):Void
+	public function new(?exception:String):Void
 	{
-		if (null != exception)
+		if (exception != null)
 			exceptionString = exception;
 
 		super();
@@ -20,9 +20,9 @@ class WelcomeState extends State
 	{
 		super.create();
 
-		FlxG.sound.playMusic(Paths.sound('music/breakfast'), 0.15);
+		FlxG.sound.playMusic(AssetManager.sound('music/breakfast'), 0.15);
 
-		var bkdr:FlxBackdrop = new FlxBackdrop(Paths.image('mainmenu/welcome-grid'));
+		var bkdr:FlxBackdrop = new FlxBackdrop(AssetManager.image('mainmenu/welcome-grid'));
 		bkdr.velocity.set(-20, -20);
 		add(bkdr);
 

@@ -28,8 +28,7 @@ class ChartBytesData
 		var song_len = input.readByte();
 		var song = input.readString(song_len);
 
-		var speed = input.readDouble();
-		var bpm = input.readDouble();
+		var speed = input.readDouble(), bpm = input.readDouble();
 
 		var player1_len = input.readByte();
 		var player1 = input.readString(player1_len);
@@ -43,11 +42,7 @@ class ChartBytesData
 		var stage_len = input.readByte();
 		var stage = input.readString(stage_len);
 
-		var steps = input.readByte();
-		var beats = input.readByte();
-
-		var needsVoices:Bool = input.readByte() == 1;
-		var strumlines = input.readByte();
+		var steps = input.readByte(), beats = input.readByte(), needsVoices = input.readByte() == 1, strumlines = input.readByte();
 
 		Gameplay.SONG = new Song(song, {
 			speed: speed,
@@ -62,6 +57,7 @@ class ChartBytesData
 		});
 
 		// The 10 traces are just for testing... don't worry about it
+		trace(global_noteskin);
 		trace(Gameplay.SONG.song);
 		trace(Gameplay.SONG.info.speed);
 		trace(Gameplay.SONG.info.bpm);
@@ -89,8 +85,7 @@ class ChartBytesData
 
 		while (Main.conductor.songPosition > position - (1880.0 / Gameplay.instance.songSpeed))
 		{
-			var lane = inline input.readByte(),
-				noteData = inline input.readByte(),
+			var lane = inline input.readByte(), noteData = inline input.readByte(),
 				length = inline input.readByte() | (inline input.readByte() << 8);
 
 			Gameplay.instance.strumlines[lane].members[noteData].spawnNote(position, length);

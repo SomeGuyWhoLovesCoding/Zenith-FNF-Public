@@ -39,7 +39,7 @@ class TitleScreen extends State
 
 		// Initialize the title configurations before starting the intro
 		if (null == titleConfig)
-			titleConfig = haxe.Json.parse(sys.io.File.getContent(Paths.ASSET_PATH + '/music/menus/titleConfig.json'));
+			titleConfig = haxe.Json.parse(sys.io.File.getContent(AssetManager.ASSET_PATH + '/music/menus/titleConfig.json'));
 
 		inSubMenu = alreadyPressedEnter = false;
 
@@ -93,7 +93,7 @@ class TitleScreen extends State
 
 	private function loadTitleScreenShit():Void
 	{
-		var titleScreenFile:String = '${Paths.ASSET_PATH}/music/menus/title.ogg';
+		var titleScreenFile:String = '${AssetManager.ASSET_PATH}/music/menus/title.ogg';
 
 		if (!sys.FileSystem.exists(titleScreenFile))
 		{
@@ -103,7 +103,7 @@ class TitleScreen extends State
 
 		if (!initialized)
 		{
-			FlxG.sound.playMusic(Paths.sound('music/menus/title'), 0);
+			FlxG.sound.playMusic(AssetManager.sound('music/menus/title'), 0);
 			FlxG.sound.music.fadeIn(4, 0, 0.7);
 
 			Main.conductor.bpm = titleConfig.bpm;
@@ -115,12 +115,12 @@ class TitleScreen extends State
 			FlxG.camera.zoom = 1.0085;
 		}
 
-		titleBG = new FlxSprite().loadGraphic(Paths.image(titleConfig.titleBG));
+		titleBG = new FlxSprite().loadGraphic(AssetManager.image(titleConfig.titleBG));
 		titleBG.scale.x = titleBG.scale.y = titleConfig.titleBGScale;
 		titleBG.updateHitbox();
 		add(titleBG);
 
-		titleImage = new FlxSprite().loadGraphic(Paths.image(titleConfig.titleImage));
+		titleImage = new FlxSprite().loadGraphic(AssetManager.image(titleConfig.titleImage));
 		titleImage.scale.x = titleImage.scale.y = titleConfig.titleImageScale;
 		titleImage.updateHitbox();
 		titleImage.screenCenter();
@@ -136,7 +136,7 @@ class TitleScreen extends State
 			tempIntroText = introTexts[FlxG.random.int(0, introTexts.length - 1)];
 
 			titleText = new FlxText(0, 0, 0, '', 36);
-			titleText.font = Paths.font('vcr');
+			titleText.font = AssetManager.font('vcr');
 			titleText.alignment = "center";
 			titleText.screenCenter();
 			titleText.antialiasing = SaveData.contents.graphics.antialiasing;
