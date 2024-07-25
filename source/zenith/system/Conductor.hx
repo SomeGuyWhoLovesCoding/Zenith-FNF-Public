@@ -4,8 +4,7 @@ class Conductor
 {
 	var _rawStep(get, default):Float = 0;
 
-	// Not sure if I want to inline this because I think inling can sometimes hurt the bpm change timing but idk
-	function get__rawStep():Float
+	inline function get__rawStep():Float
 	{
 		return ((songPosition - offsetTime) / stepCrochet) + offsetStep;
 	}
@@ -46,7 +45,7 @@ class Conductor
 		changeTimeSignature(4, 4);
 	}
 
-	public function changeTimeSignature(newSteps:Int = 4, newBeats:Int = 4):Void
+	inline public function changeTimeSignature(newSteps:Int = 4, newBeats:Int = 4):Void
 	{
 		crochet = stepCrochet * newSteps;
 		steps = newSteps;
@@ -58,13 +57,11 @@ class Conductor
 
 	// Ensure that the bpm change executes at the right spot
 
-	public function executeBpmChange(newBpm:Float, position:Float):Void
+	inline public function executeBpmChange(newBpm:Float, position:Float):Void
 	{
 		offsetStep += (position - offsetTime) / stepCrochet;
 		offsetTime = position;
 		bpm = newBpm;
-
-		trace(offsetStep, offsetTime);
 	}
 
 	inline function set_bpm(value:Float):Float
