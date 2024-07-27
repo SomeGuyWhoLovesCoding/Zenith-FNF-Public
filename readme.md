@@ -8,7 +8,7 @@ This engine offers ultra performant, cross-platform, and *clean* gameplay experi
 
 **So, if some stuff gets vile and causes a crash, undo what you've changed. The commits can be reverted in the repository if you actually contribute to this project.**
 
-**Also, we recommend you to use Haxe 4.2+. (Read the description of the Emitter haxelib)**
+**Also, we recommend you to use latest haxe.
 
 To compile on HL, [read this.](https://haxe.org/manual/target-hl-getting-started.html)
 
@@ -21,8 +21,6 @@ Flixel Addons: ``haxelib install flixel-addons``
 Lime: ``haxelib install lime``
 
 Openfl: ``haxelib install openfl``
-
-Emitter: ``haxelib git Emitter https://github.com/Dimensionscape/Emitter.git``
 
 # Pages
 
