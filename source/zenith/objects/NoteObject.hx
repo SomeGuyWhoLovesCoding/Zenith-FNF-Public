@@ -95,9 +95,7 @@ class NoteObject extends FlxSprite
 		@:bypassAccessor y = FlxG.height;
 	}
 
-	override function update(elapsed:Float)
-	{
-	}
+	override function update(elapsed:Float) {}
 
 	inline public function hit()
 	{

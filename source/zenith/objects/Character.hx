@@ -1,5 +1,4 @@
 // This shit will be reworked soon cause animations with indices are fucked here lmao
-
 package zenith.objects;
 
 import sys.io.File;
@@ -298,8 +297,7 @@ class Character extends FlxSprite
 		settingCharacterUp = false;
 	}
 
-	public function addOffset(name:String, x:Float = 0, y:Float = 0)
-		@:bypassAccessor animOffsets[name] = [x, y];
+	public function addOffset(name:String, x:Float = 0, y:Float = 0) @:bypassAccessor animOffsets[name] = [x, y];
 
 	public function quickAnimAdd(name:String, anim:String)
 		animation.addByPrefix(name, anim, 24, false);

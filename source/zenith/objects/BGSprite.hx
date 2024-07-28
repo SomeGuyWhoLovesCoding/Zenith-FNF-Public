@@ -28,7 +28,8 @@ class BGSprite extends FlxSprite
 		}
 		else
 		{
-			if (image != null) loadGraphic(AssetManager.image('stage/$image'));
+			if (image != null)
+				loadGraphic(AssetManager.image('stage/$image'));
 			@:bypassAccessor active = moves = false;
 		}
 		@:bypassAccessor scrollFactor.set(scrollX, scrollY);

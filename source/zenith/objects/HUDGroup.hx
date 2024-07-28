@@ -144,6 +144,7 @@ class HUDGroup extends FlxSpriteGroup
 	}
 
 	var _timeTxtValue:Float = 0;
+
 	override function draw()
 	{
 		if (Gameplay.hideHUD || Gameplay.noCharacters)

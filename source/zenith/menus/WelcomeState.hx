@@ -20,7 +20,7 @@ class WelcomeState extends State
 	{
 		super.create();
 
-		FlxG.sound.playMusic(AssetManager.sound('music/breakfast'), 0.15);
+		FlxG.sound.playMusic(AssetManager.music('breakfast'), 0.15);
 
 		var bkdr:FlxBackdrop = new FlxBackdrop(AssetManager.image('mainmenu/welcome-grid'));
 		bkdr.velocity.set(-20, -20);

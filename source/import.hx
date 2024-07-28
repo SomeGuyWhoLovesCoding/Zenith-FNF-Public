@@ -20,7 +20,6 @@ import flixel.util.FlxSignal;
 import primitiveHelpers.*;
 #end
 
-
 #if !debug
 @:noDebug
 #end

@@ -14,8 +14,9 @@ class AssetManager
 
 	public static function image(key:String) // Classic Paths.hx vibes
 	{
-		if (!Assets.exists(key)) Assets.cache.setBitmapData(key, BitmapData.fromFile('$ASSET_PATH/images/$key.png'));
-		return !SaveData.contents.graphics.gpuCaching ? Assets.getBitmapData(key) : Tools.toTexture(Assets.getBitmapData(key));
+		if (!Assets.exists(key))
+			Assets.cache.setBitmapData(key, BitmapData.fromFile('$ASSET_PATH/images/$key.png'));
+		return Tools.toTexture(Assets.getBitmapData(key), key);
 	}
 
 	inline static public function xml(key:String)
@@ -31,6 +32,11 @@ class AssetManager
 	inline static public function sound(key:String)
 	{
 		return audio('sounds/$key');
+	}
+
+	inline static public function music(key:String)
+	{
+		return audio('music/$key');
 	}
 
 	inline static public function font(key:String, ext:String = "ttf")

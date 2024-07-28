@@ -75,8 +75,8 @@ class Main extends Sprite
 			fpsTxt = new TextField();
 			fpsTxt.defaultTextFormat = new TextFormat(AssetManager.font('vcr'), 18, 0xFFFFFFFF, true);
 			fpsTxt.selectable = false;
-			fpsTxt.width = 240;
-			fpsTxt.text = 'FPS: 0 (MAX: 0)\nMEM: 0Bytes';
+			fpsTxt.width = 400;
+			fpsTxt.text = 'FPS: 0 (MAX: 0)\nRAM: 0Bytes (MEM: 0Bytes)';
 			addChild(fpsTxt);
 		}
 
@@ -160,8 +160,11 @@ class Main extends Sprite
 				+ fps
 				+ ' (MAX: '
 				+ fpsMax
-				+ ')\nMEM: '
-				+ flixel.util.FlxStringUtil.formatBytes(#if hl hl.Gc.stats().currentMemory #elseif cpp cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_RESERVED) #end);
+				+ ')\nRAM: '
+				+ flixel.util.FlxStringUtil.formatBytes(#if hl hl.Gc.stats().currentMemory #elseif cpp cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_RESERVED) #end)
+				+ ' (MEM: '
+				+ flixel.util.FlxStringUtil.formatBytes(openfl.Lib.current.stage.context3D.totalGPUMemory)
+				+ ')';
 			fpsTextTimer = elapsed;
 		}
 
@@ -273,7 +276,8 @@ class Main extends Sprite
 
 		// You don't really need those as they're either very hard to press keys or they're flat out unneeded
 		NativeCFFI.lime_sensor_event_manager_register(function() {}, backend.sensorEventInfo);
-		NativeCFFI.lime_touch_event_manager_register(function() {}, backend.touchEventInfo); // Might do android support for fnf zenith but idk about that since it's not in my priority list lmao
+		NativeCFFI.lime_touch_event_manager_register(function() {},
+			backend.touchEventInfo); // Might do android support for fnf zenith but idk about that since it's not in my priority list lmao
 		NativeCFFI.lime_gamepad_event_manager_register(function() {}, backend.gamepadEventInfo);
 		NativeCFFI.lime_joystick_event_manager_register(function() {}, backend.joystickEventInfo);
 	}

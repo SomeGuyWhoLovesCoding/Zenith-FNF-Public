@@ -96,12 +96,12 @@ class HealthIcon extends FlxSprite
 			_scaleB = FlxMath.lerp(_scaleB, 0.0, FlxG.elapsed * 8.0);
 			scale.x = scale.y = _scaleA + _scaleB;
 			_scaleA -= (_scaleA - 1) * (60 * FlxG.elapsed);
-	
+
 			if (isPlayer)
 				x = (parent.x + (parent.width * (1 - (parent.value / parent.maxValue))) + (150 * scale.x - 150) * 0.5) - 22;
 			else
 				x = (parent.x + (parent.width * (1 - (parent.value / parent.maxValue))) - (150 * scale.x) * 0.5) - 22 * 2;
-	
+
 			y = parent.y - (60 / scale.y);
 		}
 	}

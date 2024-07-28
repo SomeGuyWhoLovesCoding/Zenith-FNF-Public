@@ -3,13 +3,14 @@ package zenith;
 class Game extends FlxGame
 {
 	final initState:Class<FlxState> = Gameplay;
+
 	public var blockSoundKeys:Bool = false;
 
 	// Input events
-	public var onKeyDown:FlxTypedSignal<(Int, Int)->Void> = new FlxTypedSignal<(Int, Int)->Void>();
-	public var onKeyUp:FlxTypedSignal<(Int, Int)->Void> = new FlxTypedSignal<(Int, Int)->Void>();
-	public var onMouseDown:FlxTypedSignal<(Float, Float, Int)->Void> = new FlxTypedSignal<(Float, Float, Int)->Void>();
-	public var onMouseUp:FlxTypedSignal<(Float, Float, Int)->Void> = new FlxTypedSignal<(Float, Float, Int)->Void>();
+	public var onKeyDown:FlxTypedSignal<(Int, Int) -> Void> = new FlxTypedSignal<(Int, Int) -> Void>();
+	public var onKeyUp:FlxTypedSignal<(Int, Int) -> Void> = new FlxTypedSignal<(Int, Int) -> Void>();
+	public var onMouseDown:FlxTypedSignal<(Float, Float, Int) -> Void> = new FlxTypedSignal<(Float, Float, Int) -> Void>();
+	public var onMouseUp:FlxTypedSignal<(Float, Float, Int) -> Void> = new FlxTypedSignal<(Float, Float, Int) -> Void>();
 
 	public static var frameRate(default, null):Int;
 

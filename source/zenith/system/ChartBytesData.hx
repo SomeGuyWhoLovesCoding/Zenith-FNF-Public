@@ -42,7 +42,10 @@ class ChartBytesData
 		var stage_len = input.readByte();
 		var stage = input.readString(stage_len);
 
-		var steps = input.readByte(), beats = input.readByte(), needsVoices = input.readByte() == 1, strumlines = input.readByte();
+		var steps = input.readByte(),
+			beats = input.readByte(),
+			needsVoices = input.readByte() == 1,
+			strumlines = input.readByte();
 
 		Gameplay.SONG = new Song(song, {
 			speed: speed,
@@ -85,7 +88,8 @@ class ChartBytesData
 
 		while (Main.conductor.songPosition > position - (1880.0 / Gameplay.instance.songSpeed))
 		{
-			var lane = inline input.readByte(), noteData = inline input.readByte(),
+			var lane = inline input.readByte(),
+				noteData = inline input.readByte(),
 				length = inline input.readByte() | (inline input.readByte() << 8);
 
 			Gameplay.instance.strumlines[lane].members[noteData].spawnNote(position, length);

@@ -228,7 +228,6 @@ class Gameplay extends State
 
 		Main.conductor.onMeasureHit = (curMeasure:Single) ->
 		{
-			
 			if (curMeasure < 0 || songEnded || !startedCountdown || Main.conductor.songPosition < 0)
 			{
 				return;
@@ -666,10 +665,12 @@ class Gameplay extends State
 			if (null != whatCharacter)
 			{
 				camFollowPosTween = FlxTween.tween(camFollowPos, {
-					x: whatCharacter == gf ? _mp.x + _cpx + girlfriendCameraOffset[0] : whatCharacter == bf ? (_mp.x - 100) - _cpx
-						- boyfriendCameraOffset[0] : (_mp.x + 150) + _cpx + opponentCameraOffset[0],
-					y: whatCharacter == gf ? _mp.y + _cpy + girlfriendCameraOffset[1] : whatCharacter == bf ? (_mp.y - 100) + _cpy
-						+ boyfriendCameraOffset[1] : (_mp.y - 100) + _cpy + opponentCameraOffset[1]
+					x: whatCharacter == gf ? _mp.x + _cpx +
+					girlfriendCameraOffset[0] : whatCharacter == bf ? (_mp.x - 100) - _cpx - boyfriendCameraOffset[0] : (_mp.x
+						+ 150) + _cpx + opponentCameraOffset[0],
+					y: whatCharacter == gf ? _mp.y + _cpy + girlfriendCameraOffset[1] : whatCharacter == bf ? (_mp.y - 100) + _cpy +
+						boyfriendCameraOffset[1] : (_mp.y
+						- 100) + _cpy + opponentCameraOffset[1]
 				}, 1.2 * cameraSpeed, {ease: FlxEase.expoOut});
 			}
 		}

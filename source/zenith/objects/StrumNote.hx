@@ -173,7 +173,10 @@ class StrumNote extends FlxSprite
 			return;
 		}
 
-		var _songPosition = Main.conductor.songPosition, _songSpeed = Gameplay.instance.songSpeed, _notePosition, _scrollMult = scrollMult;
+		var _songPosition = Main.conductor.songPosition,
+			_songSpeed = Gameplay.instance.songSpeed,
+			_notePosition,
+			_scrollMult = scrollMult;
 		var _note, _idleNote = NoteskinHandler.idleNote;
 		var playingConfAnim = animation.curAnim != null && animation.curAnim.name == "confirm";
 
@@ -207,11 +210,9 @@ class StrumNote extends FlxSprite
 			{
 				// Literally the sustain logic system
 
-				if (_holding = playingConfAnim
-					&& _songPosition > _notePosition
-					&& _songPosition < _notePosition + (_note.length - 50))
+				if (_holding = playingConfAnim && _songPosition > _notePosition && _songPosition < _notePosition + (_note.length - 50))
 				{
-					//@:bypassAccessor _note.clipRect = ; Will do it tomorrow.
+					// @:bypassAccessor _note.clipRect = ; Will do it tomorrow.
 					_onSustainHold();
 				}
 			}
@@ -237,10 +238,16 @@ class StrumNote extends FlxSprite
 		}
 
 		// Variables list (For even faster field access)
-		var _songPosition = Main.conductor.songPosition, _songSpeed = Gameplay.instance.songSpeed,
-			_notePosition, _hittablePosition = _hittableNote.position, _noteHitbox = Std.int(250 / _songSpeed), _scrollMult = scrollMult;
-		var _note = NoteskinHandler.idleNote, _idleNote = NoteskinHandler.idleNote;
-		var _hittableAlreadyHit = _hittableNote.state == NoteState.HIT, _hittableValid = _hittableNote != _idleNote;
+		var _songPosition = Main.conductor.songPosition,
+			_songSpeed = Gameplay.instance.songSpeed,
+			_notePosition,
+			_hittablePosition = _hittableNote.position,
+			_noteHitbox = Std.int(250 / _songSpeed),
+			_scrollMult = scrollMult;
+		var _note = NoteskinHandler.idleNote,
+			_idleNote = NoteskinHandler.idleNote;
+		var _hittableAlreadyHit = _hittableNote.state == NoteState.HIT,
+			_hittableValid = _hittableNote != _idleNote;
 
 		for (i in 0...notes.length)
 		{
@@ -293,8 +300,7 @@ class StrumNote extends FlxSprite
 					}
 					else
 					{
-						if (_notePosition - _songPosition < _noteHitbox
-							|| (_hittableAlreadyHit || _hittablePosition > _notePosition))
+						if (_notePosition - _songPosition < _noteHitbox || (_hittableAlreadyHit || _hittablePosition > _notePosition))
 						{
 							_hittablePosition = _notePosition;
 							_hittableNote = _note;
@@ -309,8 +315,7 @@ class StrumNote extends FlxSprite
 			@:bypassAccessor _note.x = @:bypassAccessor x
 				+ ((_scrollMult < 0 ? -_scrollMult : _scrollMult) * _note.distance) * FlxMath.fastCos(FlxAngle.asRadians(_note.direction - 90));
 
-			@:bypassAccessor _note.y = @:bypassAccessor y
-				+ (_scrollMult * _note.distance) * FlxMath.fastSin(FlxAngle.asRadians(_note.direction - 90));
+			@:bypassAccessor _note.y = @:bypassAccessor y + (_scrollMult * _note.distance) * FlxMath.fastSin(FlxAngle.asRadians(_note.direction - 90));
 		}
 	}
 
@@ -442,25 +447,26 @@ class StrumNote extends FlxSprite
 
 		if (!Gameplay.noCharacters && char != null)
 		{
-			if (Gameplay.stillCharacters)
-				char.playAnim(parent.singPrefix + singAnim);
-			else
+			// This shit is similar to amazing engine's character hold fix, but better
+
+			var charAnim = char.animation.curAnim;
+			var charSingAnimName = parent.singPrefix + singAnim;
+
+			if (charAnim.name == charSingAnimName + parent.missSuffix || charAnim.name == 'idle')
+				char.playAnim(charSingAnimName);
+
+			// Prefixing shit actually made this smaller lmao
+			if (!Gameplay.stillCharacters)
 			{
-				// This shit is similar to amazing engine's character hold fix, but better
-
-				var charAnim = char.animation.curAnim;
 				var charStutterFrame = char.stillCharacterFrame;
-				var charSingAnimName = parent.singPrefix + singAnim;
+				var charStutterFrameEmpty = charStutterFrame == -1;
+				var charFramesLen = charAnim.frames.length;
 
-				if (charAnim.name == charSingAnimName + parent.missSuffix)
-					char.playAnim(charSingAnimName);
-
-				// Prefixing shit actually made this smaller lmao
-				if (charAnim.curFrame > (charStutterFrame == -1 ? charAnim.frames.length : charStutterFrame))
-					@:privateAccess charAnim.curFrame = (charStutterFrame == -1 ? charAnim.frames.length
-						- 2 : charStutterFrame
-						- 1);
+				if (charAnim.curFrame > (charStutterFrameEmpty ? charFramesLen : charStutterFrame))
+					charAnim.curFrame = (charStutterFrameEmpty ? charFramesLen - 2 : charStutterFrame - 1);
 			}
+			else
+				charAnim.curFrame = 0;
 
 			char.holdTimer = 0;
 		}

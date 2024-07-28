@@ -103,7 +103,7 @@ class TitleScreen extends State
 
 		if (!initialized)
 		{
-			FlxG.sound.playMusic(AssetManager.sound('music/menus/title'), 0);
+			FlxG.sound.playMusic(AssetManager.music('menus/title'), 0);
 			FlxG.sound.music.fadeIn(4, 0, 0.7);
 
 			Main.conductor.bpm = titleConfig.bpm;

@@ -1,22 +1,33 @@
 package zenith.core;
 
-import openfl.Lib;
-import lime.graphics.opengl.GL;
 import openfl.display.BitmapData;
-import openfl.display3D.Context3D;
-import openfl.display3D.textures.TextureBase;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 
 class Tools
 {
-	inline static public function toTexture(source:BitmapData):BitmapData
+	// GPU Texture system
+	private static var textures:Map<String, openfl.display3D.textures.RectangleTexture> = [];
+
+	static public function toTexture(source:BitmapData, key:String):BitmapData
 	{
 		#if !hl
-		if (SaveData.contents.graphics.gpuCaching && source.readable && !GL.isContextLost())
+		if (SaveData.contents.graphics.gpuCaching && source.readable && !lime.graphics.opengl.GL.isContextLost())
 		{
-			var context:Context3D = Lib.current.stage.context3D;
-			var texture:TextureBase = source.getTexture(context);
+			if (textures.exists(key))
+			{
+				return BitmapData.fromTexture(@:bypassAccessor textures[key]);
+			}
+
+			var texture = openfl.Lib.current.stage.context3D.createRectangleTexture(source.width, source.height, BGRA, false);
+			texture.uploadFromBitmapData(source);
+			source.disposeImage();
+			source.dispose();
+			source = null;
+			@:bypassAccessor textures[key] = texture;
+
+			openfl.system.System.gc();
+
 			return BitmapData.fromTexture(texture);
 		}
 		#end
