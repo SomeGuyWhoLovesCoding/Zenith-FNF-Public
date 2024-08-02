@@ -94,10 +94,6 @@ frame delay*
 
 ``onKeyUpPost(keyCode, keyModifier)``: This function is called after releasing a key. (This is only available in-game)
 
-``newNote(note)``: This function is called after creating/reusing a note instance.
-
-``newSustain(sustain)``: This function is called after creating/reusing a sustain note instance.
-
 ``onNoteHit(noteData)``: This function is called before hitting a note.
 
 ``onNoteHitPost(noteData)``: This function is called after hitting a note.
