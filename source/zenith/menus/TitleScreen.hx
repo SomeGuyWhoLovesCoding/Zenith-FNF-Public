@@ -52,7 +52,10 @@ class TitleScreen extends State
 
 		Main.conductor.onBeatHit = (curBeat:Float) ->
 		{
-			cameraZoomTween?.cancel();
+			if (cameraZoomTween != null)
+			{
+			  cameraZoomTween.cancel();
+		}
 
 			FlxG.camera.zoom = 1.0085;
 			cameraZoomTween = FlxTween.tween(FlxG.camera, {zoom: 1}, Main.conductor.crochet * 0.00175, {ease: FlxEase.quintOut});
@@ -126,7 +129,10 @@ class TitleScreen extends State
 		titleImage.screenCenter();
 		add(titleImage);
 
-		cameraZoomTween?.cancel();
+		if (cameraZoomTween != null)
+		{
+			cameraZoomTween.cancel();
+		}
 
 		FlxG.camera.zoom = 1.0085;
 		cameraZoomTween = FlxTween.tween(FlxG.camera, {zoom: 1.0}, Main.conductor.crochet * 0.00175, {ease: FlxEase.quintOut});
