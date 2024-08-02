@@ -306,6 +306,8 @@ class Gameplay extends State
 
 		songSpeed = SONG.info.speed;
 
+		//! THIS IS GOING TO BE REWRITTEN!!!
+
 		curStage = SONG.info.stage ?? 'stage';
 
 		if (curStage == '') // For vanilla charts
@@ -612,7 +614,10 @@ class Gameplay extends State
 		else
 			songLength = 0;
 
-		voices?.play();
+		if (voices != null)
+		{
+			voices.play();
+		}
 
 		if (hudGroup != null && hudGroup.timeTxt != null)
 		{
@@ -654,7 +659,10 @@ class Gameplay extends State
 
 	private function moveCamera(whatCharacter:Character)
 	{
-		camFollowPosTween?.cancel();
+		if (camFollowPosTween != null)
+		{
+			camFollowPosTween.cancel();
+		}
 
 		if (!noCharacters)
 		{
@@ -687,7 +695,11 @@ class Gameplay extends State
 
 	function set_defaultCamZoom(value:Float):Float
 	{
-		gameCameraZoomTween?.cancel();
+		if (gameCameraZoomTween != null)
+		{
+			gameCameraZoomTween.cancel();
+		}
+
 		gameCameraZoomTween = zoomTweenFunction(FlxG.camera, value);
 		return defaultCamZoom = value;
 	}
