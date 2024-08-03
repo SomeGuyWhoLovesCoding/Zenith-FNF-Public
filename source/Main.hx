@@ -25,10 +25,6 @@ class Main extends Sprite
 {
 	static public var conductor:Conductor;
 
-	#if (SCRIPTING_ALLOWED && hscript)
-	static public var hscript:HScriptSystem;
-	#end
-
 	static private final transitioning:Transitioning = {_in: function() {}, _out: function() {}};
 
 	static public var game:Game;
@@ -49,8 +45,7 @@ class Main extends Sprite
 		conductor = new Conductor();
 
 		#if (SCRIPTING_ALLOWED && hscript)
-		hscript = new HScriptSystem();
-		hscript.callFromAllScripts('onGameBoot');
+		callHScript(BOOT);
 		#end
 
 		// Before adding ``game``, create the transition
@@ -196,13 +191,14 @@ class Main extends Sprite
 		var backend = lime.app.Application.current.__backend;
 
 		var window:Window;
+		var gameplay = Gameplay.instance;
 		NativeCFFI.lime_key_event_manager_register(function()
 		{
 			if (backend.keyEventInfo.type == KEY_UP)
 			{
-				if (Gameplay.instance == FlxG.state && !Gameplay.instance?.paused)
+				if (gameplay != null && gameplay == FlxG.state && !gameplay.paused)
 				{
-					Gameplay.instance.onKeyUp(Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
+					gameplay.onKeyUp(Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
 				}
 				else
 				{
@@ -212,9 +208,9 @@ class Main extends Sprite
 
 			if (backend.keyEventInfo.type == KEY_DOWN)
 			{
-				if (Gameplay.instance == FlxG.state && !Gameplay.instance?.paused)
+				if (gameplay != null && gameplay == FlxG.state && !gameplay.paused)
 				{
-					Gameplay.instance.onKeyDown(Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
+					gameplay.onKeyDown(Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
 				}
 				else
 				{
@@ -274,7 +270,7 @@ class Main extends Sprite
 			}
 		}, backend.applicationEventInfo);
 
-		// You don't really need those as they're either very hard to press keys or they're flat out unneeded
+		// You don't really need these as they're either very hard to press keys or they're flat out unneeded
 		NativeCFFI.lime_sensor_event_manager_register(function() {}, backend.sensorEventInfo);
 		NativeCFFI.lime_touch_event_manager_register(function() {},
 			backend.touchEventInfo); // Might do android support for fnf zenith but idk about that since it's not in my priority list lmao

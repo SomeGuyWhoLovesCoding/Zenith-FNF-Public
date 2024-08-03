@@ -1,4 +1,4 @@
-function onNoteHit(note)
+function hitNote(noteData)
 {
     Gameplay.instance.addCameraZoom();
 }

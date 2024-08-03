@@ -72,11 +72,9 @@ frame delay*
 
 ### Gameplay-wise
 
-``createStage(songName, songDifficulty)``: This function is called before the song's stage is created.
+``generateSong(songName, songDifficulty)``: This function is called before the stage has loaded.
 
-``createStagePost(songName, songDifficulty)``: This function is called after the song's characters are created. Useful for creating close objects on the stage.
-
-``generateSong(songName, songDifficulty)``: This function is called after the song is loaded.
+``generateSongPost(songName, songDifficulty)``: This function is called after the stage has loaded.
 
 ``startCountdown()``: This function is called when the countdown has started.
 
@@ -84,57 +82,42 @@ frame delay*
 
 ``endSong()``: This function is called when the song has ended.
 
-``moveCamera(whatCharacter)``: This function is called when the camera has moved to a specific character.
+``keyDown(keyCode, keyModifier)``: This function is called before pressing down a key. (This is only available in-game)
 
-``onKeyDown(keyCode, keyModifier)``: This function is called before pressing down a key. (This is only available in-game)
+``keyDownPost(keyCode, keyModifier)``: This function is called after pressing down a key. (This is only available in-game)
 
-``onKeyDownPost(keyCode, keyModifier)``: This function is called after pressing down a key. (This is only available in-game)
+``keyUp(keyCode, keyModifier)``: This function is called before releasing a key. (This is only available in-game)
 
-``onKeyUp(keyCode, keyModifier)``: This function is called before releasing a key. (This is only available in-game)
-
-``onKeyUpPost(keyCode, keyModifier)``: This function is called after releasing a key. (This is only available in-game)
-
-``onNoteHit(noteData)``: This function is called before hitting a note.
-
-``onNoteHitPost(noteData)``: This function is called after hitting a note.
-
-``onNoteMiss(noteDataData)``: This function is called before missing a note.
-
-``onNoteMissPost(noteDataData)``: This function is called after missing a note.
-
-``onHold(noteData)``: This function is called every frame before holding down a sustain note.
-
-``onHoldPost(noteData)``: This function is called every frame after holding down a sustain note.
-
-``onSustainMiss(noteData)``: This function is called before missing a sustain note.
-
-``onSustainMissPost(noteData)``: This function is called after missing a sustain note.
+``keyUpPost(keyCode, keyModifier)``: This function is called after releasing a key. (This is only available in-game)
 
 ``setupNoteData(note)``: This function is called after setting up the note data for recycling.
 
 ``setupSustainData(sustain)``: This function is called after setting up the sustain note data for recycling.
 
+``hitNote(noteData)``: This function is called before hitting a note.
+
+``hitNotePost(noteData)``: This function is called after hitting a note.
+
+``missNote(noteDataData)``: This function is called before missing a note.
+
+``missNotePost(noteDataData)``: This function is called after missing a note.
+
+``hold(noteData)``: This function is called every frame before holding down a sustain note.
+
+``holdPost(noteData)``: This function is called every frame after holding down a sustain note.
+
+``missSustain(noteData)``: This function is called before missing a sustain note.
+
+``missSustainPost(noteData)``: This function is called after missing a sustain note.
+
 ## Example usage
 
-```haxe
-function triggerEvent(eventName, value1, value2, value3, value4)
-{
-	switch(eventName)
-	{
-		case "Trace string":
-			trace(value1,value2,value3,value4);
-	}
-}
-```
+(Check assets/test_script)
 
 ## Tips
 
-1. If you want to generate something after the song is generated, please use ``generateSong(songName, songDifficulty)``. This is a very good tip considering that mulithreading will basically call ``create()`` immediately.
-
 2. If you want to create your own save data when the game boots, use the ``onGameBoot()`` function and do what I've shown at the top of "Built-in functions".
-
-3.
 
 # Final message
 
-Hope you enjoyed this!
+Hope you enjoyed this API! It's not finished yet due to the mod's development.

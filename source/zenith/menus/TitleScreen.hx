@@ -54,8 +54,8 @@ class TitleScreen extends State
 		{
 			if (cameraZoomTween != null)
 			{
-			  cameraZoomTween.cancel();
-		}
+				cameraZoomTween.cancel();
+			}
 
 			FlxG.camera.zoom = 1.0085;
 			cameraZoomTween = FlxTween.tween(FlxG.camera, {zoom: 1}, Main.conductor.crochet * 0.00175, {ease: FlxEase.quintOut});
