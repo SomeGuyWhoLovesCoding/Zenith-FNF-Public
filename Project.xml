@@ -45,9 +45,6 @@
 	<haxelib name="flixel" />
 	<haxelib name="flixel-addons" />
 
-	<!--Emitter-->
-	<haxelib name="Emitter" />
-
 	<!--Debug server-->
 	<haxelib name="hxcpp-debug-server" if="debug" />
 
