@@ -4,7 +4,7 @@
 
 	<!-- _________________________ Application Settings _________________________ -->
 
-	<app title="Friday Night Funkin: Zenith" file="Zenith" main="Main" version="1.0" company="VeryExcited" />
+	<app title="Friday Night Funkin: Zenith" file="Zenith-FNF" main="Main" version="1.0" company="VeryExcited" />
 
 	<!--The flixel preloader is not accurate in Chrome. You can use it regularly if you embed the swf into a html file
 		or you can set the actual size of your file manually at "FlxPreloaderBase-onUpdate-bytesTotal"-->
@@ -44,6 +44,9 @@
 
 	<haxelib name="flixel" />
 	<haxelib name="flixel-addons" />
+
+	<!--Emitter-->
+	<haxelib name="Emitter" />
 
 	<!--Debug server-->
 	<haxelib name="hxcpp-debug-server" if="debug" />

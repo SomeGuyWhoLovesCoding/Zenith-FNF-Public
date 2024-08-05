@@ -41,7 +41,7 @@ class Conductor
 
 	inline public function reset():Void
 	{
-		offsetStep = offsetTime = songPosition = 0;
+		offsetStep = offsetTime = songPosition = 0.0;
 		changeTimeSignature(4, 4);
 	}
 
@@ -90,7 +90,7 @@ class Conductor
 			_stepPos = _stepTracker;
 
 			#if SCRIPTING_ALLOWED
-			callHScript(STEP_HIT, _stepPos);
+			Main.hscript.callFromAllScripts('onStepHit', _stepPos);
 			#end
 
 			if (onStepHit != null)
@@ -104,7 +104,7 @@ class Conductor
 			_beatPos = _beatTracker;
 
 			#if SCRIPTING_ALLOWED
-			callHScript(BEAT_HIT, _beatPos);
+			Main.hscript.callFromAllScripts('onBeatHit', _beatPos);
 			#end
 
 			if (onBeatHit != null)
@@ -118,7 +118,7 @@ class Conductor
 			_measurePos = _measureTracker;
 
 			#if SCRIPTING_ALLOWED
-			callHScript(MEASURE_HIT, _measurePos);
+			Main.hscript.callFromAllScripts('onMeasureHit', _measurePos);
 			#end
 
 			if (onMeasureHit != null)

@@ -1,15 +1,16 @@
 package zenith.scripting;
 
 #if (SCRIPTING_ALLOWED && hscript)
-class HScriptFrontend
+class HScriptSystem
 {
-	public var list:Map<String, HScriptFile> = new Map<String, HScriptFile>();
+	public var list:Map<String, HScriptFile>;
 
-	static public var instance:HScriptFrontend = new HScriptFrontend();
+	inline public function new():Void
+	{
+		list = new Map<String, HScriptFile>();
+	}
 
-	public function new() {}
-
-	public function reloadAllScripts()
+	public function reloadAllScripts():Void
 	{
 		for (key in list.keys())
 		{
@@ -17,14 +18,14 @@ class HScriptFrontend
 		}
 	}
 
-	public function loadScript(sourcePath:String, key:String, fromDirectory:Bool = false, directoryName:String = "")
+	inline public function loadScript(sourcePath:String, key:String, fromDirectory:Bool = false, directoryName:String = ""):Void
 	{
-		// If the script already exists, overwrite its contents
+		// If the script already exists, overwrite it with the new contents
 		if (list.exists(key))
 			reloadScript(key);
 		else
 		{
-			@:bypassAccessor list[key] = new HScriptFile(sourcePath, key, fromDirectory, directoryName);
+			list.set(key, new HScriptFile(sourcePath, key, fromDirectory, directoryName));
 			#if debug
 			trace('HScript with tag $key [$directoryName] loaded');
 			trace(sourcePath);
@@ -32,25 +33,24 @@ class HScriptFrontend
 		}
 	}
 
-	public function removeScript(key:String)
+	inline public function removeScript(key:String):Void
 	{
+		// If the script is already removed, don't destroy it again
+
 		var file = getScript(key);
 
-		// If the script is already removed, early return
-		if (file == null)
+		if (file != null)
 		{
-			return;
+			file.destroy();
+			list.remove(key);
+
+			#if debug
+			trace('HScript ${file.directory} with tag $key removed');
+			#end
 		}
-
-		file.destroy();
-		list.remove(key);
-
-		#if debug
-		trace('HScript ${file.directory} with tag $key removed');
-		#end
 	}
 
-	public function loadScriptsFromDirectory(sourcePath:String)
+	public function loadScriptsFromDirectory(sourcePath:String):Void
 	{
 		try
 		{
@@ -80,7 +80,7 @@ class HScriptFrontend
 		}
 	}
 
-	public function removeScriptsFromDirectory(sourcePath:String)
+	public function removeScriptsFromDirectory(sourcePath:String):Void
 	{
 		try
 		{
@@ -106,10 +106,10 @@ class HScriptFrontend
 
 	inline public function getScript(key:String):HScriptFile
 	{
-		return @:bypassAccessor list[key];
+		return list[key];
 	}
 
-	public function reloadScript(key:String)
+	inline public function reloadScript(key:String):Void
 	{
 		var file = getScript(key);
 
@@ -126,20 +126,26 @@ class HScriptFrontend
 		}
 	}
 
-	public function callFromAllScripts(id:CallID, ?arg1:Any, ?arg2:Any)
+	public function callFromAllScripts(func:String, ?arg1:Dynamic, ?arg2:Dynamic, ?arg3:Dynamic, ?arg4:Dynamic, ?arg5:Dynamic):Void
 	{
 		for (script in list.keys())
 		{
-			HScriptMacros.callFromScript(getScript(script), id, arg1, arg2);
+			try
+			{
+				var f = list[script].interp.variables[func];
+				if (f != null)
+				{
+					f(arg1, arg2, arg3, arg4, arg5);
+				}
+			}
+			catch (e:haxe.Exception)
+			{
+				error(e);
+			}
 		}
 	}
 
-	inline static public function callFromAllScriptsStatic(id:CallID, ?arg1:Any, ?arg2:Any)
-	{
-		instance.callFromAllScripts(id, arg1, arg2);
-	}
-
-	public static dynamic function error(e:haxe.Exception)
+	public dynamic function error(e:haxe.Exception):Void
 	{
 		trace(e.message);
 	}

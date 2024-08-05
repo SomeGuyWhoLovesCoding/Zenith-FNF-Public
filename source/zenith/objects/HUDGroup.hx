@@ -97,7 +97,7 @@ class HUDGroup extends FlxSpriteGroup
 				+ '%');
 
 		#if SCRIPTING_ALLOWED
-		callHScript(UPDATE_SCORE);
+		Main.hscript.callFromAllScripts('onUpdateScore');
 		#end
 	}
 

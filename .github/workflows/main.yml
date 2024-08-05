@@ -32,6 +32,7 @@ jobs:
           haxelib setup C:/haxelib
           haxelib install hxcpp > /dev/null --quiet
           haxelib install hscript
+          haxelib install Emitter
           haxelib install lime
           haxelib run lime setup
           haxelib install openfl
@@ -63,6 +64,7 @@ jobs:
           haxelib setup ~/haxelib
           haxelib install hxcpp > /dev/null --quiet
           haxelib install hscript
+          haxelib install Emitter
           haxelib install lime
           haxelib run lime setup
           haxelib install openfl
@@ -95,6 +97,7 @@ jobs:
           haxelib setup ~/haxelib
           haxelib install hxcpp > /dev/null --quiet
           haxelib install hscript
+          haxelib install Emitter
           haxelib install lime
           haxelib run lime setup
           haxelib install openfl

@@ -47,7 +47,7 @@ class Tools
 		catch (e:haxe.Exception)
 		{
 			#if (SCRIPTING_ALLOWED && hscript)
-			HScriptFrontend.error(e);
+			Main.hscript.error(e);
 			#end
 		}
 	}

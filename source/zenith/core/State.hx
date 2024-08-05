@@ -11,17 +11,17 @@ class State extends FlxState
 		try
 		{
 			#if SCRIPTING_ALLOWED
-			HScriptFrontend.instance.loadScriptsFromDirectory('assets/scripts');
+			Main.hscript.loadScriptsFromDirectory('assets/scripts');
 
-			for (script in HScriptFrontend.instance.list.keys())
+			for (script in Main.hscript.list.keys())
 			{
-				HScriptFrontend.instance.list[script].setVar('curState', Type.getClassName(Type.getClass(FlxG.state)));
+				Main.hscript.list[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
 			}
 
-			callHScript(CREATE_PRE);
+			Main.hscript.callFromAllScripts('createPre');
 			#end
 
-			Main.startTransition(false, function() {});
+			Main.startTransition(false, function():Void {});
 
 			Main.conductor.onStepHit = Main.conductor.onBeatHit = Main.conductor.onMeasureHit = null;
 			Main.conductor.reset();
@@ -32,13 +32,13 @@ class State extends FlxState
 				openfl.system.System.gc();
 
 			#if SCRIPTING_ALLOWED
-			callHScript(CREATE);
+			Main.hscript.callFromAllScripts('create');
 			#end
 
 			super.create();
 
 			#if SCRIPTING_ALLOWED
-			callHScript(CREATE_POST);
+			Main.hscript.callFromAllScripts('createPost');
 			#end
 
 			FlxG.maxElapsed = 0.1;
@@ -54,13 +54,13 @@ class State extends FlxState
 		try
 		{
 			#if SCRIPTING_ALLOWED
-			callHScript(UPDATE, elapsed);
+			Main.hscript.callFromAllScripts('update', elapsed);
 			#end
 
 			super.update(elapsed);
 
 			#if SCRIPTING_ALLOWED
-			callHScript(UPDATE_POST, elapsed);
+			Main.hscript.callFromAllScripts('updatePost', elapsed);
 			#end
 		}
 		catch (e)
@@ -75,13 +75,13 @@ class State extends FlxState
 		try
 		{
 			#if SCRIPTING_ALLOWED
-			callHScript(DESTROY);
+			Main.hscript.callFromAllScripts('destroy');
 			#end
 
 			super.destroy();
 
 			#if SCRIPTING_ALLOWED
-			callHScript(DESTROY_POST);
+			Main.hscript.callFromAllScripts('destroyPost');
 			#end
 
 			if (!SaveData.contents.graphics.persistentGraphics)

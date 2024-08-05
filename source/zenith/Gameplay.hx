@@ -105,7 +105,7 @@ class Gameplay extends State
 	public function onKeyDown(keyCode:Int, keyModifier:Int)
 	{
 		#if SCRIPTING_ALLOWED
-		callHScript(KD, keyCode, keyModifier);
+		Main.hscript.callFromAllScripts('onKeyDown', keyCode, keyModifier);
 		#end
 
 		if (generatedMusic && !cpuControlled)
@@ -119,14 +119,14 @@ class Gameplay extends State
 		}
 
 		#if SCRIPTING_ALLOWED
-		callHScript(KD_POST, keyCode, keyModifier);
+		Main.hscript.callFromAllScripts('onKeyDownPost', keyCode, keyModifier);
 		#end
 	}
 
 	public function onKeyUp(keyCode:Int, keyModifier:Int)
 	{
 		#if SCRIPTING_ALLOWED
-		callHScript(KU, keyCode, keyModifier);
+		Main.hscript.callFromAllScripts('onKeyUp', keyCode, keyModifier);
 		#end
 
 		if (generatedMusic && !cpuControlled)
@@ -140,7 +140,7 @@ class Gameplay extends State
 		}
 
 		#if SCRIPTING_ALLOWED
-		callHScript(KU_POST, keyCode, keyModifier);
+		Main.hscript.callFromAllScripts('onKeyUpPost', keyCode, keyModifier);
 		#end
 	}
 
@@ -188,7 +188,7 @@ class Gameplay extends State
 
 		super.create();
 
-		Main.conductor.onStepHit = (curStep:Float) ->
+		Main.conductor.onStepHit = (curStep:Single) ->
 		{
 			if (curStep < 0 || songEnded || !startedCountdown || Main.conductor.songPosition < 0)
 			{
@@ -214,7 +214,7 @@ class Gameplay extends State
 			}
 		}
 
-		Main.conductor.onBeatHit = (curBeat:Float) ->
+		Main.conductor.onBeatHit = (curBeat:Single) ->
 		{
 			if (curBeat < 0 || songEnded || !startedCountdown || Main.conductor.songPosition < 0)
 			{
@@ -226,7 +226,7 @@ class Gameplay extends State
 			dance(curBeat);
 		}
 
-		Main.conductor.onMeasureHit = (curMeasure:Float) ->
+		Main.conductor.onMeasureHit = (curMeasure:Single) ->
 		{
 			if (curMeasure < 0 || songEnded || !startedCountdown || Main.conductor.songPosition < 0)
 			{
@@ -306,7 +306,7 @@ class Gameplay extends State
 
 		songSpeed = SONG.info.speed;
 
-		// ! THIS IS GOING TO BE REWRITTEN!!!
+		//! THIS IS GOING TO BE REWRITTEN!!!
 
 		curStage = SONG.info.stage ?? 'stage';
 
@@ -378,11 +378,11 @@ class Gameplay extends State
 			voices.looped = false;
 		}
 
-		#if SCRIPTING_ALLOWED
-		callHScript(GS, curSong, curDifficulty);
-		#end
-
 		// Finish off stage creation and add characters finally
+
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts('createStage', curSong, curDifficulty);
+		#end
 
 		if (!noCharacters && curStage == 'stage')
 		{
@@ -424,6 +424,10 @@ class Gameplay extends State
 		startCharacterPos(dad, true);
 		startCharacterPos(bf, false);
 
+		#if SCRIPTING_ALLOWED
+		Main.hscript.callFromAllScripts('createStagePost', curSong, curDifficulty);
+		#end
+
 		// Now time to load the UI and shit
 
 		for (i in 0...strumlineCount)
@@ -439,7 +443,7 @@ class Gameplay extends State
 			hudGroup.camera = hudCamera;
 		}
 
-		var timeTakenToLoad:Float = haxe.Timer.stamp() - loadingTimestamp;
+		var timeTakenToLoad:Single = haxe.Timer.stamp() - loadingTimestamp;
 
 		trace('Loading finished! Took ${Tools.formatTime(timeTakenToLoad * 1000, true, true)} to load.');
 
@@ -458,7 +462,7 @@ class Gameplay extends State
 		generatedMusic = true;
 
 		#if SCRIPTING_ALLOWED
-		callHScript(GS_POST, curSong, curDifficulty);
+		Main.hscript.callFromAllScripts('generateSong', curSong, curDifficulty);
 		#end
 
 		openfl.system.System.gc(); // Free up inactive memory
@@ -591,7 +595,7 @@ class Gameplay extends State
 		}, 4);
 
 		#if SCRIPTING_ALLOWED
-		callHScript(START_COUNTDOWN);
+		Main.hscript.callFromAllScripts('startCountdown');
 		#end
 	}
 
@@ -623,7 +627,7 @@ class Gameplay extends State
 		startedCountdown = true;
 
 		#if SCRIPTING_ALLOWED
-		callHScript(START_SONG);
+		Main.hscript.callFromAllScripts('startSong');
 		#end
 
 		addCameraZoom();
@@ -645,7 +649,7 @@ class Gameplay extends State
 		switchState(new WelcomeState());
 
 		#if SCRIPTING_ALLOWED
-		callHScript(END_SONG);
+		Main.hscript.callFromAllScripts('endSong');
 		#end
 
 		songEnded = true;
@@ -678,6 +682,10 @@ class Gameplay extends State
 				}, 1.2 * cameraSpeed, {ease: FlxEase.expoOut});
 			}
 		}
+
+		#if SCRIPTING_ALLOWEDA
+		Main.hscript.callFromAllScripts('moveCamera', whatCharacter);
+		#end
 	}
 
 	private function zoomTweenFunction(cam:FlxCamera, amount:Float = 1):FlxTween
