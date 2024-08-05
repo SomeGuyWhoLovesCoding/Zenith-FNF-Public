@@ -16,7 +16,7 @@ class HScriptFile
 
 	public var mTime(default, null):Float;
 
-	public function new(sourcePath:String, sourceKey:String, fromDirectory:Bool = false, directoryName:String = ''):Void
+	public function new(sourcePath:String, sourceKey:String, fromDirectory:Bool = false, directoryName:String = '')
 	{
 		isFromDirectory = fromDirectory;
 		directory = directoryName;
@@ -25,15 +25,15 @@ class HScriptFile
 
 	inline public function getVar(variable:String)
 	{
-		return interp.variables.get(variable);
+		return @:bypassAccessor interp.variables[variable];
 	}
 
 	inline public function setVar(variable:String, value:Dynamic = null)
 	{
-		return interp.variables.set(variable, value);
+		return @:bypassAccessor interp.variables[variable] = value;
 	}
 
-	public function overwrite(sourcePath:String = ""):Void
+	public function overwrite(sourcePath:String = "")
 	{
 		// No need to overwrite the file if the contents are the same as the modified contents
 		if (stringCode != sys.io.File.getContent(path))
@@ -51,42 +51,42 @@ class HScriptFile
 		}
 	}
 
-	private function create(sourcePath:String, sourceKey:String):Void
+	private function create(sourcePath:String, sourceKey:String)
 	{
 		try
 		{
 			mTime = sys.FileSystem.stat(path = sourcePath).mtime.getTime();
 
 			interp = new Interp();
-			interp.variables.set('Main', Main);
-			interp.variables.set('this', Main.hscript);
-			interp.variables.set('Gameplay', Gameplay);
-			interp.variables.set('game', Gameplay.instance);
-			interp.variables.set('Tools', Tools);
-			interp.variables.set('Conductor', Conductor);
-			interp.variables.set('NoteObject', NoteObject);
-			interp.variables.set('SaveData', SaveData);
-			interp.variables.set('StringTools', StringTools);
-			interp.variables.set('AssetManager', AssetManager);
-			interp.variables.set('FlxG', FlxG);
-			interp.variables.set('FlxSprite', FlxSprite);
-			interp.variables.set('FlxCamera', FlxCamera);
-			interp.variables.set('FlxTimer', FlxTimer);
-			interp.variables.set('FlxTween', flixel.tweens.FlxTween);
-			interp.variables.set('FlxEase', flixel.tweens.FlxEase);
-			interp.variables.set('FlxSound', FlxSound);
-			interp.variables.set('Math', Math);
-			interp.variables.set('Std', Std);
-			interp.variables.set('Array', Array);
+			setVar('Main', Main);
+			setVar('this', Main.hscript);
+			setVar('Gameplay', Gameplay);
+			setVar('game', Gameplay.instance);
+			setVar('Tools', Tools);
+			setVar('Conductor', Conductor);
+			setVar('NoteObject', NoteObject);
+			setVar('SaveData', SaveData);
+			setVar('StringTools', StringTools);
+			setVar('AssetManager', AssetManager);
+			setVar('FlxG', FlxG);
+			setVar('FlxSprite', FlxSprite);
+			setVar('FlxCamera', FlxCamera);
+			setVar('FlxTimer', FlxTimer);
+			setVar('FlxTween', flixel.tweens.FlxTween);
+			setVar('FlxEase', flixel.tweens.FlxEase);
+			setVar('FlxSound', FlxSound);
+			setVar('Math', Math);
+			setVar('Std', Std);
+			setVar('Array', Array);
 
 			// Menus and shit you can modify
-			interp.variables.set('TitleScreen', TitleScreen);
-			interp.variables.set('TitleScreen', TitleScreen);
-			interp.variables.set('MainMenu', MainMenu);
-			// interp.variables.set('FreeplayMenu', FreeplayMenu);
-			// interp.variables.set('AchievementsMenu', AchievementsMenu);
-			// interp.variables.set('CreditsMenu', CreditsMenu);
-			// interp.variables.set('SettingsMenu', SettingsMenu);
+			setVar('TitleScreen', TitleScreen);
+			setVar('TitleScreen', TitleScreen);
+			setVar('MainMenu', MainMenu);
+			// setVar('FreeplayMenu', FreeplayMenu);
+			// setVar('AchievementsMenu', AchievementsMenu);
+			// setVar('CreditsMenu', CreditsMenu);
+			// setVar('SettingsMenu', SettingsMenu);
 
 			parser = new Parser();
 			parser.allowJSON = parser.allowMetadata = parser.allowTypes = true;
@@ -94,8 +94,8 @@ class HScriptFile
 			stringCode = sys.io.File.getContent(path);
 			interp.execute(parser.parseString(stringCode, key = sourceKey));
 
-			interp.variables.set('getVar', getVar);
-			interp.variables.set('setVar', setVar);
+			setVar('getVar', getVar);
+			setVar('setVar', setVar);
 		}
 		catch (e:haxe.Exception)
 		{
@@ -103,7 +103,7 @@ class HScriptFile
 		}
 	}
 
-	inline public function destroy():Void
+	inline public function destroy()
 	{
 		interp.variables.clear();
 		interp.variables = null;

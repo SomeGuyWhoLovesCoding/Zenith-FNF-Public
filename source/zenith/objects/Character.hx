@@ -1,4 +1,4 @@
-// This shit will be reworked soon cause animations with indices are fucked here lmao
+// This shit will be reworked soon cause certain animations like ones with indices are fucked here lmao
 package zenith.objects;
 
 import sys.io.File;

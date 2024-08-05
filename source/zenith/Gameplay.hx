@@ -105,12 +105,12 @@ class Gameplay extends State
 	public function onKeyDown(keyCode:Int, keyModifier:Int)
 	{
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('onKeyDown', keyCode, keyModifier);
+		callHScript(KEY_DOWN, keyCode, keyModifier);
 		#end
 
 		if (generatedMusic && !cpuControlled)
 		{
-			st = inputKeybinds[keyCode % 1024] ?? NoteskinHandler.idleStrumNote;
+			st = inputKeybinds[keyCode & 0xFF] ?? NoteskinHandler.idleStrumNote;
 
 			if (!st.active)
 			{
@@ -119,19 +119,19 @@ class Gameplay extends State
 		}
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('onKeyDownPost', keyCode, keyModifier);
+		callHScript(KEY_DOWN_POST, keyCode, keyModifier);
 		#end
 	}
 
 	public function onKeyUp(keyCode:Int, keyModifier:Int)
 	{
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('onKeyUp', keyCode, keyModifier);
+		callHScript(KEY_UP, keyCode, keyModifier);
 		#end
 
 		if (generatedMusic && !cpuControlled)
 		{
-			st = inputKeybinds[keyCode % 1024] ?? NoteskinHandler.idleStrumNote;
+			st = inputKeybinds[keyCode & 0xFF] ?? NoteskinHandler.idleStrumNote;
 
 			if (st.active)
 			{
@@ -140,7 +140,7 @@ class Gameplay extends State
 		}
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('onKeyUpPost', keyCode, keyModifier);
+		callHScript(KEY_UP_POST, keyCode, keyModifier);
 		#end
 	}
 
@@ -188,7 +188,7 @@ class Gameplay extends State
 
 		super.create();
 
-		Main.conductor.onStepHit = (curStep:Single) ->
+		Main.conductor.onStepHit = (curStep:Float) ->
 		{
 			if (curStep < 0 || songEnded || !startedCountdown || Main.conductor.songPosition < 0)
 			{
@@ -214,7 +214,7 @@ class Gameplay extends State
 			}
 		}
 
-		Main.conductor.onBeatHit = (curBeat:Single) ->
+		Main.conductor.onBeatHit = (curBeat:Float) ->
 		{
 			if (curBeat < 0 || songEnded || !startedCountdown || Main.conductor.songPosition < 0)
 			{
@@ -226,7 +226,7 @@ class Gameplay extends State
 			dance(curBeat);
 		}
 
-		Main.conductor.onMeasureHit = (curMeasure:Single) ->
+		Main.conductor.onMeasureHit = (curMeasure:Float) ->
 		{
 			if (curMeasure < 0 || songEnded || !startedCountdown || Main.conductor.songPosition < 0)
 			{
@@ -381,7 +381,7 @@ class Gameplay extends State
 		// Finish off stage creation and add characters finally
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('createStage', curSong, curDifficulty);
+		callHScript('createStage', curSong, curDifficulty);
 		#end
 
 		if (!noCharacters && curStage == 'stage')
@@ -425,7 +425,7 @@ class Gameplay extends State
 		startCharacterPos(bf, false);
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('createStagePost', curSong, curDifficulty);
+		callHScript('createStagePost', curSong, curDifficulty);
 		#end
 
 		// Now time to load the UI and shit
@@ -443,7 +443,7 @@ class Gameplay extends State
 			hudGroup.camera = hudCamera;
 		}
 
-		var timeTakenToLoad:Single = haxe.Timer.stamp() - loadingTimestamp;
+		var timeTakenToLoad:Float = haxe.Timer.stamp() - loadingTimestamp;
 
 		trace('Loading finished! Took ${Tools.formatTime(timeTakenToLoad * 1000, true, true)} to load.');
 
@@ -462,7 +462,7 @@ class Gameplay extends State
 		generatedMusic = true;
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('generateSong', curSong, curDifficulty);
+		callHScript('generateSongPost', curSong, curDifficulty);
 		#end
 
 		openfl.system.System.gc(); // Free up inactive memory
@@ -506,20 +506,20 @@ class Gameplay extends State
 			if (null != gf
 				&& !gf.stunned
 				&& 0 == beat % Math.round(gfSpeed * gf.danceEveryNumBeats)
-				&& !gf.animation.curAnim?.name.startsWith("sing"))
+				&& !gf.animation.curAnim?.name.startsWith(CHAR_SING))
 				gf.dance();
 
 			if (null != dad
 				&& !dad.stunned
 				&& 0 == beat % dad.danceEveryNumBeats
-				&& !dad.animation.curAnim?.name.startsWith('sing')
+				&& !dad.animation.curAnim?.name.startsWith(CHAR_SING)
 				&& dad.animation.curAnim.finished)
 				dad.dance();
 
 			if (null != bf
 				&& !bf.stunned
 				&& 0 == beat % bf.danceEveryNumBeats
-				&& !bf.animation.curAnim?.name.startsWith('sing')
+				&& !bf.animation.curAnim?.name.startsWith(CHAR_SING)
 				&& bf.animation.curAnim.finished)
 				bf.dance();
 		}
@@ -556,7 +556,7 @@ class Gameplay extends State
 
 		inputKeybinds.resize(0);
 
-		for (i in 0...1024)
+		for (i in 0...0xFF)
 		{
 			inputKeybinds.push(NoteskinHandler.idleStrumNote);
 		}
@@ -565,7 +565,7 @@ class Gameplay extends State
 		{
 			for (j in 0...binds[i].length)
 			{
-				inputKeybinds[binds[i][j] % 1024] = playerStrum.members[i];
+				inputKeybinds[binds[i][j] & 0xFF] = playerStrum.members[i];
 			}
 		}
 	}
@@ -595,7 +595,7 @@ class Gameplay extends State
 		}, 4);
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('startCountdown');
+		callHScript('startCountdown');
 		#end
 	}
 
@@ -627,7 +627,7 @@ class Gameplay extends State
 		startedCountdown = true;
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('startSong');
+		callHScript('startSong');
 		#end
 
 		addCameraZoom();
@@ -649,7 +649,7 @@ class Gameplay extends State
 		switchState(new WelcomeState());
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('endSong');
+		callHScript('endSong');
 		#end
 
 		songEnded = true;
@@ -684,7 +684,7 @@ class Gameplay extends State
 		}
 
 		#if SCRIPTING_ALLOWEDA
-		Main.hscript.callFromAllScripts('moveCamera', whatCharacter);
+		callHScript('moveCamera', whatCharacter);
 		#end
 	}
 
@@ -758,4 +758,11 @@ class Gameplay extends State
 	}
 
 	public var paused:Bool = false;
+
+	var KEY_DOWN = "keyDown";
+	var KEY_DOWN_POST = "keyDownPost";
+	var KEY_UP = "keyUp";
+	var KEY_UP_POST = "keyUpPost";
+
+	var CHAR_SING = "sing";
 }

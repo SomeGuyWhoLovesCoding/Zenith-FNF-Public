@@ -90,7 +90,7 @@ class Conductor
 			_stepPos = _stepTracker;
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('onStepHit', _stepPos);
+			callHScript('onStepHit', _stepPos);
 			#end
 
 			if (onStepHit != null)
@@ -104,7 +104,7 @@ class Conductor
 			_beatPos = _beatTracker;
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('onBeatHit', _beatPos);
+			callHScript('onBeatHit', _beatPos);
 			#end
 
 			if (onBeatHit != null)
@@ -118,7 +118,7 @@ class Conductor
 			_measurePos = _measureTracker;
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('onMeasureHit', _measurePos);
+			callHScript('onMeasureHit', _measurePos);
 			#end
 
 			if (onMeasureHit != null)

@@ -1,16 +1,16 @@
 package zenith.scripting;
 
 #if (SCRIPTING_ALLOWED && hscript)
-class HScriptSystem
+class HScriptFrontend
 {
 	public var list:Map<String, HScriptFile>;
 
-	inline public function new():Void
+	inline public function new()
 	{
 		list = new Map<String, HScriptFile>();
 	}
 
-	public function reloadAllScripts():Void
+	public function reloadAllScripts()
 	{
 		for (key in list.keys())
 		{
@@ -18,7 +18,7 @@ class HScriptSystem
 		}
 	}
 
-	inline public function loadScript(sourcePath:String, key:String, fromDirectory:Bool = false, directoryName:String = ""):Void
+	public function loadScript(sourcePath:String, key:String, fromDirectory:Bool = false, directoryName:String = "")
 	{
 		// If the script already exists, overwrite it with the new contents
 		if (list.exists(key))
@@ -33,7 +33,7 @@ class HScriptSystem
 		}
 	}
 
-	inline public function removeScript(key:String):Void
+	inline public function removeScript(key:String)
 	{
 		// If the script is already removed, don't destroy it again
 
@@ -50,7 +50,7 @@ class HScriptSystem
 		}
 	}
 
-	public function loadScriptsFromDirectory(sourcePath:String):Void
+	public function loadScriptsFromDirectory(sourcePath:String)
 	{
 		try
 		{
@@ -80,7 +80,7 @@ class HScriptSystem
 		}
 	}
 
-	public function removeScriptsFromDirectory(sourcePath:String):Void
+	public function removeScriptsFromDirectory(sourcePath:String)
 	{
 		try
 		{
@@ -106,10 +106,10 @@ class HScriptSystem
 
 	inline public function getScript(key:String):HScriptFile
 	{
-		return list[key];
+		return @:bypassAccessor list[key];
 	}
 
-	inline public function reloadScript(key:String):Void
+	public function reloadScript(key:String)
 	{
 		var file = getScript(key);
 
@@ -126,13 +126,13 @@ class HScriptSystem
 		}
 	}
 
-	public function callFromAllScripts(func:String, ?arg1:Dynamic, ?arg2:Dynamic, ?arg3:Dynamic, ?arg4:Dynamic, ?arg5:Dynamic):Void
+	public function callFromAllScripts(func:String, ?arg1:Dynamic, ?arg2:Dynamic, ?arg3:Dynamic, ?arg4:Dynamic, ?arg5:Dynamic)
 	{
 		for (script in list.keys())
 		{
 			try
 			{
-				var f = list[script].interp.variables[func];
+				var f = getScript(script).getVar(func);
 				if (f != null)
 				{
 					f(arg1, arg2, arg3, arg4, arg5);
@@ -145,7 +145,12 @@ class HScriptSystem
 		}
 	}
 
-	public dynamic function error(e:haxe.Exception):Void
+	static public function callFromAllScriptsStatic(func:String, ?arg1:Dynamic, ?arg2:Dynamic, ?arg3:Dynamic, ?arg4:Dynamic, ?arg5:Dynamic)
+	{
+		Main.hscript.callFromAllScripts(func, arg1, arg2, arg3, arg4, arg5);
+	}
+
+	public dynamic function error(e:haxe.Exception)
 	{
 		trace(e.message);
 	}

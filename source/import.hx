@@ -16,8 +16,8 @@ import flixel.util.*;
 import flixel.ui.*;
 // Signals
 import flixel.util.FlxSignal;
-// Primitive helpers (So that number types actually show the right byte size)
-import primitiveHelpers.*;
+// Functions to help with writing
+import zenith.scripting.HScriptFrontend.callFromAllScriptsStatic as callHScript;
 #end
 
 #if !debug

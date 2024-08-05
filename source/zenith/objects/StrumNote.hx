@@ -55,7 +55,7 @@ class StrumNote extends FlxSprite
 		angle = parent.noteAngles[noteData];
 		frames = NoteskinHandler.strumNoteAnimationHolder.frames;
 		animation.copyFrom(NoteskinHandler.strumNoteAnimationHolder.animation);
-		playAnim("static");
+		playAnim(STATIC);
 
 		// Note: frameWidth and frameHeight only works for this lmao
 		initial_width = frameWidth;
@@ -69,7 +69,7 @@ class StrumNote extends FlxSprite
 
 	public function playAnim(anim:String)
 	{
-		@:bypassAccessor active = anim != "static";
+		@:bypassAccessor active = anim != STATIC;
 		color = !active ? 0xffffffff : parent.noteColors[noteData];
 
 		animation.play(anim, true);
@@ -89,14 +89,14 @@ class StrumNote extends FlxSprite
 	}
 
 	// Please don't mess with this function.
-	inline private function finishCallbackFunc(anim:String = "")
+	inline private function finishCallbackFunc(anim:String)
 	{
 		if (!playable && active)
 		{
 			@:bypassAccessor active = false;
 			color = 0xffffffff;
 
-			animation.play("static", true);
+			animation.play(STATIC, true);
 
 			@:bypassAccessor
 			{
@@ -178,7 +178,7 @@ class StrumNote extends FlxSprite
 			_notePosition,
 			_scrollMult = scrollMult;
 		var _note, _idleNote = NoteskinHandler.idleNote;
-		var playingConfAnim = animation.curAnim != null && animation.curAnim.name == "confirm";
+		var playingConfAnim = animation.curAnim != null && animation.curAnim.name == CONFIRM;
 
 		for (i in 0...sustains.length)
 		{
@@ -220,13 +220,15 @@ class StrumNote extends FlxSprite
 			_note.distance = 0.45 * (_songPosition - _notePosition) * _songSpeed;
 			_note._updateNoteFrame(this);
 
-			@:bypassAccessor _note.x = @:bypassAccessor x
-				+ (initial_width - Std.int(@:bypassAccessor _note.width) >> 1)
-				+ ((_scrollMult < 0 ? -_scrollMult : _scrollMult) * _note.distance) * FlxMath.fastCos(FlxAngle.asRadians(_note.direction - 90));
-
-			@:bypassAccessor _note.y = @:bypassAccessor y
-				+ (initial_height >> 1)
-				+ (_scrollMult * _note.distance) * FlxMath.fastSin(FlxAngle.asRadians(_note.direction - 90));
+			@:bypassAccessor
+			{
+				_note.x = x
+					+ (initial_width - Std.int(_note.width) >> 1)
+					+ ((_scrollMult < 0 ? -_scrollMult : _scrollMult) * _note.distance) * FlxMath.fastCos(FlxAngle.asRadians(_note.direction - 90));
+				_note.y = y
+					+ (initial_height >> 1)
+					+ (_scrollMult * _note.distance) * FlxMath.fastSin(FlxAngle.asRadians(_note.direction - 90));
+			}
 		}
 	}
 
@@ -284,7 +286,7 @@ class StrumNote extends FlxSprite
 						_note.hit();
 						_note.isInPool = true;
 						_notePool.push(_note);
-						_onNoteHit(_hittableNote);
+						_hitNote(_hittableNote);
 					}
 				}
 				else
@@ -294,7 +296,7 @@ class StrumNote extends FlxSprite
 						if (_songPosition - _hittablePosition > _noteHitbox)
 						{
 							_hittableNote.state = NoteState.MISS;
-							_onNoteMiss(false);
+							_missNote(false);
 							_hittableNote = _idleNote;
 						}
 					}
@@ -312,10 +314,11 @@ class StrumNote extends FlxSprite
 			_note.distance = 0.45 * (_songPosition - _notePosition) * _songSpeed;
 			_note._updateNoteFrame(this);
 
-			@:bypassAccessor _note.x = @:bypassAccessor x
-				+ ((_scrollMult < 0 ? -_scrollMult : _scrollMult) * _note.distance) * FlxMath.fastCos(FlxAngle.asRadians(_note.direction - 90));
-
-			@:bypassAccessor _note.y = @:bypassAccessor y + (_scrollMult * _note.distance) * FlxMath.fastSin(FlxAngle.asRadians(_note.direction - 90));
+			@:bypassAccessor
+			{
+				_note.x = x + ((_scrollMult < 0 ? -_scrollMult : _scrollMult) * _note.distance) * FlxMath.fastCos(FlxAngle.asRadians(_note.direction - 90));
+				_note.y = y + (_scrollMult * _note.distance) * FlxMath.fastSin(FlxAngle.asRadians(_note.direction - 90));
+			}
 		}
 	}
 
@@ -330,7 +333,7 @@ class StrumNote extends FlxSprite
 			notes.push(note);
 
 			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('setupNoteData', note);
+			callHScript(SETUP_NOTE_DATA, note);
 			#end
 		}
 
@@ -350,7 +353,7 @@ class StrumNote extends FlxSprite
 				sustains.push(sustain);
 
 				#if SCRIPTING_ALLOWED
-				Main.hscript.callFromAllScripts('setupSustainData', sustain);
+				callHScript(SETUP_SUSTAIN_DATA, sustain);
 				#end
 			}
 
@@ -366,7 +369,7 @@ class StrumNote extends FlxSprite
 
 	public function handlePress()
 	{
-		playAnim("pressed");
+		playAnim(PRESSED);
 
 		var _idleNote = NoteskinHandler.idleNote;
 
@@ -375,29 +378,29 @@ class StrumNote extends FlxSprite
 			_hittableNote.hit();
 			_hittableNote.isInPool = true;
 			_notePool.push(_hittableNote);
-			_onNoteHit(_hittableNote);
+			_hitNote(_hittableNote);
 			_hittableNote = _idleNote;
 		}
 	}
 
 	public function handleRelease()
 	{
-		playAnim("static");
+		playAnim(STATIC);
 
 		if (_holding)
 		{
-			_onNoteMiss(true);
+			_missNote(true);
 			_holding = false;
 		}
 	}
 
-	function _onNoteHit(note:NoteObject):Void
+	function _hitNote(note:NoteObject)
 	{
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts("onNoteHit", noteData);
+		callHScript(HIT_NOTE, noteData);
 		#end
 
-		playAnim("confirm");
+		playAnim(CONFIRM);
 
 		var game = Gameplay.instance;
 
@@ -422,7 +425,7 @@ class StrumNote extends FlxSprite
 		}
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts("onNoteHitPost", note);
+		callHScript(HIT_NOTE_POST, note);
 		#end
 
 		if (game.hudGroup != null)
@@ -432,13 +435,13 @@ class StrumNote extends FlxSprite
 		}
 	}
 
-	function _onSustainHold():Void
+	function _onSustainHold()
 	{
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts("onHold", noteData);
+		callHScript(HOLD, noteData);
 		#end
 
-		playAnim("confirm");
+		playAnim(CONFIRM);
 
 		Gameplay.instance.health += FlxG.elapsed * (playable ? 0.125 : -0.125);
 
@@ -452,7 +455,7 @@ class StrumNote extends FlxSprite
 			var charAnim = char.animation.curAnim;
 			var charSingAnimName = parent.singPrefix + singAnim;
 
-			if (charAnim.name == charSingAnimName + parent.missSuffix || charAnim.name == 'idle')
+			if (charAnim.name == charSingAnimName + parent.missSuffix || charAnim.name == CHAR_IDLE)
 				char.playAnim(charSingAnimName);
 
 			// Prefixing shit actually made this smaller lmao
@@ -472,14 +475,14 @@ class StrumNote extends FlxSprite
 		}
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts("onHoldPost", noteData);
+		callHScript(HOLD_POST, noteData);
 		#end
 	}
 
-	function _onNoteMiss(sustain:Bool)
+	function _missNote(sustain:Bool)
 	{
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts(!sustain ? 'onNoteMiss' : 'onSustainMiss', noteData);
+		callHScript(!sustain ? MISS_NOTE : RELEASE, noteData);
 		#end
 
 		var char = parent.targetCharacter;
@@ -499,7 +502,25 @@ class StrumNote extends FlxSprite
 		}
 
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts(!sustain ? 'onNoteMissPost' : 'onSustainMissPost', noteData);
+		callHScript(!sustain ? MISS_NOTE_POST : RELEASE_POST, noteData);
 		#end
 	}
+
+	// This is at the bottom cause these variables are to help reduce frequent string allocations
+	var PRESSED = "pressed";
+	var CONFIRM = "confirm";
+	var STATIC = "static";
+
+	var CHAR_IDLE = "idle";
+
+	var SETUP_NOTE_DATA = "setupNoteData";
+	var SETUP_SUSTAIN_DATA = "setupSustainData";
+	var HIT_NOTE = "hitNote";
+	var HIT_NOTE_POST = "hitNotePost";
+	var MISS_NOTE = "missNote";
+	var MISS_NOTE_POST = "missNotePost";
+	var HOLD = "hold";
+	var HOLD_POST = "hold";
+	var RELEASE = "release";
+	var RELEASE_POST = "releasePost";
 }

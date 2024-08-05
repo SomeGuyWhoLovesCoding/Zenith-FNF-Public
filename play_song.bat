@@ -11,4 +11,4 @@ echo.
 echo Starting...
 echo.
 
-Zenith-FNF %s% %d%
+Zenith %s% %d%

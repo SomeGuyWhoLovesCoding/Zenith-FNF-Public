@@ -26,7 +26,7 @@ class Main extends Sprite
 	static public var conductor:Conductor;
 
 	#if (SCRIPTING_ALLOWED && hscript)
-	static public var hscript:HScriptSystem;
+	static public var hscript:HScriptFrontend;
 	#end
 
 	static private final transitioning:Transitioning = {_in: function() {}, _out: function() {}};
@@ -49,7 +49,7 @@ class Main extends Sprite
 		conductor = new Conductor();
 
 		#if (SCRIPTING_ALLOWED && hscript)
-		hscript = new HScriptSystem();
+		hscript = new HScriptFrontend();
 		hscript.callFromAllScripts('onGameBoot');
 		#end
 
@@ -67,7 +67,7 @@ class Main extends Sprite
 		flixel.graphics.FlxGraphic.defaultPersist = SaveData.contents.graphics.persistentGraphics;
 
 		addChild(game = new Game());
-		addChild(transition);
+		FlxG.addChildBelowMouse(transition); // Thank you flixel
 		FlxG.signals.postStateSwitch.add(openfl.system.System.gc);
 
 		if (SaveData.contents.graphics.showFPS)

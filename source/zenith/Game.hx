@@ -2,6 +2,8 @@ package zenith;
 
 class Game extends FlxGame
 {
+	var UPDATE_PRE = 'updatePre';
+
 	final initState:Class<FlxState> = Gameplay;
 
 	public var blockSoundKeys:Bool = false;
@@ -26,7 +28,7 @@ class Game extends FlxGame
 	override public function onEnterFrame(_:openfl.events.Event):Void
 	{
 		#if SCRIPTING_ALLOWED
-		Main.hscript.callFromAllScripts('updatePre', FlxG.elapsed);
+		Main.hscript.callFromAllScripts(UPDATE_PRE, FlxG.elapsed);
 		#end
 		FlxG.fixedTimestep = false;
 		super.onEnterFrame((_ : openfl.events.Event));

@@ -2,97 +2,86 @@ package zenith.core;
 
 import flixel.FlxBasic;
 
-// FlxState with crash handling and HScript functionality
-@:access(flixel.FlxCamera)
+// FlxState with HScript functionality
 class State extends FlxState
 {
-	override function create():Void
+	var CREATE_PRE = 'createPre';
+	var CREATE = 'create';
+	var CREATE_POST = 'createPost';
+	var UPDATE = 'update';
+	var UPDATE_POST = 'updatePost';
+	var DESTROY = 'destroy';
+	var DESTROY_POST = 'destroyPost';
+
+	override function create()
 	{
-		try
+		#if SCRIPTING_ALLOWED
+		Main.hscript.loadScriptsFromDirectory('assets/scripts');
+
+		for (script in Main.hscript.list.keys())
 		{
-			#if SCRIPTING_ALLOWED
-			Main.hscript.loadScriptsFromDirectory('assets/scripts');
-
-			for (script in Main.hscript.list.keys())
-			{
-				Main.hscript.list[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
-			}
-
-			Main.hscript.callFromAllScripts('createPre');
-			#end
-
-			Main.startTransition(false, function():Void {});
-
-			Main.conductor.onStepHit = Main.conductor.onBeatHit = Main.conductor.onMeasureHit = null;
-			Main.conductor.reset();
-
-			FlxG.maxElapsed = FlxG.elapsed;
-
-			if (!SaveData.contents.graphics.persistentGraphics)
-				openfl.system.System.gc();
-
-			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('create');
-			#end
-
-			super.create();
-
-			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('createPost');
-			#end
-
-			FlxG.maxElapsed = 0.1;
+			Main.hscript.list[script].interp.variables.set('curState', Type.getClassName(Type.getClass(FlxG.state)));
 		}
-		catch (e)
-		{
-			throw e;
-		}
+
+		callHScript(CREATE_PRE);
+		#end
+
+		Main.startTransition(false, function() {});
+
+		Main.conductor.onStepHit = Main.conductor.onBeatHit = Main.conductor.onMeasureHit = null;
+		Main.conductor.reset();
+
+		FlxG.maxElapsed = 0;
+
+		if (!SaveData.contents.graphics.persistentGraphics)
+			openfl.system.System.gc();
+
+		#if SCRIPTING_ALLOWED
+		callHScript(CREATE);
+		#end
+
+		super.create();
+
+		#if SCRIPTING_ALLOWED
+		callHScript(CREATE_POST);
+		#end
+
+		FlxG.maxElapsed = 0.1;
 	}
 
-	override function update(elapsed:Float):Void
+	override function update(elapsed:Float)
 	{
-		try
-		{
-			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('update', elapsed);
-			#end
+		var delta = elapsed;
 
-			super.update(elapsed);
+		#if SCRIPTING_ALLOWED
+		callHScript(UPDATE, delta);
+		#end
 
-			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('updatePost', elapsed);
-			#end
-		}
-		catch (e)
-		{
-			throw e;
-		}
+		super.update(delta);
+
+		#if SCRIPTING_ALLOWED
+		callHScript(UPDATE_POST, delta);
+		#end
 	}
 
-	override function destroy():Void
+	override function destroy()
 	{
-		FlxG.maxElapsed = FlxG.elapsed;
-		try
-		{
-			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('destroy');
-			#end
+		FlxG.maxElapsed = 0;
+		
+		#if SCRIPTING_ALLOWED
+		callHScript(DESTROY);
+		#end
 
-			super.destroy();
+		super.destroy();
 
-			#if SCRIPTING_ALLOWED
-			Main.hscript.callFromAllScripts('destroyPost');
-			#end
+		#if SCRIPTING_ALLOWED
+		callHScript(DESTROY_POST);
+		#end
 
-			if (!SaveData.contents.graphics.persistentGraphics)
-				openfl.system.System.gc();
+		if (!SaveData.contents.graphics.persistentGraphics)
+			openfl.system.System.gc();
 
-			FlxG.maxElapsed = 0.1;
-		}
-		catch (e)
-		{
-			throw e;
-		}
+		FlxG.maxElapsed = 0.1;
 	}
 
 	public function switchState(nextState:FlxState)
