@@ -79,7 +79,7 @@ class ChartBytesData
 
 	// This chart note data is 8 bytes in size for each note
 	// Proof: Int32 (4 bytes), UInt8 (1 byte), UInt16 (2 bytes), and UInt8 (1 byte again)
-	var position(default, null):Int = 0;
+	var position(default, null):Int;
 
 	public function update()
 	{

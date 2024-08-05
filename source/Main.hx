@@ -67,7 +67,7 @@ class Main extends Sprite
 		flixel.graphics.FlxGraphic.defaultPersist = SaveData.contents.graphics.persistentGraphics;
 
 		addChild(game = new Game());
-		FlxG.addChildBelowMouse(transition); // Thank you flixel
+		addChild(transition);
 		FlxG.signals.postStateSwitch.add(openfl.system.System.gc);
 
 		if (SaveData.contents.graphics.showFPS)
@@ -198,52 +198,58 @@ class Main extends Sprite
 		var window:Window;
 		NativeCFFI.lime_key_event_manager_register(function()
 		{
-			if (backend.keyEventInfo.type == KEY_UP)
+			var gameinst = Gameplay.instance;
+
+			var kei = backend.keyEventInfo;
+			var kc = kei.keyCode;
+			var km = kei.modifier;
+
+			if (kei.type == KEY_UP)
 			{
-				if (Gameplay.instance == FlxG.state && !Gameplay.instance?.paused)
+				if (gameinst != null && gameinst == FlxG.state && !gameinst.paused)
 				{
-					Gameplay.instance.onKeyUp(Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
+					gameinst.onKeyUp(Std.int(kc), km);
 				}
 				else
 				{
-					game.onKeyUp.dispatch(Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
+					game.onKeyUp.dispatch(Std.int(kc), km);
 				}
 			}
 
-			if (backend.keyEventInfo.type == KEY_DOWN)
+			if (kei.type == KEY_DOWN)
 			{
-				if (Gameplay.instance == FlxG.state && !Gameplay.instance?.paused)
+				if (gameinst != null && gameinst == FlxG.state && !gameinst.paused)
 				{
-					Gameplay.instance.onKeyDown(Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
+					gameinst.onKeyDown(Std.int(kc), km);
 				}
 				else
 				{
-					game.onKeyDown.dispatch(Std.int(backend.keyEventInfo.keyCode), backend.keyEventInfo.modifier);
+					game.onKeyDown.dispatch(Std.int(kc), km);
 				}
 
-				if (backend.keyEventInfo.keyCode == KeyCode.F11)
+				if (kc == KeyCode.F11)
 				{
-					window = backend.parent.__windowByID.get(backend.keyEventInfo.windowID);
+					window = backend.parent.__windowByID.get(kei.windowID);
 					window.fullscreen = !window.fullscreen;
 				}
 
 				if (null != FlxG.sound && !game.blockSoundKeys)
 				{
-					if (backend.keyEventInfo.keyCode == KeyCode.EQUALS)
+					if (kc == KeyCode.EQUALS)
 					{
 						FlxG.sound.muted = false;
 						FlxG.sound.volume = Math.min(FlxG.sound.volume + 0.1, 1);
 						Main.volumeTxt.alpha = 1;
 					}
 
-					if (backend.keyEventInfo.keyCode == KeyCode.MINUS)
+					if (kc == KeyCode.MINUS)
 					{
 						FlxG.sound.muted = false;
 						FlxG.sound.volume = Math.max(FlxG.sound.volume - 0.1, 0);
 						Main.volumeTxt.alpha = 1;
 					}
 
-					if (backend.keyEventInfo.keyCode == KeyCode.NUMBER_0)
+					if (kc == KeyCode.NUMBER_0)
 					{
 						FlxG.sound.muted = !FlxG.sound.muted;
 						Main.volumeTxt.alpha = 1;
@@ -254,14 +260,16 @@ class Main extends Sprite
 
 		NativeCFFI.lime_mouse_event_manager_register(function()
 		{
-			if (backend.mouseEventInfo.type == cast 0)
+			var mei = backend.mouseEventInfo;
+
+			if (mei.type == cast 0)
 			{
-				game.onMouseDown.dispatch(backend.mouseEventInfo.x, backend.mouseEventInfo.y, backend.mouseEventInfo.button);
+				game.onMouseDown.dispatch(mei.x, mei.y, mei.button);
 			}
 
-			if (backend.mouseEventInfo.type == cast 1)
+			if (mei.type == cast 1)
 			{
-				game.onMouseUp.dispatch(backend.mouseEventInfo.x, backend.mouseEventInfo.y, backend.mouseEventInfo.button);
+				game.onMouseUp.dispatch(mei.x, mei.y, mei.button);
 			}
 		}, backend.mouseEventInfo);
 
@@ -275,9 +283,9 @@ class Main extends Sprite
 		}, backend.applicationEventInfo);
 
 		// You don't really need those as they're either very hard to press keys or they're flat out unneeded
+		// Side note: m ight do android support for fnf zenith but idk about that since it's not in my priority list lmao
 		NativeCFFI.lime_sensor_event_manager_register(function() {}, backend.sensorEventInfo);
-		NativeCFFI.lime_touch_event_manager_register(function() {},
-			backend.touchEventInfo); // Might do android support for fnf zenith but idk about that since it's not in my priority list lmao
+		NativeCFFI.lime_touch_event_manager_register(function() {}, backend.touchEventInfo);
 		NativeCFFI.lime_gamepad_event_manager_register(function() {}, backend.gamepadEventInfo);
 		NativeCFFI.lime_joystick_event_manager_register(function() {}, backend.joystickEventInfo);
 	}

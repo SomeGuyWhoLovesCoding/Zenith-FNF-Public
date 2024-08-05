@@ -61,7 +61,6 @@ class HScriptFile
 			setVar('Main', Main);
 			setVar('this', Main.hscript);
 			setVar('Gameplay', Gameplay);
-			setVar('game', Gameplay.instance);
 			setVar('Tools', Tools);
 			setVar('Conductor', Conductor);
 			setVar('NoteObject', NoteObject);

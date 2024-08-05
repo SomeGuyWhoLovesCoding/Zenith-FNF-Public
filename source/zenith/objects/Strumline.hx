@@ -4,18 +4,18 @@ package zenith.objects;
 @:access(flixel.FlxCamera)
 class Strumline extends FlxBasic
 {
-	public var keys(default, set):NoteState.UInt8;
+	public var keys(default, set):Int;
 
-	private function set_keys(value:NoteState.UInt8):NoteState.UInt8
+	private function set_keys(value:Int):Int
 	{
 		var val = value;
 		for (i in 0...val)
 		{
 			m = members[i] = new StrumNote(i, lane);
-			@:bypassAccessor m.scale.x = m.scale.y = scale;
+			@:bypassAccessor m.scale.set(scale, scale);
 			m.parent = this;
-			m.index = i * lane;
 			m._reset();
+			m.playable = playable;
 		}
 
 		if (val <= keys)
@@ -29,29 +29,29 @@ class Strumline extends FlxBasic
 		return keys = val;
 	}
 
-	public var lane:NoteState.UInt8;
+	public var lane:Int;
 	public var player:Bool;
 	public var downScroll:Bool;
 
-	public var x(default, set):NoteState.UInt16;
+	public var x(default, set):Float;
 
-	private function set_x(value:NoteState.UInt16):NoteState.UInt16
+	private function set_x(value:Float):Float
 	{
 		moveX(value);
 		return x = value;
 	}
 
-	public var y(default, set):NoteState.UInt16;
+	public var y(default, set):Float;
 
-	private function set_y(value:NoteState.UInt16):NoteState.UInt16
+	private function set_y(value:Float):Float
 	{
 		moveY(value);
 		return y = value;
 	}
 
-	public var alpha(default, set):Single;
+	public var alpha(default, set):Float;
 
-	private function set_alpha(value:Single):Single
+	private function set_alpha(value:Float):Float
 	{
 		if (members.length == 0)
 			return alpha;
@@ -67,9 +67,9 @@ class Strumline extends FlxBasic
 
 	public var members:Array<StrumNote> = [];
 
-	public var gap(default, set):NoteState.UInt8;
+	public var gap(default, set):Float;
 
-	private function set_gap(value:NoteState.UInt8):NoteState.UInt8
+	private function set_gap(value:Float):Float
 	{
 		if (members.length == 0)
 			return gap;
@@ -80,9 +80,9 @@ class Strumline extends FlxBasic
 		return gap = value;
 	}
 
-	public var scale(default, set):Single;
+	public var scale(default, set):Float;
 
-	private function set_scale(value:Single):Single
+	private function set_scale(value:Float):Float
 	{
 		if (members.length == 0)
 			return scale;
@@ -92,7 +92,7 @@ class Strumline extends FlxBasic
 		var len = members.length;
 		for (i in 0...len)
 		{
-			members[i].scale.set(scale, scale);
+			@:bypassAccessor members[i].scale.set(scale, scale);
 		}
 
 		moveX(x);
@@ -116,7 +116,7 @@ class Strumline extends FlxBasic
 		return playable = value;
 	}
 
-	public function new(keys:NoteState.UInt8 = 4, lane:NoteState.UInt8 = 0, playable:Bool = false)
+	public function new(keys:Int = 4, lane:Int = 0, playable:Bool = false)
 	{
 		super();
 
@@ -157,19 +157,21 @@ class Strumline extends FlxBasic
 			return;
 		}
 
-		for (i in 0...members.length)
+		var delta = FlxG.elapsed;
+		var len = members.length;
+		for (i in 0...len)
 		{
 			m = members[i];
 			if (m.visible)
 			{
 				if (m.active)
-					m.update(FlxG.elapsed);
+					m.update(delta);
 				m.draw();
 			}
 		}
 	}
 
-	public function moveX(x:NoteState.UInt16)
+	public function moveX(x:Float)
 	{
 		if (members.length == 0)
 			return;
@@ -181,7 +183,7 @@ class Strumline extends FlxBasic
 		}
 	}
 
-	public function moveY(y:NoteState.UInt16)
+	public function moveY(y:Float)
 	{
 		if (members.length == 0)
 			return;
@@ -222,6 +224,6 @@ class Strumline extends FlxBasic
 	public var missSuffix:String = "miss";
 	public var singAnimations:Array<String> = ["LEFT", "DOWN", "UP", "RIGHT"];
 	public var noteColors:Array<Int> = [0xFF9966BB, 0xFF00FFFF, 0xFF00FF00, 0xFFFF0000];
-	public var noteAngles:Array<Single> = [0, -90, 90, 180];
+	public var noteAngles:Array<Int> = [0, -90, 90, 180];
 	public var targetCharacter:Character;
 }

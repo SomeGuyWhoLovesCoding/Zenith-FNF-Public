@@ -25,19 +25,19 @@ class Gameplay extends State
 
 	public var health:Float = 1;
 
-	public var score:Float = 0;
-	public var misses:Float = 0;
-	public var combo:Float = 0;
+	public var score:Float;
+	public var misses:Float;
+	public var combo:Float;
 
-	var accuracy_left(default, null):Float = 0;
-	var accuracy_right(default, null):Float = 0;
+	var accuracy_left(default, null):Float;
+	var accuracy_right(default, null):Float;
 
 	// Preference stuff
-	static public var cpuControlled:Bool = false;
-	static public var downScroll:Bool = true;
-	static public var hideHUD:Bool = false;
-	static public var noCharacters:Bool = false;
-	static public var stillCharacters:Bool = false;
+	static public var cpuControlled:Bool;
+	static public var downScroll:Bool;
+	static public var hideHUD:Bool;
+	static public var noCharacters:Bool;
+	static public var stillCharacters:Bool;
 
 	// Song stuff
 	static public var SONG:Song;
@@ -72,14 +72,14 @@ class Gameplay extends State
 	public var songLengthTween(default, null):FlxTween;
 
 	public var songSpeed:Float = 1;
-	public var songLength:Float = 0;
-	public var cameraSpeed:Float = 1;
+	public var songLength:Float;
 
 	public var generatedMusic:Bool = false;
 	public var inCutscene:Bool = false;
 	public var startedCountdown:Bool = false;
 	public var songEnded:Bool = false;
 
+	public var cameraSpeed:Float = 1;
 	public var gfSpeed:Int = 1;
 
 	public var inst:FlxSound;
@@ -102,46 +102,46 @@ class Gameplay extends State
 
 	static public var instance:Gameplay;
 
-	public function onKeyDown(keyCode:Int, keyModifier:Int)
+	inline public function onKeyDown(keyCode:Int, keyModifier:Int)
 	{
-		#if SCRIPTING_ALLOWED
-		callHScript(KEY_DOWN, keyCode, keyModifier);
-		#end
-
 		if (generatedMusic && !cpuControlled)
 		{
-			st = inputKeybinds[keyCode & 0xFF] ?? NoteskinHandler.idleStrumNote;
+			#if SCRIPTING_ALLOWED
+			callHScript(KEY_DOWN, keyCode, keyModifier);
+			#end
 
-			if (!st.active)
+			var strumNote = @:bypassAccessor inputKeybinds[keyCode];
+
+			if (strumNote != null && !strumNote.active)
 			{
-				st.handlePress();
+				strumNote.handlePress();
 			}
-		}
 
-		#if SCRIPTING_ALLOWED
-		callHScript(KEY_DOWN_POST, keyCode, keyModifier);
-		#end
+			#if SCRIPTING_ALLOWED
+			callHScript(KEY_DOWN_POST, keyCode, keyModifier);
+			#end
+		}
 	}
 
-	public function onKeyUp(keyCode:Int, keyModifier:Int)
+	inline public function onKeyUp(keyCode:Int, keyModifier:Int)
 	{
-		#if SCRIPTING_ALLOWED
-		callHScript(KEY_UP, keyCode, keyModifier);
-		#end
-
 		if (generatedMusic && !cpuControlled)
 		{
-			st = inputKeybinds[keyCode & 0xFF] ?? NoteskinHandler.idleStrumNote;
+			#if SCRIPTING_ALLOWED
+			callHScript(KEY_UP, keyCode, keyModifier);
+			#end
 
-			if (st.active)
+			var strumNote = @:bypassAccessor inputKeybinds[keyCode];
+
+			if (strumNote != null && strumNote.active)
 			{
-				st.handleRelease();
+				strumNote.handleRelease();
 			}
-		}
 
-		#if SCRIPTING_ALLOWED
-		callHScript(KEY_UP_POST, keyCode, keyModifier);
-		#end
+			#if SCRIPTING_ALLOWED
+			callHScript(KEY_UP_POST, keyCode, keyModifier);
+			#end
+		}
 	}
 
 	override function create()
@@ -221,8 +221,12 @@ class Gameplay extends State
 				return;
 			}
 
-			hudGroup?.oppIcon?.bop();
-			hudGroup?.plrIcon?.bop();
+			if (hudGroup != null)
+			{
+				if (hudGroup.oppIcon != null) hudGroup.oppIcon.bop();
+				if (hudGroup.plrIcon != null) hudGroup.plrIcon.bop();
+			}
+
 			dance(curBeat);
 		}
 
@@ -283,7 +287,7 @@ class Gameplay extends State
 		}
 	}
 
-	var loadingTimestamp:Float = 0;
+	var loadingTimestamp:Float;
 
 	function generateSong(name:String, diff:String)
 	{
@@ -436,6 +440,8 @@ class Gameplay extends State
 		if (downScroll)
 			Tools.strumlineChangeDownScroll();
 
+		resetKeybinds(1, SaveData.contents.controls.GAMEPLAY_BINDS);
+
 		if (!hideHUD)
 		{
 			hudGroup = new HUDGroup();
@@ -506,20 +512,20 @@ class Gameplay extends State
 			if (null != gf
 				&& !gf.stunned
 				&& 0 == beat % Math.round(gfSpeed * gf.danceEveryNumBeats)
-				&& !gf.animation.curAnim?.name.startsWith(CHAR_SING))
+				&& !gf.animation.curAnim.name.startsWith(CHAR_SING))
 				gf.dance();
 
 			if (null != dad
 				&& !dad.stunned
 				&& 0 == beat % dad.danceEveryNumBeats
-				&& !dad.animation.curAnim?.name.startsWith(CHAR_SING)
+				&& !dad.animation.curAnim.name.startsWith(CHAR_SING)
 				&& dad.animation.curAnim.finished)
 				dad.dance();
 
 			if (null != bf
 				&& !bf.stunned
 				&& 0 == beat % bf.danceEveryNumBeats
-				&& !bf.animation.curAnim?.name.startsWith(CHAR_SING)
+				&& !bf.animation.curAnim.name.startsWith(CHAR_SING)
 				&& bf.animation.curAnim.finished)
 				bf.dance();
 		}
@@ -549,23 +555,29 @@ class Gameplay extends State
 		hudCameraZoomTween = zoomTweenFunction(hudCamera, 1);
 	}
 
-	public function resetKeybinds(?customBinds:Array<Array<Int>>)
+	public function resetKeybinds(givenPlayableStrumId:Int = 1, ?newBinds:Array<Array<Int>>)
 	{
-		final playerStrum = strumlines[1]; // Prevent redundant array access
-		final binds = customBinds ?? SaveData.contents.controls.GAMEPLAY_BINDS;
+		var playerStrum = strumlines[givenPlayableStrumId]; // Prevent redundant array access
 
-		inputKeybinds.resize(0);
-
-		for (i in 0...0xFF)
+		if (!playerStrum.playable)
 		{
-			inputKeybinds.push(NoteskinHandler.idleStrumNote);
+			return;
 		}
 
-		for (i in 0...binds.length)
+		if (newBinds == null)
 		{
-			for (j in 0...binds[i].length)
+			trace("Custom binds aren't fuckin valid");
+			newBinds = SaveData.contents.controls.GAMEPLAY_BINDS;
+		}
+
+		inputKeybinds.clear();
+
+		for (i in 0...newBinds.length)
+		{
+			var bind = newBinds[i];
+			for (j in 0...bind.length)
 			{
-				inputKeybinds[binds[i][j] & 0xFF] = playerStrum.members[i];
+				@:bypassAccessor inputKeybinds[bind[j]] = playerStrum.members[i];
 			}
 		}
 	}
@@ -576,9 +588,6 @@ class Gameplay extends State
 		{
 			return;
 		}
-
-		addCameraZoom();
-		resetKeybinds();
 
 		var swagCounter = 0;
 		_songPos = (-Main.conductor.crochet * 5);
@@ -673,12 +682,10 @@ class Gameplay extends State
 			if (null != whatCharacter)
 			{
 				camFollowPosTween = FlxTween.tween(camFollowPos, {
-					x: whatCharacter == gf ? _mp.x + _cpx +
-					girlfriendCameraOffset[0] : whatCharacter == bf ? (_mp.x - 100) - _cpx - boyfriendCameraOffset[0] : (_mp.x
-						+ 150) + _cpx + opponentCameraOffset[0],
+					x: whatCharacter == gf ? _mp.x + _cpx + girlfriendCameraOffset[0] : whatCharacter == bf ? (_mp.x - 100) - _cpx -
+						boyfriendCameraOffset[0] : (_mp.x + 150) + _cpx + opponentCameraOffset[0],
 					y: whatCharacter == gf ? _mp.y + _cpy + girlfriendCameraOffset[1] : whatCharacter == bf ? (_mp.y - 100) + _cpy +
-						boyfriendCameraOffset[1] : (_mp.y
-						- 100) + _cpy + opponentCameraOffset[1]
+						boyfriendCameraOffset[1] : (_mp.y - 100) + _cpy + opponentCameraOffset[1]
 				}, 1.2 * cameraSpeed, {ease: FlxEase.expoOut});
 			}
 		}
@@ -724,9 +731,8 @@ class Gameplay extends State
 		}
 	}
 
-	public var inputKeybinds:Array<StrumNote> = [];
+	public var inputKeybinds:Map<Int, StrumNote> = [];
 
-	var st(default, null):StrumNote;
 	var _songPos(default, null):Float = -5000;
 
 	public function changeScrollSpeed(newSpeed:Float, tweenDuration:Float = 1)

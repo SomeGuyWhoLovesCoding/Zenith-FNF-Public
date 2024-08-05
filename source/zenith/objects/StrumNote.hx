@@ -25,7 +25,6 @@ class StrumNote extends FlxSprite
 	private var _holding:Bool;
 
 	public var parent:Strumline;
-	public var index:NoteState.UInt8;
 
 	public function new(data:NoteState.UInt8 = 0, plr:NoteState.UInt8 = 0)
 	{
@@ -34,7 +33,7 @@ class StrumNote extends FlxSprite
 		noteData = data;
 		player = plr;
 
-		scrollMult = 1.0;
+		scrollMult = 1;
 
 		_hittableNote = NoteskinHandler.idleNote;
 
@@ -67,7 +66,7 @@ class StrumNote extends FlxSprite
 		animation.update(elapsed);
 	}
 
-	public function playAnim(anim:String)
+	inline public function playAnim(anim:String)
 	{
 		@:bypassAccessor active = anim != STATIC;
 		color = !active ? 0xffffffff : parent.noteColors[noteData];
@@ -178,7 +177,8 @@ class StrumNote extends FlxSprite
 			_notePosition,
 			_scrollMult = scrollMult;
 		var _note, _idleNote = NoteskinHandler.idleNote;
-		var playingConfAnim = animation.curAnim != null && animation.curAnim.name == CONFIRM;
+		var anim = animation.curAnim;
+		var playingConfAnim = anim != null && anim.name == CONFIRM;
 
 		for (i in 0...sustains.length)
 		{
@@ -222,11 +222,9 @@ class StrumNote extends FlxSprite
 
 			@:bypassAccessor
 			{
-				_note.x = x
-					+ (initial_width - Std.int(_note.width) >> 1)
+				_note.x = x + (initial_width - Std.int(_note.width) >> 1)
 					+ ((_scrollMult < 0 ? -_scrollMult : _scrollMult) * _note.distance) * FlxMath.fastCos(FlxAngle.asRadians(_note.direction - 90));
-				_note.y = y
-					+ (initial_height >> 1)
+				_note.y = y + (initial_height >> 1)
 					+ (_scrollMult * _note.distance) * FlxMath.fastSin(FlxAngle.asRadians(_note.direction - 90));
 			}
 		}
@@ -249,7 +247,7 @@ class StrumNote extends FlxSprite
 		var _note = NoteskinHandler.idleNote,
 			_idleNote = NoteskinHandler.idleNote;
 		var _hittableAlreadyHit = _hittableNote.state == NoteState.HIT,
-			_hittableValid = _hittableNote != _idleNote;
+			_hittableValid = _hittableNote.state == NoteState.IDLE && _hittableNote != _idleNote;
 
 		for (i in 0...notes.length)
 		{
@@ -330,6 +328,7 @@ class StrumNote extends FlxSprite
 		{
 			note = new NoteObject(false);
 			note.color = parent.noteColors[noteData];
+			@:bypassAccessor note.scale.set(scale.x, scale.y);
 			notes.push(note);
 
 			#if SCRIPTING_ALLOWED
@@ -350,6 +349,7 @@ class StrumNote extends FlxSprite
 			{
 				sustain = new NoteObject(true);
 				sustain.color = parent.noteColors[noteData];
+				@:bypassAccessor sustain.scale.set(scale.x, scale.y);
 				sustains.push(sustain);
 
 				#if SCRIPTING_ALLOWED
@@ -367,7 +367,7 @@ class StrumNote extends FlxSprite
 
 	// The rest of the input stuff, including the hit and miss calls
 
-	public function handlePress()
+	inline public function handlePress()
 	{
 		playAnim(PRESSED);
 
@@ -383,7 +383,7 @@ class StrumNote extends FlxSprite
 		}
 	}
 
-	public function handleRelease()
+	inline public function handleRelease()
 	{
 		playAnim(STATIC);
 
@@ -403,8 +403,9 @@ class StrumNote extends FlxSprite
 		playAnim(CONFIRM);
 
 		var game = Gameplay.instance;
+		var hud = game.hudGroup;
 
-		game.health += 0.045 * (playable ? 1.0 : -1.0);
+		game.health += 0.045 * (playable ? 1 : -1);
 
 		if (playable)
 		{
@@ -413,7 +414,11 @@ class StrumNote extends FlxSprite
 			var hitDiff = note.position - Main.conductor.songPosition;
 			game.accuracy_left += (hitDiff < 0 ? -hitDiff : hitDiff) > 83.35 ? 0.75 : 1;
 			++game.accuracy_right;
-			game.hudGroup?.updateRatings();
+
+			if (hud != null)
+			{
+				hud.updateRatings();
+			}
 		}
 
 		var char = parent.targetCharacter;
@@ -428,10 +433,10 @@ class StrumNote extends FlxSprite
 		callHScript(HIT_NOTE_POST, note);
 		#end
 
-		if (game.hudGroup != null)
+		if (hud != null)
 		{
-			game.hudGroup.updateScoreText();
-			game.hudGroup.updateIcons();
+			hud.updateScoreText();
+			hud.updateIcons();
 		}
 	}
 
@@ -490,7 +495,7 @@ class StrumNote extends FlxSprite
 		if (!Gameplay.noCharacters && char != null)
 		{
 			char.playAnim(parent.singPrefix + parent.singAnimations[noteData] + parent.missSuffix);
-			char.set_holdTimer(0.0);
+			char.holdTimer = 0;
 		}
 
 		if (playable)
@@ -498,7 +503,14 @@ class StrumNote extends FlxSprite
 			var game = Gameplay.instance;
 			game.combo = 0;
 			++game.misses;
-			game.hudGroup?.updateRatings();
+			++game.accuracy_right;
+
+			var hud = game.hudGroup;
+			if (hud != null)
+			{
+				hud.updateRatings();
+				hud.updateScoreText();
+			}
 		}
 
 		#if SCRIPTING_ALLOWED

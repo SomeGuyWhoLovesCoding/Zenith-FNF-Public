@@ -1,0 +1,23 @@
+function createPre()
+{
+    trace("A");
+}
+
+function generateSongPost()
+{
+    var strumlines = Gameplay.instance.strumlines;
+
+    for (i in 0...strumlines.length)
+    {
+        var strum = strumlines[i];
+        strum.scale = 0.635;
+        strum.gap = 60;
+        strum.singAnimations = ["LEFT", "DOWN", "UP", "RIGHT", "UP", "LEFT", "DOWN", "UP", "RIGHT"];
+        strum.noteColors = [0xFF9966BB, 0xFF00FFFF, 0xFF00FF00, 0xFFFF0000, 0xFFFFFFFF, 0xFFAF9FFF, 0xFF9966BB, 0xFF00FFFF, 0xFF00FF00];
+        strum.noteAngles = [0, -90, 90, 180, 90, 0, -90, 90, 180];
+        strum.keys = 9;
+        strum.x -= 25 + (103 * i);
+    }
+
+    Gameplay.instance.resetKeybinds(1, [[0x61], [0x73], [0x64], [0x66], [0x20], [0x6A], [0x6B], [0x6C], [0x3B]]);
+}

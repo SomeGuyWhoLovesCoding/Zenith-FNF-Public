@@ -86,7 +86,7 @@
 	<haxedef name="message.reporting" value="pretty" />
 	<!-- (Love you haxe) -->
 
-	<haxedef name="hscriptPos" />
+	<define name="hscriptPos" />
 
 	<!-- _________________________________ Custom _______________________________ -->
 
