@@ -12,97 +12,101 @@ import sys.FileSystem;
 
 using StringTools;
 
-@:access(zenith.objects.HUDGroup)
+/**
+ * The gameplay state.
+ * The entire field camera will be rewritten as soon as I finish the character and stage system revamp.
+ */
 @:access(flixel.text.FlxText)
 @:final
+@:publicFields
 class Gameplay extends State
 {
 	private var chartBytesData(default, null):ChartBytesData;
 
-	public var strumlines(default, null):Array<Strumline> = [];
+	var strumlines(default, null):Array<Strumline> = [];
 
-	public var hudGroup(default, null):HUDGroup;
+	var hudGroup(default, null):HUDGroup;
 
-	public var health:Float = 1;
+	var health:Float = 1;
 
-	public var score:Float;
-	public var misses:Float;
-	public var combo:Float;
+	var score:Int;
+	var misses:Int;
+	var combo:Int;
 
-	var accuracy_left(default, null):Float;
-	var accuracy_right(default, null):Float;
+	private var accuracy_left(default, null):Float;
+	private var accuracy_right(default, null):Float;
 
 	// Preference stuff
-	static public var cpuControlled:Bool;
-	static public var downScroll:Bool;
-	static public var hideHUD:Bool;
-	static public var noCharacters:Bool;
-	static public var stillCharacters:Bool;
+	static var cpuControlled:Bool;
+	static var downScroll:Bool;
+	static var hideHUD:Bool;
+	static var noCharacters:Bool;
+	static var stillCharacters:Bool;
 
 	// Song stuff
-	static public var SONG:Song;
+	static var SONG:Song;
 
 	// Gameplay stuff
 	// For events
-	public var curSong:String = 'test';
-	public var curDifficulty:String = '';
-	public var curStage:String = 'stage';
+	var curSong:String = 'test';
+	var curDifficulty:String = '';
+	var curStage:String = 'stage';
 
-	public var BF_X:Int = 770;
-	public var BF_Y:Int = 100;
-	public var DAD_X:Int = 100;
-	public var DAD_Y:Int = 100;
-	public var GF_X:Int = 400;
-	public var GF_Y:Int = 130;
+	var BF_X:Int = 770;
+	var BF_Y:Int = 100;
+	var DAD_X:Int = 100;
+	var DAD_Y:Int = 100;
+	var GF_X:Int = 400;
+	var GF_Y:Int = 130;
 
-	public var bfGroup:FlxSpriteGroup;
-	public var dadGroup:FlxSpriteGroup;
-	public var gfGroup:FlxSpriteGroup;
+	var bfGroup:FlxSpriteGroup;
+	var dadGroup:FlxSpriteGroup;
+	var gfGroup:FlxSpriteGroup;
 
 	// This is used to precache characters before loading in the song, like the change character event.
-	public var bfMap:Map<String, Character> = new Map<String, Character>();
-	public var dadMap:Map<String, Character> = new Map<String, Character>();
-	public var gfMap:Map<String, Character> = new Map<String, Character>();
+	var bfMap:Map<String, Character> = new Map<String, Character>();
+	var dadMap:Map<String, Character> = new Map<String, Character>();
+	var gfMap:Map<String, Character> = new Map<String, Character>();
 
-	public var boyfriendCameraOffset:Array<Int> = [0, 0];
-	public var opponentCameraOffset:Array<Int> = [0, 0];
-	public var girlfriendCameraOffset:Array<Int> = [0, 0];
+	var boyfriendCameraOffset:Array<Int> = [0, 0];
+	var opponentCameraOffset:Array<Int> = [0, 0];
+	var girlfriendCameraOffset:Array<Int> = [0, 0];
 
-	public var songSpeedTween(default, null):FlxTween;
-	public var songLengthTween(default, null):FlxTween;
+	var songSpeedTween(default, null):FlxTween;
+	var songLengthTween(default, null):FlxTween;
 
-	public var songSpeed:Float = 1;
-	public var songLength:Float;
+	var songSpeed:Float = 1;
+	var songLength:Float;
 
-	public var generatedMusic:Bool = false;
-	public var inCutscene:Bool = false;
-	public var startedCountdown:Bool = false;
-	public var songEnded:Bool = false;
+	var generatedMusic:Bool = false;
+	var inCutscene:Bool = false;
+	var startedCountdown:Bool = false;
+	var songEnded:Bool = false;
 
-	public var cameraSpeed:Float = 1;
-	public var gfSpeed:Int = 1;
+	var cameraSpeed:Float = 1;
+	var gfSpeed:Int = 1;
 
-	public var inst:FlxSound;
-	public var voices:FlxSound;
+	var inst:FlxSound;
+	var voices:FlxSound;
 
-	public var gf:Character;
-	public var dad:Character;
-	public var bf:Character;
+	var gf:Character;
+	var dad:Character;
+	var bf:Character;
 
-	public var gameCamera:FlxCamera;
-	public var hudCamera:FlxCamera;
+	var gameCamera:FlxCamera;
+	var hudCamera:FlxCamera;
 
-	public var gameCameraZoomTween(default, null):FlxTween;
-	public var hudCameraZoomTween(default, null):FlxTween;
+	var gameCameraZoomTween(default, null):FlxTween;
+	var hudCameraZoomTween(default, null):FlxTween;
 
-	public var defaultCamZoom(default, set):Float;
+	var defaultCamZoom(default, set):Float;
 
-	public var camFollowPos:FlxObject;
-	public var camFollowPosTween(default, null):FlxTween;
+	var camFollowPos:FlxObject;
+	var camFollowPosTween(default, null):FlxTween;
 
-	static public var instance:Gameplay;
+	static var instance:Gameplay;
 
-	inline public function onKeyDown(keyCode:Int, keyModifier:Int)
+	inline function onKeyDown(keyCode:Int, keyModifier:Int)
 	{
 		if (generatedMusic && !cpuControlled)
 		{
@@ -123,7 +127,7 @@ class Gameplay extends State
 		}
 	}
 
-	inline public function onKeyUp(keyCode:Int, keyModifier:Int)
+	inline function onKeyUp(keyCode:Int, keyModifier:Int)
 	{
 		if (generatedMusic && !cpuControlled)
 		{
@@ -287,8 +291,13 @@ class Gameplay extends State
 		}
 	}
 
-	var loadingTimestamp:Float;
+	private var loadingTimestamp:Float;
 
+	/**
+	 * THIS IS ABSOLUTELY GOING TO BE REWRITTEN!
+	 * @param name 
+	 * @param diff 
+	 */
 	function generateSong(name:String, diff:String)
 	{
 		loadingTimestamp = haxe.Timer.stamp();
@@ -478,10 +487,10 @@ class Gameplay extends State
 		FlxG.autoPause = true;
 	}
 
-	static public var strumlineCount:Int = 2;
-	static public var playablelineConfiguration:Array<Bool> = [false, true];
+	static var strumlineCount:Int = 2;
+	static var playablelineConfiguration:Array<Bool> = [false, true];
 
-	public function generateStrumline(player:Int = 0)
+	function generateStrumline(player:Int = 0)
 	{
 		// If the array's length is not above or equal to the strumline count, compensate for it
 		while (playablelineConfiguration.length <= strumlineCount)
@@ -495,7 +504,7 @@ class Gameplay extends State
 	}
 
 	// This is good for now
-	public function introHandler(tick:Int)
+	function introHandler(tick:Int)
 	{
 		if (tick == 5)
 		{
@@ -505,7 +514,7 @@ class Gameplay extends State
 		addCameraZoom(tick * 0.00375, tick * 0.00375);
 	}
 
-	public function dance(beat:Float)
+	function dance(beat:Float)
 	{
 		if (!noCharacters)
 		{
@@ -532,7 +541,7 @@ class Gameplay extends State
 	}
 
 	// For hscript
-	public function addCameraZoom(value1:Float = 0.015, value2:Float = 0.03)
+	function addCameraZoom(value1:Float = 0.015, value2:Float = 0.03)
 	{
 		if (songEnded)
 		{
@@ -555,7 +564,7 @@ class Gameplay extends State
 		hudCameraZoomTween = zoomTweenFunction(hudCamera, 1);
 	}
 
-	public function resetKeybinds(givenPlayableStrumId:Int = 1, ?newBinds:Array<Array<Int>>)
+	function resetKeybinds(givenPlayableStrumId:Int = 1, ?newBinds:Array<Array<Int>>)
 	{
 		var playerStrum = strumlines[givenPlayableStrumId]; // Prevent redundant array access
 
@@ -643,7 +652,7 @@ class Gameplay extends State
 		dance(0);
 	}
 
-	public function endSong()
+	function endSong()
 	{
 		if (songEnded)
 		{
@@ -731,11 +740,11 @@ class Gameplay extends State
 		}
 	}
 
-	public var inputKeybinds:Map<Int, StrumNote> = [];
+	var inputKeybinds:Map<Int, StrumNote> = [];
 
-	var _songPos(default, null):Float = -5000;
+	private var _songPos(default, null):Float = -5000;
 
-	public function changeScrollSpeed(newSpeed:Float, tweenDuration:Float = 1)
+	function changeScrollSpeed(newSpeed:Float, tweenDuration:Float = 1)
 	{
 		if (songSpeedTween != null)
 		{
@@ -750,7 +759,7 @@ class Gameplay extends State
 			songSpeedTween = FlxTween.tween(this, {songSpeed: newValue}, tweenDuration, {ease: FlxEase.quintOut});
 	}
 
-	public function changeSongLength(newLength:Float, tween:Bool = false)
+	function changeSongLength(newLength:Float, tween:Bool = false)
 	{
 		if (songLengthTween != null)
 		{
@@ -763,12 +772,12 @@ class Gameplay extends State
 			songLength = newLength * 1000;
 	}
 
-	public var paused:Bool = false;
+	var paused:Bool = false;
 
-	var KEY_DOWN = "keyDown";
-	var KEY_DOWN_POST = "keyDownPost";
-	var KEY_UP = "keyUp";
-	var KEY_UP_POST = "keyUpPost";
+	private var KEY_DOWN = "keyDown";
+	private var KEY_DOWN_POST = "keyDownPost";
+	private var KEY_UP = "keyUp";
+	private var KEY_UP_POST = "keyUpPost";
 
-	var CHAR_SING = "sing";
+	private var CHAR_SING = "sing";
 }

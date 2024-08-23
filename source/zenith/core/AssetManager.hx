@@ -7,59 +7,64 @@ import openfl.utils.Assets;
 
 using StringTools;
 
+/**
+ * The asset manager.
+ */
+@:final
+@:publicFields
 class AssetManager
 {
-	inline static public var ASSET_PATH = "assets";
-	inline static public var SOUND_EXT = "ogg";
+	inline static var ASSET_PATH = "assets";
+	inline static var SOUND_EXT = "ogg";
 
-	public static function image(key:String) // Classic Paths.hx vibes
+	static function image(key:String) // Classic Paths.hx vibes
 	{
 		if (!Assets.exists(key))
 			Assets.cache.setBitmapData(key, BitmapData.fromFile('$ASSET_PATH/images/$key.png'));
 		return Tools.toTexture(Assets.getBitmapData(key), key);
 	}
 
-	inline static public function xml(key:String)
+	inline static function xml(key:String)
 	{
 		return '$ASSET_PATH/$key.xml';
 	}
 
-	inline static public function audio(key:String)
+	inline static function audio(key:String)
 	{
 		return '$ASSET_PATH/$key.$SOUND_EXT';
 	}
 
-	inline static public function sound(key:String)
+	inline static function sound(key:String)
 	{
 		return audio('sounds/$key');
 	}
 
-	inline static public function music(key:String)
+	inline static function music(key:String)
 	{
 		return audio('music/$key');
 	}
 
-	inline static public function font(key:String, ext:String = "ttf")
+	inline static function font(key:String, ext:String = "ttf")
 	{
 		return '$ASSET_PATH/fonts/$key.$ext';
 	}
 
-	inline static public function inst(song:String)
+	inline static function inst(song:String)
 	{
 		return audio('data/${formatToSongPath(song)}/audio/inst');
 	}
 
-	inline static public function voices(song:String)
+	inline static function voices(song:String)
 	{
 		return audio('data/${formatToSongPath(song)}/audio/vocals');
 	}
 
-	inline static public function getSparrowAtlas(key:String):FlxAtlasFrames
+	inline static function getSparrowAtlas(key:String):FlxAtlasFrames
 	{
 		return FlxAtlasFrames.fromSparrow(image(key), sys.io.File.getContent(xml("images/" + key)));
 	}
 
-	static public function formatToSongPath(path:String)
+	static function formatToSongPath(path:String)
 	{
 		// From psych lmao
 		var invalidChars = ~/[~&\\;:<>#]/;

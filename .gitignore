@@ -4,3 +4,4 @@ chart_converter/export/*
 *.code-workspace
 .history
 .ionide
+testProjects/*

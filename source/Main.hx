@@ -16,31 +16,37 @@ typedef Transitioning =
 	var _out:Void->Void;
 }
 
+/**
+ * The main class.
+ * **WARNING**: The end of it has terrible stuff which is modifying internals which kills off the flixel debugger and openfl's key manager, for faster inputs.
+ * Watch out.
+ */
 @:access(lime.app.Application)
 @:access(lime._internal.backend.native.NativeApplication)
 @:access(lime._internal.backend.native.NativeCFFI)
 @:access(zenith.Gameplay)
 @:access(flixel.FlxGame)
+@:publicFields
 class Main extends Sprite
 {
-	static public var conductor:Conductor;
+	static var conductor:Conductor;
 
 	#if (SCRIPTING_ALLOWED && hscript)
-	static public var hscript:HScriptFrontend;
+	static var hscript:HScriptFrontend;
 	#end
 
 	static private final transitioning:Transitioning = {_in: function() {}, _out: function() {}};
 
-	static public var game:Game;
-	static public var transition:Sprite;
+	static var game:Game;
+	static var transition:Sprite;
 
-	static public var fpsTxt:TextField;
-	static public var volumeTxt:TextField;
+	static var fpsTxt:TextField;
+	static var volumeTxt:TextField;
 
-	static public var skipTransIn:Bool = false;
-	static public var skipTransOut:Bool = false;
+	static var skipTransIn:Bool = false;
+	static var skipTransOut:Bool = false;
 
-	public function new()
+	function new()
 	{
 		super();
 
@@ -92,7 +98,7 @@ class Main extends Sprite
 		___initInternalModifications();
 	}
 
-	static public function startTransition(_transIn:Bool = false, _callback:Void->Void)
+	static function startTransition(_transIn:Bool = false, _callback:Void->Void)
 	{
 		if (_transIn)
 		{
@@ -132,7 +138,7 @@ class Main extends Sprite
 	static private var fpsMax:Int = 60;
 	static private var fpsTextTimer:Float = 0;
 
-	static public function updateMain(elapsed:Float)
+	static function updateMain(elapsed:Float)
 	{
 		if (game._lostFocus && FlxG.autoPause)
 		{
@@ -140,18 +146,18 @@ class Main extends Sprite
 		}
 
 		// Framerate rework
-		fps += fps > Std.int(1 / elapsed) ? -1 : 1;
+		fps += fps > Math.floor(1 / elapsed) ? -1 : 1;
 
 		if (volumeTxt != null)
 		{
 			volumeTxt.y = (FlxG.height * FlxG.scaleMode.scale.y) - 20;
-			volumeTxt.text = (FlxG.sound.muted ? 0 : Std.int(FlxG.sound.volume * 100)) + '%';
+			volumeTxt.text = (FlxG.sound.muted ? 0 : Math.floor(FlxG.sound.volume * 100)) + '%';
 			volumeTxt.alpha -= elapsed * 2;
 		}
 
 		fpsTextTimer += elapsed;
 
-		if (SaveData.contents.graphics.showFPS && fpsTextTimer > 1)
+		if (SaveData.contents.graphics.showFPS && fpsTextTimer > 0.115)
 		{
 			if (fpsMax < fps)
 				fpsMax = fps;
@@ -163,7 +169,7 @@ class Main extends Sprite
 				+ ')\nRAM: '
 				+ flixel.util.FlxStringUtil.formatBytes(#if hl hl.Gc.stats().currentMemory #elseif cpp cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_RESERVED) #end)
 				+ ' (MEM: '
-				+ flixel.util.FlxStringUtil.formatBytes(openfl.Lib.current.stage.context3D.totalGPUMemory)
+				+ flixel.util.FlxStringUtil.formatBytes(FlxG.stage.context3D.totalGPUMemory)
 				+ ')';
 			fpsTextTimer = elapsed;
 		}
@@ -191,7 +197,7 @@ class Main extends Sprite
 		}
 	}
 
-	static function ___initInternalModifications()
+	static private function ___initInternalModifications()
 	{
 		var backend = lime.app.Application.current.__backend;
 
@@ -208,11 +214,11 @@ class Main extends Sprite
 			{
 				if (gameinst != null && gameinst == FlxG.state && !gameinst.paused)
 				{
-					gameinst.onKeyUp(Std.int(kc), km);
+					gameinst.onKeyUp(Math.floor(kc), km);
 				}
 				else
 				{
-					game.onKeyUp.dispatch(Std.int(kc), km);
+					game.onKeyUp.dispatch(Math.floor(kc), km);
 				}
 			}
 
@@ -220,11 +226,11 @@ class Main extends Sprite
 			{
 				if (gameinst != null && gameinst == FlxG.state && !gameinst.paused)
 				{
-					gameinst.onKeyDown(Std.int(kc), km);
+					gameinst.onKeyDown(Math.floor(kc), km);
 				}
 				else
 				{
-					game.onKeyDown.dispatch(Std.int(kc), km);
+					game.onKeyDown.dispatch(Math.floor(kc), km);
 				}
 
 				if (kc == KeyCode.F11)

@@ -3,6 +3,9 @@ package zenith.objects;
 import flixel.group.FlxSpriteGroup;
 import flixel.math.FlxMath;
 
+/**
+ * The health bar.
+ */
 class HealthBar extends FlxSpriteGroup
 {
 	private var __width:Int = 100;

@@ -1,17 +1,18 @@
 package zenith.core;
 
-import flixel.FlxBasic;
-
-// FlxState with HScript functionality
+/**
+ * A FlxState with hscript slapped into it.
+ */
+@:publicFields
 class State extends FlxState
 {
-	var CREATE_PRE = 'createPre';
-	var CREATE = 'create';
-	var CREATE_POST = 'createPost';
-	var UPDATE = 'update';
-	var UPDATE_POST = 'updatePost';
-	var DESTROY = 'destroy';
-	var DESTROY_POST = 'destroyPost';
+	private var CREATE_PRE = 'createPre';
+	private var CREATE = 'create';
+	private var CREATE_POST = 'createPost';
+	private var UPDATE = 'update';
+	private var UPDATE_POST = 'updatePost';
+	private var DESTROY = 'destroy';
+	private var DESTROY_POST = 'destroyPost';
 
 	override function create()
 	{
@@ -84,7 +85,7 @@ class State extends FlxState
 		FlxG.maxElapsed = 0.1;
 	}
 
-	public function switchState(nextState:FlxState)
+	function switchState(nextState:FlxState)
 	{
 		Main.startTransition(true, function()
 		{
@@ -92,7 +93,7 @@ class State extends FlxState
 		});
 	}
 
-	public function resetState()
+	function resetState()
 	{
 		Main.startTransition(true, FlxG.resetState);
 	}

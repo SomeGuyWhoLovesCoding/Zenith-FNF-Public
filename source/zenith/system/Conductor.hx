@@ -1,63 +1,67 @@
 package zenith.system;
 
+/**
+ * The conductor class. The definitive conductor class similar to legacy base game's but cooler.
+ */
+@:publicFields
 class Conductor
 {
-	var _rawStep(get, default):Float = 0;
+	private var _rawStep(get, default):Float = 0;
 
-	inline function get__rawStep():Float
+	inline private function get__rawStep():Float
 	{
 		return ((songPosition - offsetTime) / stepCrochet) + offsetStep;
 	}
 
-	var _stepPos(default, null):Float = 0;
-	var _beatPos(default, null):Float = 0;
-	var _measurePos(default, null):Float = 0;
+	private var _stepPos(default, null):Float = 0;
+	private var _beatPos(default, null):Float = 0;
+	private var _measurePos(default, null):Float = 0;
 
-	var _stepTracker(default, null):Float = 0;
-	var _beatTracker(default, null):Float = 0;
-	var _measureTracker(default, null):Float = 0;
+	private var _stepTracker(default, null):Float = 0;
+	private var _beatTracker(default, null):Float = 0;
+	private var _measureTracker(default, null):Float = 0;
 
-	var offsetTime(default, null):Float = 0;
-	var offsetStep(default, null):Float = 0;
+	private var offsetTime(default, null):Float = 0;
+	private var offsetStep(default, null):Float = 0;
 
-	public var steps(default, set):Int = 4;
+	var steps(default, set):Int = 4;
 
-	function set_steps(value:Int):Int
+	inline function set_steps(value:Int):Int
 	{
 		return steps = value;
 	}
 
-	public var beats(default, set):Int = 4;
+	var beats(default, set):Int = 4;
 
-	function set_beats(value:Int):Int
+	inline function set_beats(value:Int):Int
 	{
 		return beats = value;
 	}
 
-	public function new(initialBpm:Float = 100):Void
+	function new(initialBpm:Float = 100):Void
 	{
 		bpm = initialBpm;
 	}
 
-	inline public function reset():Void
+	inline function reset():Void
 	{
 		offsetStep = offsetTime = songPosition = 0.0;
 		changeTimeSignature(4, 4);
 	}
 
-	inline public function changeTimeSignature(newSteps:Int = 4, newBeats:Int = 4):Void
+	inline function changeTimeSignature(newSteps:Int = 4, newBeats:Int = 4):Void
 	{
 		crochet = stepCrochet * newSteps;
 		steps = newSteps;
 		beats = newBeats;
 	}
 
-	public var lastBpm(default, null):Float = 100;
-	public var bpm(default, set):Float = 100;
+	var lastBpm(default, null):Float = 100;
+	var bpm(default, set):Float = 100;
 
 	// Ensure that the bpm change executes at the right spot
 
-	inline public function executeBpmChange(newBpm:Float, position:Float):Void
+	inline function executeBpmChange(newBpm:Float, position:Float):Void
 	{
 		offsetStep += (position - offsetTime) / stepCrochet;
 		offsetTime = position;
@@ -75,7 +79,7 @@ class Conductor
 		return value;
 	}
 
-	public var songPosition(default, set):Float = 0;
+	var songPosition(default, set):Float = 0;
 
 	function set_songPosition(value:Float):Float
 	{
@@ -130,11 +134,11 @@ class Conductor
 		return value;
 	}
 
-	public var crochet(default, null):Float;
+	var crochet(default, null):Float;
 
-	public var stepCrochet(default, null):Float;
+	var stepCrochet(default, null):Float;
 
-	public var onStepHit:Float->Void;
-	public var onBeatHit:Float->Void;
-	public var onMeasureHit:Float->Void;
+	var onStepHit:Float->Void;
+	var onBeatHit:Float->Void;
+	var onMeasureHit:Float->Void;
 }

@@ -2,6 +2,9 @@ package zenith.system;
 
 import openfl.display.BitmapData;
 
+/**
+ * This is going to the shadow realms.
+ */
 class NoteskinHandler
 {
 	static public var strumNoteAnimationHolder:FlxSprite = new FlxSprite();

@@ -4,6 +4,10 @@ import flixel.text.FlxText;
 
 using StringTools;
 
+/**
+ * The title screen substate.
+ * This has yet to be finished once the options menu is implemented.
+ */
 class TitleScreenSubState extends FlxSubState
 {
 	var optionsTxt:FlxText;

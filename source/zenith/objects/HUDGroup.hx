@@ -5,20 +5,24 @@ import flixel.text.FlxText;
 import flixel.util.FlxColor;
 import flixel.math.FlxMath;
 
+/**
+ * The hud group.
+ */
 @:access(zenith.Gameplay)
 @:access(zenith.objects.HealthBar)
 @:access(flixel.FlxSprite)
 @:final
+@:publicFields
 class HUDGroup extends FlxSpriteGroup
 {
-	public var comboNums:Array<FlxSprite>;
-	public var oppIcon:HealthIcon;
-	public var plrIcon:HealthIcon;
-	public var healthBar:HealthBar;
-	public var scoreTxt:FlxText;
-	public var timeTxt:FlxText;
+	var comboNums:Array<FlxSprite>;
+	var oppIcon:HealthIcon;
+	var plrIcon:HealthIcon;
+	var healthBar:HealthBar;
+	var scoreTxt:FlxText;
+	var timeTxt:FlxText;
 
-	public function new()
+	function new()
 	{
 		super();
 
@@ -36,6 +40,7 @@ class HUDGroup extends FlxSpriteGroup
 				comboNum.active = @:bypassAccessor comboNum.moves = false;
 				comboNum.animation.add('preview', [for (i in 0...10) i], 0);
 				comboNum.animation.play('preview');
+				comboNum.alpha = 0;
 				comboNum;
 			}
 		];
@@ -83,17 +88,19 @@ class HUDGroup extends FlxSpriteGroup
 		}
 	}
 
-	public function updateScoreText()
+	function updateScoreText()
 	{
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
 
+		var game = Gameplay.instance;
+
 		scoreTxt.text = 'Score: '
-			+ Gameplay.instance.score
+			+ game.score
 			+ ' | Misses: '
-			+ Gameplay.instance.misses
+			+ game.misses
 			+ ' | Accuracy: '
-			+ (Gameplay.instance.accuracy_right == 0 ? '???' : Std.int((Gameplay.instance.accuracy_left / Gameplay.instance.accuracy_right) * 10000) * 0.01
+			+ (game.accuracy_right == 0 ? '???' : Math.floor((game.accuracy_left / game.accuracy_right) * 10000) * 0.01
 				+ '%');
 
 		#if SCRIPTING_ALLOWED
@@ -106,13 +113,17 @@ class HUDGroup extends FlxSpriteGroup
 		if (Gameplay.hideHUD || Gameplay.noCharacters)
 			return;
 
+		var game = Gameplay.instance;
+		var dad = game.dad;
+		var bf = game.bf;
+
 		healthBar.__left.makeGraphic(healthBar.__width, healthBar.__height,
-			FlxColor.fromRGB(Gameplay.instance.dad.healthColorArray[0], Gameplay.instance.dad.healthColorArray[1], Gameplay.instance.dad.healthColorArray[2]));
+			FlxColor.fromRGB(dad.healthColorArray[0], dad.healthColorArray[1], dad.healthColorArray[2]));
 		healthBar.__right.makeGraphic(healthBar.__width, healthBar.__height,
-			FlxColor.fromRGB(Gameplay.instance.bf.healthColorArray[0], Gameplay.instance.bf.healthColorArray[1], Gameplay.instance.bf.healthColorArray[2]));
+			FlxColor.fromRGB(bf.healthColorArray[0], bf.healthColorArray[1], bf.healthColorArray[2]));
 	}
 
-	public function updateRatings()
+	function updateRatings()
 	{
 		var combo = Gameplay.instance.combo;
 
@@ -123,7 +134,7 @@ class HUDGroup extends FlxSpriteGroup
 
 		for (i in 0...10)
 		{
-			var pow = Math.pow(10, i);
+			var pow = Tools.powerOf10_32[i];
 
 			if (combo <= pow && i > 2)
 			{
@@ -131,19 +142,19 @@ class HUDGroup extends FlxSpriteGroup
 			}
 
 			var comboNum = comboNums[i];
-			comboNum.animation.curAnim.curFrame = Std.int(combo / pow) % 10;
+			comboNum.animation.curAnim.curFrame = Math.floor(combo / pow) % 10;
 			@:bypassAccessor comboNum.y = 320;
 			comboNum.alpha = 1;
 		}
 	}
 
-	inline public function updateIcons()
+	inline function updateIcons()
 	{
 		plrIcon.animation.curAnim.curFrame = healthBar.value < 0.4 ? 1 : 0;
 		oppIcon.animation.curAnim.curFrame = healthBar.value > 1.6 ? 1 : 0;
 	}
 
-	var _timeTxtValue:Float = 0;
+	private var _timeTxtValue:Float = 0;
 
 	override function draw()
 	{
@@ -156,22 +167,24 @@ class HUDGroup extends FlxSpriteGroup
 			timeTxt.screenCenter(X);
 		}
 
-		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(Gameplay.instance.health, 0, healthBar.maxValue),
+		var game = Gameplay.instance;
+
+		healthBar.value = FlxMath.lerp(healthBar.value, FlxMath.bound(game.health, 0, healthBar.maxValue),
 			SaveData.contents.preferences.smoothHealth ? FlxG.elapsed * 8 : 1);
 
-		if (Gameplay.instance.startedCountdown)
+		if (game.startedCountdown)
 		{
 			oppIcon.alpha = plrIcon.alpha = healthBar.alpha = scoreTxt.alpha = timeTxt.alpha += (FlxG.elapsed * 8) * (1 - timeTxt.alpha);
 			if (Main.conductor.songPosition - _timeTxtValue > 1000)
 			{
 				_timeTxtValue = Main.conductor.songPosition;
-				timeTxt.text = Tools.formatTime(FlxMath.bound(Gameplay.instance.songLength - _timeTxtValue, 0, Gameplay.instance.songLength), true, false);
+				timeTxt.text = Tools.formatTime(FlxMath.bound(game.songLength - _timeTxtValue, 0, game.songLength), true, false);
 			}
 		}
 
 		super.draw();
 
-		var combo = Gameplay.instance.combo;
+		var combo = game.combo;
 
 		if (combo == 0)
 		{
@@ -180,13 +193,13 @@ class HUDGroup extends FlxSpriteGroup
 
 		for (i in 0...10)
 		{
-			if (combo <= Math.pow(10, i) && i > 2)
+			if (combo <= Tools.powerOf10_32[i] && i > 2)
 			{
 				break;
 			}
 
 			var comboNum = comboNums[i];
-			@:bypassAccessor comboNum.y = FlxMath.lerp(comboNum.y, 350, FlxG.elapsed * 8);
+			@:bypassAccessor comboNum.y = FlxMath.lerp(comboNum.y, 350, FlxG.elapsed * 9);
 			comboNum.alpha = FlxMath.lerp(comboNum.alpha, 0, FlxG.elapsed * 4);
 			comboNum.draw();
 		}

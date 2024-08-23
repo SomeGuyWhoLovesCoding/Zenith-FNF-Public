@@ -4,36 +4,40 @@ package zenith.scripting;
 import hscript.Interp;
 import hscript.Parser;
 
+/**
+ * The hscript file;
+ */
+@:publicFields
 class HScriptFile
 {
-	public var stringCode(default, null):String = '';
-	public var key(default, null):String = '';
-	public var path(default, null):String = '';
-	public var isFromDirectory(default, null):Bool;
-	public var directory(default, null):String;
-	public var interp(default, null):Interp;
-	public var parser(default, null):Parser;
+	var stringCode(default, null):String = '';
+	var key(default, null):String = '';
+	var path(default, null):String = '';
+	var isFromDirectory(default, null):Bool;
+	var directory(default, null):String;
+	var interp(default, null):Interp;
+	var parser(default, null):Parser;
 
-	public var mTime(default, null):Float;
+	var mTime(default, null):Float;
 
-	public function new(sourcePath:String, sourceKey:String, fromDirectory:Bool = false, directoryName:String = '')
+	function new(sourcePath:String, sourceKey:String, fromDirectory:Bool = false, directoryName:String = '')
 	{
 		isFromDirectory = fromDirectory;
 		directory = directoryName;
 		create(sourcePath, sourceKey);
 	}
 
-	inline public function getVar(variable:String)
+	inline function getVar(variable:String)
 	{
 		return @:bypassAccessor interp.variables[variable];
 	}
 
-	inline public function setVar(variable:String, value:Dynamic = null)
+	inline function setVar(variable:String, value:Dynamic = null)
 	{
 		return @:bypassAccessor interp.variables[variable] = value;
 	}
 
-	public function overwrite(sourcePath:String = "")
+	function overwrite(sourcePath:String = "")
 	{
 		// No need to overwrite the file if the contents are the same as the modified contents
 		if (stringCode != sys.io.File.getContent(path))
@@ -102,7 +106,7 @@ class HScriptFile
 		}
 	}
 
-	inline public function destroy()
+	inline function destroy()
 	{
 		interp.variables.clear();
 		interp.variables = null;

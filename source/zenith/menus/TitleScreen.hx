@@ -5,6 +5,9 @@ import flixel.tweens.FlxEase;
 import flixel.text.FlxText;
 import lime.ui.KeyCode;
 
+/**
+ * The title configurations.
+ */
 typedef TitleConfigurations =
 {
 	var bpm:Float;
@@ -14,6 +17,9 @@ typedef TitleConfigurations =
 	var titleBGScale:Float;
 }
 
+/**
+ * The title screen.
+ */
 class TitleScreen extends State
 {
 	public var introTexts:Array<Array<String>> = [

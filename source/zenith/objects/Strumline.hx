@@ -1,5 +1,8 @@
 package zenith.objects;
 
+/**
+ * The strumline.
+ */
 @:access(zenith.objects.StrumNote)
 @:access(flixel.FlxCamera)
 class Strumline extends FlxBasic

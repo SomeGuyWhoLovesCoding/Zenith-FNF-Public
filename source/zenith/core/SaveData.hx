@@ -3,6 +3,9 @@ package zenith.core;
 import lime.ui.KeyCode;
 import sys.io.File;
 
+/**
+ * The savedata system.
+ */
 class SaveData
 {
 	// Actual savedata.

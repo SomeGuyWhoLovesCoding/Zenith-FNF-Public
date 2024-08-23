@@ -3,6 +3,10 @@ package zenith.menus;
 import flixel.group.FlxSpriteGroup;
 import flixel.text.FlxText;
 
+/**
+ * The main menu state.
+ * This is unfinished.
+ */
 class MainMenu extends State
 {
 	public var bg:FlxSprite;

@@ -4,6 +4,9 @@ import flixel.math.FlxRect;
 import flixel.math.FlxMath;
 import flixel.math.FlxAngle;
 
+/**
+ * The strumnote.
+ */
 @:access(zenith.objects.NoteObject)
 @:access(zenith.Gameplay)
 @:access(flixel.FlxCamera)

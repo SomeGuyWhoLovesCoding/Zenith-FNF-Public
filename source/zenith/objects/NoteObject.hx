@@ -3,6 +3,9 @@ package zenith.objects;
 import flixel.math.FlxRect;
 import flixel.math.FlxMath;
 
+/**
+ * This is going to the shadow realms.
+ */
 class NoteObject extends FlxSprite
 {
 	// The data that is set from the chart for every time a note spawns

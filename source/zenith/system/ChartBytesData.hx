@@ -4,6 +4,9 @@ import sys.io.FileInput;
 import sys.io.FileOutput;
 import sys.io.File;
 
+/**
+ * This is going to the shadow realms.
+ */
 @:access(zenith.objects.StrumNote)
 class ChartBytesData
 {

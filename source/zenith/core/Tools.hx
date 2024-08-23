@@ -4,12 +4,30 @@ import openfl.display.BitmapData;
 import flixel.tweens.FlxTween;
 import flixel.tweens.FlxEase;
 
+/**
+ * This class contains helper functions.
+ */
+@:publicFields
 class Tools
 {
-	// GPU Texture system
+	/**
+	 * The 10 to the power of list for 32 bits.
+	 * This can help make 10^n run faster since you only have to access the value in the array.
+	 */
+	static var powerOf10_32:Array<Int> = [for (i in 0...9) Std.int(Math.pow(10, i))];
+
+	/**
+	 * The texture list for gpu caching.
+	 */
 	private static var textures:Map<String, openfl.display3D.textures.RectangleTexture> = [];
 
-	static public function toTexture(source:BitmapData, key:String):BitmapData
+	/**
+	 * Generate a texture out of a bitmapdata.
+	 * @param source 
+	 * @param key 
+	 * @return BitmapData
+	 */
+	static function toTexture(source:BitmapData, key:String):BitmapData
 	{
 		#if !hl
 		if (SaveData.contents.graphics.gpuCaching && source.readable && !lime.graphics.opengl.GL.isContextLost())
@@ -35,7 +53,12 @@ class Tools
 		return source;
 	}
 
-	static public function strumlineSwap(left:Int, right:Int):Void
+	/**
+	 * Swap strumlines.
+	 * @param left 
+	 * @param right 
+	 */
+	static function strumlineSwap(left:Int, right:Int)
 	{
 		try
 		{
@@ -52,10 +75,23 @@ class Tools
 		}
 	}
 
+	/**
+	 * The strum y tweens.
+	 */
 	private static var strumYTweens(default, null):Map<StrumNote, FlxTween> = new Map<StrumNote, FlxTween>();
+
+	/**
+	 * The strum scroll mult tweens.
+	 */
 	private static var strumScrollMultTweens(default, null):Map<StrumNote, FlxTween> = new Map<StrumNote, FlxTween>();
 
-	static public function strumlineChangeDownScroll(whichStrum:Int = -1, tween:Bool = false, tweenLength:Float = 1.0):Void
+	/**
+	 * Change downscroll for which strumline.
+	 * @param whichStrum 
+	 * @param tween 
+	 * @param tweenLength 
+	 */
+	static function strumlineChangeDownScroll(whichStrum:Int = -1, tween:Bool = false, tweenLength:Float = 1.0)
 	{
 		// Strumline
 		var strumlines = Gameplay.instance.strumlines;
@@ -111,7 +147,7 @@ class Tools
 	 * @param	showMS		Whether to show a "." after seconds aswell.
 	 * @return	A nicely formatted String, like "1:03.45".
 	 */
-	static public function formatTime(ms:Float, englishStyle:Bool, showMS:Bool):String
+	static function formatTime(ms:Float, englishStyle:Bool, showMS:Bool):String
 	{
 		// Rewritten code??? Moment when I use ChatGPT:
 		var milliseconds:Float = Math.ffloor(ms * 0.1) % 100.0;

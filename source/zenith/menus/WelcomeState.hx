@@ -3,7 +3,10 @@ package zenith.menus;
 import flixel.addons.display.FlxBackdrop;
 import flixel.text.FlxText;
 
-// Don't mind this
+/**
+ * The unused welcome state.
+ * Don't mind this.
+ */
 class WelcomeState extends State
 {
 	var exceptionString:String = 'No Error';

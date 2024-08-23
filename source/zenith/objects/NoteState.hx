@@ -3,6 +3,9 @@ package zenith.objects;
 typedef UInt8 = #if cpp cpp.UInt8 #elseif hl hl.UI8 #else Int #end;
 typedef UInt16 = #if cpp cpp.UInt16 #elseif hl hl.UI16 #else Int #end;
 
+/**
+ * This is going to the shadow realms.
+ */
 class NoteState
 {
 	inline static public var IDLE:UInt8 = 0;

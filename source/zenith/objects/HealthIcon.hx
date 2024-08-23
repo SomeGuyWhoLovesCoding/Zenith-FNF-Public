@@ -3,6 +3,9 @@ package zenith.objects;
 import flixel.math.FlxRect;
 import flixel.math.FlxMath;
 
+/**
+ * The health icon.
+ */
 @:access(flixel.FlxGame)
 class HealthIcon extends FlxSprite
 {

@@ -22,6 +22,9 @@ typedef StageFile =
 	var camera_speed:Null<Float>;
 }
 
+/**
+ * Yup. This is going to the shadow realms once I finish the character and stage system revamp.
+ */
 class StageData
 {
 	public static var forceNextDirectory:String = null;
