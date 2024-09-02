@@ -1,6 +1,7 @@
 package;
 
 import openfl.display.Sprite;
+import openfl.display.DisplayObject;
 import openfl.text.TextField;
 import openfl.text.TextFormat;
 import openfl.geom.Matrix;
@@ -18,8 +19,7 @@ typedef Transitioning =
 
 /**
  * The main class.
- * **WARNING**: The end of it has terrible stuff which is modifying internals which kills off the flixel debugger and openfl's key manager, for faster inputs.
- * Watch out.
+ * **WARNING**: The end of it is terrible. Watch out.
  */
 @:access(lime.app.Application)
 @:access(lime._internal.backend.native.NativeApplication)
@@ -197,7 +197,12 @@ class Main extends Sprite
 		}
 	}
 
-	static private function ___initInternalModifications()
+	// Get rid of hit test function because mouse memory ramp up during first move (-Bolo)
+    @:noCompletion override function __hitTest(x:Float, y:Float, shapeFlag:Bool, stack:Array<DisplayObject>, interactiveOnly:Bool, hitObject:DisplayObject):Bool return false;
+    @:noCompletion override function __hitTestHitArea(x:Float, y:Float, shapeFlag:Bool, stack:Array<DisplayObject>, interactiveOnly:Bool, hitObject:DisplayObject):Bool return false;
+    @:noCompletion override function __hitTestMask(x:Float, y:Float):Bool return false;
+
+	@:noCompletion static private function ___initInternalModifications()
 	{
 		var backend = lime.app.Application.current.__backend;
 
