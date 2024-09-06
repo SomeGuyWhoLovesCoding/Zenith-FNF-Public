@@ -18,6 +18,8 @@ import flixel.ui.*;
 import flixel.util.FlxSignal;
 // Functions to help with writing
 import zenith.scripting.HScriptFrontend.callFromAllScriptsStatic as callHScript;
+// Modpack template
+import moddable.*;
 #end
 
 #if !debug
