@@ -1,7 +1,6 @@
 package moddable;
 
 import openfl.display.BitmapData;
-import haxe.ds.StringMap;
 import haxe.io.Bytes;
 
 /**
@@ -10,27 +9,27 @@ import haxe.io.Bytes;
  */
 @:final
 @:publicFields
-class Embed
+extern class Embed
 {
     /**
      * Put your images here.
      */
-    static var img:Map<String, BitmapData> = [];
+    static var img:Map<String, BitmapData>;
 
     /**
      * Put your sounds here.
      */
-    static var snd:Map<String, BitmapData> = [];
+    static var snd:Map<String, BitmapData>;
 
     /**
      * Put your text strings here.
      * This is useful for embedding json files, xml files, etc. inside the embed list.
      */
-    static var txt:Map<String, String> = [];
+    static var txt:Map<String, String>;
 
     /**
      * Put your binary code here.
      * This is useful for embedding chart files (dk what extension I would name them) inside the embed list.
      */
-    static var bin:Map<String, Bytes> = [];
+    static var bin:Map<String, Bytes>;
 }
