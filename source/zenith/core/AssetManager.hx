@@ -121,7 +121,7 @@ class AssetManager
 
 		try
 		{
-			sys.io.File.getContent(xmlPath)
+			xmlCode = sys.io.File.getContent(xmlPath);
 		}
 		catch (e)
 		{
