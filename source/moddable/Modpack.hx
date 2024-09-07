@@ -26,14 +26,21 @@ class Modpack
 	/**
 	 * The modpack's asset embed linked to the class.
 	 */
-	var embed:EmbedInstance;
+	var embed:Embed;
 
 	private function new() {}
 
+	// What the fuck
 	static function fromFile(file:String)
 	{
-		var modpack = current;
-		modpack.embed = Type.createInstance(Module.fromString(File.getContent(file)).resolveClass("moddable.Embed"), []);
+		var source = File.getContent(file);
+		var module = Module.fromString(source);
+		var cls = module.resolveClass("Embed");
+		var embed = current.embed = new Embed();
+		embed.img = cls.img;
+		embed.snd = cls.snd;
+		embed.txt = cls.txt;
+		embed.bin = cls.bin;
 	}
 }
 
@@ -41,7 +48,7 @@ class Modpack
  * The private class of the asset embed instance from the modpack.
  */
 @:publicFields
-private class EmbedInstance
+private class Embed
 {
 	/**
 	 * Put your images here.

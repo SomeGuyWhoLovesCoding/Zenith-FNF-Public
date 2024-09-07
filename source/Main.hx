@@ -60,7 +60,7 @@ class Main extends Sprite
 		#end
 
 		// Test
-		Modpack.fromFile('script.mod');
+		Modpack.fromFile('output.mod');
 
 		// Before adding ``game``, create the transition
 
