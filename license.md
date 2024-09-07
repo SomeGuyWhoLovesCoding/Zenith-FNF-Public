@@ -4,7 +4,7 @@ Copyright (c) 2024 SomeGuyWhoLovesCoding
 
 AKA SomeGuyWhoLikesFNF, SomethingsItchy, Very Excited, or just simply Jeremiah
 
-Permission is hereby granted, free of charge, to any person obtaining a copy of this modpack (the "Modpack") and associated files (the "Files"), to post and distribute the Modpack online on websites or platforms (the "Platform"), subject to the following conditions:
+Permission is hereby granted, free of charge, to any person obtaining a copy of your FNF Zenith modpack file (the "Modpack") and associated files (the "Files"), to post and distribute the Modpack online on websites or platforms (the "Platform"), subject to the following conditions:
 
 1. **Restricted Public Posting of Source Code**  
    The source code or any underlying files of your Modpack shall not be publicly posted or distributed, either in whole or in part, on any website or publicly accessible platform.
