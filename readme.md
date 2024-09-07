@@ -14,7 +14,7 @@ Flixel: ``haxelib install flixel``
 
 Flixel Addons: ``haxelib install flixel-addons``
 
-Lime: ``haxelib install lime``
+Lime: ``haxelib install lime`` (Latest)
 
 Openfl: ``haxelib install openfl``
 
