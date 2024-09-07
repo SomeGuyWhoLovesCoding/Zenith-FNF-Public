@@ -1,10 +1,10 @@
 # Welcome!
 
-This engine offers cross-platform performance esque gameplay experience in mind and has support for CPPIA scripting as the modpack allowing you to embed your bitmaps, sounds, or just simply text files.
+This engine offers a cross-platform performance-esque gameplay experience in mind and has an entire modpacking system allowing you to embed your bitmaps, sounds, or just text files.
 
 **WARNING: This project won't be fully compatible with MacOS as it's still untested!!!**
 
-**Also, we recommend you to use latest haxe.**
+**Also, we recommend you use the latest version of haxe.**
 
 To compile on HL, [read this.](https://haxe.org/manual/target-hl-getting-started.html)
 
