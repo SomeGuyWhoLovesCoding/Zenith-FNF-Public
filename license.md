@@ -1,6 +1,7 @@
 # The License of FNF Zenith
 
-Copyright (c) 2024 SomeGuyWhoLovesCoding (AKA SomeGuyWhoLikesFNF, SomethingsItchy, Very Excited, or just simply Jeremiah)
+Copyright (c) 2024 SomeGuyWhoLovesCoding
+*AKA SomeGuyWhoLikesFNF, SomethingsItchy, Very Excited, or just simply Jeremiah*
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this modpack (the "Modpack") and associated files (the "Files"), to post and distribute the Modpack online on websites or platforms (the "Platform"), subject to the following conditions:
 
