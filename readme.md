@@ -1,6 +1,6 @@
 # Welcome!
 
-This engine offers a cross-platform performance-esque gameplay experience in mind and has an entire modpacking system allowing you to embed your bitmaps, sounds, or just text files.
+This engine offers cross-platform performance-esque gameplay in mind and has an entire modpacking system allowing you to embed your bitmaps, sounds, or just text files.
 
 **WARNING: This project won't be fully compatible with MacOS as it's still untested!!!**
 
