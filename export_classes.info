@@ -26,18 +26,42 @@ class zenith.core.AssetManager
 class zenith.Gameplay
 class zenith.core.State
 class zenith.Game
+class sys.thread.Tls
 class sys.thread._Thread.Thread_Impl_
+class sys.thread.Semaphore
 class sys.thread.NoEventLoopException
 class sys.thread.Lock
 class sys.thread._EventLoop.RegularEvent
 enum sys.thread.NextEventTime
 class sys.thread.Deque
+class sys.thread.Condition
+class sys.ssl.Socket
+class sys.ssl._Socket.SocketOutput
+class sys.ssl._Socket.SocketInput
+class sys.ssl.Key
+class sys.ssl.Digest
+class sys.ssl.Certificate
+class sys.net.UdpSocket
+class sys.net.Socket
+class sys.net._Socket.SocketOutput
+class sys.net._Socket.SocketInput
+class sys.net.Host
+class sys.net.Address
 class sys.io.Process
 class sys.io._Process.Stdout
 class sys.io._Process.Stdin
 class sys.io.FileOutput
 class sys.io.FileInput
 class sys.io.File
+class sys.db.Sqlite
+class sys.db._Sqlite.SqliteResultSet
+class sys.db._Sqlite.SqliteConnection
+class sys.db.Mysql
+class sys.db._Mysql.MysqlConnection
+class sys.db._Mysql.MysqlResultSet
+interface sys.db.ResultSet
+class sys.db._Mysql.D
+interface sys.db.Connection
 class sys.FileSystem
 class openfl.utils._internal.TouchData
 class openfl.utils._internal.Lib
@@ -342,6 +366,9 @@ class openfl._Vector.FloatVector
 class openfl._Vector.BoolVector
 interface openfl._Vector.IVector
 class openfl.Lib
+class moddable._Modpack.EmbedInstance
+class moddable.Modpack
+class moddable.Embed
 class lime.utils._UInt8ClampedArray.UInt8ClampedArray_Impl_
 class lime.utils._UInt8Array.UInt8Array_Impl_
 class lime.utils._UInt32Array.UInt32Array_Impl_
@@ -686,13 +713,16 @@ interface hscript.IHScriptCustomBehaviour
 class hscript.CustomClassHandler
 class hscript.StaticHandler
 interface hscript.IHScriptCustomConstructor
+class haxe.zip.Uncompress
 class haxe.zip.Reader
 class haxe.zip.InflateImpl
 enum haxe.zip._InflateImpl.State
 class haxe.zip._InflateImpl.Window
 class haxe.zip.HuffTools
 enum haxe.zip.Huffman
+enum haxe.zip.FlushMode
 enum haxe.zip.ExtraField
+class haxe.zip.Compress
 class haxe.xml.Printer
 class haxe.xml.Parser
 class haxe.xml.XmlParserException
@@ -702,7 +732,7 @@ class haxe.xml._Access.AttribAccess_Impl_
 class haxe.iterators.MapKeyValueIterator
 class haxe.iterators.DynamicAccessIterator
 class haxe.iterators.ArrayKeyValueIterator
-class haxe.iterators.ArrayIterator
+class haxe.io.StringInput
 class haxe.io.Path
 class haxe.io.FPHelper
 enum haxe.io.Error
@@ -710,8 +740,9 @@ class haxe.io.Eof
 enum haxe.io.Encoding
 class haxe.io.Output
 class haxe.io.BytesInput
-class haxe.io.Input
 class haxe.io.BytesBuffer
+class haxe.io.BufferInput
+class haxe.io.Input
 class haxe.format.JsonPrinter
 class haxe.format.JsonParser
 class haxe.exceptions.NotImplementedException
@@ -720,18 +751,32 @@ class haxe.ds.StringMap
 class haxe.ds._List.ListIterator
 class haxe.ds._List.ListNode
 class haxe.ds.IntMap
+class haxe.ds.GenericStack
+class haxe.ds._GenericStack.GenericStackIterator
+class haxe.ds.GenericCell
 class haxe.ds.EnumValueMap
 class haxe.ds.TreeNode
 class haxe.ds.BalancedTree
 class haxe.ds.ArraySort
+class haxe.crypto.Sha256
+class haxe.crypto.Sha1
+class haxe.crypto.Md5
+class haxe.crypto.Hmac
+enum haxe.crypto.HashMethod
+class haxe.crypto.Crc32
 class haxe.crypto.BaseCode
 class haxe.crypto.Base64
 class haxe.crypto.Adler32
+class haxe.atomic._AtomicInt.AtomicInt_Impl_
 class haxe.ValueException
+class haxe.Utf8
 class haxe._Unserializer.NullResolver
 class haxe.Unserializer
 class haxe._Unserializer.DefaultResolver
 class haxe.Timer
+class haxe.Template
+class haxe.iterators.ArrayIterator
+enum haxe._Template.TemplateExpr
 class haxe.Serializer
 class haxe.Resource
 class haxe.NativeStackTrace
@@ -994,8 +1039,17 @@ class flixel.FlxType_HSC
 interface flixel.IFlxBasic
 class flixel.FlxBasic
 interface flixel.util.IFlxDestroyable
+class cpp.vm.WeakRef
+class cpp.vm.Unsafe
+class cpp.vm.Profiler
 class cpp.vm.Gc
+class cpp.vm.ExecutionTrace
+class cpp.vm.Debugger
+class cpp.vm.ThreadInfo
+class cpp.vm.StackFrame
+class cpp.vm.Parameter
 class cpp.Lib
+class cpp.Finalizable
 class Xml
 class _Xml.XmlType_Impl_
 class _UnicodeString.UnicodeString_Impl_
@@ -1029,6 +1083,7 @@ class ManifestResources
 class Lambda
 class IntIterator
 class EReg
+class DateTools
 class Date
 class DocumentClass
 class Main
@@ -1052,11 +1107,13 @@ class cpp.Prime
 class lime.app.Module
 interface lime.app.IModule
 file ApplicationMain.hx F:\\jerem\\Downloads+\\Zenith-FNF-Public\\export\\release\\windows\\haxe\\ApplicationMain.hx
+file C:\\HaxeToolkit\\haxe\\std/DateTools.hx C:\\HaxeToolkit\\haxe\\std\\DateTools.hx
 file C:\\HaxeToolkit\\haxe\\std/IntIterator.hx C:\\HaxeToolkit\\haxe\\std\\IntIterator.hx
 file C:\\HaxeToolkit\\haxe\\std/Lambda.hx C:\\HaxeToolkit\\haxe\\std\\Lambda.hx
 file C:\\HaxeToolkit\\haxe\\std/StringTools.hx C:\\HaxeToolkit\\haxe\\std\\StringTools.hx
 file C:\\HaxeToolkit\\haxe\\std/UnicodeString.hx C:\\HaxeToolkit\\haxe\\std\\UnicodeString.hx
 file C:\\HaxeToolkit\\haxe\\std/Xml.hx C:\\HaxeToolkit\\haxe\\std\\Xml.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/Finalizable.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\Finalizable.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/Lib.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\Lib.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/Prime.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\Prime.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/_std/Date.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\Date.hx
@@ -1070,37 +1127,66 @@ file C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/Exception.hx C:\\HaxeToolkit\\haxe
 file C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/Log.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\haxe\\Log.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/NativeStackTrace.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\haxe\\NativeStackTrace.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/Resource.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\haxe\\Resource.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/Utf8.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\haxe\\Utf8.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/atomic/AtomicInt.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\haxe\\atomic\\AtomicInt.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/ds/IntMap.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\haxe\\ds\\IntMap.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/ds/ObjectMap.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\haxe\\ds\\ObjectMap.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/ds/StringMap.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\haxe\\ds\\StringMap.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/zip/Compress.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\haxe\\zip\\Compress.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/_std/haxe/zip/Uncompress.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\haxe\\zip\\Uncompress.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/FileSystem.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\FileSystem.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/db/Mysql.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\db\\Mysql.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/db/Sqlite.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\db\\Sqlite.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/io/File.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\io\\File.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/io/FileInput.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\io\\FileInput.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/io/FileOutput.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\io\\FileOutput.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/io/Process.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\io\\Process.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/net/Host.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\net\\Host.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/net/Socket.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\net\\Socket.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/net/UdpSocket.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\net\\UdpSocket.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/ssl/Certificate.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\ssl\\Certificate.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/ssl/Digest.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\ssl\\Digest.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/ssl/Key.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\ssl\\Key.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/ssl/Socket.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\ssl\\Socket.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/thread/Condition.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\thread\\Condition.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/thread/Deque.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\thread\\Deque.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/thread/Lock.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\thread\\Lock.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/thread/Mutex.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\thread\\Mutex.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/thread/Semaphore.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\thread\\Semaphore.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/thread/Thread.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\thread\\Thread.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/_std/sys/thread/Tls.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\_std\\sys\\thread\\Tls.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/vm/Debugger.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\vm\\Debugger.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/vm/ExecutionTrace.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\vm\\ExecutionTrace.hx
 file C:\\HaxeToolkit\\haxe\\std/cpp/vm/Gc.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\vm\\Gc.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/vm/Profiler.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\vm\\Profiler.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/vm/Unsafe.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\vm\\Unsafe.hx
+file C:\\HaxeToolkit\\haxe\\std/cpp/vm/WeakRef.hx C:\\HaxeToolkit\\haxe\\std\\cpp\\vm\\WeakRef.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/CallStack.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\CallStack.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/EntryPoint.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\EntryPoint.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/MainLoop.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\MainLoop.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/Serializer.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\Serializer.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/SysTools.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\SysTools.hx
+file C:\\HaxeToolkit\\haxe\\std/haxe/Template.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\Template.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/Unserializer.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\Unserializer.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/ValueException.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\ValueException.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/crypto/Adler32.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\crypto\\Adler32.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/crypto/Base64.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\crypto\\Base64.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/crypto/BaseCode.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\crypto\\BaseCode.hx
+file C:\\HaxeToolkit\\haxe\\std/haxe/crypto/Crc32.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\crypto\\Crc32.hx
+file C:\\HaxeToolkit\\haxe\\std/haxe/crypto/Hmac.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\crypto\\Hmac.hx
+file C:\\HaxeToolkit\\haxe\\std/haxe/crypto/Md5.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\crypto\\Md5.hx
+file C:\\HaxeToolkit\\haxe\\std/haxe/crypto/Sha1.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\crypto\\Sha1.hx
+file C:\\HaxeToolkit\\haxe\\std/haxe/crypto/Sha256.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\crypto\\Sha256.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/ds/ArraySort.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\ds\\ArraySort.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/ds/BalancedTree.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\ds\\BalancedTree.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/ds/EnumValueMap.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\ds\\EnumValueMap.hx
+file C:\\HaxeToolkit\\haxe\\std/haxe/ds/GenericStack.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\ds\\GenericStack.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/ds/List.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\ds\\List.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/exceptions/NotImplementedException.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\exceptions\\NotImplementedException.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/exceptions/PosException.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\exceptions\\PosException.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/format/JsonParser.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\format\\JsonParser.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/format/JsonPrinter.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\format\\JsonPrinter.hx
+file C:\\HaxeToolkit\\haxe\\std/haxe/io/BufferInput.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\io\\BufferInput.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/io/BytesBuffer.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\io\\BytesBuffer.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/io/BytesInput.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\io\\BytesInput.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/io/Eof.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\io\\Eof.hx
@@ -1108,6 +1194,7 @@ file C:\\HaxeToolkit\\haxe\\std/haxe/io/FPHelper.hx C:\\HaxeToolkit\\haxe\\std\\
 file C:\\HaxeToolkit\\haxe\\std/haxe/io/Input.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\io\\Input.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/io/Output.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\io\\Output.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/io/Path.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\io\\Path.hx
+file C:\\HaxeToolkit\\haxe\\std/haxe/io/StringInput.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\io\\StringInput.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/iterators/ArrayIterator.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\iterators\\ArrayIterator.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/iterators/ArrayKeyValueIterator.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\iterators\\ArrayKeyValueIterator.hx
 file C:\\HaxeToolkit\\haxe\\std/haxe/iterators/DynamicAccessIterator.hx C:\\HaxeToolkit\\haxe\\std\\haxe\\iterators\\DynamicAccessIterator.hx
@@ -1512,6 +1599,8 @@ file lime/utils/UInt16Array.hx F:\\haxelib\\4,3,4\\lime\\8,1,2\\src\\lime\\utils
 file lime/utils/UInt32Array.hx F:\\haxelib\\4,3,4\\lime\\8,1,2\\src\\lime\\utils\\UInt32Array.hx
 file lime/utils/UInt8Array.hx F:\\haxelib\\4,3,4\\lime\\8,1,2\\src\\lime\\utils\\UInt8Array.hx
 file lime/utils/UInt8ClampedArray.hx F:\\haxelib\\4,3,4\\lime\\8,1,2\\src\\lime\\utils\\UInt8ClampedArray.hx
+file moddable/Embed.hx F:\\jerem\\Downloads+\\Zenith-FNF-Public\\source\\moddable\\Embed.hx
+file moddable/Modpack.hx F:\\jerem\\Downloads+\\Zenith-FNF-Public\\source\\moddable\\Modpack.hx
 file openfl/Lib.hx F:\\haxelib\\4,3,4\\openfl\\9,3,3\\src\\openfl\\Lib.hx
 file openfl/Vector.hx F:\\haxelib\\4,3,4\\openfl\\9,3,3\\src\\openfl\\Vector.hx
 file openfl/desktop/Icon.hx F:\\haxelib\\4,3,4\\openfl\\9,3,3\\src\\openfl\\desktop\\Icon.hx

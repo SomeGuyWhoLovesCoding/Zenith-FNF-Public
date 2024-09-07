@@ -33,7 +33,7 @@ class AssetManager
 
 		if (!Assets.exists(key))
 		{
-			var img = Embedded.img;
+			var img = Embed.img;
 
 			if (img.exists(key))
 			{
@@ -116,8 +116,8 @@ class AssetManager
 	 */
 	static function getSparrowAtlas(key:String):FlxAtlasFrames
 	{
-		var xmlCode = "";
-		var xmlPath = xml("images/" + key);
+		var xmlCode:String = "";
+		var xmlPath:String = xml("images/" + key);
 
 		try
 		{
@@ -125,7 +125,7 @@ class AssetManager
 		}
 		catch (e)
 		{
-			var txt = Embedded.txt;
+			var txt = Embed.txt;
 			if (txt.exists(key))
 			{
 				xmlCode = txt[key];

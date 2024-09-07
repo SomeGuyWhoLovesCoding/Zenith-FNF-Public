@@ -227,8 +227,10 @@ class Gameplay extends State
 
 			if (hudGroup != null)
 			{
-				if (hudGroup.oppIcon != null) hudGroup.oppIcon.bop();
-				if (hudGroup.plrIcon != null) hudGroup.plrIcon.bop();
+				if (hudGroup.oppIcon != null)
+					hudGroup.oppIcon.bop();
+				if (hudGroup.plrIcon != null)
+					hudGroup.plrIcon.bop();
 			}
 
 			dance(curBeat);
@@ -319,7 +321,7 @@ class Gameplay extends State
 
 		songSpeed = SONG.info.speed;
 
-		//! THIS IS GOING TO BE REWRITTEN!!!
+		// ! THIS IS GOING TO BE REWRITTEN!!!
 
 		curStage = SONG.info.stage ?? 'stage';
 
@@ -691,10 +693,12 @@ class Gameplay extends State
 			if (null != whatCharacter)
 			{
 				camFollowPosTween = FlxTween.tween(camFollowPos, {
-					x: whatCharacter == gf ? _mp.x + _cpx + girlfriendCameraOffset[0] : whatCharacter == bf ? (_mp.x - 100) - _cpx -
-						boyfriendCameraOffset[0] : (_mp.x + 150) + _cpx + opponentCameraOffset[0],
+					x: whatCharacter == gf ? _mp.x + _cpx +
+					girlfriendCameraOffset[0] : whatCharacter == bf ? (_mp.x - 100) - _cpx - boyfriendCameraOffset[0] : (_mp.x
+						+ 150) + _cpx + opponentCameraOffset[0],
 					y: whatCharacter == gf ? _mp.y + _cpy + girlfriendCameraOffset[1] : whatCharacter == bf ? (_mp.y - 100) + _cpy +
-						boyfriendCameraOffset[1] : (_mp.y - 100) + _cpy + opponentCameraOffset[1]
+						boyfriendCameraOffset[1] : (_mp.y
+						- 100) + _cpy + opponentCameraOffset[1]
 				}, 1.2 * cameraSpeed, {ease: FlxEase.expoOut});
 			}
 		}

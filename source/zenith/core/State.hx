@@ -68,7 +68,7 @@ class State extends FlxState
 	override function destroy()
 	{
 		FlxG.maxElapsed = 0;
-		
+
 		#if SCRIPTING_ALLOWED
 		callHScript(DESTROY);
 		#end

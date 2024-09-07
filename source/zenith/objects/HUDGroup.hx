@@ -100,8 +100,7 @@ class HUDGroup extends FlxSpriteGroup
 			+ ' | Misses: '
 			+ game.misses
 			+ ' | Accuracy: '
-			+ (game.accuracy_right == 0 ? '???' : Math.floor((game.accuracy_left / game.accuracy_right) * 10000) * 0.01
-				+ '%');
+			+ (game.accuracy_right == 0 ? '???' : Math.floor((game.accuracy_left / game.accuracy_right) * 10000) * 0.01 + '%');
 
 		#if SCRIPTING_ALLOWED
 		Main.hscript.callFromAllScripts('onUpdateScore');

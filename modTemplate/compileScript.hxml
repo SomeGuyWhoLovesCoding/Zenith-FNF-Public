@@ -1,0 +1,5 @@
+-L openfl
+-L lime
+-L flixel
+--dce no
+--cppia output.mod
