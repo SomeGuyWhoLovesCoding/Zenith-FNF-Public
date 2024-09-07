@@ -366,9 +366,8 @@ class openfl._Vector.FloatVector
 class openfl._Vector.BoolVector
 interface openfl._Vector.IVector
 class openfl.Lib
-class moddable._Modpack.EmbedInstance
 class moddable.Modpack
-class moddable.Embed
+class moddable._Modpack.Embed
 class lime.utils._UInt8ClampedArray.UInt8ClampedArray_Impl_
 class lime.utils._UInt8Array.UInt8Array_Impl_
 class lime.utils._UInt32Array.UInt32Array_Impl_
@@ -1599,7 +1598,6 @@ file lime/utils/UInt16Array.hx F:\\haxelib\\4,3,4\\lime\\8,1,2\\src\\lime\\utils
 file lime/utils/UInt32Array.hx F:\\haxelib\\4,3,4\\lime\\8,1,2\\src\\lime\\utils\\UInt32Array.hx
 file lime/utils/UInt8Array.hx F:\\haxelib\\4,3,4\\lime\\8,1,2\\src\\lime\\utils\\UInt8Array.hx
 file lime/utils/UInt8ClampedArray.hx F:\\haxelib\\4,3,4\\lime\\8,1,2\\src\\lime\\utils\\UInt8ClampedArray.hx
-file moddable/Embed.hx F:\\jerem\\Downloads+\\Zenith-FNF-Public\\source\\moddable\\Embed.hx
 file moddable/Modpack.hx F:\\jerem\\Downloads+\\Zenith-FNF-Public\\source\\moddable\\Modpack.hx
 file openfl/Lib.hx F:\\haxelib\\4,3,4\\openfl\\9,3,3\\src\\openfl\\Lib.hx
 file openfl/Vector.hx F:\\haxelib\\4,3,4\\openfl\\9,3,3\\src\\openfl\\Vector.hx

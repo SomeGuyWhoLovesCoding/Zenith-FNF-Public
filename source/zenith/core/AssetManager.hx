@@ -33,7 +33,7 @@ class AssetManager
 
 		if (!Assets.exists(key))
 		{
-			var img = Modpack.current.embed.img;
+			var img = Modpack.embed.img;
 
 			if (img.exists(key))
 			{
@@ -125,7 +125,7 @@ class AssetManager
 		}
 		catch (e)
 		{
-			var txt = Modpack.current.embed.txt;
+			var txt = Modpack.embed.txt;
 			if (txt.exists(key))
 			{
 				xmlCode = txt[key];

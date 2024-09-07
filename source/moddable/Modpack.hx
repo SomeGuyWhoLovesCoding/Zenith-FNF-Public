@@ -26,21 +26,20 @@ class Modpack
 	/**
 	 * The modpack's asset embed linked to the class.
 	 */
-	var embed:Embed;
+	static var embed:Embed = new Embed();
 
 	private function new() {}
 
 	// What the fuck
 	static function fromFile(file:String)
 	{
-		var source = File.getContent(file);
-		var module = Module.fromString(source);
-		var cls = module.resolveClass("Embed");
-		var embed = current.embed = new Embed();
-		embed.img = cls.img;
-		embed.snd = cls.snd;
-		embed.txt = cls.txt;
-		embed.bin = cls.bin;
+		var source:String = File.getContent(file);
+		var module:Module = Module.fromString(source);
+		/*var cls = module.resolveClass("moddable.Embed");
+		embed.img = Reflect.field(cls, "img");
+		embed.snd = Reflect.field(cls, "snd");
+		embed.txt = Reflect.field(cls, "txt");
+		embed.bin = Reflect.field(cls, "bin");*/
 	}
 }
 

@@ -1,5 +1,5 @@
 export/*
-chart_converter/export/*
+modTemplate/export/*
 .vscode/*
 *.code-workspace
 .history
