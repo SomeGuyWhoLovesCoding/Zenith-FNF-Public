@@ -27,7 +27,7 @@ class AssetManager
 
 	/**
 	 * The image bitmap grabber.
-	 * If the embedded bitmap data
+	 * If the embedded bitmap data exists, it will return it.
 	 * @param key 
 	 * @throws Exception, if the asset key cannot be fetched.
 	 */
@@ -118,6 +118,7 @@ class AssetManager
 
 	/**
 	 * The sparrow atlas frames grabber.
+	 * If the xml file doesn't exist, simply get the embedded text from key.
 	 * @param key 
 	 * @return FlxAtlasFrames
 	 * @throws Exception, if the asset key cannot be fetched.
