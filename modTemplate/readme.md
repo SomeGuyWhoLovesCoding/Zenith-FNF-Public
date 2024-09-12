@@ -1,1 +1,3 @@
-This is the only public instance of a modpack file's source code. This is a template you can compile to CPPIA.
+# FNF Zenith Modpack Template
+
+The only public instance of the FNF Zenith Modpack Source Code. You can add assets to your embed.xml and run the app.

@@ -3,6 +3,8 @@ package zenith.core;
 import flixel.graphics.frames.FlxAtlasFrames;
 import openfl.display.BitmapData;
 import openfl.utils.Assets;
+import sys.FileSystem;
+import sys.io.File;
 
 using StringTools;
 
@@ -25,19 +27,24 @@ class AssetManager
 
 	/**
 	 * The image bitmap grabber.
+	 * If the embedded bitmap data
 	 * @param key 
+	 * @throws Exception, if the asset key cannot be fetched.
 	 */
 	static function image(key:String)
 	{
-		var bmp:BitmapData = null;
-
 		if (!Assets.exists(key))
 		{
-			var img = Modpack.embed.img;
+			var bmp:BitmapData = null;
+			var path:String = 'assets/images/$key.png';
 
-			if (img.exists(key))
+			if (FileSystem.exists(path))
 			{
-				bmp = img[key];
+				bmp = BitmapData.fromFile(path);
+			}
+			else
+			{
+				bmp = Modpack.readBitmapDataFromEmbed(key);
 			}
 
 			Assets.cache.setBitmapData(key, bmp);
@@ -113,6 +120,7 @@ class AssetManager
 	 * The sparrow atlas frames grabber.
 	 * @param key 
 	 * @return FlxAtlasFrames
+	 * @throws Exception, if the asset key cannot be fetched.
 	 */
 	static function getSparrowAtlas(key:String):FlxAtlasFrames
 	{
@@ -121,17 +129,19 @@ class AssetManager
 
 		try
 		{
-			xmlCode = sys.io.File.getContent(xmlPath);
+			xmlCode = File.getContent(xmlPath);
 		}
 		catch (e)
 		{
-			var txt = Modpack.embed.txt;
-			if (txt.exists(key))
+			var txt = Modpack.readTextFromEmbed(key);
+			if (txt != null)
 			{
-				xmlCode = txt[key];
+				xmlCode = txt;
 			}
 			else
-				throw('$e\n\n(There is no text file named "$xmlPath".)');
+			{
+				throw('$e\n\n(There is no text file (embedded or not) named "$xmlPath".)');
+			}
 		}
 
 		return FlxAtlasFrames.fromSparrow(image(key), xmlCode);

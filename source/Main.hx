@@ -11,6 +11,9 @@ import lime.ui.KeyCode;
 
 using StringTools;
 
+/**
+ * The transitioning structure.
+ */
 typedef Transitioning =
 {
 	var _in:Void->Void;
@@ -29,23 +32,55 @@ typedef Transitioning =
 @:publicFields
 class Main extends Sprite
 {
+	/**
+	 * The conductor.
+	 */
 	static var conductor:Conductor;
 
 	#if (SCRIPTING_ALLOWED && hscript)
 	static var hscript:HScriptFrontend;
 	#end
 
+	/**
+	 * The transitioning callbacks.
+	 */
 	static private final transitioning:Transitioning = {_in: function() {}, _out: function() {}};
 
+	/**
+	 * The game.
+	 */
 	static var game:Game;
+
+	/**
+	 * The transition.
+	 * This is coded in openfl because flixel's built-in transition is a sub-state, which interferes with the original substate.
+	 */
 	static var transition:Sprite;
 
+	/**
+	 * The framerate text.
+	 */
 	static var fpsTxt:TextField;
+
+	/**
+	 * The volume text.
+	 * This is here to replace flixel's sound tray with a simple red text.
+	 */
 	static var volumeTxt:TextField;
 
+	/**
+	 * When to skip the transition intro or not.
+	 */
 	static var skipTransIn:Bool = false;
+
+	/**
+	 * When to skip the transition outro or not.
+	 */
 	static var skipTransOut:Bool = false;
 
+	/**
+	 * Create a `Main`.
+	 */
 	function new()
 	{
 		super();
@@ -59,8 +94,7 @@ class Main extends Sprite
 		hscript.callFromAllScripts('onGameBoot');
 		#end
 
-		// Test
-		Modpack.fromFile('output.mod');
+		Modpack.fromFile('output.zfmp');
 
 		// Before adding ``game``, create the transition
 
@@ -101,6 +135,11 @@ class Main extends Sprite
 		___initInternalModifications();
 	}
 
+	/**
+	 * Start the transition with a callback.
+	 * @param _transIn 
+	 * @param _callback 
+	 */
 	static function startTransition(_transIn:Bool = false, _callback:Void->Void)
 	{
 		if (_transIn)
@@ -135,12 +174,30 @@ class Main extends Sprite
 		}
 	}
 
+	/**
+	 * Internal helper variable for the transition's y position.
+	 */
 	static private var transitionY:Float = 0;
 
+	/**
+	 * Internal helper variable for the framerate.
+	 */
 	static private var fps:Int = 60;
+
+	/**
+	 * Internal helper variable for the maximum accumulated framerate.
+	 */
 	static private var fpsMax:Int = 60;
+
+	/**
+	 * Internal helper variable for the framerate text timer.
+	 */
 	static private var fpsTextTimer:Float = 0;
 
+	/**
+	 * Update the children of `Main` in front of `game`.
+	 * @param elapsed 
+	 */
 	static function updateMain(elapsed:Float)
 	{
 		if (game._lostFocus && FlxG.autoPause)
@@ -170,7 +227,7 @@ class Main extends Sprite
 				+ ' (MAX: '
 				+ fpsMax
 				+ ')\nRAM: '
-				+ flixel.util.FlxStringUtil.formatBytes(cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_RESERVED))
+				+ flixel.util.FlxStringUtil.formatBytes(#if hl hl.Gc.stats().currentMemory #elseif cpp cpp.vm.Gc.memInfo64(cpp.vm.Gc.MEM_INFO_RESERVED) #end)
 				+ ' (MEM: '
 				+ flixel.util.FlxStringUtil.formatBytes(FlxG.stage.context3D.totalGPUMemory)
 				+ ')';
@@ -211,6 +268,9 @@ class Main extends Sprite
 	@:noCompletion override function __hitTestMask(x:Float, y:Float):Bool
 		return false;
 
+	/**
+	 * Internal function to literally modify the internals of `NativeApplication`.
+	 */
 	@:noCompletion static private function ___initInternalModifications()
 	{
 		var backend = lime.app.Application.current.__backend;

@@ -1,0 +1,20 @@
+<embed>
+	<!--Image files go here-->
+	<file name="IMG" path="assets/images/IMG.png" type="bitmap" compress="true" />
+	<file name="IMG2" path="assets/images/IMG2.png" type="bitmap" compress="false" />
+	<file name="cry_about_it" path="assets/images/cry_about_it.png" type="bitmap" compress="false" />
+	<file name="GF_assets" path="assets/images/GF_assets.png" type="bitmap" compress="false" />
+	<!--Sound files go here-->
+	<file name="breakfast" path="assets/sounds/breakfast.ogg" type="sound" />
+	<file name="breakfast_hq" path="assets/sounds/breakfast_hq.wav" type="sound" />
+	<file name="characters\BF_SGWLFNF\spritemap1" path="assets\images\characters\BF_SGWLFNF\spritemap1.png" type="bitmap" />
+	<file name="characters\BF_SGWLFNF\spritemap1.json" path="assets\images\characters\BF_SGWLFNF\spritemap1.json" />
+	<file name="characters\BF_SGWLFNF\Animation.json" path="assets\images\characters\BF_SGWLFNF\Animation.json" />
+	<!--Chart files go here-->
+	<file name="test" path="assets/music/test/chart" type="chart" />
+	<file name="bopeebo" path="assets/music/bopeebo/chart" type="chart" />
+	<!--Text files and other shit go here-->
+	<file name="readme.md" path="readme.md" />
+	<file name="why.bin" path="why.bin" />
+	<file name="why.bin" path="why.bin" />
+</embed>
